@@ -29,10 +29,21 @@ export async function getCurrentPosition(
         return null;
       }
     }
-    const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 8000, ...options });
-    return pos.coords;
-  } catch (e: any) {
-    alert("GPS Error: " + (e?.message || JSON.stringify(e)));
+    
+    try {
+      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 15000, maximumAge: 10000, ...options });
+      return pos.coords;
+    } catch (e: any) {
+      // If high accuracy times out, try low accuracy (cell towers/wifi) which is usually instant
+      try {
+        const fallbackPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 10000, maximumAge: 60000, ...options });
+        return fallbackPos.coords;
+      } catch (fallbackErr: any) {
+        alert("GPS Error: " + (fallbackErr?.message || JSON.stringify(fallbackErr)));
+        return null;
+      }
+    }
+  } catch (globalErr) {
     return null;
   }
 }

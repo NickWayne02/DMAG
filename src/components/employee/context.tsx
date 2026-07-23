@@ -167,7 +167,7 @@ export function EmployeeProvider({
   const { user } = useAuth();
   const navigate = useNavigate();
   const tr = useT();
-  const { lang } = useLanguage();
+  const { lang, tName } = useLanguage();
   const formatHM = useMemo(() => makeFormatHM(tr("unit.h"), tr("unit.m")), [tr, lang]);
 
   const persisted = useMemo(() => loadPersistedShift(), []);
@@ -605,8 +605,9 @@ export function EmployeeProvider({
 
 
 
-  const name =
-    user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник";
+  const name = tName(
+    user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник"
+  );
 
   // === Neon status accent ===
   const statusAccent =

@@ -45,6 +45,7 @@ import { ChatDialog } from "@/components/chat-dialog";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { useT, useLanguage } from "@/lib/i18n";
+import { getCurrentPosition } from "@/lib/geocode";
 import { useSettings } from "@/lib/settings";
 
 const LOCALE_MAP: Record<string, string> = {
@@ -422,7 +423,7 @@ export function EmployeeProvider({
   }
 
   async function reverseGeocodeCity(
-    coords: GeolocationCoordinates | null,
+    coords: { latitude: number; longitude: number } | null,
   ): Promise<string | null> {
     if (!coords) return null;
     try {
@@ -445,7 +446,7 @@ export function EmployeeProvider({
 
   async function ensureSiteForCity(
     city: string | null,
-    coords: GeolocationCoordinates | null,
+    coords: any | null,
   ): Promise<{ id: string; name: string } | null> {
     if (!city) return null;
     const { data: existing } = await supabase
@@ -471,7 +472,7 @@ export function EmployeeProvider({
     return created ?? null;
   }
 
-  async function commitStartWork(coords: GeolocationCoordinates | null) {
+  async function commitStartWork(coords: any | null) {
     const t = Date.now();
     setShiftStart(t);
     setShiftEnd(null);
@@ -554,32 +555,25 @@ export function EmployeeProvider({
     }
   }
 
-  function handleGpsAllow() {
+  async function handleGpsAllow() {
     if (!gpsRequest) return;
     setGpsBusy(true);
     const req = gpsRequest;
-    const finish = (coords: GeolocationCoordinates | null) => {
+    const finish = (coords: any | null) => {
       setGpsBusy(false);
       setGpsRequest(null);
       if (req.reason === "start") commitStartWork(coords);
       else commitEndShift(coords);
     };
-    if (!navigator.geolocation) {
-      toast.info(tr("toast.gpsUnavailable"));
+    
+    const pos = await getCurrentPosition();
+    if (pos) {
+      toast.success(tr("toast.gpsCaptured"));
+      finish(pos);
+    } else {
+      toast.error(tr("toast.gpsFailed"));
       finish(null);
-      return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        toast.success(tr("toast.gpsCaptured"));
-        finish(pos.coords);
-      },
-      () => {
-        toast.error(tr("toast.gpsFailed"));
-        finish(null);
-      },
-      { enableHighAccuracy: true, timeout: 8000 },
-    );
   }
 
   function handleGpsSkip() {

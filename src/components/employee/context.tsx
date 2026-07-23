@@ -472,6 +472,46 @@ export function EmployeeProvider({
     return created ?? null;
   }
 
+  function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371e3; // metres
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // in metres
+  }
+
+  async function findNearestSite(coords: any): Promise<{ id: string; name: string } | null> {
+    if (!coords?.latitude || !coords?.longitude) return null;
+    const { data: sites } = await supabase.from("sites").select("id, name, address");
+    if (!sites) return null;
+    
+    let nearestSite = null;
+    let minDistance = 1000; // Max radius 1000 meters
+
+    for (const site of sites) {
+      if (site.address && site.address.startsWith("GPS: ")) {
+        const parts = site.address.replace("GPS: ", "").split(",");
+        if (parts.length >= 2) {
+          const lat = parseFloat(parts[0]);
+          const lng = parseFloat(parts[1]);
+          const dist = getDistance(coords.latitude, coords.longitude, lat, lng);
+          if (dist < minDistance) {
+            minDistance = dist;
+            nearestSite = { id: site.id, name: site.name };
+          }
+        }
+      }
+    }
+    return nearestSite;
+  }
+
   async function commitStartWork(coords: any | null) {
     const t = Date.now();
     setShiftStart(t);
@@ -482,16 +522,32 @@ export function EmployeeProvider({
     setAutoLunchApplied(false);
     setStatus("working");
     toast.success(`${tr("shift.start")}: ${formatClock(t)}`);
-    const city = await reverseGeocodeCity(coords);
-    if (city) toast.info(city);
-    // Auto-create a Site from the detected GPS city if no site was selected
+
     let siteId = selectedSite?.id ?? null;
     let siteName = selectedSite?.name ?? null;
-    if (!siteId && city) {
-      const auto = await ensureSiteForCity(city, coords);
-      if (auto) {
-        siteId = auto.id;
-        siteName = auto.name;
+    let city = siteName;
+
+    if (!siteId && coords && !coords.fake) {
+      const nearest = await findNearestSite(coords);
+      if (nearest) {
+        siteId = nearest.id;
+        siteName = nearest.name;
+        city = nearest.name;
+        setSelectedSite(nearest);
+        toast.info(`${tr("shift.start")} - Авто-выбор: ${nearest.name}`);
+      }
+    }
+
+    if (!siteId) {
+      city = await reverseGeocodeCity(coords);
+      if (city) {
+        const auto = await ensureSiteForCity(city, coords);
+        if (auto) {
+          siteId = auto.id;
+          siteName = auto.name;
+          setSelectedSite(auto);
+          toast.info(`Создан новый объект: ${auto.name}`);
+        }
       }
     }
     if (user) {
@@ -566,9 +622,29 @@ export function EmployeeProvider({
       else commitEndShift(coords);
     };
     
-    const pos = await getCurrentPosition();
+    let pos: any = null;
+    
+    // If a site is selected, fake the GPS lock using the site's data so the real location is NOT recorded
+    if (selectedSite) {
+      if (selectedSite.address && selectedSite.address.startsWith("GPS: ")) {
+        const parts = selectedSite.address.replace("GPS: ", "").split(",");
+        pos = { latitude: parseFloat(parts[0]), longitude: parseFloat(parts[1]) };
+      } else {
+        // Fallback fake coords if the site doesn't have GPS in address
+        pos = { latitude: 0, longitude: 0 };
+      }
+      // Small artificial delay to simulate GPS lock
+      await new Promise(r => setTimeout(r, 600));
+    } else {
+      pos = await getCurrentPosition();
+    }
+
     if (pos) {
-      toast.success(tr("toast.gpsCaptured"));
+      if (selectedSite?.name) {
+        toast.success(`${tr("toast.gpsCaptured")} (${selectedSite.name})`);
+      } else {
+        toast.success(`${tr("toast.gpsCaptured")}: ${pos.latitude.toFixed(5)}, ${pos.longitude.toFixed(5)}`);
+      }
       finish(pos);
     } else {
       toast.error(tr("toast.gpsFailed"));

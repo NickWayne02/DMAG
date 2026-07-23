@@ -33,21 +33,21 @@ export async function getCurrentPosition(
     }
     
     try {
-      // Fast 5-second timeout for high accuracy
-      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 5000, maximumAge: 60000, ...options });
+      // Extremely fast 2-second timeout for high accuracy. If the GPS satellite lock is ready, it returns instantly.
+      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 2000, maximumAge: 60000, ...options });
       return pos.coords;
     } catch (e: any) {
-      // If high accuracy times out, try low accuracy allowing up to a 1-hour old cached location
+      // Fast 3-second timeout for low accuracy (network/wifi), allowing cached locations
       try {
-        const fallbackPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 15000, maximumAge: 3600000, ...options });
+        const fallbackPos = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 3000, maximumAge: 3600000, ...options });
         return fallbackPos.coords;
       } catch (fallbackErr: any) {
-        // Last resort: just ask for ANY location, no constraints
+        // Last resort: just ask for ANY native location (2 seconds)
         try {
-           const anyPos = await Geolocation.getCurrentPosition();
+           const anyPos = await Geolocation.getCurrentPosition({ timeout: 2000 });
            return anyPos.coords;
         } catch(finalErr: any) {
-           // ULTIMATE FALLBACK: IP-based Geolocation
+           // ULTIMATE FALLBACK: IP-based Geolocation (instant)
            try {
              const ipRes = await fetch("https://get.geojs.io/v1/ip/geo.json");
              if (ipRes.ok) {

@@ -1,5 +1,16 @@
 import { useState, useEffect } from "react";
-import { Settings as SettingsIcon, RotateCcw, Check, Palette, Ruler, Type, Sun, Moon, Zap, SlidersHorizontal } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  RotateCcw,
+  Check,
+  Palette,
+  Ruler,
+  Type,
+  Sun,
+  Moon,
+  Zap,
+  SlidersHorizontal,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +41,6 @@ const MODE_ICON: Record<ThemeMode, typeof Sun> = {
   custom: SlidersHorizontal,
 };
 
-
 type Props = {
   /** When set, renders as a compact icon button suitable for headers. */
   variant?: "icon" | "inline";
@@ -40,16 +50,14 @@ type Props = {
 
 export function SettingsDialog({ variant = "icon", className }: Props) {
   const t = useT();
-  const { settings, setSettings, setPanelColor, reset, activeAccent, resolvedPanels } = useSettings();
+  const { settings, setSettings, setPanelColor, reset, activeAccent, resolvedPanels } =
+    useSettings();
   const [open, setOpen] = useState(false);
-  const [customHex, setCustomHex] = useState<string>(
-    settings.customAccent ?? activeAccent.primary,
-  );
+  const [customHex, setCustomHex] = useState<string>(settings.customAccent ?? activeAccent.primary);
 
   useEffect(() => {
     setCustomHex(settings.customAccent ?? activeAccent.primary);
   }, [settings.customAccent, activeAccent.primary]);
-
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -90,9 +98,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
               <Label className="text-sm font-semibold">{t("settings.language")}</Label>
               <LanguageSwitcher />
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("settings.languageHint")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("settings.languageHint")}</p>
           </section>
 
           <div className="h-px bg-border" />
@@ -127,13 +133,10 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
 
             {settings.mode === "custom" && (
               <div className="space-y-2 rounded-xl border border-dashed border-border p-3">
-                <p className="text-xs text-muted-foreground">
-                  {t("settings.panelsHint")}
-                </p>
+                <p className="text-xs text-muted-foreground">{t("settings.panelsHint")}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {(Object.keys(PANEL_LABELS) as PanelKey[]).map((key) => {
-                    const value =
-                      settings.panelColors[key] ?? resolvedPanels[key];
+                    const value = settings.panelColors[key] ?? resolvedPanels[key];
                     return (
                       <label
                         key={key}
@@ -167,7 +170,6 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
 
           <div className="h-px bg-border" />
 
-
           {/* Accent color cluster */}
           <section className="space-y-3">
             <Label className="text-sm font-semibold flex items-center gap-2">
@@ -181,9 +183,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() =>
-                      setSettings({ accentId: p.id, customAccent: null })
-                    }
+                    onClick={() => setSettings({ accentId: p.id, customAccent: null })}
                     className={`relative rounded-xl h-16 border transition ${
                       active
                         ? "border-primary ring-2 ring-primary/40"

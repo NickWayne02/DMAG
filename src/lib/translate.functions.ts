@@ -32,7 +32,9 @@ export const translateMessage = createServerFn({ method: "POST" })
       return { translated: data.text, cached: true };
     }
 
-    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${data.sourceLang}&tl=${data.targetLang}&dt=t&q=${encodeURIComponent(data.text)}`);
+    const res = await fetch(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${data.sourceLang}&tl=${data.targetLang}&dt=t&q=${encodeURIComponent(data.text)}`,
+    );
 
     if (!res.ok) {
       return { translated: data.text, error: `gateway_${res.status}` as const };
@@ -50,14 +52,19 @@ export const translateBatch = createServerFn({ method: "POST" })
     }
     const numbered = data.items.map((t, i) => `${i + 1}. ${t.replace(/\n/g, " ")}`).join("\n");
 
-    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${data.sourceLang}&tl=${data.targetLang}&dt=t&q=${encodeURIComponent(numbered)}`);
+    const res = await fetch(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${data.sourceLang}&tl=${data.targetLang}&dt=t&q=${encodeURIComponent(numbered)}`,
+    );
 
     if (!res.ok) {
       return { translations: data.items, error: `gateway_${res.status}` as const };
     }
     const json = await res.json();
     const raw = json[0].map((item: any) => item[0]).join("");
-    const lines = raw.split(/\r?\n/).map((l: string) => l.trim()).filter(Boolean);
+    const lines = raw
+      .split(/\r?\n/)
+      .map((l: string) => l.trim())
+      .filter(Boolean);
     const map = new Map<number, string>();
     for (const line of lines) {
       const m = line.match(/^(\d+)[.)\]]\s*(.+)$/);

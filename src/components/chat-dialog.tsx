@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -204,7 +199,7 @@ function ChannelView({
           const m = payload.new as DbMessage;
           if (m.channel_type !== channelType) return;
           setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
-        }
+        },
       )
       .on(
         "postgres_changes",
@@ -218,7 +213,7 @@ function ChannelView({
           const old = payload.old as { id?: string };
           if (!old?.id) return;
           setMessages((prev) => prev.filter((x) => x.id !== old.id));
-        }
+        },
       )
       .subscribe();
 
@@ -239,9 +234,7 @@ function ChannelView({
     if (!text || !user || sending) return;
     setSending(true);
     const authorName =
-      (user.user_metadata?.full_name as string | undefined) ??
-      user.email ??
-      "Сотрудник";
+      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
     const { error } = await supabase.from("chat_messages").insert({
       channel_type: channelType,
       channel_id: channelId,
@@ -282,9 +275,7 @@ function ChannelView({
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t("chat.clearAllConfirmTitle")}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t("chat.clearAllConfirmText")}
-                </AlertDialogDescription>
+                <AlertDialogDescription>{t("chat.clearAllConfirmText")}</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
@@ -308,9 +299,7 @@ function ChannelView({
             </div>
           )}
           {!loading && messages.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-6">
-              {t("chat.noMessages")}
-            </p>
+            <p className="text-xs text-muted-foreground text-center py-6">{t("chat.noMessages")}</p>
           )}
           {messages.map((m) => (
             <MessageBubble
@@ -324,7 +313,6 @@ function ChannelView({
           ))}
         </div>
       </div>
-
 
       <div className="border-t p-3 flex items-center gap-2 shrink-0">
         <Input
@@ -405,7 +393,7 @@ function MessageBubble({
         hour: "2-digit",
         minute: "2-digit",
       }),
-    [m.created_at]
+    [m.created_at],
   );
 
   return (
@@ -436,14 +424,11 @@ function MessageBubble({
                 }`}
               >
                 <Languages className="h-3 w-3" />
-                <span>
-                  {t("chat.autoTranslated", { lang: langLabel(targetLang) })}
-                </span>
+                <span>{t("chat.autoTranslated", { lang: langLabel(targetLang) })}</span>
               </div>
               {translating && !translated ? (
                 <span className="inline-flex items-center gap-2 opacity-80 text-xs italic">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  …
+                  <Loader2 className="h-3 w-3 animate-spin" />…
                 </span>
               ) : (
                 <p className="whitespace-pre-wrap break-words text-xs opacity-90">

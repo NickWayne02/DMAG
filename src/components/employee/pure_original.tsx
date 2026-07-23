@@ -33,10 +33,7 @@ import {
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import type { ShiftDetail } from "@/lib/shift-export";
-import {
-  SiteSelectorDialog,
-  type Site,
-} from "@/components/site-selector-dialog";
+import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
 import { ChatDialog } from "@/components/chat-dialog";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -45,8 +42,15 @@ import { useT, useLanguage } from "@/lib/i18n";
 import { useSettings } from "@/lib/settings";
 
 const LOCALE_MAP: Record<string, string> = {
-  ru: "ru-RU", en: "en-US", de: "de-DE", ro: "ro-RO",
-  bg: "bg-BG", pl: "pl-PL", uk: "uk-UA", uz: "uz-UZ", tg: "tg-TJ",
+  ru: "ru-RU",
+  en: "en-US",
+  de: "de-DE",
+  ro: "ro-RO",
+  bg: "bg-BG",
+  pl: "pl-PL",
+  uk: "uk-UA",
+  uz: "uz-UZ",
+  tg: "tg-TJ",
 };
 
 const SITE_STORAGE_KEY = "dmag.selectedSite";
@@ -90,10 +94,7 @@ type GpsRequest = {
   label: string;
 };
 
-const STATUS_META: Record<
-  ShiftStatus,
-  { label: string; dotClass: string; textClass: string }
-> = {
+const STATUS_META: Record<ShiftStatus, { label: string; dotClass: string; textClass: string }> = {
   idle: {
     label: "Смена не начата",
     dotClass: "bg-white/40",
@@ -172,7 +173,9 @@ export function EmployeeMobile({
   const [lunchStart, setLunchStart] = useState<number | null>(persisted?.lunchStart ?? null);
   const [lunchAccumMs, setLunchAccumMs] = useState(persisted?.lunchAccumMs ?? 0);
   // Precise interval log for admin: each completed pause [start, end]
-  const [lunchIntervals, setLunchIntervals] = useState<Array<{ start: number; end: number }>>(persisted?.lunchIntervals ?? []);
+  const [lunchIntervals, setLunchIntervals] = useState<Array<{ start: number; end: number }>>(
+    persisted?.lunchIntervals ?? [],
+  );
   const [shiftId, setShiftId] = useState<string | null>(persisted?.shiftId ?? null);
   const [autoLunchApplied, setAutoLunchApplied] = useState(persisted?.autoLunchApplied ?? false);
   const [autoLunchAsk, setAutoLunchAsk] = useState(false);
@@ -212,7 +215,9 @@ export function EmployeeMobile({
     since.setHours(0, 0, 0, 0);
     const { data } = await supabase
       .from("shifts")
-      .select("id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals")
+      .select(
+        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals",
+      )
       .eq("user_id", user.id)
       .gte("started_at", since.toISOString())
       .order("started_at", { ascending: false });
@@ -271,8 +276,7 @@ export function EmployeeMobile({
       data.map(async (r) => {
         let thumbUrl: string | null = null;
         if (r.photo_url) {
-          const { data: signed } = await supabase
-            .storage
+          const { data: signed } = await supabase.storage
             .from("photo-reports")
             .createSignedUrl(r.photo_url, 3600);
           thumbUrl = signed?.signedUrl ?? null;
@@ -284,7 +288,7 @@ export function EmployeeMobile({
           created_at: r.created_at,
           thumbUrl,
         };
-      })
+      }),
     );
     setSiteReports(enriched);
     setSiteReportsLoading(false);
@@ -321,7 +325,16 @@ export function EmployeeMobile({
     } catch {
       /* ignore quota */
     }
-  }, [status, shiftStart, shiftEnd, lunchStart, lunchAccumMs, lunchIntervals, shiftId, autoLunchApplied]);
+  }, [
+    status,
+    shiftStart,
+    shiftEnd,
+    lunchStart,
+    lunchAccumMs,
+    lunchIntervals,
+    shiftId,
+    autoLunchApplied,
+  ]);
 
   // Load recent reports for selected site
   useEffect(() => {
@@ -334,8 +347,7 @@ export function EmployeeMobile({
     return end - shiftStart;
   }, [shiftStart, shiftEnd, now]);
 
-  const currentLunchMs =
-    status === "lunch" && lunchStart ? now - lunchStart : 0;
+  const currentLunchMs = status === "lunch" && lunchStart ? now - lunchStart : 0;
   const lunchMs = lunchAccumMs + currentLunchMs;
   const workMs = Math.max(0, totalMs - lunchMs);
 
@@ -357,10 +369,14 @@ export function EmployeeMobile({
     setStatus("lunch");
     toast.warning(tr("btn.startLunch"));
     if (shiftId) {
-      supabase.from("shifts").update({
-        status: "lunch",
-        lunch_started_at: new Date(t).toISOString(),
-      }).eq("id", shiftId).then(() => {});
+      supabase
+        .from("shifts")
+        .update({
+          status: "lunch",
+          lunch_started_at: new Date(t).toISOString(),
+        })
+        .eq("id", shiftId)
+        .then(() => {});
     }
   }
 
@@ -376,12 +392,16 @@ export function EmployeeMobile({
     setStatus("working");
     toast.success(tr("status.working"));
     if (shiftId) {
-      supabase.from("shifts").update({
-        status: "working",
-        lunch_started_at: null,
-        lunch_total_ms: newAccum,
-        lunch_intervals: newIntervals,
-      }).eq("id", shiftId).then(() => {});
+      supabase
+        .from("shifts")
+        .update({
+          status: "working",
+          lunch_started_at: null,
+          lunch_total_ms: newAccum,
+          lunch_intervals: newIntervals,
+        })
+        .eq("id", shiftId)
+        .then(() => {});
     }
   }
 
@@ -416,9 +436,7 @@ export function EmployeeMobile({
     setGpsRequest({ reason: "end", label: "Закончить смену" });
   }
 
-  async function reverseGeocodeCity(
-    coords: GeolocationCoordinates | null,
-  ): Promise<string | null> {
+  async function reverseGeocodeCity(coords: GeolocationCoordinates | null): Promise<string | null> {
     if (!coords) return null;
     try {
       const r = await fetch(
@@ -426,13 +444,7 @@ export function EmployeeMobile({
       );
       if (!r.ok) return null;
       const j = await r.json();
-      return (
-        j.city ||
-        j.locality ||
-        j.principalSubdivision ||
-        j.countryName ||
-        null
-      );
+      return j.city || j.locality || j.principalSubdivision || j.countryName || null;
     } catch {
       return null;
     }
@@ -534,17 +546,20 @@ export function EmployeeMobile({
       if (auto) extraSite = { site_id: auto.id, site_name: auto.name };
     }
     if (shiftId) {
-      await supabase.from("shifts").update({
-        status: "finished",
-        ended_at: new Date(endTs).toISOString(),
-        lunch_started_at: null,
-        lunch_total_ms: accum,
-        lunch_intervals: intervals,
-        end_lat: coords?.latitude ?? null,
-        end_lng: coords?.longitude ?? null,
-        end_city: city,
-        ...(extraSite && !selectedSite ? extraSite : {}),
-      }).eq("id", shiftId);
+      await supabase
+        .from("shifts")
+        .update({
+          status: "finished",
+          ended_at: new Date(endTs).toISOString(),
+          lunch_started_at: null,
+          lunch_total_ms: accum,
+          lunch_intervals: intervals,
+          end_lat: coords?.latitude ?? null,
+          end_lng: coords?.longitude ?? null,
+          end_city: city,
+          ...(extraSite && !selectedSite ? extraSite : {}),
+        })
+        .eq("id", shiftId);
       setShiftId(null);
     }
   }
@@ -597,11 +612,7 @@ export function EmployeeMobile({
     setTravelTime("");
   }
 
-
-
-
-  const name =
-    user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник";
+  const name = user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник";
 
   // === Neon status accent ===
   const statusAccent =
@@ -704,7 +715,10 @@ export function EmployeeMobile({
                 className={`h-2.5 w-2.5 rounded-full ${status === "working" || status === "lunch" ? "animate-pulse" : ""}`}
                 style={{ background: statusAccent.color, boxShadow: statusAccent.glow }}
               />
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--neon-text-dim)" }}>
+              <p
+                className="text-[10px] uppercase tracking-[0.2em]"
+                style={{ color: "var(--neon-text-dim)" }}
+              >
                 {tr("status.current")}
               </p>
             </div>
@@ -718,15 +732,24 @@ export function EmployeeMobile({
             {shiftStart && (
               <div className="mt-3 flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--neon-text-dim)" }}>
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em]"
+                    style={{ color: "var(--neon-text-dim)" }}
+                  >
                     {tr("shift.start")}
                   </p>
-                  <p className="text-xl font-bold tabular-nums leading-tight" style={{ color: "var(--neon-text)" }}>
+                  <p
+                    className="text-xl font-bold tabular-nums leading-tight"
+                    style={{ color: "var(--neon-text)" }}
+                  >
                     {formatClock(shiftStart)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--neon-text-dim)" }}>
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em]"
+                    style={{ color: "var(--neon-text-dim)" }}
+                  >
                     {tr("shift.worked")}
                   </p>
                   <p
@@ -748,266 +771,297 @@ export function EmployeeMobile({
             )}
           </div>
         </header>
-
         <div className="flex-1 lg:grid lg:grid-cols-2 lg:gap-8 lg:px-5">
           <div className="flex flex-col">
             {/* Action buttons — sticky neon control deck */}
-        <section
-          className="px-5 lg:px-0 grid grid-cols-2 lg:grid-cols-2 gap-3 sticky top-0 z-50 py-3 border-b lg:border-none lg:pt-5 lg:pb-0 lg:bg-transparent"
-          style={{
-            background: "color-mix(in oklab, var(--neon-bg) 85%, transparent)",
-            backdropFilter: "blur(12px)",
-            borderColor: "var(--neon-border)",
-          }}
-        >
-          <StatusButton
-            tone="lime"
-            icon={<Rocket className="h-5 w-5" />}
-            label={tr("btn.startWork")}
-            active={status === "working"}
-            disabled={status === "working" || status === "lunch"}
-            onClick={startWork}
-          />
-          <StatusButton
-            tone="amber"
-            icon={<Pause className="h-5 w-5" />}
-            label={tr("btn.startLunch")}
-            active={status === "lunch"}
-            disabled={status !== "working"}
-            onClick={startLunch}
-          />
-          <StatusButton
-            tone="cyan"
-            icon={<PlayCircle className="h-5 w-5" />}
-            label={tr("btn.endLunch")}
-            disabled={status !== "lunch"}
-            onClick={endLunch}
-          />
-          <StatusButton
-            tone="red"
-            icon={<PowerOff className="h-5 w-5" />}
-            label={tr("btn.endShift")}
-            disabled={status !== "working" && status !== "lunch"}
-            onClick={endShift}
-          />
-        </section>
-
-        {/* Travel time + object */}
-        <section className="px-5 lg:px-0 mt-5 space-y-3">
-          <button
-            type="button"
-            onClick={() => setSiteOpen(true)}
-            className="w-full text-left"
-          >
-            <NeonCard>
-              <div className="flex items-center gap-3">
-                <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
-                  <Navigation className="h-5 w-5" />
-                </NeonIcon>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
-                    {tr("site.title")}
-                  </p>
-                  <p className="text-xs truncate" style={{ color: "var(--neon-text-dim)" }}>
-                    {selectedSite
-                      ? selectedSite.address
-                        ? `${selectedSite.name} · ${selectedSite.address}`
-                        : selectedSite.name
-                      : tr("site.notSelected")}
-                  </p>
-                </div>
-                <ChevronRight className="h-5 w-5 shrink-0" style={{ color: "var(--neon-text-dim)" }} />
-              </div>
-            </NeonCard>
-          </button>
-
-          <NeonCard>
-            <div className="flex items-center gap-3">
-              <NeonIcon color="var(--neon-violet)" glow="var(--neon-glow-violet)">
-                <CarFront className="h-5 w-5" />
-              </NeonIcon>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
-                  {tr("travel.title")}
-                </p>
-                <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
-                  {tr("travel.hint")}
-                </p>
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Input
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder={tr("travel.placeholder")}
-                value={travelTime}
-                onChange={(e) => setTravelTime(e.target.value.replace(/[^\d]/g, ""))}
-                className="h-11 rounded-xl border-0 text-white placeholder:text-white/40"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  boxShadow: "inset 0 0 0 1px var(--neon-border)",
-                }}
-              />
-              <span className="text-sm shrink-0" style={{ color: "var(--neon-text-dim)" }}>
-                {tr("travel.unit")}
-              </span>
-            </div>
-          </NeonCard>
-
-          {status === "finished" && (
-            <NeonCard glowColor="var(--neon-cyan)">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 shrink-0" style={{ color: "var(--neon-cyan)", filter: "drop-shadow(var(--neon-glow-cyan))" }} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
-                    {tr("finished.title")}
-                  </p>
-                  <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
-                    {tr("finished.commercial")}: {formatHM(workMs)}
-                    {travelTime ? ` · ${tr("finished.travel")} ${travelTime} ${tr("travel.unit")}` : ""}
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-xl border-0 text-white"
-                  style={{
-                    background: "rgba(34,211,238,0.15)",
-                    boxShadow: "inset 0 0 0 1px var(--neon-cyan)",
-                  }}
-                  onClick={resetShift}
-                >
-                  {tr("finished.new")}
-                </Button>
-              </div>
-            </NeonCard>
-          )}
-        </section>
-
-        {/* Photo report — neon CTA */}
-        <section className="px-5 lg:px-0 mt-5">
-          <button
-            type="button"
-            onClick={openReport}
-            className="w-full rounded-2xl p-4 flex items-center gap-3 min-h-[88px] active:scale-[0.99] transition text-left"
-            style={{
-              background: "linear-gradient(120deg, var(--neon-magenta), var(--neon-violet) 60%, var(--neon-cyan))",
-              color: "#fff",
-              boxShadow: "0 12px 40px -10px rgba(236,72,153,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset",
-            }}
-          >
-            <div
-              className="h-12 w-12 rounded-2xl grid place-items-center shrink-0"
-              style={{ background: "rgba(0,0,0,0.35)", boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)" }}
+            <section
+              className="px-5 lg:px-0 grid grid-cols-2 lg:grid-cols-2 gap-3 sticky top-0 z-50 py-3 border-b lg:border-none lg:pt-5 lg:pb-0 lg:bg-transparent"
+              style={{
+                background: "color-mix(in oklab, var(--neon-bg) 85%, transparent)",
+                backdropFilter: "blur(12px)",
+                borderColor: "var(--neon-border)",
+              }}
             >
-              <ScanLine className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-base">{tr("report.create")}</p>
-              <p className="text-xs opacity-90 truncate">
-                {selectedSite
-                  ? `${tr("report.linkedTo")}: ${selectedSite.name}`
-                  : tr("report.selectFirst")}
-              </p>
-            </div>
-            <ChevronRight className="h-5 w-5 opacity-80 shrink-0" />
-          </button>
-        </section>
-        </div> {/* End Left Column */}
+              <StatusButton
+                tone="lime"
+                icon={<Rocket className="h-5 w-5" />}
+                label={tr("btn.startWork")}
+                active={status === "working"}
+                disabled={status === "working" || status === "lunch"}
+                onClick={startWork}
+              />
+              <StatusButton
+                tone="amber"
+                icon={<Pause className="h-5 w-5" />}
+                label={tr("btn.startLunch")}
+                active={status === "lunch"}
+                disabled={status !== "working"}
+                onClick={startLunch}
+              />
+              <StatusButton
+                tone="cyan"
+                icon={<PlayCircle className="h-5 w-5" />}
+                label={tr("btn.endLunch")}
+                disabled={status !== "lunch"}
+                onClick={endLunch}
+              />
+              <StatusButton
+                tone="red"
+                icon={<PowerOff className="h-5 w-5" />}
+                label={tr("btn.endShift")}
+                disabled={status !== "working" && status !== "lunch"}
+                onClick={endShift}
+              />
+            </section>
 
-        <div className="flex flex-col lg:pt-5">
-          {/* Recent site reports */}
-          <section className="px-5 lg:px-0 mt-5 lg:mt-0">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold flex items-center gap-2" style={{ color: "var(--neon-text)" }}>
-              <Sparkles className="h-4 w-4" style={{ color: "var(--neon-violet)", filter: "drop-shadow(var(--neon-glow-violet))" }} />
-              {tr("report.recent")}
-            </p>
-            {siteReportsLoading && <Loader2 className="h-4 w-4 animate-spin" style={{ color: "var(--neon-cyan)" }} />}
-          </div>
+            {/* Travel time + object */}
+            <section className="px-5 lg:px-0 mt-5 space-y-3">
+              <button type="button" onClick={() => setSiteOpen(true)} className="w-full text-left">
+                <NeonCard>
+                  <div className="flex items-center gap-3">
+                    <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
+                      <Navigation className="h-5 w-5" />
+                    </NeonIcon>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
+                        {tr("site.title")}
+                      </p>
+                      <p className="text-xs truncate" style={{ color: "var(--neon-text-dim)" }}>
+                        {selectedSite
+                          ? selectedSite.address
+                            ? `${selectedSite.name} · ${selectedSite.address}`
+                            : selectedSite.name
+                          : tr("site.notSelected")}
+                      </p>
+                    </div>
+                    <ChevronRight
+                      className="h-5 w-5 shrink-0"
+                      style={{ color: "var(--neon-text-dim)" }}
+                    />
+                  </div>
+                </NeonCard>
+              </button>
 
-          {siteReports.length === 0 && !siteReportsLoading && (
-            <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>{tr("report.empty")}</p>
-          )}
+              <NeonCard>
+                <div className="flex items-center gap-3">
+                  <NeonIcon color="var(--neon-violet)" glow="var(--neon-glow-violet)">
+                    <CarFront className="h-5 w-5" />
+                  </NeonIcon>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
+                      {tr("travel.title")}
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
+                      {tr("travel.hint")}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <Input
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder={tr("travel.placeholder")}
+                    value={travelTime}
+                    onChange={(e) => setTravelTime(e.target.value.replace(/[^\d]/g, ""))}
+                    className="h-11 rounded-xl border-0 text-white placeholder:text-white/40"
+                    style={{
+                      background: "rgba(255,255,255,0.05)",
+                      boxShadow: "inset 0 0 0 1px var(--neon-border)",
+                    }}
+                  />
+                  <span className="text-sm shrink-0" style={{ color: "var(--neon-text-dim)" }}>
+                    {tr("travel.unit")}
+                  </span>
+                </div>
+              </NeonCard>
 
-          <div className="space-y-2">
-            {siteReports.map((r) => (
-              <div
-                key={r.id}
-                className="flex items-center gap-3 rounded-2xl p-3"
+              {status === "finished" && (
+                <NeonCard glowColor="var(--neon-cyan)">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2
+                      className="h-5 w-5 shrink-0"
+                      style={{
+                        color: "var(--neon-cyan)",
+                        filter: "drop-shadow(var(--neon-glow-cyan))",
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
+                        {tr("finished.title")}
+                      </p>
+                      <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
+                        {tr("finished.commercial")}: {formatHM(workMs)}
+                        {travelTime
+                          ? ` · ${tr("finished.travel")} ${travelTime} ${tr("travel.unit")}`
+                          : ""}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl border-0 text-white"
+                      style={{
+                        background: "rgba(34,211,238,0.15)",
+                        boxShadow: "inset 0 0 0 1px var(--neon-cyan)",
+                      }}
+                      onClick={resetShift}
+                    >
+                      {tr("finished.new")}
+                    </Button>
+                  </div>
+                </NeonCard>
+              )}
+            </section>
+
+            {/* Photo report — neon CTA */}
+            <section className="px-5 lg:px-0 mt-5">
+              <button
+                type="button"
+                onClick={openReport}
+                className="w-full rounded-2xl p-4 flex items-center gap-3 min-h-[88px] active:scale-[0.99] transition text-left"
                 style={{
-                  background: "var(--neon-surface)",
-                  boxShadow: "inset 0 0 0 1px var(--neon-border)",
+                  background:
+                    "linear-gradient(120deg, var(--neon-magenta), var(--neon-violet) 60%, var(--neon-cyan))",
+                  color: "#fff",
+                  boxShadow:
+                    "0 12px 40px -10px rgba(236,72,153,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset",
                 }}
               >
                 <div
-                  className="h-14 w-14 rounded-xl grid place-items-center shrink-0 overflow-hidden"
-                  style={{ background: "var(--neon-surface-2)" }}
+                  className="h-12 w-12 rounded-2xl grid place-items-center shrink-0"
+                  style={{
+                    background: "rgba(0,0,0,0.35)",
+                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)",
+                  }}
                 >
-                  {r.thumbUrl ? (
-                    <img src={r.thumbUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <ScanLine className="h-5 w-5" style={{ color: "var(--neon-text-dim)" }} />
-                  )}
+                  <ScanLine className="h-6 w-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs truncate" style={{ color: "var(--neon-text)" }}>
-                    {r.description || tr("report.noDesc")}
+                  <p className="font-bold text-base">{tr("report.create")}</p>
+                  <p className="text-xs opacity-90 truncate">
+                    {selectedSite
+                      ? `${tr("report.linkedTo")}: ${selectedSite.name}`
+                      : tr("report.selectFirst")}
                   </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span
-                      className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                      style={{
-                        backgroundColor: CRIT_META[r.criticality].color + "22",
-                        color: CRIT_META[r.criticality].color,
-                        boxShadow: `0 0 12px ${CRIT_META[r.criticality].color}55`,
-                      }}
-                    >
-                      {tr(`crit.${r.criticality}`)}
-                    </span>
-                    <span className="text-[10px]" style={{ color: "var(--neon-text-dim)" }}>
-                      {new Date(r.created_at).toLocaleDateString(LOCALE_MAP[lang] ?? "ru-RU", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
                 </div>
+                <ChevronRight className="h-5 w-5 opacity-80 shrink-0" />
+              </button>
+            </section>
+          </div>{" "}
+          {/* End Left Column */}
+          <div className="flex flex-col lg:pt-5">
+            {/* Recent site reports */}
+            <section className="px-5 lg:px-0 mt-5 lg:mt-0">
+              <div className="flex items-center justify-between mb-2">
+                <p
+                  className="text-sm font-semibold flex items-center gap-2"
+                  style={{ color: "var(--neon-text)" }}
+                >
+                  <Sparkles
+                    className="h-4 w-4"
+                    style={{
+                      color: "var(--neon-violet)",
+                      filter: "drop-shadow(var(--neon-glow-violet))",
+                    }}
+                  />
+                  {tr("report.recent")}
+                </p>
+                {siteReportsLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin" style={{ color: "var(--neon-cyan)" }} />
+                )}
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* Chat tile — single, full-width neon */}
-        <section className="px-5 lg:px-0 mt-4">
-          <button
-            type="button"
-            onClick={() => setChatOpen(true)}
-            className="w-full rounded-2xl p-4 flex items-center gap-3 min-h-[72px] active:scale-[0.98] transition text-left"
-            style={{
-              background: "var(--neon-surface)",
-              boxShadow: "inset 0 0 0 1px var(--neon-border), 0 0 24px -8px rgba(34,211,238,0.35)",
-            }}
-          >
-            <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
-              <MessagesSquare className="h-5 w-5" />
-            </NeonIcon>
-            <span className="text-sm font-semibold" style={{ color: "var(--neon-text)" }}>
-              {tr("tile.chat")}
-            </span>
-            <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
-          </button>
-        </section>
-        </div> {/* End Right Column */}
-        </div> {/* End Grid */}
+              {siteReports.length === 0 && !siteReportsLoading && (
+                <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
+                  {tr("report.empty")}
+                </p>
+              )}
 
-        <footer className="mt-auto py-6 px-5 text-center text-xs" style={{ color: "var(--neon-text-dim)" }}>
+              <div className="space-y-2">
+                {siteReports.map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-center gap-3 rounded-2xl p-3"
+                    style={{
+                      background: "var(--neon-surface)",
+                      boxShadow: "inset 0 0 0 1px var(--neon-border)",
+                    }}
+                  >
+                    <div
+                      className="h-14 w-14 rounded-xl grid place-items-center shrink-0 overflow-hidden"
+                      style={{ background: "var(--neon-surface-2)" }}
+                    >
+                      {r.thumbUrl ? (
+                        <img src={r.thumbUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <ScanLine className="h-5 w-5" style={{ color: "var(--neon-text-dim)" }} />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs truncate" style={{ color: "var(--neon-text)" }}>
+                        {r.description || tr("report.noDesc")}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          style={{
+                            backgroundColor: CRIT_META[r.criticality].color + "22",
+                            color: CRIT_META[r.criticality].color,
+                            boxShadow: `0 0 12px ${CRIT_META[r.criticality].color}55`,
+                          }}
+                        >
+                          {tr(`crit.${r.criticality}`)}
+                        </span>
+                        <span className="text-[10px]" style={{ color: "var(--neon-text-dim)" }}>
+                          {new Date(r.created_at).toLocaleDateString(LOCALE_MAP[lang] ?? "ru-RU", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Chat tile — single, full-width neon */}
+            <section className="px-5 lg:px-0 mt-4">
+              <button
+                type="button"
+                onClick={() => setChatOpen(true)}
+                className="w-full rounded-2xl p-4 flex items-center gap-3 min-h-[72px] active:scale-[0.98] transition text-left"
+                style={{
+                  background: "var(--neon-surface)",
+                  boxShadow:
+                    "inset 0 0 0 1px var(--neon-border), 0 0 24px -8px rgba(34,211,238,0.35)",
+                }}
+              >
+                <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
+                  <MessagesSquare className="h-5 w-5" />
+                </NeonIcon>
+                <span className="text-sm font-semibold" style={{ color: "var(--neon-text)" }}>
+                  {tr("tile.chat")}
+                </span>
+                <ChevronRight
+                  className="h-5 w-5 ml-auto"
+                  style={{ color: "var(--neon-text-dim)" }}
+                />
+              </button>
+            </section>
+          </div>{" "}
+          {/* End Right Column */}
+        </div>{" "}
+        {/* End Grid */}
+        <footer
+          className="mt-auto py-6 px-5 text-center text-xs"
+          style={{ color: "var(--neon-text-dim)" }}
+        >
           {tr("footer.tagline")}
         </footer>
       </div>
-
 
       {/* GPS request dialog — only fired on Start / End */}
       <Dialog
@@ -1021,12 +1075,8 @@ export function EmployeeMobile({
             <div className="mx-auto mb-2 h-12 w-12 rounded-2xl bg-primary/10 text-primary grid place-items-center">
               <Navigation className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-center">
-              {tr("gps.title")}
-            </DialogTitle>
-            <DialogDescription className="text-center">
-              {tr("gps.desc")}
-            </DialogDescription>
+            <DialogTitle className="text-center">{tr("gps.title")}</DialogTitle>
+            <DialogDescription className="text-center">{tr("gps.desc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2">
             <Button
@@ -1037,11 +1087,7 @@ export function EmployeeMobile({
             >
               {tr("gps.skip")}
             </Button>
-            <Button
-              className="h-12 rounded-xl"
-              onClick={handleGpsAllow}
-              disabled={gpsBusy}
-            >
+            <Button className="h-12 rounded-xl" onClick={handleGpsAllow} disabled={gpsBusy}>
               {gpsBusy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {tr("gps.allow")}
             </Button>
@@ -1057,9 +1103,7 @@ export function EmployeeMobile({
               <Pause className="h-6 w-6" />
             </div>
             <DialogTitle className="text-center">{tr("autolunch.title")}</DialogTitle>
-            <DialogDescription className="text-center">
-              {tr("autolunch.desc")}
-            </DialogDescription>
+            <DialogDescription className="text-center">{tr("autolunch.desc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter className="grid grid-cols-1 gap-2 sm:grid-cols-1">
             <Button className="h-12 rounded-xl" onClick={handleAutoLunchSubtract}>
@@ -1124,13 +1168,13 @@ function Metric({
         boxShadow: "inset 0 0 0 1px var(--neon-border)",
       }}
     >
-      <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--neon-text-dim)" }}>
+      <p
+        className="text-[10px] uppercase tracking-[0.2em]"
+        style={{ color: "var(--neon-text-dim)" }}
+      >
         {label}
       </p>
-      <p
-        className="text-sm font-bold tabular-nums"
-        style={{ color: t.color, textShadow: t.glow }}
-      >
+      <p className="text-sm font-bold tabular-nums" style={{ color: t.color, textShadow: t.glow }}>
         {value}
       </p>
     </div>
@@ -1176,7 +1220,9 @@ function StatusButton({
   };
   const textShadow = mode === "neon" ? t.glow : "none";
   const disabledBg =
-    mode === "light" ? "color-mix(in oklab, var(--foreground) 6%, transparent)" : "rgba(255,255,255,0.03)";
+    mode === "light"
+      ? "color-mix(in oklab, var(--foreground) 6%, transparent)"
+      : "rgba(255,255,255,0.03)";
 
   return (
     <button
@@ -1186,11 +1232,11 @@ function StatusButton({
       className={`rounded-2xl p-4 min-h-[96px] flex flex-col items-start justify-between text-left font-semibold transition
         ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-[0.98]"}`}
       style={{
-        background: disabled ? disabledBg : bgByMode[mode] ?? bgByMode.dark,
+        background: disabled ? disabledBg : (bgByMode[mode] ?? bgByMode.dark),
         color: disabled ? "var(--neon-text-dim)" : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"
-          : shadowByMode[mode] ?? shadowByMode.dark,
+          : (shadowByMode[mode] ?? shadowByMode.dark),
         textShadow,
       }}
     >
@@ -1200,13 +1246,7 @@ function StatusButton({
   );
 }
 
-function NeonCard({
-  children,
-  glowColor,
-}: {
-  children: React.ReactNode;
-  glowColor?: string;
-}) {
+function NeonCard({ children, glowColor }: { children: React.ReactNode; glowColor?: string }) {
   return (
     <div
       className="rounded-2xl p-4"
@@ -1244,4 +1284,3 @@ function NeonIcon({
     </div>
   );
 }
-

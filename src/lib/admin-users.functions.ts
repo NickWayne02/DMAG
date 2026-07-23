@@ -26,12 +26,7 @@ async function assertAdminOrSuper(supabase: any, userId: string) {
 export const adminCreateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: {
-      email: string;
-      password: string;
-      full_name?: string;
-      role: AppRole;
-    }) => data,
+    (data: { email: string; password: string; full_name?: string; role: AppRole }) => data,
   )
   .handler(async ({ data, context }) => {
     await assertAdminOrSuper(context.supabase, context.userId);
@@ -72,19 +67,14 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
 /** Reset a user's password and/or email. Super_admin only. */
 export const adminUpdateCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: { user_id: string; email?: string; password?: string }) => data,
-  )
+  .inputValidator((data: { user_id: string; email?: string; password?: string }) => data)
   .handler(async ({ data, context }) => {
     await assertSuperAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const patch: Record<string, unknown> = { email_confirm: true };
     if (data.email) patch.email = data.email;
     if (data.password) patch.password = data.password;
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(
-      data.user_id,
-      patch,
-    );
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, patch);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

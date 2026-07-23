@@ -34,7 +34,6 @@ function loginToEmail(login: string): string {
   return v.includes("@") ? v : `${v}@dmag.de`;
 }
 
-
 function AuthPage() {
   const navigate = useNavigate();
   const t = useT();
@@ -94,7 +93,6 @@ function AuthPage() {
     window.sessionStorage.removeItem("dmag_dev_admin");
     window.sessionStorage.removeItem("dmag_super_admin");
 
-
     setBusy(true);
     try {
       const email = loginToEmail(trimmedLogin);
@@ -129,14 +127,8 @@ function AuthPage() {
           <SettingsDialog />
         </div>
         <div className="flex flex-col items-center mb-6">
-          <img
-            src={dmagLogo}
-            alt="DMAG"
-            className="w-[140px] h-auto rounded-xl shadow-md"
-          />
-          <p className="mt-3 text-sm text-muted-foreground">
-            Maschinen und Anlagenbau
-          </p>
+          <img src={dmagLogo} alt="DMAG" className="w-[140px] h-auto rounded-xl shadow-md" />
+          <p className="mt-3 text-sm text-muted-foreground">Maschinen und Anlagenbau</p>
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "signup")}>

@@ -3,27 +3,69 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 export type AccentPreset = {
   id: string;
   label: string;
-  primary: string;   // hex, used for --primary + shadcn primary
-  cyan: string;      // neon accent 1
-  magenta: string;   // neon accent 2
-  violet: string;    // neon accent 3
+  primary: string; // hex, used for --primary + shadcn primary
+  cyan: string; // neon accent 1
+  magenta: string; // neon accent 2
+  violet: string; // neon accent 3
 };
 
 export const ACCENT_PRESETS: AccentPreset[] = [
-  { id: "dmag",     label: "DMAG Blue",   primary: "#0D47A1", cyan: "#42A5F5", magenta: "#1565C0", violet: "#0a2351" },
-  { id: "sunset",   label: "Sunset",      primary: "#F97316", cyan: "#fbbf24", magenta: "#ef4444", violet: "#9a3412" },
-  { id: "emerald",  label: "Emerald",     primary: "#10B981", cyan: "#34d399", magenta: "#14b8a6", violet: "#064e3b" },
-  { id: "royal",    label: "Royal",       primary: "#7C3AED", cyan: "#22d3ee", magenta: "#e879f9", violet: "#4c1d95" },
-  { id: "ruby",     label: "Ruby",        primary: "#E11D48", cyan: "#fb7185", magenta: "#f43f5e", violet: "#881337" },
-  { id: "graphite", label: "Graphite",    primary: "#334155", cyan: "#94a3b8", magenta: "#64748b", violet: "#1e293b" },
+  {
+    id: "dmag",
+    label: "DMAG Blue",
+    primary: "#0D47A1",
+    cyan: "#42A5F5",
+    magenta: "#1565C0",
+    violet: "#0a2351",
+  },
+  {
+    id: "sunset",
+    label: "Sunset",
+    primary: "#F97316",
+    cyan: "#fbbf24",
+    magenta: "#ef4444",
+    violet: "#9a3412",
+  },
+  {
+    id: "emerald",
+    label: "Emerald",
+    primary: "#10B981",
+    cyan: "#34d399",
+    magenta: "#14b8a6",
+    violet: "#064e3b",
+  },
+  {
+    id: "royal",
+    label: "Royal",
+    primary: "#7C3AED",
+    cyan: "#22d3ee",
+    magenta: "#e879f9",
+    violet: "#4c1d95",
+  },
+  {
+    id: "ruby",
+    label: "Ruby",
+    primary: "#E11D48",
+    cyan: "#fb7185",
+    magenta: "#f43f5e",
+    violet: "#881337",
+  },
+  {
+    id: "graphite",
+    label: "Graphite",
+    primary: "#334155",
+    cyan: "#94a3b8",
+    magenta: "#64748b",
+    violet: "#1e293b",
+  },
 ];
 
 export type ThemeMode = "light" | "dark" | "neon" | "custom";
 
 export const THEME_MODES: { id: ThemeMode; label: string }[] = [
-  { id: "light",  label: "Light" },
-  { id: "dark",   label: "Dark" },
-  { id: "neon",   label: "Neon" },
+  { id: "light", label: "Light" },
+  { id: "dark", label: "Dark" },
+  { id: "neon", label: "Neon" },
   { id: "custom", label: "Custom" },
 ];
 
@@ -88,10 +130,10 @@ export const THEME_BASE_COLORS: Record<Exclude<ThemeMode, "custom">, Required<Pa
 export type Settings = {
   mode: ThemeMode;
   accentId: string;
-  customAccent: string | null;         // hex if user picked custom accent color
-  panelColors: PanelColors;            // per-panel overrides (used when mode === "custom")
-  scale: number;                       // 0.85 – 1.25
-  radius: number;                      // 0.25 – 1.5 (rem)
+  customAccent: string | null; // hex if user picked custom accent color
+  panelColors: PanelColors; // per-panel overrides (used when mode === "custom")
+  scale: number; // 0.85 – 1.25
+  radius: number; // 0.25 – 1.5 (rem)
   density: "compact" | "cozy" | "spacious";
 };
 
@@ -122,7 +164,13 @@ const SettingsCtx = createContext<Ctx | null>(null);
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const m = hex.trim().replace(/^#/, "");
   if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(m)) return null;
-  const full = m.length === 3 ? m.split("").map((c) => c + c).join("") : m;
+  const full =
+    m.length === 3
+      ? m
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : m;
   const n = parseInt(full, 16);
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
@@ -174,10 +222,22 @@ function applySettings(s: Settings, accent: AccentPreset) {
   else if (s.mode !== "custom") panels.primary = accent.primary;
 
   // Dynamically tint neutral backgrounds using the primary color for a cohesive theme canvas
-  const mixBg = s.mode === "custom" ? panels.background : `color-mix(in oklab, ${panels.background} 96%, ${panels.primary})`;
-  const mixCard = s.mode === "custom" ? panels.card : `color-mix(in oklab, ${panels.card} 95%, ${panels.primary})`;
-  const mixMuted = s.mode === "custom" ? panels.muted : `color-mix(in oklab, ${panels.muted} 90%, ${panels.primary})`;
-  const mixBorder = s.mode === "custom" ? panels.border : `color-mix(in oklab, ${panels.border} 80%, ${panels.primary})`;
+  const mixBg =
+    s.mode === "custom"
+      ? panels.background
+      : `color-mix(in oklab, ${panels.background} 96%, ${panels.primary})`;
+  const mixCard =
+    s.mode === "custom"
+      ? panels.card
+      : `color-mix(in oklab, ${panels.card} 95%, ${panels.primary})`;
+  const mixMuted =
+    s.mode === "custom"
+      ? panels.muted
+      : `color-mix(in oklab, ${panels.muted} 90%, ${panels.primary})`;
+  const mixBorder =
+    s.mode === "custom"
+      ? panels.border
+      : `color-mix(in oklab, ${panels.border} 80%, ${panels.primary})`;
 
   // Push panel colors as raw hex (shadcn tokens accept any color function/value).
   root.style.setProperty("--background", mixBg);
@@ -235,7 +295,7 @@ function applySettings(s: Settings, accent: AccentPreset) {
     "--neon-gradient",
     `linear-gradient(135deg, ${accent.violet} 0%, ${panels.primary} 55%, ${s.customAccent ?? accent.cyan} 100%)`,
   );
-  
+
   // Keep neon glow overrides to none so they stay flat
   root.style.setProperty("--neon-glow-cyan", "none");
   root.style.setProperty("--neon-glow-violet", "none");
@@ -252,7 +312,6 @@ function applySettings(s: Settings, accent: AccentPreset) {
   // Removed heavy header box-shadow glow
   root.style.setProperty("--header-shadow", "none");
 }
-
 
 const BROADCAST_CHANNEL = "dmag.settings.v2";
 let suppressWrite = false;
@@ -350,7 +409,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   };
   return <SettingsCtx.Provider value={ctx}>{children}</SettingsCtx.Provider>;
 }
-
 
 export function useSettings() {
   const ctx = useContext(SettingsCtx);

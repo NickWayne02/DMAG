@@ -52,9 +52,7 @@ export function toExportRows(shifts: ShiftDetail[]): ExportRow[] {
     const workedMs = Math.max(0, endedMs - startedMs - lunchMs);
     const intervals = Array.isArray(s.lunch_intervals) ? s.lunch_intervals : [];
     const firstPauseStart = intervals[0]?.start ?? null;
-    const lastPauseEnd = intervals.length
-      ? intervals[intervals.length - 1].end ?? null
-      : null;
+    const lastPauseEnd = intervals.length ? (intervals[intervals.length - 1].end ?? null) : null;
     return {
       date: fmtDate(s.started_at),
       employee: s.user_name,
@@ -97,10 +95,7 @@ function rowToArray(r: ExportRow) {
 
 export function exportShiftsCsv(rows: ExportRow[], filename: string) {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const lines = [
-    HEADERS.map(esc).join(","),
-    ...rows.map((r) => rowToArray(r).map(esc).join(",")),
-  ];
+  const lines = [HEADERS.map(esc).join(","), ...rows.map((r) => rowToArray(r).map(esc).join(","))];
   const blob = new Blob(["\uFEFF" + lines.join("\n")], {
     type: "text/csv;charset=utf-8",
   });

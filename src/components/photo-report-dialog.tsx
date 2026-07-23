@@ -15,7 +15,7 @@ import {
 import { toast } from "sonner";
 import { Camera as LucideCamera, Loader2, X, ImagePlus } from "lucide-react";
 import type { Site } from "./site-selector-dialog";
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 
 type Criticality = "info" | "important" | "urgent";
 
@@ -164,11 +164,7 @@ export function PhotoReportDialog({
             <Label>Фото</Label>
             {previewUrl ? (
               <div className="relative rounded-2xl overflow-hidden border">
-                <img
-                  src={previewUrl}
-                  alt="preview"
-                  className="w-full max-h-64 object-cover"
-                />
+                <img src={previewUrl} alt="preview" className="w-full max-h-64 object-cover" />
                 <Button
                   type="button"
                   size="icon"
@@ -258,11 +254,7 @@ export function PhotoReportDialog({
           >
             Отмена
           </Button>
-          <Button
-            className="h-11 rounded-xl"
-            onClick={submit}
-            disabled={busy || !site}
-          >
+          <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || !site}>
             {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Сохранить
           </Button>

@@ -12,8 +12,18 @@ import { toExportRows, type ShiftDetail } from "@/lib/shift-export";
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const MONTHS = [
-  "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-  "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
 ];
 
 export function ShiftCalendarDialog({
@@ -80,7 +90,11 @@ export function ShiftCalendarDialog({
         <DialogHeader>
           <DialogTitle>Календарь смен · {employeeName}</DialogTitle>
           <DialogDescription>
-            Отработано за месяц: <b>{Math.floor(monthWorkedMs / 3600000)}ч {String(Math.floor((monthWorkedMs % 3600000) / 60000)).padStart(2, "0")}м</b>
+            Отработано за месяц:{" "}
+            <b>
+              {Math.floor(monthWorkedMs / 3600000)}ч{" "}
+              {String(Math.floor((monthWorkedMs % 3600000) / 60000)).padStart(2, "0")}м
+            </b>
           </DialogDescription>
         </DialogHeader>
 
@@ -106,16 +120,19 @@ export function ShiftCalendarDialog({
 
         <div className="grid grid-cols-7 gap-1 text-xs text-muted-foreground text-center mb-1">
           {WEEKDAYS.map((w) => (
-            <div key={w} className="py-1 font-medium">{w}</div>
+            <div key={w} className="py-1 font-medium">
+              {w}
+            </div>
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
           {grid.map((c) => {
             const entries = c.day ? rowsByDate.get(dateKey(c.day)) : undefined;
-            const totalMin = entries?.reduce((acc, e) => {
-              const [h, mRaw] = e.workedHM.replace("ч", "").replace("м", "").split(" ");
-              return acc + (parseInt(h || "0") * 60 + parseInt(mRaw || "0"));
-            }, 0) ?? 0;
+            const totalMin =
+              entries?.reduce((acc, e) => {
+                const [h, mRaw] = e.workedHM.replace("ч", "").replace("м", "").split(" ");
+                return acc + (parseInt(h || "0") * 60 + parseInt(mRaw || "0"));
+              }, 0) ?? 0;
             return (
               <div
                 key={c.key}

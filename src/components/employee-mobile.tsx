@@ -12,7 +12,7 @@ export function EmployeeMobile(props: {
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     const mediaQuery = window.matchMedia("(min-width: 980px)");
     setIsDesktop(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);

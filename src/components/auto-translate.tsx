@@ -125,7 +125,7 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
       if (isInitialPass) setIsTranslating(true);
       const start = Date.now();
       const allMissing = Array.from(missing);
-      
+
       try {
         if (allMissing.length > 0) {
           // Process in chunks of 80 to respect API limits
@@ -151,7 +151,7 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
           const tx = cache[orig];
           if (tx) applyTranslation(t, tx);
         }
-        
+
         // Artificial delay for beautiful visual transition
         if (isInitialPass) {
           const elapsed = Date.now() - start;
@@ -195,7 +195,7 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
     const observer = new MutationObserver((mutations) => {
       if (cancelled) return;
       const currentCache = loadCache(lang);
-      
+
       for (const m of mutations) {
         if (m.type === "characterData" && m.target.nodeType === 3) {
           const t = m.target as Text;
@@ -226,7 +226,7 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
               if (shouldSkip(t.parentNode)) continue;
               const val = t.nodeValue ?? "";
               if (!val.trim() || !HAS_CYRILLIC.test(val)) continue;
-              
+
               if (!originalsRef.current.has(t)) {
                 originalsRef.current.set(t, val);
               }

@@ -36,10 +36,7 @@ import {
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import type { ShiftDetail } from "@/lib/shift-export";
-import {
-  SiteSelectorDialog,
-  type Site,
-} from "@/components/site-selector-dialog";
+import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
 import { ChatDialog } from "@/components/chat-dialog";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -49,8 +46,15 @@ import { getCurrentPosition } from "@/lib/geocode";
 import { useSettings } from "@/lib/settings";
 
 const LOCALE_MAP: Record<string, string> = {
-  ru: "ru-RU", en: "en-US", de: "de-DE", ro: "ro-RO",
-  bg: "bg-BG", pl: "pl-PL", uk: "uk-UA", uz: "uz-UZ", tg: "tg-TJ",
+  ru: "ru-RU",
+  en: "en-US",
+  de: "de-DE",
+  ro: "ro-RO",
+  bg: "bg-BG",
+  pl: "pl-PL",
+  uk: "uk-UA",
+  uz: "uz-UZ",
+  tg: "tg-TJ",
 };
 
 const SITE_STORAGE_KEY = "dmag.selectedSite";
@@ -94,10 +98,7 @@ type GpsRequest = {
   label: string;
 };
 
-const STATUS_META: Record<
-  ShiftStatus,
-  { label: string; dotClass: string; textClass: string }
-> = {
+const STATUS_META: Record<ShiftStatus, { label: string; dotClass: string; textClass: string }> = {
   idle: {
     label: "Смена не начата",
     dotClass: "bg-white/40",
@@ -178,7 +179,9 @@ export function EmployeeProvider({
   const [lunchStart, setLunchStart] = useState<number | null>(persisted?.lunchStart ?? null);
   const [lunchAccumMs, setLunchAccumMs] = useState(persisted?.lunchAccumMs ?? 0);
   // Precise interval log for admin: each completed pause [start, end]
-  const [lunchIntervals, setLunchIntervals] = useState<Array<{ start: number; end: number }>>(persisted?.lunchIntervals ?? []);
+  const [lunchIntervals, setLunchIntervals] = useState<Array<{ start: number; end: number }>>(
+    persisted?.lunchIntervals ?? [],
+  );
   const [shiftId, setShiftId] = useState<string | null>(persisted?.shiftId ?? null);
   const [autoLunchApplied, setAutoLunchApplied] = useState(persisted?.autoLunchApplied ?? false);
   const [autoLunchAsk, setAutoLunchAsk] = useState(false);
@@ -218,7 +221,9 @@ export function EmployeeProvider({
     since.setHours(0, 0, 0, 0);
     const { data } = await supabase
       .from("shifts")
-      .select("id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals")
+      .select(
+        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals",
+      )
       .eq("user_id", user.id)
       .gte("started_at", since.toISOString())
       .order("started_at", { ascending: false });
@@ -277,8 +282,7 @@ export function EmployeeProvider({
       data.map(async (r) => {
         let thumbUrl: string | null = null;
         if (r.photo_url) {
-          const { data: signed } = await supabase
-            .storage
+          const { data: signed } = await supabase.storage
             .from("photo-reports")
             .createSignedUrl(r.photo_url, 3600);
           thumbUrl = signed?.signedUrl ?? null;
@@ -290,7 +294,7 @@ export function EmployeeProvider({
           created_at: r.created_at,
           thumbUrl,
         };
-      })
+      }),
     );
     setSiteReports(enriched);
     setSiteReportsLoading(false);
@@ -327,7 +331,16 @@ export function EmployeeProvider({
     } catch {
       /* ignore quota */
     }
-  }, [status, shiftStart, shiftEnd, lunchStart, lunchAccumMs, lunchIntervals, shiftId, autoLunchApplied]);
+  }, [
+    status,
+    shiftStart,
+    shiftEnd,
+    lunchStart,
+    lunchAccumMs,
+    lunchIntervals,
+    shiftId,
+    autoLunchApplied,
+  ]);
 
   // Load recent reports for selected site
   useEffect(() => {
@@ -340,8 +353,7 @@ export function EmployeeProvider({
     return end - shiftStart;
   }, [shiftStart, shiftEnd, now]);
 
-  const currentLunchMs =
-    status === "lunch" && lunchStart ? now - lunchStart : 0;
+  const currentLunchMs = status === "lunch" && lunchStart ? now - lunchStart : 0;
   const lunchMs = lunchAccumMs + currentLunchMs;
   const workMs = Math.max(0, totalMs - lunchMs);
 
@@ -363,10 +375,14 @@ export function EmployeeProvider({
     setStatus("lunch");
     toast.warning(tr("btn.startLunch"));
     if (shiftId) {
-      supabase.from("shifts").update({
-        status: "lunch",
-        lunch_started_at: new Date(t).toISOString(),
-      }).eq("id", shiftId).then(() => {});
+      supabase
+        .from("shifts")
+        .update({
+          status: "lunch",
+          lunch_started_at: new Date(t).toISOString(),
+        })
+        .eq("id", shiftId)
+        .then(() => {});
     }
   }
 
@@ -382,12 +398,16 @@ export function EmployeeProvider({
     setStatus("working");
     toast.success(tr("status.working"));
     if (shiftId) {
-      supabase.from("shifts").update({
-        status: "working",
-        lunch_started_at: null,
-        lunch_total_ms: newAccum,
-        lunch_intervals: newIntervals,
-      }).eq("id", shiftId).then(() => {});
+      supabase
+        .from("shifts")
+        .update({
+          status: "working",
+          lunch_started_at: null,
+          lunch_total_ms: newAccum,
+          lunch_intervals: newIntervals,
+        })
+        .eq("id", shiftId)
+        .then(() => {});
     }
   }
 
@@ -432,13 +452,7 @@ export function EmployeeProvider({
       );
       if (!r.ok) return null;
       const j = await r.json();
-      return (
-        j.city ||
-        j.locality ||
-        j.principalSubdivision ||
-        j.countryName ||
-        null
-      );
+      return j.city || j.locality || j.principalSubdivision || j.countryName || null;
     } catch {
       return null;
     }
@@ -491,7 +505,7 @@ export function EmployeeProvider({
     if (!coords?.latitude || !coords?.longitude) return null;
     const { data: sites } = await supabase.from("sites").select("id, name, address");
     if (!sites) return null;
-    
+
     let nearestSite = null;
     let minDistance = 1000; // Max radius 1000 meters
 
@@ -533,7 +547,7 @@ export function EmployeeProvider({
         siteId = nearest.id;
         siteName = nearest.name;
         city = nearest.name;
-        setSelectedSite(nearest);
+        setSelectedSite(nearest as any);
         toast.info(`${tr("shift.start")} - Авто-выбор: ${nearest.name}`);
       }
     }
@@ -545,7 +559,7 @@ export function EmployeeProvider({
         if (auto) {
           siteId = auto.id;
           siteName = auto.name;
-          setSelectedSite(auto);
+          setSelectedSite(auto as any);
           toast.info(`Создан новый объект: ${auto.name}`);
         }
       }
@@ -596,17 +610,20 @@ export function EmployeeProvider({
       if (auto) extraSite = { site_id: auto.id, site_name: auto.name };
     }
     if (shiftId) {
-      await supabase.from("shifts").update({
-        status: "finished",
-        ended_at: new Date(endTs).toISOString(),
-        lunch_started_at: null,
-        lunch_total_ms: accum,
-        lunch_intervals: intervals,
-        end_lat: coords?.latitude ?? null,
-        end_lng: coords?.longitude ?? null,
-        end_city: city,
-        ...(extraSite && !selectedSite ? extraSite : {}),
-      }).eq("id", shiftId);
+      await supabase
+        .from("shifts")
+        .update({
+          status: "finished",
+          ended_at: new Date(endTs).toISOString(),
+          lunch_started_at: null,
+          lunch_total_ms: accum,
+          lunch_intervals: intervals,
+          end_lat: coords?.latitude ?? null,
+          end_lng: coords?.longitude ?? null,
+          end_city: city,
+          ...(extraSite && !selectedSite ? extraSite : {}),
+        })
+        .eq("id", shiftId);
       setShiftId(null);
     }
   }
@@ -621,9 +638,9 @@ export function EmployeeProvider({
       if (req.reason === "start") commitStartWork(coords);
       else commitEndShift(coords);
     };
-    
+
     let pos: any = null;
-    
+
     // If a site is selected, fake the GPS lock using the site's data so the real location is NOT recorded
     if (selectedSite) {
       if (selectedSite.address && selectedSite.address.startsWith("GPS: ")) {
@@ -634,7 +651,7 @@ export function EmployeeProvider({
         pos = { latitude: 0, longitude: 0 };
       }
       // Small artificial delay to simulate GPS lock
-      await new Promise(r => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 600));
     } else {
       pos = await getCurrentPosition();
     }
@@ -643,7 +660,9 @@ export function EmployeeProvider({
       if (selectedSite?.name) {
         toast.success(`${tr("toast.gpsCaptured")} (${selectedSite.name})`);
       } else {
-        toast.success(`${tr("toast.gpsCaptured")}: ${pos.latitude.toFixed(5)}, ${pos.longitude.toFixed(5)}`);
+        toast.success(
+          `${tr("toast.gpsCaptured")}: ${pos.latitude.toFixed(5)}, ${pos.longitude.toFixed(5)}`,
+        );
       }
       finish(pos);
     } else {
@@ -672,12 +691,7 @@ export function EmployeeProvider({
     setTravelTime("");
   }
 
-
-
-
-  const name = tName(
-    user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник"
-  );
+  const name = tName(user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник");
 
   // === Neon status accent ===
   const statusAccent =
@@ -691,40 +705,81 @@ export function EmployeeProvider({
 
   const statusLabel = tr(`status.${status}`);
 
-
-
-
   return (
-    <EmployeeContext.Provider value={{
-      user, navigate, tr, lang, formatHM,
-      status, setStatus,
-      shiftStart, setShiftStart,
-      shiftEnd, setShiftEnd,
-      lunchStart, setLunchStart,
-      lunchAccumMs, setLunchAccumMs,
-      lunchIntervals, setLunchIntervals,
-      shiftId, setShiftId,
-      autoLunchApplied, setAutoLunchApplied,
-      autoLunchAsk, setAutoLunchAsk,
-      travelTime, setTravelTime,
-      gpsRequest, setGpsRequest,
-      gpsBusy, setGpsBusy,
-      now, setNow,
-      siteOpen, setSiteOpen,
-      reportOpen, setReportOpen,
-      chatOpen, setChatOpen,
-      selectedSite, setSelectedSite,
-      siteReports, setSiteReports,
-      siteReportsLoading, setSiteReportsLoading,
-      myShiftsOpen, setMyShiftsOpen,
-      myShifts, setMyShifts,
-      openMyShifts, pickSite, openReport,
-      startWork, startLunch, endLunch, endShift,
-      handleGpsAllow, handleGpsSkip, signOut, resetShift,
-      handleAutoLunchSubtract, handleAutoLunchKeep, loadReports,
-      name, statusAccent, statusLabel, workMs, lunchMs, totalMs,
-      role, canSwitchToAdmin, onSwitchToAdmin
-    }}>
+    <EmployeeContext.Provider
+      value={{
+        user,
+        navigate,
+        tr,
+        lang,
+        formatHM,
+        status,
+        setStatus,
+        shiftStart,
+        setShiftStart,
+        shiftEnd,
+        setShiftEnd,
+        lunchStart,
+        setLunchStart,
+        lunchAccumMs,
+        setLunchAccumMs,
+        lunchIntervals,
+        setLunchIntervals,
+        shiftId,
+        setShiftId,
+        autoLunchApplied,
+        setAutoLunchApplied,
+        autoLunchAsk,
+        setAutoLunchAsk,
+        travelTime,
+        setTravelTime,
+        gpsRequest,
+        setGpsRequest,
+        gpsBusy,
+        setGpsBusy,
+        now,
+        setNow,
+        siteOpen,
+        setSiteOpen,
+        reportOpen,
+        setReportOpen,
+        chatOpen,
+        setChatOpen,
+        selectedSite,
+        setSelectedSite,
+        siteReports,
+        setSiteReports,
+        siteReportsLoading,
+        setSiteReportsLoading,
+        myShiftsOpen,
+        setMyShiftsOpen,
+        myShifts,
+        setMyShifts,
+        openMyShifts,
+        pickSite,
+        openReport,
+        startWork,
+        startLunch,
+        endLunch,
+        endShift,
+        handleGpsAllow,
+        handleGpsSkip,
+        signOut,
+        resetShift,
+        handleAutoLunchSubtract,
+        handleAutoLunchKeep,
+        loadReports,
+        name,
+        statusAccent,
+        statusLabel,
+        workMs,
+        lunchMs,
+        totalMs,
+        role,
+        canSwitchToAdmin,
+        onSwitchToAdmin,
+      }}
+    >
       {children}
     </EmployeeContext.Provider>
   );
@@ -732,6 +787,6 @@ export function EmployeeProvider({
 
 export const useEmployeeLogic = () => {
   const ctx = useContext(EmployeeContext);
-  if (!ctx) throw new Error('Missing EmployeeContext');
+  if (!ctx) throw new Error("Missing EmployeeContext");
   return ctx;
 };

@@ -118,22 +118,25 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
-    import("@capacitor/core").then(({ Capacitor }) => {
-      if (Capacitor.isNativePlatform()) {
-        import("@capacitor/geolocation").then(({ Geolocation }) => {
-          Geolocation.checkPermissions().then((perm) => {
-            if (perm.location !== "granted") {
-              Geolocation.requestPermissions().catch(() => {});
-            }
-          }).catch(() => {});
-        });
-      }
-    }).catch(() => {});
+    import("@capacitor/core")
+      .then(({ Capacitor }) => {
+        if (Capacitor.isNativePlatform()) {
+          import("@capacitor/geolocation").then(({ Geolocation }) => {
+            Geolocation.checkPermissions()
+              .then((perm) => {
+                if (perm.location !== "granted") {
+                  Geolocation.requestPermissions().catch(() => {});
+                }
+              })
+              .catch(() => {});
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (

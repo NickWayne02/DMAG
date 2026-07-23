@@ -59,9 +59,7 @@ function EmployeeDemoRoute() {
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between pt-2">
           <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">
-              Сотрудник
-            </p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Сотрудник</p>
             <h1 className="text-xl font-bold">Иван Иванов</h1>
           </div>
           <Button variant="ghost" size="sm" onClick={signOut}>

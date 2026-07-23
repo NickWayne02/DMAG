@@ -29,10 +29,13 @@ function EmployeeDashboardRoute() {
   }
 
   const mobileRole =
-    role === "brigadier" ? "brigadier"
-    : role === "super_admin" ? "super_admin"
-    : role === "admin" ? "admin"
-    : "employee";
+    role === "brigadier"
+      ? "brigadier"
+      : role === "super_admin"
+        ? "super_admin"
+        : role === "admin"
+          ? "admin"
+          : "employee";
   const canOpenReports = role === "admin" || role === "super_admin";
   return (
     <EmployeeMobile

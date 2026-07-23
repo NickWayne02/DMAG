@@ -33,10 +33,7 @@ import {
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import type { ShiftDetail } from "@/lib/shift-export";
-import {
-  SiteSelectorDialog,
-  type Site,
-} from "@/components/site-selector-dialog";
+import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
 import { ChatDialog } from "@/components/chat-dialog";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -46,8 +43,15 @@ import { useT, useLanguage } from "@/lib/i18n";
 import { useSettings } from "@/lib/settings";
 
 const LOCALE_MAP: Record<string, string> = {
-  ru: "ru-RU", en: "en-US", de: "de-DE", ro: "ro-RO",
-  bg: "bg-BG", pl: "pl-PL", uk: "uk-UA", uz: "uz-UZ", tg: "tg-TJ",
+  ru: "ru-RU",
+  en: "en-US",
+  de: "de-DE",
+  ro: "ro-RO",
+  bg: "bg-BG",
+  pl: "pl-PL",
+  uk: "uk-UA",
+  uz: "uz-UZ",
+  tg: "tg-TJ",
 };
 
 const SITE_STORAGE_KEY = "dmag.selectedSite";
@@ -91,10 +95,7 @@ type GpsRequest = {
   label: string;
 };
 
-const STATUS_META: Record<
-  ShiftStatus,
-  { label: string; dotClass: string; textClass: string }
-> = {
+const STATUS_META: Record<ShiftStatus, { label: string; dotClass: string; textClass: string }> = {
   idle: {
     label: "Смена не начата",
     dotClass: "bg-white/40",
@@ -151,7 +152,6 @@ function formatClock(ts: number) {
 const EIGHT_HOURS_MS = 8 * 60 * 60 * 1000;
 const AUTO_LUNCH_MS = 30 * 60 * 1000;
 
-
 import { useEmployeeLogic } from "./context";
 
 export function EmployeeDesktopView() {
@@ -160,87 +160,133 @@ export function EmployeeDesktopView() {
   const [supportOpen, setSupportOpen] = useState(false);
 
   const {
-      user, navigate, tr, lang, formatHM,
-      status, setStatus,
-      shiftStart, setShiftStart,
-      shiftEnd, setShiftEnd,
-      lunchStart, setLunchStart,
-      lunchAccumMs, setLunchAccumMs,
-      lunchIntervals, setLunchIntervals,
-      shiftId, setShiftId,
-      autoLunchApplied, setAutoLunchApplied,
-      autoLunchAsk, setAutoLunchAsk,
-      travelTime, setTravelTime,
-      gpsRequest, setGpsRequest,
-      gpsBusy, setGpsBusy,
-      now, setNow,
-      siteOpen, setSiteOpen,
-      reportOpen, setReportOpen,
-      chatOpen, setChatOpen,
-      selectedSite, setSelectedSite,
-      siteReports, setSiteReports,
-      siteReportsLoading, setSiteReportsLoading,
-      myShiftsOpen, setMyShiftsOpen,
-      myShifts, setMyShifts,
-      openMyShifts, pickSite, openReport,
-      startWork, startLunch, endLunch, endShift,
-      handleGpsAllow, handleGpsSkip, signOut, resetShift,
-      handleAutoLunchSubtract, handleAutoLunchKeep, loadReports,
-      name, statusAccent, statusLabel, workMs, lunchMs, totalMs,
-      role, canSwitchToAdmin, onSwitchToAdmin
+    user,
+    navigate,
+    tr,
+    lang,
+    formatHM,
+    status,
+    setStatus,
+    shiftStart,
+    setShiftStart,
+    shiftEnd,
+    setShiftEnd,
+    lunchStart,
+    setLunchStart,
+    lunchAccumMs,
+    setLunchAccumMs,
+    lunchIntervals,
+    setLunchIntervals,
+    shiftId,
+    setShiftId,
+    autoLunchApplied,
+    setAutoLunchApplied,
+    autoLunchAsk,
+    setAutoLunchAsk,
+    travelTime,
+    setTravelTime,
+    gpsRequest,
+    setGpsRequest,
+    gpsBusy,
+    setGpsBusy,
+    now,
+    setNow,
+    siteOpen,
+    setSiteOpen,
+    reportOpen,
+    setReportOpen,
+    chatOpen,
+    setChatOpen,
+    selectedSite,
+    setSelectedSite,
+    siteReports,
+    setSiteReports,
+    siteReportsLoading,
+    setSiteReportsLoading,
+    myShiftsOpen,
+    setMyShiftsOpen,
+    myShifts,
+    setMyShifts,
+    openMyShifts,
+    pickSite,
+    openReport,
+    startWork,
+    startLunch,
+    endLunch,
+    endShift,
+    handleGpsAllow,
+    handleGpsSkip,
+    signOut,
+    resetShift,
+    handleAutoLunchSubtract,
+    handleAutoLunchKeep,
+    loadReports,
+    name,
+    statusAccent,
+    statusLabel,
+    workMs,
+    lunchMs,
+    totalMs,
+    role,
+    canSwitchToAdmin,
+    onSwitchToAdmin,
   } = useEmployeeLogic();
   return (
     <div className="min-h-screen w-full flex flex-col bg-background text-foreground">
-      <header 
+      <header
         className="border-b shadow-sm relative"
         style={{
           background: "var(--header-gradient)",
           borderColor: "var(--neon-border)",
-          color: "white"
+          color: "white",
         }}
       >
         <div className="max-w-7xl w-full mx-auto px-8 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-            <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl border"
-              style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.2)" }}
-            >
-              {name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
-                {tr(`role.${role}`)}
-              </p>
-              <h1 className="font-bold text-xl text-white">{name}</h1>
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl border"
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  borderColor: "rgba(255,255,255,0.2)",
+                }}
+              >
+                {name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
+                  {tr(`role.${role}`)}
+                </p>
+                <h1 className="font-bold text-xl text-white">{name}</h1>
+              </div>
             </div>
           </div>
-          </div>
-          
+
           <div className="flex items-center gap-2 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
             <div className="flex items-center gap-2">
               <LanguageSwitcher />
-            <SettingsDialog />
-          </div>
-          {canSwitchToAdmin && (
-            <Button variant="outline" className="bg-transparent hover:bg-white/20 hover:text-white border-white/30 text-white" onClick={onSwitchToAdmin}>
-              {tr("header.openAdmin")}
+              <SettingsDialog />
+            </div>
+            {canSwitchToAdmin && (
+              <Button
+                variant="outline"
+                className="bg-transparent hover:bg-white/20 hover:text-white border-white/30 text-white"
+                onClick={onSwitchToAdmin}
+              >
+                {tr("header.openAdmin")}
+              </Button>
+            )}
+            <Button variant="ghost" className="hover:bg-red-500/20 text-white" onClick={signOut}>
+              <LogOut className="w-5 h-5 mr-2" />
+              {tr("header.signOut")}
             </Button>
-          )}
-          <Button variant="ghost" className="hover:bg-red-500/20 text-white" onClick={signOut}>
-            <LogOut className="w-5 h-5 mr-2" />
-            {tr("header.signOut")}
-          </Button>
-        </div>
+          </div>
         </div>
       </header>
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-8 grid grid-cols-12 gap-8">
-        
         <div className="col-span-4 flex flex-col gap-6">
-          <div
-            className="rounded-3xl p-6 bg-card border shadow-sm"
-          >
+          <div className="rounded-3xl p-6 bg-card border shadow-sm">
             <div className="rounded-2xl px-5 py-5 border bg-muted/40 backdrop-blur">
               <div className="flex items-center gap-2">
                 <span
@@ -269,7 +315,10 @@ export function EmployeeDesktopView() {
                     <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                       {tr("shift.worked").toUpperCase()}
                     </p>
-                    <p className="text-3xl font-extrabold tabular-nums leading-tight" style={{ color: statusAccent.color }}>
+                    <p
+                      className="text-3xl font-extrabold tabular-nums leading-tight"
+                      style={{ color: statusAccent.color }}
+                    >
                       {formatHMS(workMs)}
                     </p>
                   </div>
@@ -337,68 +386,107 @@ export function EmployeeDesktopView() {
           </div>
 
           <NeonCard>
-            <h2 className="text-xl font-bold mb-4 pb-2 border-b" style={{ borderColor: "var(--neon-border)", color: "var(--neon-text)" }}>
+            <h2
+              className="text-xl font-bold mb-4 pb-2 border-b"
+              style={{ borderColor: "var(--neon-border)", color: "var(--neon-text)" }}
+            >
               {tr("navigation")}
             </h2>
             <div className="space-y-3">
               <button
                 type="button"
                 className="w-full flex items-center p-3 rounded-xl transition hover:brightness-110 active:scale-[0.98]"
-                style={{ background: "var(--neon-surface)", border: "1px solid var(--neon-border)" }}
+                style={{
+                  background: "var(--neon-surface)",
+                  border: "1px solid var(--neon-border)",
+                }}
                 onClick={openMyShifts}
               >
                 <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
                   <CalendarDays className="h-5 w-5" />
                 </NeonIcon>
-                <span className="ml-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--neon-text)" }}>
+                <span
+                  className="ml-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--neon-text)" }}
+                >
                   {tr("header.myShifts")}
                 </span>
-                <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
+                <ChevronRight
+                  className="h-5 w-5 ml-auto"
+                  style={{ color: "var(--neon-text-dim)" }}
+                />
               </button>
 
               <button
                 type="button"
                 className="w-full flex items-center p-3 rounded-xl transition hover:brightness-110 active:scale-[0.98]"
-                style={{ background: "var(--neon-surface)", border: "1px solid var(--neon-border)" }}
+                style={{
+                  background: "var(--neon-surface)",
+                  border: "1px solid var(--neon-border)",
+                }}
                 onClick={() => setSiteOpen(true)}
               >
                 <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
                   <Navigation className="h-5 w-5" />
                 </NeonIcon>
-                <span className="ml-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--neon-text)" }}>
+                <span
+                  className="ml-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--neon-text)" }}
+                >
                   {tr("site.select")}
                 </span>
-                <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
+                <ChevronRight
+                  className="h-5 w-5 ml-auto"
+                  style={{ color: "var(--neon-text-dim)" }}
+                />
               </button>
 
               <button
                 type="button"
                 className="w-full flex items-center p-3 rounded-xl transition hover:brightness-110 active:scale-[0.98]"
-                style={{ background: "var(--neon-surface)", border: "1px solid var(--neon-border)" }}
+                style={{
+                  background: "var(--neon-surface)",
+                  border: "1px solid var(--neon-border)",
+                }}
                 onClick={openReport}
               >
                 <NeonIcon color="var(--neon-violet)" glow="var(--neon-glow-violet)">
                   <ScanLine className="h-5 w-5" />
                 </NeonIcon>
-                <span className="ml-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--neon-text)" }}>
+                <span
+                  className="ml-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--neon-text)" }}
+                >
                   {tr("report.create")}
                 </span>
-                <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
+                <ChevronRight
+                  className="h-5 w-5 ml-auto"
+                  style={{ color: "var(--neon-text-dim)" }}
+                />
               </button>
 
               <button
                 type="button"
                 className="w-full flex items-center p-3 rounded-xl transition hover:brightness-110 active:scale-[0.98]"
-                style={{ background: "var(--neon-surface)", border: "1px solid var(--neon-border)" }}
+                style={{
+                  background: "var(--neon-surface)",
+                  border: "1px solid var(--neon-border)",
+                }}
                 onClick={() => setChatOpen(true)}
               >
                 <NeonIcon color="var(--neon-lime)" glow="var(--neon-glow-lime)">
                   <MessagesSquare className="h-5 w-5" />
                 </NeonIcon>
-                <span className="ml-4 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--neon-text)" }}>
+                <span
+                  className="ml-4 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--neon-text)" }}
+                >
                   {tr("contact.logistician")}
                 </span>
-                <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
+                <ChevronRight
+                  className="h-5 w-5 ml-auto"
+                  style={{ color: "var(--neon-text-dim)" }}
+                />
               </button>
             </div>
           </NeonCard>
@@ -408,21 +496,38 @@ export function EmployeeDesktopView() {
           {selectedSite ? (
             <NeonCard>
               <div className="flex flex-col h-full min-h-125">
-                <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: "var(--neon-border)" }}>
+                <div
+                  className="flex items-center justify-between mb-6 pb-4 border-b"
+                  style={{ borderColor: "var(--neon-border)" }}
+                >
                   <div>
-                    <h2 className="text-2xl font-bold" style={{ color: "var(--neon-text)" }}>{selectedSite.name}</h2>
-                    <p className="mt-1" style={{ color: "var(--neon-text-dim)" }}>{selectedSite.address}</p>
+                    <h2 className="text-2xl font-bold" style={{ color: "var(--neon-text)" }}>
+                      {selectedSite.name}
+                    </h2>
+                    <p className="mt-1" style={{ color: "var(--neon-text-dim)" }}>
+                      {selectedSite.address}
+                    </p>
                   </div>
-                  <Button variant="outline" style={{ borderColor: "var(--neon-border)", color: "var(--neon-text)" }} onClick={() => setSiteOpen(true)}>
+                  <Button
+                    variant="outline"
+                    style={{ borderColor: "var(--neon-border)", color: "var(--neon-text)" }}
+                    onClick={() => setSiteOpen(true)}
+                  >
                     {tr("site.change")}
                   </Button>
                 </div>
-                
-                <div className="flex-1 rounded-2xl overflow-hidden relative" style={{ border: "1px solid var(--neon-border)" }}>
+
+                <div
+                  className="flex-1 rounded-2xl overflow-hidden relative"
+                  style={{ border: "1px solid var(--neon-border)" }}
+                >
                   <iframe
                     width="100%"
                     height="100%"
-                    style={{ border: 0, filter: "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)" }}
+                    style={{
+                      border: 0,
+                      filter: "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)",
+                    }}
                     loading="lazy"
                     allowFullScreen
                     src={`https://www.google.com/maps?q=${encodeURIComponent(selectedSite.address || selectedSite.name)}&output=embed`}
@@ -431,39 +536,74 @@ export function EmployeeDesktopView() {
               </div>
             </NeonCard>
           ) : (
-            <div className="flex-1 rounded-3xl flex flex-col items-center justify-center text-center p-12" style={{ border: "2px dashed var(--neon-border)" }}>
-              <Navigation className="w-20 h-20 mb-8 opacity-20" style={{ color: "var(--neon-text)" }} />
-              <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--neon-text)" }}>{tr("site.notSelected.title")}</h2>
+            <div
+              className="flex-1 rounded-3xl flex flex-col items-center justify-center text-center p-12"
+              style={{ border: "2px dashed var(--neon-border)" }}
+            >
+              <Navigation
+                className="w-20 h-20 mb-8 opacity-20"
+                style={{ color: "var(--neon-text)" }}
+              />
+              <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--neon-text)" }}>
+                {tr("site.notSelected.title")}
+              </h2>
               <p className="mb-8 max-w-md text-lg" style={{ color: "var(--neon-text-dim)" }}>
                 {tr("site.notSelected.desc")}
               </p>
-              <Button size="lg" className="h-14 px-8 text-lg rounded-2xl" onClick={() => setSiteOpen(true)}>
+              <Button
+                size="lg"
+                className="h-14 px-8 text-lg rounded-2xl"
+                onClick={() => setSiteOpen(true)}
+              >
                 {tr("site.select")}
               </Button>
             </div>
           )}
         </div>
-
       </main>
 
       {/* Footer */}
-      <footer 
-        className="w-full mt-auto py-8 text-center" 
-        style={{ 
-          background: "rgba(0,0,0,0.15)", 
+      <footer
+        className="w-full mt-auto py-8 text-center"
+        style={{
+          background: "rgba(0,0,0,0.15)",
           color: "var(--neon-text-dim)",
-          borderTop: "1px solid var(--neon-border)"
+          borderTop: "1px solid var(--neon-border)",
         }}
       >
         <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-lg text-white">DMAG</span>
-            <span className="text-sm opacity-60">© {new Date().getFullYear()} {tr("footer.allRightsReserved") === "footer.allRightsReserved" ? "Все права защищены" : tr("footer.allRightsReserved")}</span>
+            <span className="text-sm opacity-60">
+              © {new Date().getFullYear()}{" "}
+              {tr("footer.allRightsReserved") === "footer.allRightsReserved"
+                ? "Все права защищены"
+                : tr("footer.allRightsReserved")}
+            </span>
           </div>
           <div className="flex items-center gap-6 text-sm">
-            <button onClick={() => setPrivacyOpen(true)} className="hover:text-white transition-colors">{tr("footer.privacy") === "footer.privacy" ? "Политика конфиденциальности" : tr("footer.privacy")}</button>
-            <button onClick={() => setTermsOpen(true)} className="hover:text-white transition-colors">{tr("footer.terms") === "footer.terms" ? "Условия использования" : tr("footer.terms")}</button>
-            <button onClick={() => setSupportOpen(true)} className="hover:text-white transition-colors">{tr("footer.support") === "footer.support" ? "Служба поддержки" : tr("footer.support")}</button>
+            <button
+              onClick={() => setPrivacyOpen(true)}
+              className="hover:text-white transition-colors"
+            >
+              {tr("footer.privacy") === "footer.privacy"
+                ? "Политика конфиденциальности"
+                : tr("footer.privacy")}
+            </button>
+            <button
+              onClick={() => setTermsOpen(true)}
+              className="hover:text-white transition-colors"
+            >
+              {tr("footer.terms") === "footer.terms" ? "Условия использования" : tr("footer.terms")}
+            </button>
+            <button
+              onClick={() => setSupportOpen(true)}
+              className="hover:text-white transition-colors"
+            >
+              {tr("footer.support") === "footer.support"
+                ? "Служба поддержки"
+                : tr("footer.support")}
+            </button>
           </div>
           <div className="text-xs opacity-40">
             {tr("footer.version") === "footer.version" ? "Версия" : tr("footer.version")} 2.0.1
@@ -483,12 +623,8 @@ export function EmployeeDesktopView() {
             <div className="mx-auto mb-2 h-12 w-12 rounded-2xl bg-primary/10 text-primary grid place-items-center">
               <Navigation className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-center">
-              {tr("gps.title")}
-            </DialogTitle>
-            <DialogDescription className="text-center">
-              {tr("gps.desc")}
-            </DialogDescription>
+            <DialogTitle className="text-center">{tr("gps.title")}</DialogTitle>
+            <DialogDescription className="text-center">{tr("gps.desc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2">
             <Button
@@ -499,11 +635,7 @@ export function EmployeeDesktopView() {
             >
               {tr("gps.skip")}
             </Button>
-            <Button
-              className="h-12 rounded-xl"
-              onClick={handleGpsAllow}
-              disabled={gpsBusy}
-            >
+            <Button className="h-12 rounded-xl" onClick={handleGpsAllow} disabled={gpsBusy}>
               {gpsBusy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {tr("gps.allow")}
             </Button>
@@ -519,9 +651,7 @@ export function EmployeeDesktopView() {
               <Pause className="h-6 w-6" />
             </div>
             <DialogTitle className="text-center">{tr("autolunch.title")}</DialogTitle>
-            <DialogDescription className="text-center">
-              {tr("autolunch.desc")}
-            </DialogDescription>
+            <DialogDescription className="text-center">{tr("autolunch.desc")}</DialogDescription>
           </DialogHeader>
           <DialogFooter className="grid grid-cols-1 gap-2 sm:grid-cols-1">
             <Button className="h-12 rounded-xl" onClick={handleAutoLunchSubtract}>
@@ -546,11 +676,7 @@ export function EmployeeDesktopView() {
         site={selectedSite}
         onSuccess={loadReports}
       />
-      <ChatDialog
-        open={chatOpen}
-        onOpenChange={setChatOpen}
-        site={selectedSite}
-      />
+      <ChatDialog open={chatOpen} onOpenChange={setChatOpen} site={selectedSite} />
       <ShiftCalendarDialog
         open={myShiftsOpen}
         onClose={() => setMyShiftsOpen(false)}
@@ -589,10 +715,13 @@ function Metric({
         background: "rgba(255,255,255,0.03)",
         boxShadow: "inset 0 0 0 1px var(--neon-border)",
         WebkitTextSizeAdjust: "100%",
-        textSizeAdjust: "100%"
+        textSizeAdjust: "100%",
       }}
     >
-      <p className="text-[10px] uppercase tracking-[0.2em] mb-1" style={{ color: "var(--neon-text-dim)", whiteSpace: "nowrap" }}>
+      <p
+        className="text-[10px] uppercase tracking-[0.2em] mb-1"
+        style={{ color: "var(--neon-text-dim)", whiteSpace: "nowrap" }}
+      >
         {label}
       </p>
       <p
@@ -640,7 +769,9 @@ function StatusButton({
         color: disabled ? "var(--neon-text-dim)" : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"
-          : active ? `inset 0 0 0 1px ${t.color}, ${t.glow}` : shadowMode,
+          : active
+            ? `inset 0 0 0 1px ${t.color}, ${t.glow}`
+            : shadowMode,
         textShadow: active ? t.glow : "none",
       }}
     >
@@ -650,13 +781,7 @@ function StatusButton({
   );
 }
 
-function NeonCard({
-  children,
-  glowColor,
-}: {
-  children: React.ReactNode;
-  glowColor?: string;
-}) {
+function NeonCard({ children, glowColor }: { children: React.ReactNode; glowColor?: string }) {
   return (
     <div
       className="rounded-2xl p-6"

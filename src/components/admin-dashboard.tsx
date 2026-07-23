@@ -203,7 +203,6 @@ export function AdminDashboard({
     navigate({ to: "/auth" });
   }
 
-
   async function loadAll() {
     setLoading(true);
 
@@ -211,25 +210,32 @@ export function AdminDashboard({
     const sinceMidnight = new Date();
     sinceMidnight.setHours(0, 0, 0, 0);
 
-    const [{ data: profiles }, { data: userRoles }, { data: siteData }, { data: reportData }, { data: shiftData }] =
-      await Promise.all([
-        supabase.from("profiles").select("id, full_name, email, phone, is_active"),
-        supabase.from("user_roles").select("user_id, role"),
-        supabase
-          .from("sites")
-          .select("id, name, address, customer, created_at")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("photo_reports")
-          .select("id, description, criticality, photo_url, created_at, site_id, author_id")
-          .order("created_at", { ascending: false })
-          .limit(20),
-        supabase
-          .from("shifts")
-          .select("id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city")
-          .gte("started_at", sinceMidnight.toISOString())
-          .order("started_at", { ascending: false }),
-      ]);
+    const [
+      { data: profiles },
+      { data: userRoles },
+      { data: siteData },
+      { data: reportData },
+      { data: shiftData },
+    ] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, phone, is_active"),
+      supabase.from("user_roles").select("user_id, role"),
+      supabase
+        .from("sites")
+        .select("id, name, address, customer, created_at")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("photo_reports")
+        .select("id, description, criticality, photo_url, created_at, site_id, author_id")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      supabase
+        .from("shifts")
+        .select(
+          "id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city",
+        )
+        .gte("started_at", sinceMidnight.toISOString())
+        .order("started_at", { ascending: false }),
+    ]);
 
     const roleMap = new Map<string, AppRole>();
     (userRoles ?? []).forEach((r) => {
@@ -272,10 +278,7 @@ export function AdminDashboard({
         }
         lunchMs = Number(sh.lunch_total_ms ?? 0) + Math.max(0, currentLunch);
         workedMs = Math.max(0, endedMs - startedMs - lunchMs);
-        status =
-          sh.status === "working" ? "working" :
-          sh.status === "lunch" ? "lunch" :
-          "finished";
+        status = sh.status === "working" ? "working" : sh.status === "lunch" ? "lunch" : "finished";
         const d = new Date(sh.started_at);
         since = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
       }
@@ -294,10 +297,50 @@ export function AdminDashboard({
 
     if (devMode && emps.length === 0) {
       emps = [
-        { id: "dev-1", name: "Иван Иванов", role: "admin", status: "finished", since: "08:00", workedMs: 0, lunchMs: 0, siteName: null, lastShiftAt: null },
-        { id: "dev-2", name: "Max Keller", role: "brigadier", status: "working", since: "07:20", workedMs: 4 * 3600_000, lunchMs: 30 * 60_000, siteName: "DMAG Werkhalle Nord", lastShiftAt: new Date().toISOString() },
-        { id: "dev-3", name: "Oleh Petrenko", role: "employee", status: "working", since: "07:45", workedMs: 3.5 * 3600_000, lunchMs: 0, siteName: "Bauprojekt Hafen Ost", lastShiftAt: new Date().toISOString() },
-        { id: "dev-4", name: "Serhii Kovalenko", role: "employee", status: "lunch", since: "12:05", workedMs: 3 * 3600_000, lunchMs: 25 * 60_000, siteName: "DMAG Werkhalle Nord", lastShiftAt: new Date().toISOString() },
+        {
+          id: "dev-1",
+          name: "Иван Иванов",
+          role: "admin",
+          status: "finished",
+          since: "08:00",
+          workedMs: 0,
+          lunchMs: 0,
+          siteName: null,
+          lastShiftAt: null,
+        },
+        {
+          id: "dev-2",
+          name: "Max Keller",
+          role: "brigadier",
+          status: "working",
+          since: "07:20",
+          workedMs: 4 * 3600_000,
+          lunchMs: 30 * 60_000,
+          siteName: "DMAG Werkhalle Nord",
+          lastShiftAt: new Date().toISOString(),
+        },
+        {
+          id: "dev-3",
+          name: "Oleh Petrenko",
+          role: "employee",
+          status: "working",
+          since: "07:45",
+          workedMs: 3.5 * 3600_000,
+          lunchMs: 0,
+          siteName: "Bauprojekt Hafen Ost",
+          lastShiftAt: new Date().toISOString(),
+        },
+        {
+          id: "dev-4",
+          name: "Serhii Kovalenko",
+          role: "employee",
+          status: "lunch",
+          since: "12:05",
+          workedMs: 3 * 3600_000,
+          lunchMs: 25 * 60_000,
+          siteName: "DMAG Werkhalle Nord",
+          lastShiftAt: new Date().toISOString(),
+        },
       ];
     }
 
@@ -310,8 +353,20 @@ export function AdminDashboard({
     }));
     if (devMode && siteRows.length === 0) {
       siteRows = [
-        { id: "site-1", name: "DMAG Werkhalle Nord", address: "Industriestraße 14, Köln", customer: "DMAG", created_at: new Date().toISOString() },
-        { id: "site-2", name: "Bauprojekt Hafen Ost", address: "Hafenstraße 8, Hamburg", customer: "Meyer Anlagenbau", created_at: new Date(Date.now() - 86400000).toISOString() },
+        {
+          id: "site-1",
+          name: "DMAG Werkhalle Nord",
+          address: "Industriestraße 14, Köln",
+          customer: "DMAG",
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: "site-2",
+          name: "Bauprojekt Hafen Ost",
+          address: "Hafenstraße 8, Hamburg",
+          customer: "Meyer Anlagenbau",
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+        },
       ];
     }
     const siteNameMap = new Map(siteRows.map((s) => [s.id, s.name]));
@@ -325,7 +380,7 @@ export function AdminDashboard({
           .from("photo-reports")
           .createSignedUrl(r.photo_url, 3600);
         return data?.signedUrl ?? null;
-      })
+      }),
     );
     let repRows: ReportRow[] = reportsRaw.map((r, i) => ({
       id: r.id,
@@ -337,8 +392,22 @@ export function AdminDashboard({
     }));
     if (devMode && repRows.length === 0) {
       repRows = [
-        { id: "report-1", description: "Проверка ограждений завершена, требуется подпись бригадира.", criticality: "important", created_at: new Date().toISOString(), site_name: siteRows[0]?.name ?? "DMAG", thumb: null },
-        { id: "report-2", description: "Срочный дефект крепления на участке B-12.", criticality: "urgent", created_at: new Date(Date.now() - 1800000).toISOString(), site_name: siteRows[1]?.name ?? "DMAG", thumb: null },
+        {
+          id: "report-1",
+          description: "Проверка ограждений завершена, требуется подпись бригадира.",
+          criticality: "important",
+          created_at: new Date().toISOString(),
+          site_name: siteRows[0]?.name ?? "DMAG",
+          thumb: null,
+        },
+        {
+          id: "report-2",
+          description: "Срочный дефект крепления на участке B-12.",
+          criticality: "urgent",
+          created_at: new Date(Date.now() - 1800000).toISOString(),
+          site_name: siteRows[1]?.name ?? "DMAG",
+          thumb: null,
+        },
       ];
     }
 
@@ -388,7 +457,9 @@ export function AdminDashboard({
     since30.setHours(0, 0, 0, 0);
     const { data: histData } = await supabase
       .from("shifts")
-      .select("id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals")
+      .select(
+        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals",
+      )
       .gte("started_at", since30.toISOString())
       .order("started_at", { ascending: false });
     const nameById = new Map(emps.map((e) => [e.id, e.name]));
@@ -415,9 +486,7 @@ export function AdminDashboard({
   }, []);
 
   const stats = useMemo(() => {
-    const workers = employees.filter(
-      (e) => e.role === "employee" || e.role === "brigadier"
-    );
+    const workers = employees.filter((e) => e.role === "employee" || e.role === "brigadier");
     return {
       working: workers.filter((e) => e.status === "working").length,
       lunch: workers.filter((e) => e.status === "lunch").length,
@@ -742,7 +811,7 @@ export function AdminDashboard({
         site: r.site_name,
         criticality: CRIT_META[r.criticality].label,
         description: r.description ?? "",
-      }))
+      })),
     );
   }
 
@@ -779,11 +848,7 @@ export function AdminDashboard({
         }`}
       >
         <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
-          <img
-            src={dmagLogo}
-            alt="DMAG"
-            className="h-10 w-10 rounded-xl object-cover shadow"
-          />
+          <img src={dmagLogo} alt="DMAG" className="h-10 w-10 rounded-xl object-cover shadow" />
           <div>
             <p className="font-bold leading-tight">DMAG</p>
             <p className="text-xs opacity-75">Admin Console</p>
@@ -800,22 +865,22 @@ export function AdminDashboard({
           ]
             .filter((item) => !item.super || superMode)
             .map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                setActiveTab(item.id);
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition ${
-                activeTab === item.id
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                  : "hover:bg-sidebar-accent/60"
-              }`}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              <span className="leading-tight">{item.label}</span>
-            </button>
-          ))}
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition ${
+                  activeTab === item.id
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                    : "hover:bg-sidebar-accent/60"
+                }`}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span className="leading-tight">{item.label}</span>
+              </button>
+            ))}
         </nav>
         <div className="px-6 py-4 border-t border-sidebar-border text-xs opacity-75">
           DMAG · MVP v1.0
@@ -857,21 +922,21 @@ export function AdminDashboard({
               <ArrowLeft className="h-4 w-4 md:mr-2" />
               <span className="hidden md:inline">{t("admin.header.toShift")}</span>
             </Button>
-            <Button 
-              onClick={exportReports} 
-              className="rounded-full h-9 px-3 md:px-4 shadow-sm" 
+            <Button
+              onClick={exportReports}
+              className="rounded-full h-9 px-3 md:px-4 shadow-sm"
               title="Экспорт отчётов"
             >
               <Download className="h-4 w-4 md:mr-2" />
               <span className="hidden md:inline">{t("admin.header.export")}</span>
             </Button>
-            <SettingsDialog 
-              variant="icon" 
-              className="inline-flex items-center justify-center rounded-full h-9 w-9 hover:bg-gray-100 text-gray-500 hover:text-gray-900 shrink-0 transition-colors" 
+            <SettingsDialog
+              variant="icon"
+              className="inline-flex items-center justify-center rounded-full h-9 w-9 hover:bg-gray-100 text-gray-500 hover:text-gray-900 shrink-0 transition-colors"
             />
-            <Button 
-              variant="ghost" 
-              onClick={signOut} 
+            <Button
+              variant="ghost"
+              onClick={signOut}
               className="rounded-full h-9 w-9 p-0 shrink-0 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
             >
               <LogOut className="h-4 w-4" />
@@ -885,38 +950,37 @@ export function AdminDashboard({
             <>
               {/* KPI tiles */}
               <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Kpi
-              label={t("dashboard.kpi.workers")}
-              value={String(stats.working)}
-              tone="success"
-              icon={<Users className="h-5 w-5" />}
-            />
-            <Kpi
-              label={t("dashboard.kpi.lunch")}
-              value={String(stats.lunch)}
-              tone="warning"
-              icon={<Clock className="h-5 w-5" />}
-            />
-            <Kpi
-              label={t("dashboard.kpi.sites")}
-              value={String(stats.sites)}
-              tone="primary"
-              icon={<Building2 className="h-5 w-5" />}
-            />
-            <Kpi
-              label={t("dashboard.kpi.urgent")}
-              value={String(stats.urgent)}
-              tone="destructive"
-              icon={<ShieldCheck className="h-5 w-5" />}
-            />
-          </section>
+                <Kpi
+                  label={t("dashboard.kpi.workers")}
+                  value={String(stats.working)}
+                  tone="success"
+                  icon={<Users className="h-5 w-5" />}
+                />
+                <Kpi
+                  label={t("dashboard.kpi.lunch")}
+                  value={String(stats.lunch)}
+                  tone="warning"
+                  icon={<Clock className="h-5 w-5" />}
+                />
+                <Kpi
+                  label={t("dashboard.kpi.sites")}
+                  value={String(stats.sites)}
+                  tone="primary"
+                  icon={<Building2 className="h-5 w-5" />}
+                />
+                <Kpi
+                  label={t("dashboard.kpi.urgent")}
+                  value={String(stats.urgent)}
+                  tone="destructive"
+                  icon={<ShieldCheck className="h-5 w-5" />}
+                />
+              </section>
 
-          {loading && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Загружаем данные…
-            </div>
-          )}
-
+              {loading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Загружаем данные…
+                </div>
+              )}
             </>
           )}
 
@@ -924,86 +988,214 @@ export function AdminDashboard({
           {activeTab === "personnel" && (
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <Card className="p-6 rounded-2xl xl:col-span-2">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold">Мониторинг сотрудников</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Статус смены и время фиксации
-                  </p>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">Мониторинг сотрудников</h3>
+                    <p className="text-sm text-muted-foreground">Статус смены и время фиксации</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={openAddShift}
+                      className="rounded-xl"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
+                      Добавить смену
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => exportShiftsAs("csv")}
+                      className="rounded-xl"
+                    >
+                      <Download className="h-3.5 w-3.5 mr-1.5" />
+                      CSV
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => exportShiftsAs("xlsx")}
+                      className="rounded-xl"
+                    >
+                      <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
+                      Excel
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => exportShiftsAs("pdf")}
+                      className="rounded-xl"
+                    >
+                      <FileText className="h-3.5 w-3.5 mr-1.5" />
+                      PDF
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={openAddShift}
-                    className="rounded-xl"
-                  >
-                    <Plus className="h-3.5 w-3.5 mr-1.5" />
-                    Добавить смену
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => exportShiftsAs("csv")} className="rounded-xl">
-                    <Download className="h-3.5 w-3.5 mr-1.5" />
-                    CSV
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => exportShiftsAs("xlsx")} className="rounded-xl">
-                    <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
-                    Excel
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => exportShiftsAs("pdf")} className="rounded-xl">
-                    <FileText className="h-3.5 w-3.5 mr-1.5" />
-                    PDF
-                  </Button>
-                </div>
-              </div>
-              {employees.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Нет данных</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Сотрудник</TableHead>
-                        <TableHead>Роль</TableHead>
-                        <TableHead>Статус</TableHead>
-                        <TableHead>Объект</TableHead>
-                        <TableHead className="text-right">С</TableHead>
-                        <TableHead className="text-right">В работе</TableHead>
-                        <TableHead className="text-right">На паузе</TableHead>
-                        <TableHead className="text-right">Действия</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {employees.map((e) => {
-                        const st = EMP_STATUS[e.status];
-                        return (
-                          <TableRow key={e.id}>
-                            <TableCell className="font-medium">{tName(e.name)}</TableCell>
-                            <TableCell className="text-muted-foreground text-sm">
-                              {t(roleLabel[e.role])}
-                            </TableCell>
-                            <TableCell>
-                              <span
-                                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                                style={{ backgroundColor: `${st.color}1A`, color: st.color }}
-                              >
+                {employees.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Нет данных</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Сотрудник</TableHead>
+                          <TableHead>Роль</TableHead>
+                          <TableHead>Статус</TableHead>
+                          <TableHead>Объект</TableHead>
+                          <TableHead className="text-right">С</TableHead>
+                          <TableHead className="text-right">В работе</TableHead>
+                          <TableHead className="text-right">На паузе</TableHead>
+                          <TableHead className="text-right">Действия</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {employees.map((e) => {
+                          const st = EMP_STATUS[e.status];
+                          return (
+                            <TableRow key={e.id}>
+                              <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                              <TableCell className="text-muted-foreground text-sm">
+                                {t(roleLabel[e.role])}
+                              </TableCell>
+                              <TableCell>
                                 <span
-                                  className="h-1.5 w-1.5 rounded-full"
-                                  style={{ backgroundColor: st.color }}
-                                />
-                                {st.label}
-                              </span>
+                                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+                                  style={{ backgroundColor: `${st.color}1A`, color: st.color }}
+                                >
+                                  <span
+                                    className="h-1.5 w-1.5 rounded-full"
+                                    style={{ backgroundColor: st.color }}
+                                  />
+                                  {st.label}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground truncate max-w-[180px]">
+                                {e.siteName || "—"}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums text-sm">
+                                {e.since}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums text-sm">
+                                {formatHM(e.workedMs)}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
+                                {formatHM(e.lunchMs)}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="rounded-lg"
+                                    onClick={() => setCalendarFor(e)}
+                                    title="Календарь смен"
+                                  >
+                                    <CalendarDays className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="rounded-lg"
+                                    onClick={() => openEditShift(e)}
+                                    title="Редактировать смену"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </Card>
+
+              <Card className="p-6 rounded-2xl">
+                <h3 className="font-semibold mb-1">Распределение</h3>
+                <p className="text-sm text-muted-foreground mb-4">Сейчас по статусам</p>
+                <div className="space-y-3">
+                  {(Object.keys(EMP_STATUS) as EmpStatus[]).map((k) => {
+                    const count = employees.filter((e) => e.status === k).length;
+                    const total = Math.max(employees.length, 1);
+                    const pct = Math.round((count / total) * 100);
+                    const st = EMP_STATUS[k];
+                    return (
+                      <div key={k}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>{st.label}</span>
+                          <span className="text-muted-foreground tabular-nums">
+                            {count} · {pct}%
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${pct}%`, backgroundColor: st.color }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            </section>
+          )}
+
+          {/* SITES TAB */}
+          {activeTab === "sites" && (
+            <>
+              <Card className="p-6 rounded-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">Объекты</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Строительные площадки из базы данных
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="rounded-full">
+                      {sites.length}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={openAddSite}
+                      className="rounded-xl"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
+                      Добавить
+                    </Button>
+                  </div>
+                </div>
+                {sites.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Объектов пока нет</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Название</TableHead>
+                          <TableHead>Адрес</TableHead>
+                          <TableHead>Заказчик</TableHead>
+                          <TableHead className="text-right">Создан</TableHead>
+                          <TableHead className="text-right">Действия</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {sites.map((s) => (
+                          <TableRow key={s.id}>
+                            <TableCell className="font-medium">{s.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {s.address || "—"}
                             </TableCell>
-                            <TableCell className="text-sm text-muted-foreground truncate max-w-[180px]">
-                              {e.siteName || "—"}
+                            <TableCell className="text-sm text-muted-foreground">
+                              {s.customer || "—"}
                             </TableCell>
-                            <TableCell className="text-right tabular-nums text-sm">
-                              {e.since}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums text-sm">
-                              {formatHM(e.workedMs)}
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                              {formatHM(e.lunchMs)}
+                            <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                              {new Date(s.created_at).toLocaleDateString("ru-RU")}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-1">
@@ -1011,227 +1203,100 @@ export function AdminDashboard({
                                   size="sm"
                                   variant="ghost"
                                   className="rounded-lg"
-                                  onClick={() => setCalendarFor(e)}
-                                  title="Календарь смен"
+                                  onClick={() =>
+                                    setSiteEdit({
+                                      id: s.id,
+                                      name: s.name,
+                                      address: s.address ?? "",
+                                      customer: s.customer ?? "",
+                                    })
+                                  }
+                                  title="Редактировать"
                                 >
-                                  <CalendarDays className="h-3.5 w-3.5" />
+                                  <Pencil className="h-3.5 w-3.5" />
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="rounded-lg"
-                                  onClick={() => openEditShift(e)}
-                                  title="Редактировать смену"
+                                  className="rounded-lg text-destructive hover:text-destructive"
+                                  onClick={() => deleteSite(s.id, s.name)}
+                                  title="Удалить"
                                 >
-                                  <Pencil className="h-3.5 w-3.5" />
+                                  <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </Card>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </Card>
 
-            <Card className="p-6 rounded-2xl">
-              <h3 className="font-semibold mb-1">Распределение</h3>
-              <p className="text-sm text-muted-foreground mb-4">Сейчас по статусам</p>
-              <div className="space-y-3">
-                {(Object.keys(EMP_STATUS) as EmpStatus[]).map((k) => {
-                  const count = employees.filter((e) => e.status === k).length;
-                  const total = Math.max(employees.length, 1);
-                  const pct = Math.round((count / total) * 100);
-                  const st = EMP_STATUS[k];
-                  return (
-                    <div key={k}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>{st.label}</span>
-                        <span className="text-muted-foreground tabular-nums">
-                          {count} · {pct}%
-                        </span>
+              {/* Site editor dialog */}
+              <Dialog open={!!siteEdit} onOpenChange={(o) => !o && setSiteEdit(null)}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {siteEdit?.id ? "Редактировать объект" : "Новый объект"}
+                    </DialogTitle>
+                    <DialogDescription>Заполните данные строительной площадки</DialogDescription>
+                  </DialogHeader>
+                  {siteEdit && (
+                    <div className="space-y-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full h-11 rounded-xl justify-start"
+                        onClick={fillSiteFromGps}
+                        disabled={siteGpsBusy}
+                      >
+                        {siteGpsBusy ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <MapPin className="h-4 w-4 mr-2" />
+                        )}
+                        Определить по GPS
+                      </Button>
+
+                      <div className="space-y-1.5">
+                        <Label>Название *</Label>
+                        <Input
+                          value={siteEdit.name}
+                          onChange={(e) => setSiteEdit({ ...siteEdit, name: e.target.value })}
+                          placeholder="Название объекта"
+                        />
                       </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: `${pct}%`, backgroundColor: st.color }}
+                      <div className="space-y-1.5">
+                        <Label>Адрес</Label>
+                        <Input
+                          value={siteEdit.address}
+                          onChange={(e) => setSiteEdit({ ...siteEdit, address: e.target.value })}
+                          placeholder="GPS: широта, долгота или адрес"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Заказчик</Label>
+                        <Input
+                          value={siteEdit.customer}
+                          onChange={(e) => setSiteEdit({ ...siteEdit, customer: e.target.value })}
+                          placeholder="DMAG"
                         />
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </Card>
-          </section>
-          )}
-
-          {/* SITES TAB */}
-          {activeTab === "sites" && (
-            <>
-            <Card className="p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="font-semibold">Объекты</h3>
-                <p className="text-sm text-muted-foreground">
-                  Строительные площадки из базы данных
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="rounded-full">
-                  {sites.length}
-                </Badge>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={openAddSite}
-                  className="rounded-xl"
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1.5" />
-                  Добавить
-                </Button>
-              </div>
-            </div>
-            {sites.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Объектов пока нет</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Название</TableHead>
-                      <TableHead>Адрес</TableHead>
-                      <TableHead>Заказчик</TableHead>
-                      <TableHead className="text-right">Создан</TableHead>
-                      <TableHead className="text-right">Действия</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {sites.map((s) => (
-                      <TableRow key={s.id}>
-                        <TableCell className="font-medium">{s.name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {s.address || "—"}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {s.customer || "—"}
-                        </TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
-                          {new Date(s.created_at).toLocaleDateString("ru-RU")}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="rounded-lg"
-                              onClick={() =>
-                                setSiteEdit({
-                                  id: s.id,
-                                  name: s.name,
-                                  address: s.address ?? "",
-                                  customer: s.customer ?? "",
-                                })
-                              }
-                              title="Редактировать"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="rounded-lg text-destructive hover:text-destructive"
-                              onClick={() => deleteSite(s.id, s.name)}
-                              title="Удалить"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </Card>
-
-          {/* Site editor dialog */}
-          <Dialog open={!!siteEdit} onOpenChange={(o) => !o && setSiteEdit(null)}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>
-                  {siteEdit?.id ? "Редактировать объект" : "Новый объект"}
-                </DialogTitle>
-                <DialogDescription>
-                  Заполните данные строительной площадки
-                </DialogDescription>
-              </DialogHeader>
-              {siteEdit && (
-                <div className="space-y-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-11 rounded-xl justify-start"
-                    onClick={fillSiteFromGps}
-                    disabled={siteGpsBusy}
-                  >
-                    {siteGpsBusy ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <MapPin className="h-4 w-4 mr-2" />
-                    )}
-                    Определить по GPS
-                  </Button>
-
-                  <div className="space-y-1.5">
-                    <Label>Название *</Label>
-                    <Input
-                      value={siteEdit.name}
-                      onChange={(e) =>
-                        setSiteEdit({ ...siteEdit, name: e.target.value })
-                      }
-                      placeholder="Название объекта"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Адрес</Label>
-                    <Input
-                      value={siteEdit.address}
-                      onChange={(e) =>
-                        setSiteEdit({ ...siteEdit, address: e.target.value })
-                      }
-                      placeholder="GPS: широта, долгота или адрес"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Заказчик</Label>
-                    <Input
-                      value={siteEdit.customer}
-                      onChange={(e) =>
-                        setSiteEdit({ ...siteEdit, customer: e.target.value })
-                      }
-                      placeholder="DMAG"
-                    />
-                  </div>
-                </div>
-              )}
-              <DialogFooter>
-                <Button
-                  variant="ghost"
-                  onClick={() => setSiteEdit(null)}
-                  disabled={siteSaving}
-                >
-                  Отмена
-                </Button>
-                <Button onClick={saveSite} disabled={siteSaving}>
-                  {siteSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Сохранить
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                  )}
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setSiteEdit(null)} disabled={siteSaving}>
+                      Отмена
+                    </Button>
+                    <Button onClick={saveSite} disabled={siteSaving}>
+                      {siteSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Сохранить
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </>
           )}
 
@@ -1239,75 +1304,68 @@ export function AdminDashboard({
           {activeTab === "reports" && (
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <Card className="p-6 rounded-2xl xl:col-span-2">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-semibold">Лента фотоотчётов</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Последние загрузки со всех объектов
-                  </p>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">Лента фотоотчётов</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Последние загрузки со всех объектов
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={exportReports}
+                    className="rounded-xl"
+                  >
+                    <Download className="h-3.5 w-3.5 mr-1.5" />
+                    Экспорт
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={exportReports}
-                  className="rounded-xl"
-                >
-                  <Download className="h-3.5 w-3.5 mr-1.5" />
-                  Экспорт
-                </Button>
-              </div>
-              {reports.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Отчётов пока нет</p>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {reports.map((r) => {
-                    const m = CRIT_META[r.criticality];
-                    return (
-                      <div
-                        key={r.id}
-                        className="flex gap-3 rounded-2xl border bg-card p-3"
-                      >
-                        <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
-                          {r.thumb ? (
-                            <img
-                              src={r.thumb}
-                              alt=""
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <Camera className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span
-                              className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                              style={{ backgroundColor: m.bg, color: m.color }}
-                            >
-                              {m.label}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground truncate">
-                              {r.site_name}
-                            </span>
+                {reports.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Отчётов пока нет</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {reports.map((r) => {
+                      const m = CRIT_META[r.criticality];
+                      return (
+                        <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3">
+                          <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
+                            {r.thumb ? (
+                              <img src={r.thumb} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <Camera className="h-5 w-5 text-muted-foreground" />
+                            )}
                           </div>
-                          <p className="text-xs line-clamp-2">
-                            {r.description || "Без описания"}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground mt-1">
-                            {new Date(r.created_at).toLocaleString("ru-RU", {
-                              day: "numeric",
-                              month: "short",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span
+                                className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                style={{ backgroundColor: m.bg, color: m.color }}
+                              >
+                                {m.label}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground truncate">
+                                {r.site_name}
+                              </span>
+                            </div>
+                            <p className="text-xs line-clamp-2">
+                              {r.description || "Без описания"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1">
+                              {new Date(r.created_at).toLocaleString("ru-RU", {
+                                day: "numeric",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </Card>
             </section>
           )}
 
@@ -1330,11 +1388,7 @@ export function AdminDashboard({
                   )}
                   {logs.map((l) => {
                     const dot =
-                      l.level === "alert"
-                        ? "#F44336"
-                        : l.level === "warn"
-                          ? "#FFB300"
-                          : "#4CAF50";
+                      l.level === "alert" ? "#F44336" : l.level === "warn" ? "#FFB300" : "#4CAF50";
                     return (
                       <div key={l.id} className="flex gap-3">
                         <span
@@ -1342,9 +1396,7 @@ export function AdminDashboard({
                           style={{ backgroundColor: dot }}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium leading-tight">
-                            {l.action}
-                          </p>
+                          <p className="text-sm font-medium leading-tight">{l.action}</p>
                           <p className="text-xs text-muted-foreground truncate">
                             {l.user} · {l.meta}
                           </p>
@@ -1366,9 +1418,7 @@ export function AdminDashboard({
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-semibold">{t("admin.users.title")}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("admin.users.desc")}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("admin.users.desc")}</p>
                 </div>
                 <Button
                   size="sm"
@@ -1391,7 +1441,10 @@ export function AdminDashboard({
                   <TableBody>
                     {employees.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-sm text-muted-foreground text-center py-6">
+                        <TableCell
+                          colSpan={3}
+                          className="text-sm text-muted-foreground text-center py-6"
+                        >
                           {t("admin.users.empty")}
                         </TableCell>
                       </TableRow>
@@ -1412,7 +1465,9 @@ export function AdminDashboard({
                               <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
                               <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
                               <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>
-                              <SelectItem value="super_admin">{t(roleLabel.super_admin)}</SelectItem>
+                              <SelectItem value="super_admin">
+                                {t(roleLabel.super_admin)}
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -1458,9 +1513,7 @@ export function AdminDashboard({
       <Dialog open={!!shiftEdit} onOpenChange={(o) => !o && setShiftEdit(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {shiftEdit?.id ? "Редактировать смену" : "Добавить смену"}
-            </DialogTitle>
+            <DialogTitle>{shiftEdit?.id ? "Редактировать смену" : "Добавить смену"}</DialogTitle>
             <DialogDescription>
               {shiftEdit?.user_name
                 ? `Сотрудник: ${tName(shiftEdit.user_name || "")}`
@@ -1483,7 +1536,9 @@ export function AdminDashboard({
                       });
                     }}
                   >
-                    <SelectTrigger><SelectValue placeholder="Выберите…" /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите…" />
+                    </SelectTrigger>
                     <SelectContent>
                       {employees.map((emp) => (
                         <SelectItem key={emp.id} value={emp.id}>
@@ -1499,18 +1554,23 @@ export function AdminDashboard({
                 <Select
                   value={shiftEdit.site_id ?? "__none__"}
                   onValueChange={(v) => {
-                    if (v === "__none__") setShiftEdit({ ...shiftEdit, site_id: null, site_name: null });
+                    if (v === "__none__")
+                      setShiftEdit({ ...shiftEdit, site_id: null, site_name: null });
                     else {
                       const s = sites.find((x) => x.id === v);
                       setShiftEdit({ ...shiftEdit, site_id: v, site_name: s?.name ?? null });
                     }
                   }}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">— Без объекта —</SelectItem>
                     {sites.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -1549,9 +1609,7 @@ export function AdminDashboard({
                   <Label>GPS город (старт)</Label>
                   <Input
                     value={shiftEdit.start_city}
-                    onChange={(ev) =>
-                      setShiftEdit({ ...shiftEdit, start_city: ev.target.value })
-                    }
+                    onChange={(ev) => setShiftEdit({ ...shiftEdit, start_city: ev.target.value })}
                     placeholder="Köln"
                   />
                 </div>
@@ -1559,9 +1617,7 @@ export function AdminDashboard({
                   <Label>GPS город (конец)</Label>
                   <Input
                     value={shiftEdit.end_city}
-                    onChange={(ev) =>
-                      setShiftEdit({ ...shiftEdit, end_city: ev.target.value })
-                    }
+                    onChange={(ev) => setShiftEdit({ ...shiftEdit, end_city: ev.target.value })}
                     placeholder="Köln"
                   />
                 </div>
@@ -1594,9 +1650,7 @@ export function AdminDashboard({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("admin.users.createTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("admin.users.createDesc")}
-            </DialogDescription>
+            <DialogDescription>{t("admin.users.createDesc")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div>
@@ -1628,7 +1682,9 @@ export function AdminDashboard({
                 value={createForm.role}
                 onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}
               >
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
                   <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
@@ -1639,7 +1695,11 @@ export function AdminDashboard({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateForm({ ...createForm, open: false })} disabled={userBusy}>
+            <Button
+              variant="outline"
+              onClick={() => setCreateForm({ ...createForm, open: false })}
+              disabled={userBusy}
+            >
               {t("admin.users.cancel")}
             </Button>
             <Button onClick={submitCreateUser} disabled={userBusy}>
@@ -1722,11 +1782,7 @@ function Kpi({
   return (
     <Card className="p-5 rounded-2xl">
       <div className="flex items-center justify-between mb-3">
-        <span
-          className={`h-10 w-10 rounded-xl grid place-items-center ${toneClass}`}
-        >
-          {icon}
-        </span>
+        <span className={`h-10 w-10 rounded-xl grid place-items-center ${toneClass}`}>{icon}</span>
       </div>
       <p className="text-3xl font-bold leading-none">{value}</p>
       <p className="mt-2 text-sm text-muted-foreground">{label}</p>

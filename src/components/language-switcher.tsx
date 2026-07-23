@@ -31,11 +31,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         <DropdownMenuLabel>{t("header.language")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {LANGUAGES.map((l) => (
-          <DropdownMenuItem
-            key={l.code}
-            onClick={() => setLang(l.code)}
-            className="cursor-pointer"
-          >
+          <DropdownMenuItem key={l.code} onClick={() => setLang(l.code)} className="cursor-pointer">
             <span className="mr-2">{l.flag}</span>
             <span className="flex-1">{l.label}</span>
             {lang === l.code && <Check className="h-4 w-4 text-primary" />}

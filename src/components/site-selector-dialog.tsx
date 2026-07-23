@@ -134,9 +134,7 @@ export function SiteSelectorDialog({
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
-            <DialogTitle>
-              {creating ? tr("siteDlg.newTitle") : tr("siteDlg.title")}
-            </DialogTitle>
+            <DialogTitle>{creating ? tr("siteDlg.newTitle") : tr("siteDlg.title")}</DialogTitle>
           </div>
           <DialogDescription>
             {creating ? tr("siteDlg.newSubtitle") : tr("siteDlg.subtitle")}
@@ -184,9 +182,7 @@ export function SiteSelectorDialog({
                 id="site-customer"
                 placeholder={tr("siteDlg.phCustomer")}
                 value={form.customer}
-                onChange={(e) =>
-                  setForm({ ...form, customer: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, customer: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
@@ -208,11 +204,7 @@ export function SiteSelectorDialog({
               >
                 {tr("siteDlg.cancel")}
               </Button>
-              <Button
-                className="h-11 rounded-xl"
-                onClick={createSite}
-                disabled={busy}
-              >
+              <Button className="h-11 rounded-xl" onClick={createSite} disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {tr("siteDlg.create")}
               </Button>
@@ -249,32 +241,22 @@ export function SiteSelectorDialog({
                         onOpenChange(false);
                       }}
                       className={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition active:scale-[0.99] ${
-                        active
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:bg-muted/50"
+                        active ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
                       }`}
                     >
                       <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center text-primary shrink-0">
                         <MapPin className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">
-                          {s.name}
-                        </p>
+                        <p className="font-semibold text-sm truncate">{s.name}</p>
                         {s.address && (
-                          <p className="text-xs text-muted-foreground truncate">
-                            {s.address}
-                          </p>
+                          <p className="text-xs text-muted-foreground truncate">{s.address}</p>
                         )}
                         {s.customer && (
-                          <p className="text-xs text-muted-foreground truncate">
-                            {s.customer}
-                          </p>
+                          <p className="text-xs text-muted-foreground truncate">{s.customer}</p>
                         )}
                       </div>
-                      {active && (
-                        <Check className="h-5 w-5 text-primary shrink-0" />
-                      )}
+                      {active && <Check className="h-5 w-5 text-primary shrink-0" />}
                     </button>
                   );
                 })

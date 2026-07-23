@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'DMAG',
   webDir: 'dist',
   server: {
-    url: 'http://192.168.1.2:3000',
+    url: 'http://192.168.1.2:5174',
     cleartext: true
   }
 };

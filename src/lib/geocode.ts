@@ -31,17 +31,8 @@ export async function getCurrentPosition(
     }
     const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 8000, ...options });
     return pos.coords;
-  } catch (e) {
-    // Web fallback just in case
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      return new Promise((resolve) => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => resolve(pos.coords),
-          () => resolve(null),
-          { enableHighAccuracy: true, timeout: 8000, ...options },
-        );
-      });
-    }
+  } catch (e: any) {
+    alert("GPS Error: " + (e?.message || JSON.stringify(e)));
     return null;
   }
 }

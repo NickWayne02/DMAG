@@ -1,0 +1,1 @@
+CREATE POLICY "Super admins can delete chat messages" ON public.chat_messages FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'super_admin'));

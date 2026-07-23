@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DMAG</string>
+    <string name="title_activity_main">DMAG</string>
+    <string name="package_name">org.dmag.app</string>
+    <string name="custom_url_scheme">org.dmag.app</string>
+</resources>

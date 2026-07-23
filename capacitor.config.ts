@@ -4,17 +4,10 @@ const config: CapacitorConfig = {
   appId: 'org.dmag.app',
   appName: 'DMAG',
   webDir: 'dist',
-  // Для тестирования в эмуляторе Android используйте локальный сервер:
-  // server: {
-  //   url: 'http://10.0.2.2:3000',
-  //   cleartext: true
-  // }
-  // 
-  // Когда загрузите сайт на Vercel/Netlify, укажите ваш рабочий URL:
-  // server: {
-  //   url: 'https://ваш-домен.com',
-  //   cleartext: true
-  // }
+  server: {
+    url: 'http://192.168.1.2:3000',
+    cleartext: true
+  }
 };
 
 export default config;

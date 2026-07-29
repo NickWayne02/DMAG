@@ -31,7 +31,9 @@ jobs:
         run: npm run build
 
       - name: Fix Capacitor webDir
-        run: echo "<html></html>" > dist/index.html
+        run: |
+          mkdir -p dist
+          echo "<html></html>" > dist/index.html
 
       - name: Sync Capacitor
         run: npx cap sync android

@@ -14,13 +14,14 @@ export async function reverseGeocodeCity(
   }
 }
 
-import { Geolocation } from "@capacitor/geolocation";
 import { toast } from "sonner";
 
 export async function getCurrentPosition(
   options?: PositionOptions,
 ): Promise<{ latitude: number; longitude: number } | null> {
   try {
+    if (typeof window === "undefined") return null;
+    const { Geolocation } = await import("@capacitor/geolocation");
     const permissions = await Geolocation.checkPermissions();
     if (permissions.location !== "granted") {
       const request = await Geolocation.requestPermissions();

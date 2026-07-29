@@ -15,7 +15,6 @@ import {
 import { toast } from "sonner";
 import { Camera as LucideCamera, Loader2, X, ImagePlus } from "lucide-react";
 import type { Site } from "./site-selector-dialog";
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 
 type Criticality = "info" | "important" | "urgent";
 
@@ -68,11 +67,13 @@ export function PhotoReportDialog({
     setPreviewUrl(URL.createObjectURL(f));
   }
 
-  async function takePhoto(source: CameraSource) {
+  async function takePhoto(source: "CAMERA" | "PHOTOS") {
     try {
+      if (typeof window === "undefined") return;
+      const { Camera } = await import("@capacitor/camera");
       const photo = await Camera.getPhoto({
-        resultType: CameraResultType.Uri,
-        source,
+        resultType: "uri" as any,
+        source: source as any,
         quality: 80,
       });
       if (photo.webPath) {
@@ -84,7 +85,7 @@ export function PhotoReportDialog({
     } catch (e) {
       console.error("Camera error:", e);
       if (fileInputRef.current) {
-        if (source === CameraSource.Camera) {
+        if (source === "CAMERA") {
           fileInputRef.current.setAttribute("capture", "environment");
         } else {
           fileInputRef.current.removeAttribute("capture");
@@ -181,7 +182,7 @@ export function PhotoReportDialog({
                   type="button"
                   variant="outline"
                   className="h-24 rounded-2xl flex flex-col gap-1"
-                  onClick={() => takePhoto(CameraSource.Camera)}
+                  onClick={() => takePhoto("CAMERA")}
                 >
                   <LucideCamera className="h-6 w-6" />
                   <span className="text-xs">Сделать снимок</span>
@@ -190,7 +191,7 @@ export function PhotoReportDialog({
                   type="button"
                   variant="outline"
                   className="h-24 rounded-2xl flex flex-col gap-1"
-                  onClick={() => takePhoto(CameraSource.Photos)}
+                  onClick={() => takePhoto("PHOTOS")}
                 >
                   <ImagePlus className="h-6 w-6" />
                   <span className="text-xs">Из галереи</span>

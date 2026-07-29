@@ -356,7 +356,6 @@ function MessageBubble({
   const needsTranslate = m.source_lang !== targetLang;
   const [translated, setTranslated] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
-  const translateFn = useServerFn(translateMessage);
   const t = useT();
 
   useEffect(() => {
@@ -366,12 +365,10 @@ function MessageBubble({
     }
     let cancelled = false;
     setTranslating(true);
-    translateFn({
-      data: {
-        text: m.content,
-        sourceLang: m.source_lang,
-        targetLang,
-      },
+    translateMessage({
+      text: m.content,
+      sourceLang: m.source_lang,
+      targetLang,
     })
       .then((res) => {
         if (!cancelled) setTranslated(res.translated);
@@ -385,7 +382,7 @@ function MessageBubble({
     return () => {
       cancelled = true;
     };
-  }, [m.id, m.content, m.source_lang, targetLang, needsTranslate, translateFn]);
+  }, [m.id, m.content, m.source_lang, targetLang, needsTranslate]);
 
   const time = useMemo(
     () =>

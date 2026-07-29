@@ -39,8 +39,6 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
   const knownRef = useRef<Set<Text>>(new Set());
   const [isTranslating, setIsTranslating] = useState(false);
 
-  const translate = useServerFn(translateBatch);
-
   useLayoutEffect(() => {
     const root = containerRef.current;
     if (!root) return;
@@ -132,8 +130,8 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
           for (let i = 0; i < allMissing.length; i += 80) {
             if (cancelled) return;
             const items = allMissing.slice(i, i + 80);
-            const res = await translate({
-              data: { items, sourceLang: "ru", targetLang: lang },
+            const res = await translateBatch({
+              items, sourceLang: "ru", targetLang: lang
             });
             if (cancelled) return;
             res.translations.forEach((tx, j) => {
@@ -256,7 +254,7 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
       if (scheduled != null) window.clearTimeout(scheduled);
       observer.disconnect();
     };
-  }, [lang, translate]);
+  }, [lang]);
 
   return (
     <>

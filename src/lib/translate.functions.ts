@@ -25,39 +25,39 @@ const LANG_NAMES: Record<string, string> = {
   tg: "Tajik",
 };
 
-export const translateMessage = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => InputSchema.parse(input))
-  .handler(async ({ data }) => {
-    if (data.sourceLang === data.targetLang) {
-      return { translated: data.text, cached: true };
-    }
+export async function translateMessage(data: { text: string; sourceLang: string; targetLang: string }) {
+  const parsed = InputSchema.parse(data);
 
-    const res = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${data.sourceLang}&tl=${data.targetLang}&dt=t&q=${encodeURIComponent(data.text)}`,
-    );
+  if (parsed.sourceLang === parsed.targetLang) {
+    return { translated: parsed.text, cached: true };
+  }
 
-    if (!res.ok) {
-      return { translated: data.text, error: `gateway_${res.status}` as const };
-    }
-    const json = await res.json();
-    const out = json[0].map((item: any) => item[0]).join("");
-    return { translated: out };
-  });
+  const res = await fetch(
+    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${parsed.sourceLang}&tl=${parsed.targetLang}&dt=t&q=${encodeURIComponent(parsed.text)}`,
+  );
 
-export const translateBatch = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => BatchSchema.parse(input))
-  .handler(async ({ data }) => {
-    if (data.sourceLang === data.targetLang) {
-      return { translations: data.items };
-    }
-    const numbered = data.items.map((t, i) => `${i + 1}. ${t.replace(/\n/g, " ")}`).join("\n");
+  if (!res.ok) {
+    return { translated: parsed.text, error: `gateway_${res.status}` as const };
+  }
+  const json = await res.json();
+  const out = json[0].map((item: any) => item[0]).join("");
+  return { translated: out };
+}
 
-    const res = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${data.sourceLang}&tl=${data.targetLang}&dt=t&q=${encodeURIComponent(numbered)}`,
-    );
+export async function translateBatch(data: { items: string[]; sourceLang: string; targetLang: string }) {
+  const parsed = BatchSchema.parse(data);
 
-    if (!res.ok) {
-      return { translations: data.items, error: `gateway_${res.status}` as const };
+  if (parsed.sourceLang === parsed.targetLang) {
+    return { translations: parsed.items };
+  }
+  const numbered = parsed.items.map((t, i) => `${i + 1}. ${t.replace(/\n/g, " ")}`).join("\n");
+
+  const res = await fetch(
+    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${parsed.sourceLang}&tl=${parsed.targetLang}&dt=t&q=${encodeURIComponent(numbered)}`,
+  );
+
+  if (!res.ok) {
+    return { translations: parsed.items, error: `gateway_${res.status}` as const };
     }
     const json = await res.json();
     const raw = json[0].map((item: any) => item[0]).join("");
@@ -70,6 +70,6 @@ export const translateBatch = createServerFn({ method: "POST" })
       const m = line.match(/^(\d+)[.)\]]\s*(.+)$/);
       if (m) map.set(Number(m[1]), m[2].trim());
     }
-    const translations = data.items.map((orig, i) => map.get(i + 1) ?? orig);
+    const translations = parsed.items.map((orig, i) => map.get(i + 1) ?? orig);
     return { translations };
-  });
+}

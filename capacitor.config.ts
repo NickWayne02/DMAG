@@ -4,10 +4,11 @@ const config: CapacitorConfig = {
   appId: "org.dmag.app",
   appName: "DMAG",
   webDir: "dist",
-  // server: {
-  //   url: "http://192.168.1.2:5174",
-  //   cleartext: true,
-  // },
+  server: {
+    url: "https://dmag.vercel.app", // ЗАМЕНИТЕ НА ВАШ РЕАЛЬНЫЙ ДОМЕН VERCEL, ЕСЛИ ОН ДРУГОЙ
+    cleartext: true,
+    allowNavigation: ["dmag.vercel.app", "*.vercel.app"],
+  },
 };
 
 export default config;

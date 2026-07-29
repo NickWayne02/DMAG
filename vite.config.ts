@@ -13,9 +13,6 @@ export default defineConfig({
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
   ],
-  ssr: {
-    noExternal: true,
-  },
   resolve: {
     alias: {
       "@": `${process.cwd()}/src`,

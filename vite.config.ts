@@ -7,12 +7,18 @@ import tsConfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [
     tanstackStart({
-      server: { entry: "server" },
+      server: {
+        preset: "vercel",
+        entry: "server",
+      },
     }),
     viteReact(),
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
   ],
+  ssr: {
+    noExternal: true,
+  },
   resolve: {
     alias: {
       "@": `${process.cwd()}/src`,

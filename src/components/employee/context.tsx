@@ -443,9 +443,9 @@ export function EmployeeProvider({
   }
 
   async function reverseGeocodeCity(
-    coords: { latitude: number; longitude: number } | null,
+    coords: GeolocationCoordinates | null,
   ): Promise<string | null> {
-    if (!coords) return null;
+    if (!coords || (coords.latitude === 0 && coords.longitude === 0)) return null;
     try {
       const r = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=ru`,

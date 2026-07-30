@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 // Export helpers for shift monitoring: CSV / Excel / PDF
 // Detailed rows: employee, site, date, start work, start pause, end pause, end work.
 
@@ -106,19 +108,15 @@ export async function exportShiftsXlsx(rows: ExportRow[], filename: string) {
   const XLSX = await import("xlsx");
   const ws = XLSX.utils.aoa_to_sheet([HEADERS, ...rows.map(rowToArray)]);
   ws["!cols"] = [
-    { wch: 12 },
-    { wch: 24 },
-    { wch: 22 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 12 },
-    { wch: 12 },
+    { wch: 12 }, { wch: 24 }, { wch: 22 }, { wch: 14 },
+    { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 },
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Смены");
-  XLSX.writeFile(wb, filename);
+  
+  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  triggerDownload(blob, filename);
 }
 
 export async function exportShiftsPdf(rows: ExportRow[], filename: string, title: string) {
@@ -137,14 +135,54 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
     headStyles: { fillColor: [37, 99, 235] },
     alternateRowStyles: { fillColor: [245, 247, 250] },
   });
-  doc.save(filename);
+  
+  const blob = doc.output("blob");
+  triggerDownload(blob, filename);
 }
 
 function triggerDownload(blob: Blob, filename: string) {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    toast.success("Файл успешно сформирован", {
+      duration: 15000,
+      action: {
+        label: "Скачать",
+        onClick: () => triggerDownloadSync(blob, filename),
+      },
+    });
+  } else {
+    triggerDownloadSync(blob, filename);
+  }
+}
+
+function triggerDownloadSync(blob: Blob, filename: string) {
+  if (navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: filename,
+        }).catch(() => fallbackDownload(blob, filename));
+        return;
+      }
+    } catch (err) {
+      console.warn("Share API error", err);
+    }
+  }
+  fallbackDownload(blob, filename);
+}
+
+function fallbackDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+  a.style.display = "none";
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
 }

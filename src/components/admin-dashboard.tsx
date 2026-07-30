@@ -162,12 +162,48 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
   ];
   const csv = "\uFEFF" + lines.join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    toast.success("Файл готов к скачиванию", {
+      duration: 15000,
+      action: {
+        label: "Скачать",
+        onClick: () => triggerCsvDownloadSync(blob, filename),
+      },
+    });
+  } else {
+    triggerCsvDownloadSync(blob, filename);
+  }
+}
+
+function triggerCsvDownloadSync(blob: Blob, filename: string) {
+  if (navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: filename }).catch(() => fallbackDownloadCsv(blob, filename));
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  fallbackDownloadCsv(blob, filename);
+}
+
+function fallbackDownloadCsv(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+  a.style.display = "none";
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
 }
 
 export function AdminDashboard({

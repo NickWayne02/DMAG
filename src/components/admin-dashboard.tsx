@@ -1368,16 +1368,6 @@ export function AdminDashboard({
           {activeTab === "security" && superMode && (
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <Card className="p-6 rounded-2xl xl:col-span-2">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="font-semibold text-lg">{t("admin.security.title")}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("admin.security.desc")}
-                    </p>
-                  </div>
-                  <ShieldCheck className="h-5 w-5 text-primary" />
-                </div>
-                
                 <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
                   {/* Current Session */}
                   <div>

@@ -64,12 +64,31 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Reset a user's password and/or email. Super_admin only. */
+/** Reset a user's password and/or email. Admin or super_admin. */
 export const adminUpdateCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { user_id: string; email?: string; password?: string }) => data)
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    await assertAdminOrSuper(context.supabase, context.userId);
+
+    // If caller is not super_admin, verify target user's role
+    const { data: isSuper } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    
+    if (!isSuper) {
+      const { data: targetRoleData } = await context.supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user_id)
+        .single();
+      const targetRole = targetRoleData?.role;
+      if (targetRole === "super_admin" || targetRole === "admin") {
+        throw new Error("Forbidden: Cannot modify credentials for admin or super_admin");
+      }
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const patch: Record<string, unknown> = { email_confirm: true };
     if (data.email) patch.email = data.email;
@@ -90,6 +109,40 @@ export const adminSetRole = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: data.user_id, role: data.role });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Toggle a user's is_active status. Admin or super_admin. */
+export const adminToggleActive = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { user_id: string; is_active: boolean }) => data)
+  .handler(async ({ data, context }) => {
+    await assertAdminOrSuper(context.supabase, context.userId);
+
+    // If caller is not super_admin, verify target user's role
+    const { data: isSuper } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    
+    if (!isSuper) {
+      const { data: targetRoleData } = await context.supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user_id)
+        .single();
+      const targetRole = targetRoleData?.role;
+      if (targetRole === "super_admin") {
+        throw new Error("Forbidden: Cannot modify active status for super_admin");
+      }
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ is_active: data.is_active })
+      .eq("id", data.user_id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

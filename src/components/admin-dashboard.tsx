@@ -82,6 +82,7 @@ import {
   adminDeleteUser,
   adminSetRole,
   adminUpdateCredentials,
+  adminToggleActive,
 } from "@/lib/admin-users.functions";
 import { getCurrentPosition, reverseGeocodeCity } from "@/lib/geocode";
 import { useLanguage } from "@/lib/i18n";
@@ -119,6 +120,7 @@ type EmployeeRow = {
   lunchMs: number;
   siteName: string | null;
   lastShiftAt: string | null; // ISO
+  is_active: boolean;
 };
 
 type SiteRow = {
@@ -273,9 +275,15 @@ export function AdminDashboard({
     });
 
     const nowMs = Date.now();
-    let emps: EmployeeRow[] = (profiles ?? []).map((p) => {
-      const r = roleMap.get(p.id) ?? "employee";
-      const sh = latestShiftByUser.get(p.id);
+    let emps: EmployeeRow[] = (profiles ?? [])
+      .filter((p) => {
+        const r = roleMap.get(p.id) ?? "employee";
+        if (role === "admin" && r === "super_admin") return false;
+        return true;
+      })
+      .map((p) => {
+        const r = roleMap.get(p.id) ?? "employee";
+        const sh = latestShiftByUser.get(p.id);
       let status: EmpStatus = "offline";
       let since = "—";
       let workedMs = 0;
@@ -307,6 +315,7 @@ export function AdminDashboard({
         lunchMs,
         siteName,
         lastShiftAt,
+        is_active: p.is_active ?? true,
       };
     });
 
@@ -690,8 +699,11 @@ export function AdminDashboard({
   // ===== User management (super_admin only) =====
   const createUserFn = useServerFn(adminCreateUser);
   const deleteUserFn = useServerFn(adminDeleteUser);
-  const updateCredsFn = useServerFn(adminUpdateCredentials);
   const setRoleFn = useServerFn(adminSetRole);
+  const updateCredsFn = useServerFn(adminUpdateCredentials);
+  const adminToggleActiveFn = useServerFn(adminToggleActive);
+
+  // Mocks vs Real Data
 
   const [createForm, setCreateForm] = useState<{
     open: boolean;
@@ -865,7 +877,7 @@ export function AdminDashboard({
             { id: "sites", icon: Building2, label: t("admin.tab.sites"), super: false },
             { id: "reports", icon: Camera, label: t("admin.tab.reports"), super: false },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
-            { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: true },
+            { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
           ]
             .filter((item) => !item.super || superMode)
             .map((item) => (
@@ -1446,7 +1458,7 @@ export function AdminDashboard({
           )}
 
           {/* ADMIN MANAGEMENT TAB */}
-          {activeTab === "admin-management" && superMode && (
+          {activeTab === "admin-management" && (
             <Card className="p-6 rounded-2xl border-2 border-dashed border-primary/30">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -1467,6 +1479,7 @@ export function AdminDashboard({
                   <TableHeader>
                     <TableRow>
                       <TableHead>{t("admin.users.user")}</TableHead>
+                      <TableHead>Статус</TableHead>
                       <TableHead>{t("admin.users.role")}</TableHead>
                       <TableHead className="text-right">{t("admin.users.actions")}</TableHead>
                     </TableRow>
@@ -1475,7 +1488,7 @@ export function AdminDashboard({
                     {employees.length === 0 && (
                       <TableRow>
                         <TableCell
-                          colSpan={3}
+                          colSpan={4}
                           className="text-sm text-muted-foreground text-center py-6"
                         >
                           {t("admin.users.empty")}
@@ -1486,10 +1499,17 @@ export function AdminDashboard({
                       <TableRow key={`mgr-${e.id}`}>
                         <TableCell className="font-medium">{tName(e.name)}</TableCell>
                         <TableCell>
+                          {e.is_active ? (
+                            <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">Активен</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20">Модерация</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
                           <Select
                             value={e.role}
                             onValueChange={(v) => changeRole(e, v as AppRole)}
-                            disabled={userBusy || e.id === user?.id}
+                            disabled={userBusy || e.id === user?.id || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
                           >
                             <SelectTrigger className="h-8 w-[160px] rounded-lg">
                               <SelectValue />
@@ -1497,19 +1517,44 @@ export function AdminDashboard({
                             <SelectContent>
                               <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
                               <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
-                              <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>
-                              <SelectItem value="super_admin">
-                                {t(roleLabel.super_admin)}
-                              </SelectItem>
+                              {superMode && <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>}
+                              {superMode && (
+                                <SelectItem value="super_admin">
+                                  {t(roleLabel.super_admin)}
+                                </SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>
                         <TableCell className="text-right space-x-2">
+                          {!e.is_active && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="rounded-lg bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
+                              disabled={userBusy || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
+                              onClick={async () => {
+                                setUserBusy(true);
+                                try {
+                                  await adminToggleActiveFn({ data: { user_id: e.id, is_active: true } });
+                                  toast.success("Аккаунт одобрен");
+                                  loadAll();
+                                } catch (err) {
+                                  toast.error(err instanceof Error ? err.message : "Ошибка");
+                                } finally {
+                                  setUserBusy(false);
+                                }
+                              }}
+                            >
+                              <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                              Одобрить
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
                             className="rounded-lg"
-                            disabled={userBusy}
+                            disabled={userBusy || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
                             onClick={() =>
                               setCredsEdit({
                                 user_id: e.id,
@@ -1526,7 +1571,7 @@ export function AdminDashboard({
                             size="sm"
                             variant="destructive"
                             className="rounded-lg"
-                            disabled={userBusy || e.id === user?.id}
+                            disabled={userBusy || e.id === user?.id || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
                             onClick={() => removeUser(e)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -1721,8 +1766,8 @@ export function AdminDashboard({
                 <SelectContent>
                   <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
                   <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
-                  <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>
-                  <SelectItem value="super_admin">{t(roleLabel.super_admin)}</SelectItem>
+                  {superMode && <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>}
+                  {superMode && <SelectItem value="super_admin">{t(roleLabel.super_admin)}</SelectItem>}
                 </SelectContent>
               </Select>
             </div>

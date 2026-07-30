@@ -146,38 +146,17 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
 }
 
 function triggerDownload(blob: Blob, filename: string) {
-  // Mobile fallback using Web Share API
-  if (navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], filename, { type: blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: filename,
-        }).catch(() => {
-          // Fallback to normal download if share is cancelled or fails
-          fallbackDownload(blob, filename);
-        });
-        return;
-      }
-    } catch (err) {
-      console.warn("Share API failed", err);
-    }
-  }
-  
-  fallbackDownload(blob, filename);
-}
-
-function fallbackDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.style.display = "none";
   a.href = url;
   a.download = filename;
+  // Append to body is required for Firefox and some mobile browsers
   document.body.appendChild(a);
   a.click();
+  // Delay cleanup to ensure browser has time to start download
   setTimeout(() => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, 100);
+  }, 1000);
 }

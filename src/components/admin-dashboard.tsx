@@ -169,24 +169,6 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
   const csv = "\uFEFF" + lines.join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   
-  if (navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], filename, { type: blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: filename,
-        }).catch(() => fallbackDownloadCsv(blob, filename));
-        return;
-      }
-    } catch (err) {
-      console.warn("Share API failed", err);
-    }
-  }
-  fallbackDownloadCsv(blob, filename);
-}
-
-function fallbackDownloadCsv(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.style.display = "none";
@@ -197,7 +179,7 @@ function fallbackDownloadCsv(blob: Blob, filename: string) {
   setTimeout(() => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }, 100);
+  }, 1000);
 }
 
 export function AdminDashboard({

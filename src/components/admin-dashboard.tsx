@@ -69,9 +69,9 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import {
   toExportRows,
-  exportShiftsCsv,
   exportShiftsXlsx,
   exportShiftsPdf,
+  triggerDownload,
   type ShiftDetail,
 } from "@/lib/shift-export";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
@@ -147,114 +147,11 @@ type SecurityLog = {
   level: "info" | "warn" | "alert";
 };
 
-function csvEscape(v: unknown) {
-  const s = v == null ? "" : String(v);
-  return `"${s.replace(/"/g, '""')}"`;
-}
-
 function formatHM(ms: number) {
   const totalMin = Math.max(0, Math.floor(ms / 60000));
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
   return `${h}ч ${m.toString().padStart(2, "0")}м`;
-}
-
-function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
-  if (rows.length === 0) {
-    toast.info("Нет данных для экспорта");
-    return;
-  }
-  const headers = Object.keys(rows[0]);
-  const lines = [
-    headers.join(","),
-    ...rows.map((r) => headers.map((h) => csvEscape(r[h])).join(",")),
-  ];
-  const csv = "\uFEFF" + lines.join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (isMobile) {
-    toast.success("Файл готов к скачиванию", {
-      duration: 15000,
-      action: {
-        label: "Скачать",
-        onClick: () => triggerCsvDownloadSync(blob, filename),
-      },
-    });
-  } else {
-    triggerCsvDownloadSync(blob, filename);
-  }
-}
-
-function triggerCsvDownloadSync(blob: Blob, filename: string) {
-  if (Capacitor.isNativePlatform()) {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        const base64data = reader.result as string;
-        const base64 = base64data.split(",")[1];
-        
-        const savedFile = await Filesystem.writeFile({
-          path: filename,
-          data: base64,
-          directory: Directory.Cache,
-        });
-        
-        await Share.share({
-          title: filename,
-          url: savedFile.uri,
-        });
-      } catch (e) {
-        console.error("Capacitor share error", e);
-      }
-    };
-    reader.readAsDataURL(blob);
-    return;
-  }
-  
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (isMobile && navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], filename, { type: blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: filename }).catch(() => fallbackDownloadCsv(blob, filename));
-        return;
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
-  fallbackDownloadCsv(blob, filename);
-}
-
-function fallbackDownloadCsv(blob: Blob, filename: string) {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (isMobile) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64data = reader.result as string;
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = base64data;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    };
-    reader.readAsDataURL(blob);
-  } else {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 1000);
-  }
 }
 
 export function AdminDashboard({
@@ -884,7 +781,7 @@ export function AdminDashboard({
     }
   }
 
-  async function exportReports(fmt: "csv" | "xlsx" | "pdf") {
+  async function exportReports(fmt: "xlsx" | "pdf") {
     const filename = `dmag-reports-${new Date().toISOString().slice(0, 10)}`;
     const rows = reports.map((r) => ({
       ID: r.id,
@@ -899,9 +796,7 @@ export function AdminDashboard({
       return;
     }
 
-    if (fmt === "csv") {
-      downloadCsv(`${filename}.csv`, rows);
-    } else if (fmt === "xlsx") {
+    if (fmt === "xlsx") {
       const XLSX = await import("xlsx");
       const headers = Object.keys(rows[0]);
       const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map(r => Object.values(r))]);
@@ -909,7 +804,7 @@ export function AdminDashboard({
       XLSX.utils.book_append_sheet(wb, ws, "Отчёты");
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      triggerCsvDownloadSync(blob, `${filename}.xlsx`);
+      triggerDownload(blob, `${filename}.xlsx`);
     } else if (fmt === "pdf") {
       const { jsPDF } = await import("jspdf");
       const autoTable = (await import("jspdf-autotable")).default;
@@ -921,14 +816,14 @@ export function AdminDashboard({
       doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
       autoTable(doc, { head: [headers], body: rows.map(r => Object.values(r)), startY: 74 });
       const blob = doc.output("blob");
-      triggerCsvDownloadSync(blob, `${filename}.pdf`);
+      triggerDownload(blob, `${filename}.pdf`);
     }
   }
 
   function shiftExportRows() {
     return toExportRows(shiftHistory);
   }
-  function exportShiftsAs(fmt: "csv" | "xlsx" | "pdf") {
+  function exportShiftsAs(fmt: "xlsx" | "pdf") {
     const rows = shiftExportRows();
     if (rows.length === 0) {
       toast.info("Нет смен за последние 30 дней");
@@ -936,8 +831,7 @@ export function AdminDashboard({
     }
     const stamp = new Date().toISOString().slice(0, 10);
     const base = `dmag-smeny-${stamp}`;
-    if (fmt === "csv") exportShiftsCsv(rows, `${base}.csv`);
-    else if (fmt === "xlsx") exportShiftsXlsx(rows, `${base}.xlsx`);
+    if (fmt === "xlsx") exportShiftsXlsx(rows, `${base}.xlsx`);
     else exportShiftsPdf(rows, `${base}.pdf`, "Отчёт по сменам (30 дней)");
   }
 
@@ -1121,10 +1015,6 @@ export function AdminDashboard({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-36 rounded-xl">
-                        <DropdownMenuItem onSelect={() => exportShiftsAs("csv")} className="rounded-lg cursor-pointer">
-                          <FileText className="h-4 w-4 mr-2" />
-                          CSV
-                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => exportShiftsAs("xlsx")} className="rounded-lg cursor-pointer">
                           <FileSpreadsheet className="h-4 w-4 mr-2" />
                           Excel
@@ -1424,10 +1314,6 @@ export function AdminDashboard({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-36 rounded-xl">
-                      <DropdownMenuItem onSelect={() => exportReports("csv")} className="rounded-lg cursor-pointer">
-                        <FileText className="h-4 w-4 mr-2" />
-                        CSV
-                      </DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => exportReports("xlsx")} className="rounded-lg cursor-pointer">
                         <FileSpreadsheet className="h-4 w-4 mr-2" />
                         Excel

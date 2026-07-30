@@ -98,14 +98,6 @@ function rowToArray(r: ExportRow) {
   ];
 }
 
-export function exportShiftsCsv(rows: ExportRow[], filename: string) {
-  const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const lines = [HEADERS.map(esc).join(","), ...rows.map((r) => rowToArray(r).map(esc).join(","))];
-  const blob = new Blob(["\uFEFF" + lines.join("\n")], {
-    type: "text/csv;charset=utf-8",
-  });
-  triggerDownload(blob, filename);
-}
 
 export async function exportShiftsXlsx(rows: ExportRow[], filename: string) {
   const XLSX = await import("xlsx");
@@ -143,7 +135,7 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
   triggerDownload(blob, filename);
 }
 
-function triggerDownload(blob: Blob, filename: string) {
+export function triggerDownload(blob: Blob, filename: string) {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   if (isMobile) {
     toast.success("Файл успешно сформирован", {

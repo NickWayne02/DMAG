@@ -89,10 +89,10 @@ type Crit = keyof typeof CRIT_META;
 
 // Simulated employee statuses for monitoring panel
 const EMP_STATUS = {
-  working: { label: "На смене", color: "#4CAF50" },
-  lunch: { label: "На обеде", color: "#FFB300" },
-  finished: { label: "Завершил", color: "#9E9E9E" },
-  offline: { label: "Не на смене", color: "#BDBDBD" },
+  working: { labelKey: "admin.status.working", color: "#4CAF50" },
+  lunch: { labelKey: "admin.status.lunch", color: "#FFB300" },
+  finished: { labelKey: "admin.status.finished", color: "#9E9E9E" },
+  offline: { labelKey: "admin.status.offline", color: "#BDBDBD" },
 } as const;
 type EmpStatus = keyof typeof EMP_STATUS;
 
@@ -990,8 +990,8 @@ export function AdminDashboard({
               <Card className="p-6 rounded-2xl xl:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold">Мониторинг сотрудников</h3>
-                    <p className="text-sm text-muted-foreground">Статус смены и время фиксации</p>
+                    <h3 className="font-semibold">{t("admin.personnel.title")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("admin.personnel.desc")}</p>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -1001,7 +1001,7 @@ export function AdminDashboard({
                       className="rounded-xl"
                     >
                       <Plus className="h-3.5 w-3.5 mr-1.5" />
-                      Добавить смену
+                      {t("admin.personnel.addShift")}
                     </Button>
                     <Button
                       size="sm"
@@ -1033,20 +1033,20 @@ export function AdminDashboard({
                   </div>
                 </div>
                 {employees.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Нет данных</p>
+                  <p className="text-sm text-muted-foreground">{t("admin.personnel.noData")}</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Сотрудник</TableHead>
-                          <TableHead>Роль</TableHead>
-                          <TableHead>Статус</TableHead>
-                          <TableHead>Объект</TableHead>
-                          <TableHead className="text-right">С</TableHead>
-                          <TableHead className="text-right">В работе</TableHead>
-                          <TableHead className="text-right">На паузе</TableHead>
-                          <TableHead className="text-right">Действия</TableHead>
+                          <TableHead>{t("admin.personnel.colEmployee")}</TableHead>
+                          <TableHead>{t("admin.personnel.colRole")}</TableHead>
+                          <TableHead>{t("admin.personnel.colStatus")}</TableHead>
+                          <TableHead>{t("admin.personnel.colSite")}</TableHead>
+                          <TableHead className="text-right">{t("admin.personnel.colStart")}</TableHead>
+                          <TableHead className="text-right">{t("admin.personnel.colWork")}</TableHead>
+                          <TableHead className="text-right">{t("admin.personnel.colPause")}</TableHead>
+                          <TableHead className="text-right">{t("admin.personnel.colActions")}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1067,7 +1067,7 @@ export function AdminDashboard({
                                     className="h-1.5 w-1.5 rounded-full"
                                     style={{ backgroundColor: st.color }}
                                   />
-                                  {st.label}
+                                  {t(st.labelKey)}
                                 </span>
                               </TableCell>
                               <TableCell className="text-sm text-muted-foreground truncate max-w-[180px]">
@@ -1089,7 +1089,7 @@ export function AdminDashboard({
                                     variant="ghost"
                                     className="rounded-lg"
                                     onClick={() => setCalendarFor(e)}
-                                    title="Календарь смен"
+                                    title={t("admin.personnel.calTooltip")}
                                   >
                                     <CalendarDays className="h-3.5 w-3.5" />
                                   </Button>
@@ -1098,7 +1098,7 @@ export function AdminDashboard({
                                     variant="ghost"
                                     className="rounded-lg"
                                     onClick={() => openEditShift(e)}
-                                    title="Редактировать смену"
+                                    title={t("admin.personnel.editTooltip")}
                                   >
                                     <Pencil className="h-3.5 w-3.5" />
                                   </Button>
@@ -1114,8 +1114,8 @@ export function AdminDashboard({
               </Card>
 
               <Card className="p-6 rounded-2xl">
-                <h3 className="font-semibold mb-1">Распределение</h3>
-                <p className="text-sm text-muted-foreground mb-4">Сейчас по статусам</p>
+                <h3 className="font-semibold mb-1">{t("admin.personnel.distTitle")}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{t("admin.personnel.distDesc")}</p>
                 <div className="space-y-3">
                   {(Object.keys(EMP_STATUS) as EmpStatus[]).map((k) => {
                     const count = employees.filter((e) => e.status === k).length;
@@ -1125,7 +1125,7 @@ export function AdminDashboard({
                     return (
                       <div key={k}>
                         <div className="flex justify-between text-sm mb-1">
-                          <span>{st.label}</span>
+                          <span>{t(st.labelKey)}</span>
                           <span className="text-muted-foreground tabular-nums">
                             {count} · {pct}%
                           </span>

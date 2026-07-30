@@ -9,22 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toExportRows, type ShiftDetail } from "@/lib/shift-export";
-
-const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-const MONTHS = [
-  "Январь",
-  "Февраль",
-  "Март",
-  "Апрель",
-  "Май",
-  "Июнь",
-  "Июль",
-  "Август",
-  "Сентябрь",
-  "Октябрь",
-  "Ноябрь",
-  "Декабрь",
-];
+import { useLanguage } from "@/lib/i18n";
 
 export function ShiftCalendarDialog({
   open,
@@ -37,12 +22,32 @@ export function ShiftCalendarDialog({
   employeeName: string;
   shifts: ShiftDetail[];
 }) {
+  const { t, lang } = useLanguage();
+
   const [cursor, setCursor] = useState(() => {
     const d = new Date();
     d.setDate(1);
     d.setHours(0, 0, 0, 0);
     return d;
   });
+
+  const WEEKDAYS = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(lang, { weekday: "short" });
+    const days = [];
+    // 2024-01-01 was a Monday
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(2024, 0, i);
+      const str = fmt.format(d).replace(/\./g, ""); // strip dots for some locales
+      days.push(str.charAt(0).toUpperCase() + str.slice(1));
+    }
+    return days;
+  }, [lang]);
+
+  const monthName = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(lang, { month: "long" });
+    const str = fmt.format(cursor);
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }, [lang, cursor]);
 
   const rowsByDate = useMemo(() => {
     const map = new Map<string, ReturnType<typeof toExportRows>>();
@@ -88,12 +93,12 @@ export function ShiftCalendarDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Календарь смен · {employeeName}</DialogTitle>
+          <DialogTitle>{t("admin.personnel.calTooltip")} · {employeeName}</DialogTitle>
           <DialogDescription>
-            Отработано за месяц:{" "}
+            {t("admin.personnel.workedMonth")}{" "}
             <b>
-              {Math.floor(monthWorkedMs / 3600000)}ч{" "}
-              {String(Math.floor((monthWorkedMs % 3600000) / 60000)).padStart(2, "0")}м
+              {Math.floor(monthWorkedMs / 3600000)}{t("time.hours.short")}{" "}
+              {String(Math.floor((monthWorkedMs % 3600000) / 60000)).padStart(2, "0")}{t("time.minutes.short")}
             </b>
           </DialogDescription>
         </DialogHeader>
@@ -107,7 +112,7 @@ export function ShiftCalendarDialog({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="font-semibold">
-            {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
+            {monthName} {cursor.getFullYear()}
           </div>
           <Button
             variant="ghost"
@@ -155,7 +160,7 @@ export function ShiftCalendarDialog({
                           </div>
                         ))}
                         <div className="text-[10px] font-semibold text-foreground">
-                          {Math.floor(totalMin / 60)}ч {String(totalMin % 60).padStart(2, "0")}м
+                          {Math.floor(totalMin / 60)}{t("time.hours.short")} {String(totalMin % 60).padStart(2, "0")}{t("time.minutes.short")}
                         </div>
                       </div>
                     )}

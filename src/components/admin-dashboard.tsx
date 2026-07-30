@@ -25,6 +25,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -998,33 +1004,28 @@ export function AdminDashboard({
                       <Plus className="h-3.5 w-3.5 mr-1.5" />
                       {t("admin.personnel.addShift")}
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => exportShiftsAs("csv")}
-                      className="rounded-xl"
-                    >
-                      <Download className="h-3.5 w-3.5 mr-1.5" />
-                      CSV
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => exportShiftsAs("xlsx")}
-                      className="rounded-xl"
-                    >
-                      <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
-                      Excel
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => exportShiftsAs("pdf")}
-                      className="rounded-xl"
-                    >
-                      <FileText className="h-3.5 w-3.5 mr-1.5" />
-                      PDF
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="outline" className="rounded-xl bg-background">
+                          <Download className="h-3.5 w-3.5 mr-1.5" />
+                          {t("admin.header.export")}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-36 rounded-xl">
+                        <DropdownMenuItem onClick={() => exportShiftsAs("csv")} className="rounded-lg cursor-pointer">
+                          <FileText className="h-3.5 w-3.5 mr-2" />
+                          CSV
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => exportShiftsAs("xlsx")} className="rounded-lg cursor-pointer">
+                          <FileSpreadsheet className="h-3.5 w-3.5 mr-2" />
+                          Excel
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => exportShiftsAs("pdf")} className="rounded-lg cursor-pointer">
+                          <FileText className="h-3.5 w-3.5 mr-2" />
+                          PDF
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
                 {employees.length === 0 ? (

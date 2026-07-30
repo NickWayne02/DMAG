@@ -1012,11 +1012,13 @@ export function AdminDashboard({
                     </Button>
                     <div className="relative">
                       <select
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        value=""
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        defaultValue=""
                         onChange={(e) => {
-                          if (e.target.value) {
-                            exportShiftsAs(e.target.value as "csv" | "xlsx" | "pdf");
+                          const val = e.target.value;
+                          if (val) {
+                            exportShiftsAs(val as "csv" | "xlsx" | "pdf");
+                            e.target.value = "";
                           }
                         }}
                       >

@@ -169,7 +169,7 @@ export function AdminDashboard({
 }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { t, tName } = useLanguage();
+  const { t, tName, lang } = useLanguage();
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -446,6 +446,7 @@ export function AdminDashboard({
           lunchMs: 0,
           siteName: null,
           lastShiftAt: null,
+          is_active: true,
         },
         {
           id: "dev-2",
@@ -457,6 +458,7 @@ export function AdminDashboard({
           lunchMs: 30 * 60_000,
           siteName: "DMAG Werkhalle Nord",
           lastShiftAt: new Date().toISOString(),
+          is_active: true,
         },
         {
           id: "dev-3",
@@ -468,6 +470,7 @@ export function AdminDashboard({
           lunchMs: 0,
           siteName: "Bauprojekt Hafen Ost",
           lastShiftAt: new Date().toISOString(),
+          is_active: true,
         },
         {
           id: "dev-4",
@@ -479,6 +482,7 @@ export function AdminDashboard({
           lunchMs: 25 * 60_000,
           siteName: "DMAG Werkhalle Nord",
           lastShiftAt: new Date().toISOString(),
+          is_active: true,
         },
       ];
     }
@@ -1055,7 +1059,7 @@ export function AdminDashboard({
               <span className="hidden md:inline">{t("admin.header.toShift")}</span>
             </Button>
             <Button
-              onClick={exportReports}
+              onClick={() => exportReports("xlsx")}
               className="rounded-full h-9 px-3 md:px-4 shadow-sm"
               title="Экспорт отчётов"
             >

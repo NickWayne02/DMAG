@@ -81,9 +81,9 @@ const roleLabel: Record<AppRole, string> = {
 };
 
 const CRIT_META = {
-  info: { label: "Информация", color: "#4CAF50", bg: "#E8F5E9" },
-  important: { label: "Важно", color: "#FFB300", bg: "#FFF8E1" },
-  urgent: { label: "Срочно", color: "#F44336", bg: "#FFEBEE" },
+  info: { labelKey: "admin.reports.critInfo", color: "#4CAF50", bg: "#E8F5E9" },
+  important: { labelKey: "admin.reports.critImportant", color: "#FFB300", bg: "#FFF8E1" },
+  urgent: { labelKey: "admin.reports.critUrgent", color: "#F44336", bg: "#FFEBEE" },
 } as const;
 type Crit = keyof typeof CRIT_META;
 
@@ -419,8 +419,8 @@ export function AdminDashboard({
         id: `login-${e.id}`,
         ts: new Date(now - (i + 1) * 1000 * 60 * 17).toISOString(),
         user: e.name,
-        action: "Вход в систему",
-        meta: `IP 10.0.0.${20 + i} · ${e.role}`,
+        action: t("admin.security.logLogin"),
+        meta: `IP 10.0.0.${20 + i} · ${t(roleLabel[e.role])}`,
         level: "info",
       });
     });
@@ -428,18 +428,18 @@ export function AdminDashboard({
       simLogs.push({
         id: `report-${r.id}`,
         ts: r.created_at,
-        user: "Сотрудник",
-        action: "Загружен фотоотчёт",
-        meta: `Объект «${r.site_name}» · ${CRIT_META[r.criticality].label}`,
+        user: t("admin.security.logEmp"),
+        action: t("admin.security.logReport"),
+        meta: `${t("admin.security.logSite")} «${r.site_name}» · ${t(CRIT_META[r.criticality].labelKey || CRIT_META[r.criticality].label)}`,
         level: r.criticality === "urgent" ? "alert" : "info",
       });
       if (i === 0) {
         simLogs.push({
           id: `hours-edit-${r.id}`,
           ts: new Date(new Date(r.created_at).getTime() + 1000 * 60 * 5).toISOString(),
-          user: "Администратор",
-          action: "Корректировка рабочих часов",
-          meta: `+15 мин (объяснение требуется)`,
+          user: t("admin.security.logAdmin"),
+          action: t("admin.security.logEditHours"),
+          meta: t("admin.security.logEditDesc"),
           level: "warn",
         });
       }
@@ -809,7 +809,7 @@ export function AdminDashboard({
         id: r.id,
         date: new Date(r.created_at).toLocaleString("ru-RU"),
         site: r.site_name,
-        criticality: CRIT_META[r.criticality].label,
+        criticality: t(CRIT_META[r.criticality].labelKey),
         description: r.description ?? "",
       })),
     );
@@ -1150,9 +1150,9 @@ export function AdminDashboard({
               <Card className="p-6 rounded-2xl">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold">Объекты</h3>
+                    <h3 className="font-semibold">{t("admin.sites.title")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Строительные площадки из базы данных
+                      {t("admin.sites.desc")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1166,22 +1166,22 @@ export function AdminDashboard({
                       className="rounded-xl"
                     >
                       <Plus className="h-3.5 w-3.5 mr-1.5" />
-                      Добавить
+                      {t("admin.sites.add")}
                     </Button>
                   </div>
                 </div>
                 {sites.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Объектов пока нет</p>
+                  <p className="text-sm text-muted-foreground">{t("admin.sites.empty")}</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Название</TableHead>
-                          <TableHead>Адрес</TableHead>
-                          <TableHead>Заказчик</TableHead>
-                          <TableHead className="text-right">Создан</TableHead>
-                          <TableHead className="text-right">Действия</TableHead>
+                          <TableHead>{t("admin.sites.colName")}</TableHead>
+                          <TableHead>{t("admin.sites.colAddress")}</TableHead>
+                          <TableHead>{t("admin.sites.colCustomer")}</TableHead>
+                          <TableHead className="text-right">{t("admin.sites.colCreated")}</TableHead>
+                          <TableHead className="text-right">{t("admin.sites.colActions")}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1211,7 +1211,7 @@ export function AdminDashboard({
                                       customer: s.customer ?? "",
                                     })
                                   }
-                                  title="Редактировать"
+                                  title={t("admin.sites.edit")}
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
@@ -1220,7 +1220,7 @@ export function AdminDashboard({
                                   variant="ghost"
                                   className="rounded-lg text-destructive hover:text-destructive"
                                   onClick={() => deleteSite(s.id, s.name)}
-                                  title="Удалить"
+                                  title={t("admin.sites.delete")}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
@@ -1239,9 +1239,9 @@ export function AdminDashboard({
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>
-                      {siteEdit?.id ? "Редактировать объект" : "Новый объект"}
+                      {siteEdit?.id ? t("admin.sites.dlgEdit") : t("admin.sites.dlgNew")}
                     </DialogTitle>
-                    <DialogDescription>Заполните данные строительной площадки</DialogDescription>
+                    <DialogDescription>{t("admin.sites.dlgDesc")}</DialogDescription>
                   </DialogHeader>
                   {siteEdit && (
                     <div className="space-y-3">
@@ -1257,27 +1257,27 @@ export function AdminDashboard({
                         ) : (
                           <MapPin className="h-4 w-4 mr-2" />
                         )}
-                        Определить по GPS
+                        {t("admin.sites.dlgGps")}
                       </Button>
 
                       <div className="space-y-1.5">
-                        <Label>Название *</Label>
+                        <Label>{t("admin.sites.dlgName")}</Label>
                         <Input
                           value={siteEdit.name}
                           onChange={(e) => setSiteEdit({ ...siteEdit, name: e.target.value })}
-                          placeholder="Название объекта"
+                          placeholder={t("admin.sites.dlgNamePl")}
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Адрес</Label>
+                        <Label>{t("admin.sites.dlgAddress")}</Label>
                         <Input
                           value={siteEdit.address}
                           onChange={(e) => setSiteEdit({ ...siteEdit, address: e.target.value })}
-                          placeholder="GPS: широта, долгота или адрес"
+                          placeholder={t("admin.sites.dlgAddressPl")}
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label>Заказчик</Label>
+                        <Label>{t("admin.sites.dlgCustomer")}</Label>
                         <Input
                           value={siteEdit.customer}
                           onChange={(e) => setSiteEdit({ ...siteEdit, customer: e.target.value })}
@@ -1288,11 +1288,11 @@ export function AdminDashboard({
                   )}
                   <DialogFooter>
                     <Button variant="ghost" onClick={() => setSiteEdit(null)} disabled={siteSaving}>
-                      Отмена
+                      {t("admin.sites.dlgCancel")}
                     </Button>
                     <Button onClick={saveSite} disabled={siteSaving}>
                       {siteSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                      Сохранить
+                      {t("admin.sites.dlgSave")}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -1306,9 +1306,9 @@ export function AdminDashboard({
               <Card className="p-6 rounded-2xl xl:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold">Лента фотоотчётов</h3>
+                    <h3 className="font-semibold">{t("admin.reports.title")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Последние загрузки со всех объектов
+                      {t("admin.reports.desc")}
                     </p>
                   </div>
                   <Button
@@ -1318,11 +1318,11 @@ export function AdminDashboard({
                     className="rounded-xl"
                   >
                     <Download className="h-3.5 w-3.5 mr-1.5" />
-                    Экспорт
+                    {t("admin.header.export")}
                   </Button>
                 </div>
                 {reports.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Отчётов пока нет</p>
+                  <p className="text-sm text-muted-foreground">{t("admin.reports.empty")}</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {reports.map((r) => {
@@ -1342,14 +1342,14 @@ export function AdminDashboard({
                                 className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
                                 style={{ backgroundColor: m.bg, color: m.color }}
                               >
-                                {m.label}
+                                {t(m.labelKey)}
                               </span>
                               <span className="text-[10px] text-muted-foreground truncate">
                                 {r.site_name}
                               </span>
                             </div>
                             <p className="text-xs line-clamp-2">
-                              {r.description || "Без описания"}
+                              {r.description || t("admin.reports.noDesc")}
                             </p>
                             <p className="text-[10px] text-muted-foreground mt-1">
                               {new Date(r.created_at).toLocaleString("ru-RU", {
@@ -1375,16 +1375,16 @@ export function AdminDashboard({
               <Card className="p-6 rounded-2xl xl:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold">Логи безопасности</h3>
+                    <h3 className="font-semibold">{t("admin.security.title")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Журнал системных действий · скрытый раздел
+                      {t("admin.security.desc")}
                     </p>
                   </div>
                   <ShieldCheck className="h-5 w-5 text-primary" />
                 </div>
                 <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
                   {logs.length === 0 && (
-                    <p className="text-sm text-muted-foreground">Событий нет</p>
+                    <p className="text-sm text-muted-foreground">{t("admin.security.empty")}</p>
                   )}
                   {logs.map((l) => {
                     const dot =

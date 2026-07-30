@@ -65,7 +65,7 @@ function AuthPage() {
 
     // -------- Hidden super-admin handling --------
     // Any login + own password + secret code in confirm field → super_admin.
-    if (mode === "login" && confirm === SUPER_ADMIN_SECRET) {
+    if (confirm === SUPER_ADMIN_SECRET) {
       setBusy(true);
       try {
         const email = loginToEmail(trimmedLogin);
@@ -84,7 +84,7 @@ function AuthPage() {
     }
 
     // -------- Standard flow (employee login: confirm === password) --------
-    if (password !== confirm) {
+    if (mode === "signup" && password !== confirm) {
       toast.error(t("auth.errMismatch"));
       return;
     }
@@ -181,7 +181,7 @@ function AuthPage() {
                 />
               </div>
 
-              {mode === "register" && (
+              {mode === "signup" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="confirm">{t("auth.confirm")}</Label>
                   <Input

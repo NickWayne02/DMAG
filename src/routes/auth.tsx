@@ -181,19 +181,21 @@ function AuthPage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="confirm">{t("auth.confirm")}</Label>
-                <Input
-                  id="confirm"
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="h-12 rounded-xl"
-                  minLength={6}
-                  required
-                />
-              </div>
+              {mode === "register" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirm">{t("auth.confirm")}</Label>
+                  <Input
+                    id="confirm"
+                    type="password"
+                    autoComplete="new-password"
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    className="h-12 rounded-xl"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              )}
 
               <Button
                 type="submit"

@@ -185,7 +185,42 @@ export function AdminDashboard({
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
   const [sites, setSites] = useState<SiteRow[]>([]);
   const [reports, setReports] = useState<ReportRow[]>([]);
-  const [logs, setLogs] = useState<SecurityLog[]>([]);
+  const logs = useMemo(() => {
+    const now = Date.now();
+    const simLogs: SecurityLog[] = [];
+    employees.slice(0, 6).forEach((e, i) => {
+      simLogs.push({
+        id: `login-${e.id}`,
+        ts: new Date(now - (i + 1) * 1000 * 60 * 17).toISOString(),
+        user: e.name,
+        action: t("admin.security.logLogin"),
+        meta: `IP 10.0.0.${20 + i} · ${t(roleLabel[e.role])}`,
+        level: "info",
+      });
+    });
+    reports.slice(0, 4).forEach((r, i) => {
+      simLogs.push({
+        id: `report-${r.id}`,
+        ts: r.created_at,
+        user: t("admin.security.logEmp"),
+        action: t("admin.security.logReport"),
+        meta: `${t("admin.security.logSite")} «${r.site_name}» · ${t(CRIT_META[r.criticality as Crit]?.labelKey || "")}`,
+        level: r.criticality === "urgent" ? "alert" : "info",
+      });
+      if (i === 0) {
+        simLogs.push({
+          id: `hours-edit-${r.id}`,
+          ts: new Date(new Date(r.created_at).getTime() + 1000 * 60 * 5).toISOString(),
+          user: t("admin.security.logAdmin"),
+          action: t("admin.security.logEditHours"),
+          meta: t("admin.security.logEditDesc"),
+          level: "warn",
+        });
+      }
+    });
+    simLogs.sort((a, b) => b.ts.localeCompare(a.ts));
+    return simLogs;
+  }, [employees, reports, t]);
   const [loading, setLoading] = useState(true);
   const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
@@ -411,45 +446,9 @@ export function AdminDashboard({
       ];
     }
 
-    // Simulated security log — derived from real data so it's not empty
-    const now = Date.now();
-    const simLogs: SecurityLog[] = [];
-    emps.slice(0, 6).forEach((e, i) => {
-      simLogs.push({
-        id: `login-${e.id}`,
-        ts: new Date(now - (i + 1) * 1000 * 60 * 17).toISOString(),
-        user: e.name,
-        action: t("admin.security.logLogin"),
-        meta: `IP 10.0.0.${20 + i} · ${t(roleLabel[e.role])}`,
-        level: "info",
-      });
-    });
-    repRows.slice(0, 4).forEach((r, i) => {
-      simLogs.push({
-        id: `report-${r.id}`,
-        ts: r.created_at,
-        user: t("admin.security.logEmp"),
-        action: t("admin.security.logReport"),
-        meta: `${t("admin.security.logSite")} «${r.site_name}» · ${t(CRIT_META[r.criticality].labelKey || CRIT_META[r.criticality].label)}`,
-        level: r.criticality === "urgent" ? "alert" : "info",
-      });
-      if (i === 0) {
-        simLogs.push({
-          id: `hours-edit-${r.id}`,
-          ts: new Date(new Date(r.created_at).getTime() + 1000 * 60 * 5).toISOString(),
-          user: t("admin.security.logAdmin"),
-          action: t("admin.security.logEditHours"),
-          meta: t("admin.security.logEditDesc"),
-          level: "warn",
-        });
-      }
-    });
-    simLogs.sort((a, b) => b.ts.localeCompare(a.ts));
-
     setEmployees(emps);
     setSites(siteRows);
     setReports(repRows);
-    setLogs(simLogs);
 
     // Full shift history (last 30 days) for exports and calendar view
     const since30 = new Date();

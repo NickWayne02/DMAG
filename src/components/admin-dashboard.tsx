@@ -822,17 +822,45 @@ export function AdminDashboard({
     }
   }
 
-  function exportReports() {
-    downloadCsv(
-      `dmag-reports-${new Date().toISOString().slice(0, 10)}.csv`,
-      reports.map((r) => ({
-        id: r.id,
-        date: new Date(r.created_at).toLocaleString("ru-RU"),
-        site: r.site_name,
-        criticality: t(CRIT_META[r.criticality].labelKey),
-        description: r.description ?? "",
-      })),
-    );
+  async function exportReports(fmt: "csv" | "xlsx" | "pdf") {
+    const filename = `dmag-reports-${new Date().toISOString().slice(0, 10)}`;
+    const rows = reports.map((r) => ({
+      ID: r.id,
+      Дата: new Date(r.created_at).toLocaleString("ru-RU"),
+      Объект: r.site_name,
+      Критичность: t(CRIT_META[r.criticality].labelKey),
+      Описание: r.description ?? "",
+    }));
+
+    if (rows.length === 0) {
+      toast.info("Нет данных для экспорта");
+      return;
+    }
+
+    if (fmt === "csv") {
+      downloadCsv(`${filename}.csv`, rows);
+    } else if (fmt === "xlsx") {
+      const XLSX = await import("xlsx");
+      const headers = Object.keys(rows[0]);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map(r => Object.values(r))]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Отчёты");
+      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      triggerCsvDownloadSync(blob, `${filename}.xlsx`);
+    } else if (fmt === "pdf") {
+      const { jsPDF } = await import("jspdf");
+      const autoTable = (await import("jspdf-autotable")).default;
+      const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+      const headers = Object.keys(rows[0]);
+      doc.setFontSize(14);
+      doc.text("Отчёты", 40, 40);
+      doc.setFontSize(9);
+      doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
+      autoTable(doc, { head: [headers], body: rows.map(r => Object.values(r)), startY: 74 });
+      const blob = doc.output("blob");
+      triggerCsvDownloadSync(blob, `${filename}.pdf`);
+    }
   }
 
   function shiftExportRows() {
@@ -1331,15 +1359,32 @@ export function AdminDashboard({
                       {t("admin.reports.desc")}
                     </p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={exportReports}
-                    className="rounded-xl"
-                  >
-                    <Download className="h-3.5 w-3.5 mr-1.5" />
-                    {t("admin.header.export")}
-                  </Button>
+                  <div className="relative">
+                    <select
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      defaultValue=""
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          exportReports(val as "csv" | "xlsx" | "pdf");
+                          e.target.value = "";
+                        }
+                      }}
+                    >
+                      <option value="" disabled>Экспорт</option>
+                      <option value="csv">CSV</option>
+                      <option value="xlsx">Excel</option>
+                      <option value="pdf">PDF</option>
+                    </select>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl bg-background pointer-events-none"
+                    >
+                      <Download className="h-3.5 w-3.5 mr-1.5" />
+                      {t("admin.header.export")}
+                    </Button>
+                  </div>
                 </div>
                 {reports.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("admin.reports.empty")}</p>

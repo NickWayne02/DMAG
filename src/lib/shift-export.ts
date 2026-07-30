@@ -93,7 +93,7 @@ function rowToArray(r: ExportRow) {
   ];
 }
 
-export function exportShiftsCsv(rows: ExportRow[], filename: string) {
+export async function exportShiftsCsv(rows: ExportRow[], filename: string) {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const lines = [HEADERS.map(esc).join(","), ...rows.map((r) => rowToArray(r).map(esc).join(","))];
   const blob = new Blob(["\uFEFF" + lines.join("\n")], {
@@ -118,7 +118,10 @@ export async function exportShiftsXlsx(rows: ExportRow[], filename: string) {
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Смены");
-  XLSX.writeFile(wb, filename);
+  
+  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  triggerDownload(blob, filename);
 }
 
 export async function exportShiftsPdf(rows: ExportRow[], filename: string, title: string) {
@@ -137,14 +140,44 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
     headStyles: { fillColor: [37, 99, 235] },
     alternateRowStyles: { fillColor: [245, 247, 250] },
   });
-  doc.save(filename);
+  
+  const blob = doc.output("blob");
+  triggerDownload(blob, filename);
 }
 
 function triggerDownload(blob: Blob, filename: string) {
+  // Mobile fallback using Web Share API
+  if (navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: filename,
+        }).catch(() => {
+          // Fallback to normal download if share is cancelled or fails
+          fallbackDownload(blob, filename);
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn("Share API failed", err);
+    }
+  }
+  
+  fallbackDownload(blob, filename);
+}
+
+function fallbackDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+  a.style.display = "none";
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 100);
 }

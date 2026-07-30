@@ -93,7 +93,7 @@ function rowToArray(r: ExportRow) {
   ];
 }
 
-export async function exportShiftsCsv(rows: ExportRow[], filename: string) {
+export function exportShiftsCsv(rows: ExportRow[], filename: string) {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const lines = [HEADERS.map(esc).join(","), ...rows.map((r) => rowToArray(r).map(esc).join(","))];
   const blob = new Blob(["\uFEFF" + lines.join("\n")], {
@@ -118,10 +118,7 @@ export async function exportShiftsXlsx(rows: ExportRow[], filename: string) {
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Смены");
-  
-  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  triggerDownload(blob, filename);
+  XLSX.writeFile(wb, filename);
 }
 
 export async function exportShiftsPdf(rows: ExportRow[], filename: string, title: string) {
@@ -140,23 +137,14 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
     headStyles: { fillColor: [37, 99, 235] },
     alternateRowStyles: { fillColor: [245, 247, 250] },
   });
-  
-  const blob = doc.output("blob");
-  triggerDownload(blob, filename);
+  doc.save(filename);
 }
 
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.style.display = "none";
   a.href = url;
   a.download = filename;
-  // Append to body is required for Firefox and some mobile browsers
-  document.body.appendChild(a);
   a.click();
-  // Delay cleanup to ensure browser has time to start download
-  setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 1000);
+  URL.revokeObjectURL(url);
 }

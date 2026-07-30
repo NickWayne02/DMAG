@@ -25,12 +25,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -168,18 +162,12 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
   ];
   const csv = "\uFEFF" + lines.join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.style.display = "none";
   a.href = url;
   a.download = filename;
-  document.body.appendChild(a);
   a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 1000);
+  URL.revokeObjectURL(url);
 }
 
 export function AdminDashboard({
@@ -1009,29 +997,33 @@ export function AdminDashboard({
                     >
                       <Plus className="h-3.5 w-3.5 mr-1.5" />
                       {t("admin.personnel.addShift")}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => exportShiftsAs("csv")}
+                      className="rounded-xl"
+                    >
+                      <Download className="h-3.5 w-3.5 mr-1.5" />
+                      CSV
                     </Button>
-                    <div className="relative">
-                      <select
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                        defaultValue=""
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val) {
-                            exportShiftsAs(val as "csv" | "xlsx" | "pdf");
-                            e.target.value = "";
-                          }
-                        }}
-                      >
-                        <option value="" disabled>Экспорт</option>
-                        <option value="csv">CSV</option>
-                        <option value="xlsx">Excel</option>
-                        <option value="pdf">PDF</option>
-                      </select>
-                      <Button size="sm" variant="outline" className="rounded-xl bg-background pointer-events-none">
-                        <Download className="h-3.5 w-3.5 mr-1.5" />
-                        {t("admin.header.export")}
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => exportShiftsAs("xlsx")}
+                      className="rounded-xl"
+                    >
+                      <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" />
+                      Excel
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => exportShiftsAs("pdf")}
+                      className="rounded-xl"
+                    >
+                      <FileText className="h-3.5 w-3.5 mr-1.5" />
+                      PDF
+                    </Button>
                   </div>
                 </div>
                 {employees.length === 0 ? (

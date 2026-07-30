@@ -997,6 +997,7 @@ export function AdminDashboard({
                     >
                       <Plus className="h-3.5 w-3.5 mr-1.5" />
                       {t("admin.personnel.addShift")}
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"

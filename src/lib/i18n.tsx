@@ -103,6 +103,17 @@ const DICT: Dict = {
     uz: "Administratorlarni boshqarish",
     tg: "Идораи администраторҳо",
   },
+  "admin.tab.calendar": {
+    ru: "Календарь",
+    en: "Calendar",
+    de: "Kalender",
+    ro: "Calendar",
+    bg: "Календар",
+    pl: "Kalendarz",
+    uk: "Календар",
+    uz: "Taqvim",
+    tg: "Тақвим",
+  },
 
   // Auth page
   "auth.title": {

@@ -64,6 +64,9 @@ import {
   Globe,
   XCircle,
 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 import {
   toExportRows,
   exportShiftsCsv,
@@ -184,21 +187,74 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
 }
 
 function triggerCsvDownloadSync(blob: Blob, filename: string) {
+  if (Capacitor.isNativePlatform()) {
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      try {
+        const base64data = reader.result as string;
+        const base64 = base64data.split(",")[1];
+        
+        const savedFile = await Filesystem.writeFile({
+          path: filename,
+          data: base64,
+          directory: Directory.Cache,
+        });
+        
+        await Share.share({
+          title: filename,
+          url: savedFile.uri,
+        });
+      } catch (e) {
+        console.error("Capacitor share error", e);
+      }
+    };
+    reader.readAsDataURL(blob);
+    return;
+  }
+  
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile && navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: filename }).catch(() => fallbackDownloadCsv(blob, filename));
+        return;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
   fallbackDownloadCsv(blob, filename);
 }
 
 function fallbackDownloadCsv(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.style.display = "none";
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 1000);
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64data = reader.result as string;
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = base64data;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+    reader.readAsDataURL(blob);
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
 }
 
 export function AdminDashboard({

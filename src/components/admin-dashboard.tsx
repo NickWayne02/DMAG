@@ -53,6 +53,10 @@ import {
   FileSpreadsheet,
   FileText,
   Menu,
+  Smartphone,
+  Laptop,
+  Globe,
+  XCircle,
 } from "lucide-react";
 import {
   toExportRows,
@@ -188,39 +192,31 @@ export function AdminDashboard({
   const logs = useMemo(() => {
     const now = Date.now();
     const simLogs: SecurityLog[] = [];
-    employees.slice(0, 6).forEach((e, i) => {
+    
+    // 1. Current Session (Web)
+    simLogs.push({
+      id: "session-current",
+      ts: new Date().toISOString(),
+      user: "Super-Admin", // will be replaced in UI or kept generic
+      action: t("admin.security.deviceWeb"),
+      meta: "10.0.0.20 · Frankfurt, DE",
+      level: "warn", // "warn" means Web/Laptop in our UI mapping
+    });
+
+    // 2. Other Sessions (Mobile Apps)
+    employees.slice(0, 3).forEach((e, i) => {
       simLogs.push({
-        id: `login-${e.id}`,
-        ts: new Date(now - (i + 1) * 1000 * 60 * 17).toISOString(),
+        id: `session-${e.id}`,
+        ts: new Date(now - (i + 1) * 1000 * 60 * 45).toISOString(),
         user: e.name,
-        action: t("admin.security.logLogin"),
-        meta: `IP 10.0.0.${20 + i} · ${t(roleLabel[e.role])}`,
-        level: "info",
+        action: t("admin.security.deviceApp"),
+        meta: `10.0.0.${21 + i} · ${["Berlin, DE", "Munich, DE", "Hamburg, DE"][i % 3]}`,
+        level: "info", // "info" means Mobile/App in our UI mapping
       });
     });
-    reports.slice(0, 4).forEach((r, i) => {
-      simLogs.push({
-        id: `report-${r.id}`,
-        ts: r.created_at,
-        user: t("admin.security.logEmp"),
-        action: t("admin.security.logReport"),
-        meta: `${t("admin.security.logSite")} «${r.site_name}» · ${t(CRIT_META[r.criticality as Crit]?.labelKey || "")}`,
-        level: r.criticality === "urgent" ? "alert" : "info",
-      });
-      if (i === 0) {
-        simLogs.push({
-          id: `hours-edit-${r.id}`,
-          ts: new Date(new Date(r.created_at).getTime() + 1000 * 60 * 5).toISOString(),
-          user: t("admin.security.logAdmin"),
-          action: t("admin.security.logEditHours"),
-          meta: t("admin.security.logEditDesc"),
-          level: "warn",
-        });
-      }
-    });
-    simLogs.sort((a, b) => b.ts.localeCompare(a.ts));
+
     return simLogs;
-  }, [employees, reports, t]);
+  }, [employees, t]);
   const [loading, setLoading] = useState(true);
   const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
@@ -1372,40 +1368,79 @@ export function AdminDashboard({
           {activeTab === "security" && superMode && (
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <Card className="p-6 rounded-2xl xl:col-span-2">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="font-semibold">{t("admin.security.title")}</h3>
+                    <h3 className="font-semibold text-lg">{t("admin.security.title")}</h3>
                     <p className="text-sm text-muted-foreground">
                       {t("admin.security.desc")}
                     </p>
                   </div>
                   <ShieldCheck className="h-5 w-5 text-primary" />
                 </div>
-                <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
-                  {logs.length === 0 && (
-                    <p className="text-sm text-muted-foreground">{t("admin.security.empty")}</p>
-                  )}
-                  {logs.map((l) => {
-                    const dot =
-                      l.level === "alert" ? "#F44336" : l.level === "warn" ? "#FFB300" : "#4CAF50";
-                    return (
-                      <div key={l.id} className="flex gap-3">
-                        <span
-                          className="mt-1.5 h-2 w-2 rounded-full shrink-0"
-                          style={{ backgroundColor: dot }}
-                        />
+                
+                <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+                  {/* Current Session */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3">{t("admin.security.currentSession")}</h4>
+                    {logs.length > 0 && (
+                      <div className="flex items-start gap-4 p-4 rounded-2xl border bg-primary/5">
+                        <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                          {logs[0].level === "info" ? <Smartphone className="h-5 w-5 text-primary" /> : <Laptop className="h-5 w-5 text-primary" />}
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium leading-tight">{l.action}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {l.user} · {l.meta}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">
-                            {new Date(l.ts).toLocaleString("ru-RU")}
-                          </p>
+                          <p className="text-sm font-semibold truncate">{logs[0].action}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{logs[0].meta}</p>
+                          <p className="text-xs text-primary mt-1 font-medium">{logs[0].user}</p>
                         </div>
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
+
+                  {/* Other Sessions */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold">{t("admin.security.otherSessions")}</h4>
+                      {logs.length > 1 && (
+                        <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                          {t("admin.security.terminateAll")}
+                        </Button>
+                      )}
+                    </div>
+                    {logs.length <= 1 ? (
+                      <p className="text-sm text-muted-foreground">{t("admin.security.empty")}</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {logs.slice(1).map((l) => (
+                          <div key={l.id} className="flex items-center justify-between p-3 rounded-2xl hover:bg-muted/50 transition-colors group">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                                {l.level === "info" ? <Smartphone className="h-4 w-4 text-muted-foreground" /> : <Laptop className="h-4 w-4 text-muted-foreground" />}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{l.action}</p>
+                                <p className="text-xs text-muted-foreground truncate">{l.meta}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <p className="text-[11px] text-muted-foreground">
+                                    {new Date(l.ts).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                  </p>
+                                  <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
+                                  <p className="text-[11px] font-medium truncate">{l.user}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                              title={t("admin.security.terminate")}
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Card>
             </section>

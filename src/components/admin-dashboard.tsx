@@ -63,6 +63,8 @@ import {
   Laptop,
   Globe,
   XCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -207,6 +209,118 @@ export function AdminDashboard({
   const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
 
+  const [calCursor, setCalCursor] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [calEmpId, setCalEmpId] = useState<string>("__none__");
+  const [calShifts, setCalShifts] = useState<ShiftDetail[]>([]);
+  const [calLoading, setCalLoading] = useState(false);
+  const [calRefresh, setCalRefresh] = useState(0);
+
+  useEffect(() => {
+    if (activeTab !== "calendar" || calEmpId === "__none__") return;
+    async function loadCal() {
+      setCalLoading(true);
+      const start = new Date(calCursor);
+      const end = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0);
+      const { data } = await supabase
+        .from("shifts")
+        .select("id, site_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id")
+        .eq("user_id", calEmpId)
+        .gte("started_at", start.toISOString())
+        .lte("started_at", end.toISOString() + "T23:59:59.999Z")
+        .order("started_at", { ascending: true });
+      setCalShifts((data as any) || []);
+      setCalLoading(false);
+    }
+    loadCal();
+  }, [activeTab, calEmpId, calCursor, calRefresh]);
+
+  const calWEEKDAYS = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(lang, { weekday: "short" });
+    const days = [];
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(2024, 0, i);
+      const str = fmt.format(d).replace(/\./g, "");
+      days.push(str.charAt(0).toUpperCase() + str.slice(1));
+    }
+    return days;
+  }, [lang]);
+
+  const calMonthName = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(lang, { month: "long" });
+    const str = fmt.format(calCursor);
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }, [lang, calCursor]);
+
+  const calRowsByDate = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof toExportRows>>();
+    const exported = toExportRows(calShifts);
+    exported.forEach((r) => {
+      const arr = map.get(r.date) ?? [];
+      arr.push(r);
+      map.set(r.date, arr);
+    });
+    return map;
+  }, [calShifts]);
+
+  const calGrid = useMemo(() => {
+    const firstDay = new Date(calCursor);
+    const jsDay = firstDay.getDay();
+    const offset = (jsDay + 6) % 7;
+    const daysInMonth = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0).getDate();
+    const cells: Array<{ day: number | null; key: string }> = [];
+    for (let i = 0; i < offset; i++) cells.push({ day: null, key: `e${i}` });
+    for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, key: `d${d}` });
+    while (cells.length % 7 !== 0) cells.push({ day: null, key: `t${cells.length}` });
+    return cells;
+  }, [calCursor]);
+
+  function onCalDayClick(day: number) {
+    const dateKey = `${String(day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}`;
+    const entries = calRowsByDate.get(dateKey);
+    const emp = employees.find(e => e.id === calEmpId);
+    if (!emp) return;
+    
+    if (entries && entries.length > 0) {
+      const shift = calShifts.find(s => {
+        const d = new Date(s.started_at);
+        return d.getDate() === day;
+      });
+      if (shift) {
+        setShiftEdit({
+          id: shift.id,
+          user_id: emp.id,
+          user_name: emp.name,
+          site_id: (shift as any).site_id ?? null,
+          site_name: shift.site_name ?? null,
+          started_at: toLocalInput(shift.started_at) || "",
+          ended_at: toLocalInput(shift.ended_at) || "",
+          lunch_minutes: shift.lunch_total_ms ? Math.round(Number(shift.lunch_total_ms) / 60000) : 0,
+          start_city: (shift as any).start_city ?? "",
+          end_city: (shift as any).end_city ?? "",
+        });
+      }
+    } else {
+      const d = new Date(calCursor.getFullYear(), calCursor.getMonth(), day, 8, 0, 0);
+      const d2 = new Date(calCursor.getFullYear(), calCursor.getMonth(), day, 17, 0, 0);
+      setShiftEdit({
+        user_id: emp.id,
+        user_name: emp.name,
+        site_id: null,
+        site_name: null,
+        started_at: toLocalInput(d.toISOString()) || "",
+        ended_at: toLocalInput(d2.toISOString()) || "",
+        lunch_minutes: 0,
+        start_city: "",
+        end_city: "",
+      });
+    }
+  }
+
   const name = user?.user_metadata?.full_name || user?.email || "Администратор";
 
   async function signOut() {
@@ -222,6 +336,7 @@ export function AdminDashboard({
 
   async function loadAll() {
     setLoading(true);
+    setCalRefresh(r => r + 1);
 
     // Window for "active today" shifts: from local midnight
     const sinceMidnight = new Date();
@@ -873,6 +988,7 @@ export function AdminDashboard({
         <nav className="px-3 py-4 flex-1 space-y-1">
           {[
             { id: "dashboard", icon: Activity, label: t("admin.tab.dashboard"), super: false },
+            { id: "calendar", icon: CalendarDays, label: t("admin.tab.calendar"), super: false },
             { id: "personnel", icon: Users, label: t("admin.tab.personnel"), super: false },
             { id: "sites", icon: Building2, label: t("admin.tab.sites"), super: false },
             { id: "reports", icon: Camera, label: t("admin.tab.reports"), super: false },
@@ -1584,6 +1700,106 @@ export function AdminDashboard({
               </div>
             </Card>
           )}
+
+          {/* CALENDAR TAB */}
+          {activeTab === "calendar" && (
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold tracking-tight">{t("admin.tab.calendar")}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Просмотр и редактирование смен сотрудников</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Select value={calEmpId} onValueChange={setCalEmpId}>
+                    <SelectTrigger className="w-full sm:w-[250px] bg-background">
+                      <SelectValue placeholder="Выберите сотрудника" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">-- Выберите сотрудника --</SelectItem>
+                      {employees.map(e => (
+                        <SelectItem key={`cal-${e.id}`} value={e.id}>{tName(e.name)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {calEmpId !== "__none__" && (
+                <Card className="p-6 rounded-2xl shadow-sm border border-primary/10">
+                  <div className="flex items-center justify-between mb-6">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" /> Пред.
+                    </Button>
+                    <div className="text-lg font-semibold">
+                      {calMonthName} {calCursor.getFullYear()}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))}
+                    >
+                      След. <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                  
+                  {calLoading ? (
+                    <div className="py-20 flex items-center justify-center text-muted-foreground">
+                      <Loader2 className="h-6 w-6 animate-spin mr-2" /> Загрузка...
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-7 gap-2 text-sm font-semibold text-muted-foreground text-center mb-2">
+                        {calWEEKDAYS.map((w) => (
+                          <div key={w} className="py-2">{w}</div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-7 gap-2">
+                        {calGrid.map((c) => {
+                          const dateKey = c.day ? `${String(c.day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}` : "";
+                          const entries = c.day ? calRowsByDate.get(dateKey) : undefined;
+                          
+                          return (
+                            <div
+                              key={c.key}
+                              onClick={() => c.day ? onCalDayClick(c.day) : undefined}
+                              className={`min-h-[100px] rounded-xl p-2 text-sm border transition-all ${
+                                c.day
+                                  ? entries
+                                    ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
+                                    : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50 hover:border-primary/20"
+                                  : "border-transparent opacity-50"
+                              }`}
+                            >
+                              {c.day && (
+                                <div className="flex flex-col h-full">
+                                  <div className="font-semibold text-muted-foreground">{c.day}</div>
+                                  {entries && entries.map((e, idx) => (
+                                    <div key={idx} className="mt-auto bg-primary text-primary-foreground text-xs rounded px-2 py-1 truncate" title={`${e.site} - ${e.workedHM}`}>
+                                      {e.workedHM}
+                                    </div>
+                                  ))}
+                                  {!entries && (
+                                    <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity text-center">
+                                      + Смена
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </Card>
+              )}
+            </div>
+          )}
+
         </main>
       </div>
 

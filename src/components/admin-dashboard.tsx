@@ -1036,15 +1036,15 @@ export function AdminDashboard({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-36 rounded-xl">
-                        <DropdownMenuItem onClick={() => exportShiftsAs("csv")} className="rounded-lg cursor-pointer">
+                        <DropdownMenuItem onSelect={() => exportShiftsAs("csv")} className="rounded-lg cursor-pointer">
                           <FileText className="h-3.5 w-3.5 mr-2" />
                           CSV
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => exportShiftsAs("xlsx")} className="rounded-lg cursor-pointer">
+                        <DropdownMenuItem onSelect={() => exportShiftsAs("xlsx")} className="rounded-lg cursor-pointer">
                           <FileSpreadsheet className="h-3.5 w-3.5 mr-2" />
                           Excel
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => exportShiftsAs("pdf")} className="rounded-lg cursor-pointer">
+                        <DropdownMenuItem onSelect={() => exportShiftsAs("pdf")} className="rounded-lg cursor-pointer">
                           <FileText className="h-3.5 w-3.5 mr-2" />
                           PDF
                         </DropdownMenuItem>

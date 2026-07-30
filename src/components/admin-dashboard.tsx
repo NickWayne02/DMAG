@@ -178,17 +178,6 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
 }
 
 function triggerCsvDownloadSync(blob: Blob, filename: string) {
-  if (navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], filename, { type: blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: filename }).catch(() => fallbackDownloadCsv(blob, filename));
-        return;
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
   fallbackDownloadCsv(blob, filename);
 }
 

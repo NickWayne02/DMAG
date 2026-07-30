@@ -156,20 +156,6 @@ function triggerDownload(blob: Blob, filename: string) {
 }
 
 function triggerDownloadSync(blob: Blob, filename: string) {
-  if (navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], filename, { type: blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: filename,
-        }).catch(() => fallbackDownload(blob, filename));
-        return;
-      }
-    } catch (err) {
-      console.warn("Share API error", err);
-    }
-  }
   fallbackDownload(blob, filename);
 }
 

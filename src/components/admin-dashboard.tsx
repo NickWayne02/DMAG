@@ -224,14 +224,14 @@ export function AdminDashboard({
     if (activeTab !== "calendar" || calEmpId === "__none__") return;
     async function loadCal() {
       setCalLoading(true);
-      const start = new Date(calCursor);
-      const end = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0);
+      const start = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1, 0, 0, 0, 0);
+      const end = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0, 23, 59, 59, 999);
       const { data } = await supabase
         .from("shifts")
         .select("id, site_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id")
         .eq("user_id", calEmpId)
         .gte("started_at", start.toISOString())
-        .lte("started_at", end.toISOString() + "T23:59:59.999Z")
+        .lte("started_at", end.toISOString())
         .order("started_at", { ascending: true });
       setCalShifts((data as any) || []);
       setCalLoading(false);

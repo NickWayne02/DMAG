@@ -279,6 +279,24 @@ export function AdminDashboard({
     return cells;
   }, [calCursor]);
 
+  const [shiftEditList, setShiftEditList] = useState<ShiftDetail[]>([]);
+  const [shiftEditIndex, setShiftEditIndex] = useState(0);
+
+  function loadShiftIntoEdit(shift: ShiftDetail, emp: EmployeeRow) {
+    setShiftEdit({
+      id: shift.id,
+      user_id: emp.id,
+      user_name: emp.name,
+      site_id: (shift as any).site_id ?? null,
+      site_name: shift.site_name ?? null,
+      started_at: toLocalInput(shift.started_at) || "",
+      ended_at: toLocalInput(shift.ended_at) || "",
+      lunch_minutes: shift.lunch_total_ms ? Math.round(Number(shift.lunch_total_ms) / 60000) : 0,
+      start_city: (shift as any).start_city ?? "",
+      end_city: (shift as any).end_city ?? "",
+    });
+  }
+
   function onCalDayClick(day: number) {
     const dateKey = `${String(day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}`;
     const entries = calRowsByDate.get(dateKey);
@@ -286,25 +304,18 @@ export function AdminDashboard({
     if (!emp) return;
     
     if (entries && entries.length > 0) {
-      const shift = calShifts.find(s => {
+      const shifts = calShifts.filter(s => {
         const d = new Date(s.started_at);
         return d.getDate() === day;
       });
-      if (shift) {
-        setShiftEdit({
-          id: shift.id,
-          user_id: emp.id,
-          user_name: emp.name,
-          site_id: (shift as any).site_id ?? null,
-          site_name: shift.site_name ?? null,
-          started_at: toLocalInput(shift.started_at) || "",
-          ended_at: toLocalInput(shift.ended_at) || "",
-          lunch_minutes: shift.lunch_total_ms ? Math.round(Number(shift.lunch_total_ms) / 60000) : 0,
-          start_city: (shift as any).start_city ?? "",
-          end_city: (shift as any).end_city ?? "",
-        });
+      if (shifts.length > 0) {
+        setShiftEditList(shifts);
+        setShiftEditIndex(0);
+        loadShiftIntoEdit(shifts[0], emp);
       }
     } else {
+      setShiftEditList([]);
+      setShiftEditIndex(0);
       const d = new Date(calCursor.getFullYear(), calCursor.getMonth(), day, 8, 0, 0);
       const d2 = new Date(calCursor.getFullYear(), calCursor.getMonth(), day, 17, 0, 0);
       setShiftEdit({
@@ -1781,11 +1792,27 @@ export function AdminDashboard({
                               {c.day && (
                                 <div className="flex flex-col h-full">
                                   <div className="font-semibold text-muted-foreground">{c.day}</div>
-                                  {entries && entries.map((e, idx) => (
-                                    <div key={idx} className="mt-auto bg-primary text-primary-foreground text-xs rounded px-2 py-1 truncate" title={`${e.site} - ${e.workedHM}`}>
-                                      {e.workedHM}
+                                  {entries && (
+                                    <div className="mt-auto space-y-0.5">
+                                      {entries.slice(0, 2).map((e, idx) => (
+                                        <div key={idx} className="tabular-nums text-[10px] text-primary truncate" title={`${e.site} - ${e.workedHM}`}>
+                                          {e.workStart}–{e.workEnd}
+                                        </div>
+                                      ))}
+                                      {entries.length > 2 && (
+                                        <div className="text-[10px] text-muted-foreground">+{entries.length - 2}</div>
+                                      )}
+                                      <div className="text-[10px] font-semibold text-foreground mt-1">
+                                        {(() => {
+                                          const totalMin = entries.reduce((acc, e) => {
+                                            const [h, mRaw] = e.workedHM.replace("ч", "").replace("м", "").split(" ");
+                                            return acc + (parseInt(h || "0") * 60 + parseInt(mRaw || "0"));
+                                          }, 0);
+                                          return `${Math.floor(totalMin / 60)}ч ${String(totalMin % 60).padStart(2, "0")}м`;
+                                        })()}
+                                      </div>
                                     </div>
-                                  ))}
+                                  )}
                                   {!entries && (
                                     <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity text-center">
                                       + Смена
@@ -1811,7 +1838,38 @@ export function AdminDashboard({
       <Dialog open={!!shiftEdit} onOpenChange={(o) => !o && setShiftEdit(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{shiftEdit?.id ? "Редактировать смену" : "Добавить смену"}</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle>{shiftEdit?.id ? "Редактировать смену" : "Добавить смену"}</DialogTitle>
+              {shiftEditList.length > 1 && (
+                <div className="flex items-center space-x-2 mr-6 text-sm">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => {
+                      const n = shiftEditIndex - 1 < 0 ? shiftEditList.length - 1 : shiftEditIndex - 1;
+                      setShiftEditIndex(n);
+                      loadShiftIntoEdit(shiftEditList[n], employees.find(e => e.id === calEmpId)!);
+                    }}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-muted-foreground">{shiftEditIndex + 1} / {shiftEditList.length}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => {
+                      const n = (shiftEditIndex + 1) % shiftEditList.length;
+                      setShiftEditIndex(n);
+                      loadShiftIntoEdit(shiftEditList[n], employees.find(e => e.id === calEmpId)!);
+                    }}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
             <DialogDescription>
               {shiftEdit?.user_name
                 ? `Сотрудник: ${tName(shiftEdit.user_name || "")}`

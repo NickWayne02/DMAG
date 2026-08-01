@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState, useRef, type ReactNode } from "react";
 
 export type AccentPreset = {
   id: string;
@@ -195,122 +195,141 @@ function resolveBase(mode: ThemeMode): Required<PanelColors> {
   return THEME_BASE_COLORS[mode];
 }
 
-function applySettings(s: Settings, accent: AccentPreset) {
+function applySettings(s: Settings, accent: AccentPreset, animate: boolean = false) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
 
-  // Theme mode → toggle .dark class so shadcn dark variants activate for dark/neon.
-  root.classList.toggle("dark", s.mode === "dark" || s.mode === "neon");
-  root.dataset.themeMode = s.mode;
+  const updateFn = () => {
+    // Prevent "disco" effect by disabling transitions inside the new DOM state
+    root.classList.add("theme-transitioning");
 
-  // Global scale — everything measured in rem scales together.
-  root.style.setProperty("--ui-scale", String(s.scale));
-  root.style.fontSize = `${16 * s.scale}px`;
+    // Theme mode → toggle .dark class so shadcn dark variants activate for dark/neon.
+    root.classList.toggle("dark", s.mode === "dark" || s.mode === "neon");
+    root.dataset.themeMode = s.mode;
 
-  // Corner radius (drives shadcn --radius and derived tokens).
-  root.style.setProperty("--radius", `${s.radius}rem`);
+    // Global scale — everything measured in rem scales together.
+    root.style.setProperty("--ui-scale", String(s.scale));
+    root.style.fontSize = `${16 * s.scale}px`;
 
-  // Card / container padding via density.
-  root.style.setProperty("--ui-density-pad", densityPad(s.density));
+    // Corner radius (drives shadcn --radius and derived tokens).
+    root.style.setProperty("--radius", `${s.radius}rem`);
 
-  // Panel colors — merge base for the mode with user overrides (custom mode uses full overrides).
-  const base = resolveBase(s.mode);
-  const panels: Required<PanelColors> = { ...base, ...s.panelColors };
+    // Card / container padding via density.
+    root.style.setProperty("--ui-density-pad", densityPad(s.density));
 
-  // If user picked a custom accent hex, override primary regardless of mode.
-  if (s.customAccent) panels.primary = s.customAccent;
-  else if (s.mode !== "custom") panels.primary = accent.primary;
+    // Panel colors — merge base for the mode with user overrides (custom mode uses full overrides).
+    const base = resolveBase(s.mode);
+    const panels: Required<PanelColors> = s.mode === "custom" ? { ...base, ...s.panelColors } : { ...base };
 
-  // Dynamically tint neutral backgrounds using the primary color for a cohesive theme canvas
-  const mixBg =
-    s.mode === "custom"
-      ? panels.background
-      : `color-mix(in oklab, ${panels.background} 96%, ${panels.primary})`;
-  const mixCard =
-    s.mode === "custom"
-      ? panels.card
-      : `color-mix(in oklab, ${panels.card} 95%, ${panels.primary})`;
-  const mixMuted =
-    s.mode === "custom"
-      ? panels.muted
-      : `color-mix(in oklab, ${panels.muted} 90%, ${panels.primary})`;
-  const mixBorder =
-    s.mode === "custom"
-      ? panels.border
-      : `color-mix(in oklab, ${panels.border} 80%, ${panels.primary})`;
+    // If user picked a custom accent hex, override primary regardless of mode.
+    if (s.customAccent) panels.primary = s.customAccent;
+    else if (s.mode !== "custom") panels.primary = accent.primary;
 
-  // Push panel colors as raw hex (shadcn tokens accept any color function/value).
-  root.style.setProperty("--background", mixBg);
-  root.style.setProperty("--foreground", panels.foreground);
-  root.style.setProperty("--card", mixCard);
-  root.style.setProperty("--card-foreground", panels.cardForeground);
-  root.style.setProperty("--popover", mixCard);
-  root.style.setProperty("--popover-foreground", panels.cardForeground);
-  root.style.setProperty("--primary", panels.primary);
-  root.style.setProperty("--primary-foreground", panels.primaryForeground);
-  root.style.setProperty("--secondary", mixMuted);
-  root.style.setProperty("--secondary-foreground", panels.cardForeground);
-  root.style.setProperty("--muted", mixMuted);
-  root.style.setProperty("--accent", mixMuted);
-  root.style.setProperty("--accent-foreground", panels.cardForeground);
-  root.style.setProperty("--border", mixBorder);
-  root.style.setProperty("--input", mixBorder);
-  root.style.setProperty("--ring", panels.primary);
-  root.style.setProperty("--sidebar", panels.primary);
-  root.style.setProperty("--sidebar-foreground", panels.primaryForeground);
-  root.style.setProperty("--sidebar-primary", panels.card);
-  root.style.setProperty("--sidebar-primary-foreground", panels.primary);
-  root.style.setProperty("--sidebar-accent", "rgba(255, 255, 255, 0.15)");
-  root.style.setProperty("--sidebar-accent-foreground", "#ffffff");
-  root.style.setProperty("--sidebar-border", "rgba(255, 255, 255, 0.1)");
-  root.style.setProperty("--sidebar-ring", panels.primary);
+    // Dynamically tint neutral backgrounds using the primary color for a cohesive theme canvas
+    const mixBg =
+      s.mode === "custom"
+        ? panels.background
+        : `color-mix(in oklab, ${panels.background} 96%, ${panels.primary})`;
+    const mixCard =
+      s.mode === "custom"
+        ? panels.card
+        : `color-mix(in oklab, ${panels.card} 95%, ${panels.primary})`;
+    const mixMuted =
+      s.mode === "custom"
+        ? panels.muted
+        : `color-mix(in oklab, ${panels.muted} 90%, ${panels.primary})`;
+    const mixBorder =
+      s.mode === "custom"
+        ? panels.border
+        : `color-mix(in oklab, ${panels.border} 80%, ${panels.primary})`;
 
-  const rgb = hexToRgb(panels.primary);
-  if (rgb) root.style.setProperty("--accent-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+    // Push panel colors as raw hex (shadcn tokens accept any color function/value).
+    root.style.setProperty("--background", mixBg);
+    root.style.setProperty("--foreground", panels.foreground);
+    root.style.setProperty("--card", mixCard);
+    root.style.setProperty("--card-foreground", panels.cardForeground);
+    root.style.setProperty("--popover", mixCard);
+    root.style.setProperty("--popover-foreground", panels.cardForeground);
+    root.style.setProperty("--primary", panels.primary);
+    root.style.setProperty("--primary-foreground", panels.primaryForeground);
+    root.style.setProperty("--secondary", mixMuted);
+    root.style.setProperty("--secondary-foreground", panels.cardForeground);
+    root.style.setProperty("--muted", mixMuted);
+    root.style.setProperty("--accent", mixMuted);
+    root.style.setProperty("--accent-foreground", panels.cardForeground);
+    root.style.setProperty("--border", mixBorder);
+    root.style.setProperty("--input", mixBorder);
+    root.style.setProperty("--ring", panels.primary);
+    root.style.setProperty("--sidebar", panels.primary);
+    root.style.setProperty("--sidebar-foreground", panels.primaryForeground);
+    root.style.setProperty("--sidebar-primary", panels.card);
+    root.style.setProperty("--sidebar-primary-foreground", panels.primary);
+    root.style.setProperty("--sidebar-accent", "rgba(255, 255, 255, 0.15)");
+    root.style.setProperty("--sidebar-accent-foreground", "#ffffff");
+    root.style.setProperty("--sidebar-border", "rgba(255, 255, 255, 0.1)");
+    root.style.setProperty("--sidebar-ring", panels.primary);
 
-  // Bridge neon-* tokens to the active theme so the employee dashboard (which is
-  // authored against --neon-*) recolors along with Light / Dark / Neon / Custom.
-  root.style.setProperty("--neon-bg", panels.background);
-  root.style.setProperty("--neon-surface", panels.card);
-  root.style.setProperty("--neon-surface-2", panels.muted);
-  root.style.setProperty("--neon-text", panels.foreground);
-  root.style.setProperty(
-    "--neon-text-dim",
-    `color-mix(in oklab, ${panels.foreground} 60%, ${panels.card})`,
-  );
-  root.style.setProperty(
-    "--neon-border",
-    `color-mix(in oklab, ${panels.primary} 30%, ${panels.border})`,
-  );
-  root.style.setProperty(
-    "--neon-grid-line",
-    `color-mix(in oklab, ${panels.primary} 12%, transparent)`,
-  );
+    const rgb = hexToRgb(panels.primary);
+    if (rgb) root.style.setProperty("--accent-rgb", `${rgb.r}, ${rgb.g}, ${rgb.b}`);
 
-  // Neon accent trio — driven by the selected accent (or custom accent hex).
-  root.style.setProperty("--neon-cyan", s.customAccent ?? accent.cyan);
-  root.style.setProperty("--neon-magenta", accent.magenta);
-  root.style.setProperty("--neon-violet", accent.violet);
-  root.style.setProperty(
-    "--neon-gradient",
-    `linear-gradient(135deg, ${accent.violet} 0%, ${panels.primary} 55%, ${s.customAccent ?? accent.cyan} 100%)`,
-  );
+    // Bridge neon-* tokens to the active theme so the employee dashboard (which is
+    // authored against --neon-*) recolors along with Light / Dark / Neon / Custom.
+    root.style.setProperty("--neon-bg", panels.background);
+    root.style.setProperty("--neon-surface", panels.card);
+    root.style.setProperty("--neon-surface-2", panels.muted);
+    root.style.setProperty("--neon-text", panels.foreground);
+    root.style.setProperty(
+      "--neon-text-dim",
+      `color-mix(in oklab, ${panels.foreground} 60%, ${panels.card})`,
+    );
+    root.style.setProperty(
+      "--neon-border",
+      `color-mix(in oklab, ${panels.primary} 30%, ${panels.border})`,
+    );
+    root.style.setProperty(
+      "--neon-grid-line",
+      `color-mix(in oklab, ${panels.primary} 12%, transparent)`,
+    );
 
-  // Keep neon glow overrides to none so they stay flat
-  root.style.setProperty("--neon-glow-cyan", "none");
-  root.style.setProperty("--neon-glow-violet", "none");
-  // Header gradient — uses accent trio for unique header per theme.
-  root.style.setProperty(
-    "--header-gradient",
-    `linear-gradient(160deg, ${accent.violet} 0%, ${panels.primary} 55%, ${s.customAccent ?? accent.cyan} 100%)`,
-  );
+    // Neon accent trio — driven by the selected accent (or custom accent hex).
+    root.style.setProperty("--neon-cyan", s.customAccent ?? accent.cyan);
+    root.style.setProperty("--neon-magenta", accent.magenta);
+    root.style.setProperty("--neon-violet", accent.violet);
+    root.style.setProperty(
+      "--neon-gradient",
+      `linear-gradient(135deg, ${accent.violet} 0%, ${panels.primary} 55%, ${s.customAccent ?? accent.cyan} 100%)`,
+    );
 
-  // Removed page background radial glows to completely eliminate "подсветка"
-  root.style.setProperty("--page-bg-glow-1", "none");
-  root.style.setProperty("--page-bg-glow-2", "none");
+    // Keep neon glow overrides to none so they stay flat
+    root.style.setProperty("--neon-glow-cyan", "none");
+    root.style.setProperty("--neon-glow-violet", "none");
+    // Header gradient — uses accent trio for unique header per theme.
+    root.style.setProperty(
+      "--header-gradient",
+      `linear-gradient(160deg, ${accent.violet} 0%, ${panels.primary} 55%, ${s.customAccent ?? accent.cyan} 100%)`,
+    );
 
-  // Removed heavy header box-shadow glow
-  root.style.setProperty("--header-shadow", "none");
+    // Removed page background radial glows to completely eliminate "подсветка"
+    root.style.setProperty("--page-bg-glow-1", "none");
+    root.style.setProperty("--page-bg-glow-2", "none");
+
+    // Removed heavy header box-shadow glow
+    root.style.setProperty("--header-shadow", "none");
+  };
+
+  if (animate && (document as any).startViewTransition) {
+    const t = (document as any).startViewTransition(updateFn);
+    t.ready.then(() => {
+      root.classList.remove("theme-transitioning");
+    });
+  } else {
+    updateFn();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        root.classList.remove("theme-transitioning");
+      });
+    });
+  }
 }
 
 const BROADCAST_CHANNEL = "dmag.settings.v2";
@@ -318,14 +337,21 @@ let suppressWrite = false;
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setState] = useState<Settings>(() => loadSettings());
+  const prevTheme = useRef({ mode: settings.mode, accentId: settings.accentId });
 
   const activeAccent = useMemo(() => {
     return ACCENT_PRESETS.find((p) => p.id === settings.accentId) ?? ACCENT_PRESETS[0];
   }, [settings.accentId]);
 
   // Apply CSS + persist + broadcast to sibling tabs / windows / iframes.
-  useEffect(() => {
-    applySettings(settings, activeAccent);
+  // useLayoutEffect prevents FOUC by updating CSS variables synchronously before paint
+  useLayoutEffect(() => {
+    const modeChanged = prevTheme.current.mode !== settings.mode;
+    const accentChanged = prevTheme.current.accentId !== settings.accentId;
+    const shouldAnimate = modeChanged || accentChanged;
+    prevTheme.current = { mode: settings.mode, accentId: settings.accentId };
+
+    applySettings(settings, activeAccent, shouldAnimate);
     if (suppressWrite) {
       suppressWrite = false;
       return;

@@ -168,75 +168,79 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
             )}
           </section>
 
-          <div className="h-px bg-border" />
+          {settings.mode !== "custom" && (
+            <>
+              <div className="h-px bg-border" />
 
-          {/* Accent color cluster */}
-          <section className="space-y-3">
-            <Label className="text-sm font-semibold flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              {t("settings.accent")}
-            </Label>
-            <div className="grid grid-cols-3 gap-2">
-              {ACCENT_PRESETS.map((p) => {
-                const active = settings.accentId === p.id && !settings.customAccent;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setSettings({ accentId: p.id, customAccent: null })}
-                    className={`relative rounded-xl h-16 border transition ${
-                      active
-                        ? "border-primary ring-2 ring-primary/40"
-                        : "border-border hover:border-primary/40"
-                    }`}
-                    style={{
-                      background: `linear-gradient(135deg, ${p.primary}, ${p.violet} 60%, ${p.cyan})`,
+              {/* Accent color cluster */}
+              <section className="space-y-3">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Palette className="h-4 w-4" />
+                  {t("settings.accent")}
+                </Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {ACCENT_PRESETS.map((p) => {
+                    const active = settings.accentId === p.id && !settings.customAccent;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setSettings({ accentId: p.id, customAccent: null })}
+                        className={`relative rounded-xl h-16 border transition ${
+                          active
+                            ? "border-primary ring-2 ring-primary/40"
+                            : "border-border hover:border-primary/40"
+                        }`}
+                        style={{
+                          background: `linear-gradient(135deg, ${p.primary}, ${p.violet} 60%, ${p.cyan})`,
+                        }}
+                        title={p.label}
+                      >
+                        {active && (
+                          <Check className="h-5 w-5 text-white absolute top-1 right-1 drop-shadow" />
+                        )}
+                        <span className="absolute bottom-1 left-2 text-[10px] font-semibold text-white/90 drop-shadow">
+                          {p.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="color"
+                    value={customHex}
+                    onChange={(e) => {
+                      setCustomHex(e.target.value);
+                      setSettings({ customAccent: e.target.value });
                     }}
-                    title={p.label}
-                  >
-                    {active && (
-                      <Check className="h-5 w-5 text-white absolute top-1 right-1 drop-shadow" />
-                    )}
-                    <span className="absolute bottom-1 left-2 text-[10px] font-semibold text-white/90 drop-shadow">
-                      {p.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex items-center gap-2">
-              <Input
-                type="color"
-                value={customHex}
-                onChange={(e) => {
-                  setCustomHex(e.target.value);
-                  setSettings({ customAccent: e.target.value });
-                }}
-                className="h-10 w-14 p-1 rounded-lg cursor-pointer"
-              />
-              <Input
-                value={customHex}
-                onChange={(e) => setCustomHex(e.target.value)}
-                onBlur={() => {
-                  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(customHex)) {
-                    setSettings({ customAccent: customHex });
-                  }
-                }}
-                placeholder="#0D47A1"
-                className="h-10 flex-1 rounded-lg"
-              />
-              {settings.customAccent && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSettings({ customAccent: null })}
-                >
-                  {t("settings.clearCustom")}
-                </Button>
-              )}
-            </div>
-          </section>
+                    className="h-10 w-14 p-1 rounded-lg cursor-pointer"
+                  />
+                  <Input
+                    value={customHex}
+                    onChange={(e) => setCustomHex(e.target.value)}
+                    onBlur={() => {
+                      if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(customHex)) {
+                        setSettings({ customAccent: customHex });
+                      }
+                    }}
+                    placeholder="#0D47A1"
+                    className="h-10 flex-1 rounded-lg"
+                  />
+                  {settings.customAccent && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSettings({ customAccent: null })}
+                    >
+                      {t("settings.clearCustom")}
+                    </Button>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
 
           <div className="h-px bg-border" />
 

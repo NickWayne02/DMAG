@@ -145,6 +145,13 @@
     border-color: var(--color-border);
   }
 
+  .theme-transitioning,
+  .theme-transitioning *,
+  .theme-transitioning *::before,
+  .theme-transitioning *::after {
+    transition: none !important;
+  }
+
   html,
   body {
     font-family: var(--font-sans);

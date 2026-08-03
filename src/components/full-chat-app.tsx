@@ -664,7 +664,7 @@ function MessageBubble({
       {!isMine && (
         <Avatar className="h-8 w-8 mt-auto shrink-0">
           <AvatarImage src={avatarUrl || ""} />
-          <AvatarFallback>{m.author_name.substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
       )}
       <div className={cn("flex flex-col gap-1 w-full", isMine ? "items-end" : "items-start")}>
@@ -725,6 +725,12 @@ function MessageBubble({
           )}
         </div>
       </div>
+      {isMine && (
+        <Avatar className="h-8 w-8 mt-auto shrink-0">
+          <AvatarImage src={avatarUrl || ""} />
+          <AvatarFallback>{(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+      )}
     </div>
   );
 }

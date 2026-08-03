@@ -232,6 +232,19 @@ export function AdminDashboard({
   const [sitesPage, setSitesPage] = useState(0);
   const [adminPage, setAdminPage] = useState(0);
   const PAGE_SIZE = 10;
+
+  // Filter states
+  const [personnelSearch, setPersonnelSearch] = useState("");
+  const [personnelRole, setPersonnelRole] = useState("all");
+  const [personnelStatus, setPersonnelStatus] = useState("all");
+
+  const [sitesSearch, setSitesSearch] = useState("");
+  const [adminSearch, setAdminSearch] = useState("");
+
+  const [reportsSearch, setReportsSearch] = useState("");
+  const [reportsSite, setReportsSite] = useState("all");
+  const [reportsCrit, setReportsCrit] = useState("all");
+  const [reportsPeriod, setReportsPeriod] = useState("all");
   const logs = useMemo(() => {
     const now = Date.now();
     const simLogs: SecurityLog[] = [];
@@ -652,22 +665,39 @@ export function AdminDashboard({
     setLoading(false);
   }
 
-  async function loadMoreReports() {
-    if (reportsLoadingMore || !reportsHasMore) return;
+  async function loadFilteredReports(reset: boolean = false) {
+    if (reportsLoadingMore) return;
+    if (!reset && !reportsHasMore) return;
     setReportsLoadingMore(true);
     try {
-      const from = reports.length;
+      const from = reset ? 0 : reports.length;
       const to = from + 19;
-      const { data } = await supabase
+      let query = supabase
         .from("photo_reports")
         .select("id, description, criticality, photo_url, created_at, site_id, author_id")
-        .order("created_at", { ascending: false })
-        .range(from, to);
+        .order("created_at", { ascending: false });
+        
+      if (reportsSite !== "all") query = query.eq("site_id", reportsSite);
+      if (reportsCrit !== "all") query = query.eq("criticality", reportsCrit as "info" | "important" | "urgent");
+      if (reportsSearch) query = query.ilike("description", `%${reportsSearch}%`);
+      
+      if (reportsPeriod === "today") {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        query = query.gte("created_at", d.toISOString());
+      } else if (reportsPeriod === "week") {
+        const d = new Date();
+        d.setDate(d.getDate() - 7);
+        query = query.gte("created_at", d.toISOString());
+      }
+
+      const { data } = await query.range(from, to);
         
       if (data && data.length > 0) {
-        setReports((prev) => [...prev, ...(data as any)]);
-        if (data.length < 20) setReportsHasMore(false);
+        setReports((prev) => reset ? (data as any) : [...prev, ...(data as any)]);
+        setReportsHasMore(data.length === 20);
       } else {
+        if (reset) setReports([]);
         setReportsHasMore(false);
       }
     } catch (e) {
@@ -676,6 +706,8 @@ export function AdminDashboard({
       setReportsLoadingMore(false);
     }
   }
+
+  const loadMoreReports = () => loadFilteredReports(false);
 
   useEffect(() => {
     loadAll();
@@ -1057,6 +1089,30 @@ export function AdminDashboard({
     else exportShiftsPdf(rows, `${base}.pdf`, "Отчёт по сменам (30 дней)");
   }
 
+  const filteredPersonnel = useMemo(() => {
+    return employees.filter(e => {
+      if (personnelSearch && !e.name.toLowerCase().includes(personnelSearch.toLowerCase())) return false;
+      if (personnelRole !== "all" && e.role !== personnelRole) return false;
+      if (personnelStatus !== "all" && e.status !== personnelStatus) return false;
+      return true;
+    });
+  }, [employees, personnelSearch, personnelRole, personnelStatus]);
+
+  const filteredSites = useMemo(() => {
+    return sites.filter(s => {
+      if (!sitesSearch) return true;
+      const term = sitesSearch.toLowerCase();
+      return (s.name && s.name.toLowerCase().includes(term)) || (s.address && s.address.toLowerCase().includes(term));
+    });
+  }, [sites, sitesSearch]);
+
+  const filteredAdmins = useMemo(() => {
+    return employees.filter(e => {
+      if (!adminSearch) return true;
+      return e.name.toLowerCase().includes(adminSearch.toLowerCase());
+    });
+  }, [employees, adminSearch]);
+
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Mobile overlay */}
@@ -1250,7 +1306,55 @@ export function AdminDashboard({
                     </DropdownMenu>
                   </div>
                 </div>
-                {employees.length === 0 ? (
+                
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <Input
+                    placeholder="Поиск по имени..."
+                    value={personnelSearch}
+                    onChange={(e) => {
+                      setPersonnelSearch(e.target.value);
+                      setPersonnelPage(0);
+                    }}
+                    className="max-w-xs rounded-xl"
+                  />
+                  <Select
+                    value={personnelRole}
+                    onValueChange={(v) => {
+                      setPersonnelRole(v);
+                      setPersonnelPage(0);
+                    }}
+                  >
+                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                      <SelectValue placeholder="Роль" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">Все роли</SelectItem>
+                      <SelectItem value="employee">Сотрудник</SelectItem>
+                      <SelectItem value="brigadier">Бригадир</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={personnelStatus}
+                    onValueChange={(v) => {
+                      setPersonnelStatus(v);
+                      setPersonnelPage(0);
+                    }}
+                  >
+                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                      <SelectValue placeholder="Статус" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">Все статусы</SelectItem>
+                      <SelectItem value="working">На смене</SelectItem>
+                      <SelectItem value="lunch">На паузе</SelectItem>
+                      <SelectItem value="finished">Смена завершена</SelectItem>
+                      <SelectItem value="offline">Офлайн</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {filteredPersonnel.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("admin.personnel.noData")}</p>
                 ) : (
                   <div className="overflow-x-auto">
@@ -1268,7 +1372,7 @@ export function AdminDashboard({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {employees.slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE).map((e) => {
+                        {filteredPersonnel.slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE).map((e) => {
                           const st = EMP_STATUS[e.status];
                           return (
                             <TableRow key={e.id}>
@@ -1329,7 +1433,7 @@ export function AdminDashboard({
                     </Table>
                     <TablePagination
                       page={personnelPage}
-                      total={employees.length}
+                      total={filteredPersonnel.length}
                       pageSize={PAGE_SIZE}
                       onPageChange={setPersonnelPage}
                     />
@@ -1394,7 +1498,20 @@ export function AdminDashboard({
                     </Button>
                   </div>
                 </div>
-                {sites.length === 0 ? (
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <Input
+                    placeholder="Поиск объекта..."
+                    value={sitesSearch}
+                    onChange={(e) => {
+                      setSitesSearch(e.target.value);
+                      setSitesPage(0);
+                    }}
+                    className="max-w-xs rounded-xl"
+                  />
+                </div>
+
+                {filteredSites.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("admin.sites.empty")}</p>
                 ) : (
                   <div className="overflow-x-auto">
@@ -1410,7 +1527,7 @@ export function AdminDashboard({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {sites.slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE).map((s) => {
+                        {filteredSites.slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE).map((s) => {
                           const empCount = employees.filter(e => e.siteName === s.name).length;
                           return (
                             <TableRow key={s.id}>
@@ -1463,7 +1580,7 @@ export function AdminDashboard({
                     </Table>
                     <TablePagination
                       page={sitesPage}
-                      total={sites.length}
+                      total={filteredSites.length}
                       pageSize={PAGE_SIZE}
                       onPageChange={setSitesPage}
                     />
@@ -1567,6 +1684,51 @@ export function AdminDashboard({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+
+                <div className="flex flex-col flex-wrap sm:flex-row gap-3 mb-6">
+                  <Input
+                    placeholder="Поиск по описанию..."
+                    value={reportsSearch}
+                    onChange={(e) => setReportsSearch(e.target.value)}
+                    className="w-full sm:w-[200px] rounded-xl bg-background"
+                  />
+                  <Select value={reportsSite} onValueChange={setReportsSite}>
+                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                      <SelectValue placeholder="Объект" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl max-h-64">
+                      <SelectItem value="all">Все объекты</SelectItem>
+                      {sites.map(s => (
+                        <SelectItem key={`rs-${s.id}`} value={s.id}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={reportsCrit} onValueChange={setReportsCrit}>
+                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                      <SelectValue placeholder="Критичность" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">Любая</SelectItem>
+                      <SelectItem value="info">Инфо</SelectItem>
+                      <SelectItem value="important">Предупреждение</SelectItem>
+                      <SelectItem value="urgent">Срочно</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={reportsPeriod} onValueChange={setReportsPeriod}>
+                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                      <SelectValue placeholder="Период" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">За всё время</SelectItem>
+                      <SelectItem value="today">За сегодня</SelectItem>
+                      <SelectItem value="week">За 7 дней</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="secondary" className="rounded-xl w-full sm:w-auto" onClick={() => loadFilteredReports(true)}>
+                    Применить
+                  </Button>
+                </div>
+
                 {reports.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 px-6 text-center border-2 border-dashed rounded-2xl border-muted bg-card/30">
                     <div className="h-20 w-20 bg-muted/60 rounded-full flex items-center justify-center mb-5">
@@ -1726,6 +1888,19 @@ export function AdminDashboard({
                   {t("admin.users.create")}
                 </Button>
               </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <Input
+                  placeholder="Поиск администратора..."
+                  value={adminSearch}
+                  onChange={(e) => {
+                    setAdminSearch(e.target.value);
+                    setAdminPage(0);
+                  }}
+                  className="max-w-xs rounded-xl bg-background"
+                />
+              </div>
+
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -1738,7 +1913,7 @@ export function AdminDashboard({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {employees.length === 0 && (
+                    {filteredAdmins.length === 0 && (
                       <TableRow>
                         <TableCell
                           colSpan={5}
@@ -1748,7 +1923,7 @@ export function AdminDashboard({
                         </TableCell>
                       </TableRow>
                     )}
-                    {employees.slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE).map((e) => {
+                    {filteredAdmins.slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE).map((e) => {
                       const lastLogin = e.lastShiftAt ? new Date(e.lastShiftAt).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Только что";
                       return (
                         <TableRow key={`mgr-${e.id}`}>
@@ -1842,7 +2017,7 @@ export function AdminDashboard({
                 </Table>
                 <TablePagination
                   page={adminPage}
-                  total={employees.length}
+                  total={filteredAdmins.length}
                   pageSize={PAGE_SIZE}
                   onPageChange={setAdminPage}
                 />

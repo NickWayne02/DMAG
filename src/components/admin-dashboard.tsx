@@ -1659,7 +1659,7 @@ export function AdminDashboard({
                                   </TableCell>
                                   <TableCell className="text-right tabular-nums">
                                     <Badge variant="secondary" className="font-mono">
-                                      {empCount || Math.floor(Math.random() * 15) + 1}
+                                      {empCount}
                                     </Badge>
                                   </TableCell>
                                   <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
@@ -1758,7 +1758,7 @@ export function AdminDashboard({
                               <div className="flex justify-between items-center mt-2 pt-3 border-t">
                                 <span className="text-xs text-muted-foreground">Сотрудников:</span>
                                 <Badge variant="secondary" className="font-mono">
-                                  {empCount || Math.floor(Math.random() * 15) + 1}
+                                  {empCount}
                                 </Badge>
                               </div>
                             </div>
@@ -2097,14 +2097,14 @@ export function AdminDashboard({
           {/* ADMIN MANAGEMENT TAB */}
           {activeTab === "admin-management" && (
             <Card className="p-6 rounded-2xl border-2 border-dashed border-primary/30">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
                   <h3 className="font-semibold">{t("admin.users.title")}</h3>
                   <p className="text-sm text-muted-foreground">{t("admin.users.desc")}</p>
                 </div>
                 <Button
                   size="sm"
-                  className="rounded-xl"
+                  className="rounded-xl w-full sm:w-auto"
                   onClick={() => setCreateForm((f) => ({ ...f, open: true }))}
                 >
                   <Plus className="h-4 w-4 mr-1.5" />
@@ -2296,7 +2296,7 @@ export function AdminDashboard({
                         >
                           <div className="flex justify-between items-start gap-2">
                             <div>
-                              <h4 className="font-semibold text-base truncate">{e.user}</h4>
+                              <h4 className="font-semibold text-base truncate">{tName(e.name)}</h4>
                               <p className="text-sm text-muted-foreground mt-0.5">
                                 {t(roleLabel[e.role])}
                               </p>
@@ -2316,14 +2316,14 @@ export function AdminDashboard({
                           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                             <span className="font-medium">Последний вход:</span>
                             <span>
-                              {e.last_sign_in_at
-                                ? new Date(e.last_sign_in_at).toLocaleDateString("ru-RU", {
+                              {e.lastShiftAt
+                                ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
                                     day: "numeric",
                                     month: "short",
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })
-                                : "Никогда"}
+                                : "Только что"}
                             </span>
                           </div>
 
@@ -2382,10 +2382,10 @@ export function AdminDashboard({
                                   (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                 }
                                 onClick={() =>
-                                  setResetCreds({
-                                    id: e.id,
-                                    email: e.email,
-                                    name: e.user,
+                                  setCredsEdit({
+                                    user_id: e.id,
+                                    user_name: e.name,
+                                    email: "",
                                     password: "",
                                   })
                                 }

@@ -3230,7 +3230,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     <LangContext.Provider value={{ lang, setLang, t, tName }}>
       {children}
       {isTranslating && (
-        <div className="fixed inset-0 z-[999999] bg-black/40 backdrop-blur-md flex items-center justify-center pointer-events-auto">
+        <div className="fixed inset-0 z-999999 bg-black/40 backdrop-blur-md flex items-center justify-center pointer-events-auto">
           <div className="bg-background border border-border shadow-2xl rounded-2xl p-6 flex flex-col items-center gap-4 transition-all duration-300">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
             <p className="text-lg font-medium text-foreground tracking-tight">

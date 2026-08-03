@@ -287,8 +287,11 @@ export function EmployeeDesktopView() {
       <div className="flex-1 flex max-w-[1920px] w-full mx-auto">
         {/* Left Sidebar */}
         <aside
-          className="w-72 flex-shrink-0 flex flex-col p-8 border-r overflow-y-auto"
-          style={{ borderColor: "var(--neon-border)", background: "color-mix(in oklab, var(--neon-surface) 20%, transparent)" }}
+          className="w-72 shrink-0 flex flex-col p-8 border-r overflow-y-auto"
+          style={{
+            borderColor: "var(--neon-border)",
+            background: "color-mix(in oklab, var(--neon-surface) 20%, transparent)",
+          }}
         >
           <h2
             className="text-xl font-bold mb-6 pb-2 border-b"
@@ -315,10 +318,7 @@ export function EmployeeDesktopView() {
               >
                 {tr("header.myShifts")}
               </span>
-              <ChevronRight
-                className="h-5 w-5 ml-auto"
-                style={{ color: "var(--neon-text-dim)" }}
-              />
+              <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
             </button>
 
             <button
@@ -339,10 +339,7 @@ export function EmployeeDesktopView() {
               >
                 {tr("site.select")}
               </span>
-              <ChevronRight
-                className="h-5 w-5 ml-auto"
-                style={{ color: "var(--neon-text-dim)" }}
-              />
+              <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
             </button>
 
             <button
@@ -363,10 +360,7 @@ export function EmployeeDesktopView() {
               >
                 {tr("report.create")}
               </span>
-              <ChevronRight
-                className="h-5 w-5 ml-auto"
-                style={{ color: "var(--neon-text-dim)" }}
-              />
+              <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
             </button>
 
             <button
@@ -387,16 +381,13 @@ export function EmployeeDesktopView() {
               >
                 {tr("contact.logistician")}
               </span>
-              <ChevronRight
-                className="h-5 w-5 ml-auto"
-                style={{ color: "var(--neon-text-dim)" }}
-              />
+              <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
             </button>
           </div>
         </aside>
 
         <main className="flex-1 flex flex-col lg:flex-row gap-8 p-8 overflow-y-auto min-w-0">
-          <div className="w-full lg:w-[400px] xl:w-[480px] flex-shrink-0 flex flex-col gap-6">
+          <div className="w-full lg:w-100 xl:w-120 shrink-0 flex flex-col gap-6">
             <div className="rounded-3xl p-6 bg-card border shadow-sm flex flex-col gap-6">
               <div className="rounded-2xl px-5 py-5 border bg-muted/40 backdrop-blur">
                 <div className="flex items-center gap-2">
@@ -502,7 +493,7 @@ export function EmployeeDesktopView() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col h-full min-h-[500px]">
+          <div className="flex-1 flex flex-col h-full min-h-125">
             {selectedSite ? (
               <NeonCard className="h-full flex flex-col">
                 <div className="flex flex-col h-full">
@@ -528,7 +519,7 @@ export function EmployeeDesktopView() {
                   </div>
 
                   <div
-                    className="flex-1 rounded-2xl overflow-hidden relative min-h-[400px]"
+                    className="flex-1 rounded-2xl overflow-hidden relative min-h-100"
                     style={{ border: "1px solid var(--neon-border)" }}
                   >
                     <iframe
@@ -778,16 +769,24 @@ function StatusButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-2xl px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 text-center font-bold uppercase tracking-wider transition w-full
+      className={`rounded-2xl px-4 py-3 min-h-13 flex items-center justify-center gap-2 text-center font-bold uppercase tracking-wider transition w-full
         ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-[0.98] hover:brightness-110"}`}
       style={{
         background: disabled ? disabledBg : solid ? t.color : bgMode,
-        color: disabled ? "var(--neon-text-dim)" : solid ? (mode === "light" ? "#fff" : "#000") : t.color,
+        color: disabled
+          ? "var(--neon-text-dim)"
+          : solid
+            ? mode === "light"
+              ? "#fff"
+              : "#000"
+            : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"
           : active
             ? `inset 0 0 0 1px ${t.color}, ${t.glow}`
-            : solid ? t.glow : shadowMode,
+            : solid
+              ? t.glow
+              : shadowMode,
         textShadow: active ? t.glow : textShadow,
       }}
     >
@@ -797,7 +796,15 @@ function StatusButton({
   );
 }
 
-function NeonCard({ children, glowColor, className }: { children: React.ReactNode; glowColor?: string; className?: string }) {
+function NeonCard({
+  children,
+  glowColor,
+  className,
+}: {
+  children: React.ReactNode;
+  glowColor?: string;
+  className?: string;
+}) {
   return (
     <div
       className={`rounded-2xl p-6 ${className || ""}`}

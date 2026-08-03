@@ -248,7 +248,7 @@ export function AdminDashboard({
   const logs = useMemo(() => {
     const now = Date.now();
     const simLogs: SecurityLog[] = [];
-    
+
     // 1. Current Session (Web)
     simLogs.push({
       id: "session-current",
@@ -296,7 +296,9 @@ export function AdminDashboard({
       const end = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0, 23, 59, 59, 999);
       const { data } = await supabase
         .from("shifts")
-        .select("id, site_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id")
+        .select(
+          "id, site_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id",
+        )
         .eq("user_id", calEmpId)
         .gte("started_at", start.toISOString())
         .lte("started_at", end.toISOString())
@@ -368,11 +370,11 @@ export function AdminDashboard({
   function onCalDayClick(day: number) {
     const dateKey = `${String(day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}`;
     const entries = calRowsByDate.get(dateKey);
-    const emp = employees.find(e => e.id === calEmpId);
+    const emp = employees.find((e) => e.id === calEmpId);
     if (!emp) return;
-    
+
     if (entries && entries.length > 0) {
-      const shifts = calShifts.filter(s => {
+      const shifts = calShifts.filter((s) => {
         const d = new Date(s.started_at);
         return d.getDate() === day;
       });
@@ -415,7 +417,7 @@ export function AdminDashboard({
 
   async function loadAll() {
     setLoading(true);
-    setCalRefresh(r => r + 1);
+    setCalRefresh((r) => r + 1);
 
     // Window for "active today" shifts: from local midnight
     const sinceMidnight = new Date();
@@ -478,40 +480,41 @@ export function AdminDashboard({
       .map((p) => {
         const r = roleMap.get(p.id) ?? "employee";
         const sh = latestShiftByUser.get(p.id);
-      let status: EmpStatus = "offline";
-      let since = "—";
-      let workedMs = 0;
-      let lunchMs = 0;
-      let siteName: string | null = null;
-      let lastShiftAt: string | null = null;
-      if (sh) {
-        lastShiftAt = sh.started_at;
-        siteName = sh.site_name ?? (sh as any).start_city ?? (sh as any).end_city ?? null;
-        const startedMs = new Date(sh.started_at).getTime();
-        const endedMs = sh.ended_at ? new Date(sh.ended_at).getTime() : nowMs;
-        let currentLunch = 0;
-        if (sh.status === "lunch" && sh.lunch_started_at) {
-          currentLunch = nowMs - new Date(sh.lunch_started_at).getTime();
+        let status: EmpStatus = "offline";
+        let since = "—";
+        let workedMs = 0;
+        let lunchMs = 0;
+        let siteName: string | null = null;
+        let lastShiftAt: string | null = null;
+        if (sh) {
+          lastShiftAt = sh.started_at;
+          siteName = sh.site_name ?? (sh as any).start_city ?? (sh as any).end_city ?? null;
+          const startedMs = new Date(sh.started_at).getTime();
+          const endedMs = sh.ended_at ? new Date(sh.ended_at).getTime() : nowMs;
+          let currentLunch = 0;
+          if (sh.status === "lunch" && sh.lunch_started_at) {
+            currentLunch = nowMs - new Date(sh.lunch_started_at).getTime();
+          }
+          lunchMs = Number(sh.lunch_total_ms ?? 0) + Math.max(0, currentLunch);
+          workedMs = Math.max(0, endedMs - startedMs - lunchMs);
+          status =
+            sh.status === "working" ? "working" : sh.status === "lunch" ? "lunch" : "finished";
+          const d = new Date(sh.started_at);
+          since = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
         }
-        lunchMs = Number(sh.lunch_total_ms ?? 0) + Math.max(0, currentLunch);
-        workedMs = Math.max(0, endedMs - startedMs - lunchMs);
-        status = sh.status === "working" ? "working" : sh.status === "lunch" ? "lunch" : "finished";
-        const d = new Date(sh.started_at);
-        since = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-      }
-      return {
-        id: p.id,
-        name: p.full_name || p.email || p.phone || "Без имени",
-        role: r,
-        status,
-        since,
-        workedMs,
-        lunchMs,
-        siteName,
-        lastShiftAt,
-        is_active: p.is_active ?? true,
-      };
-    });
+        return {
+          id: p.id,
+          name: p.full_name || p.email || p.phone || "Без имени",
+          role: r,
+          status,
+          since,
+          workedMs,
+          lunchMs,
+          siteName,
+          lastShiftAt,
+          is_active: p.is_active ?? true,
+        };
+      });
 
     if (devMode && emps.length === 0) {
       emps = [
@@ -676,11 +679,12 @@ export function AdminDashboard({
         .from("photo_reports")
         .select("id, description, criticality, photo_url, created_at, site_id, author_id")
         .order("created_at", { ascending: false });
-        
+
       if (reportsSite !== "all") query = query.eq("site_id", reportsSite);
-      if (reportsCrit !== "all") query = query.eq("criticality", reportsCrit as "info" | "important" | "urgent");
+      if (reportsCrit !== "all")
+        query = query.eq("criticality", reportsCrit as "info" | "important" | "urgent");
       if (reportsSearch) query = query.ilike("description", `%${reportsSearch}%`);
-      
+
       if (reportsPeriod === "today") {
         const d = new Date();
         d.setHours(0, 0, 0, 0);
@@ -692,9 +696,9 @@ export function AdminDashboard({
       }
 
       const { data } = await query.range(from, to);
-        
+
       if (data && data.length > 0) {
-        setReports((prev) => reset ? (data as any) : [...prev, ...(data as any)]);
+        setReports((prev) => (reset ? (data as any) : [...prev, ...(data as any)]));
         setReportsHasMore(data.length === 20);
       } else {
         if (reset) setReports([]);
@@ -1053,11 +1057,13 @@ export function AdminDashboard({
     if (fmt === "xlsx") {
       const XLSX = await import("xlsx");
       const headers = Object.keys(rows[0]);
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map(r => Object.values(r))]);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map((r) => Object.values(r))]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Отчёты");
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
       triggerDownload(blob, `${filename}.xlsx`);
     } else if (fmt === "pdf") {
       const { jsPDF } = await import("jspdf");
@@ -1068,7 +1074,7 @@ export function AdminDashboard({
       doc.text("Отчёты", 40, 40);
       doc.setFontSize(9);
       doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
-      autoTable(doc, { head: [headers], body: rows.map(r => Object.values(r)), startY: 74 });
+      autoTable(doc, { head: [headers], body: rows.map((r) => Object.values(r)), startY: 74 });
       const blob = doc.output("blob");
       triggerDownload(blob, `${filename}.pdf`);
     }
@@ -1090,8 +1096,9 @@ export function AdminDashboard({
   }
 
   const filteredPersonnel = useMemo(() => {
-    return employees.filter(e => {
-      if (personnelSearch && !e.name.toLowerCase().includes(personnelSearch.toLowerCase())) return false;
+    return employees.filter((e) => {
+      if (personnelSearch && !e.name.toLowerCase().includes(personnelSearch.toLowerCase()))
+        return false;
       if (personnelRole !== "all" && e.role !== personnelRole) return false;
       if (personnelStatus !== "all" && e.status !== personnelStatus) return false;
       return true;
@@ -1099,15 +1106,18 @@ export function AdminDashboard({
   }, [employees, personnelSearch, personnelRole, personnelStatus]);
 
   const filteredSites = useMemo(() => {
-    return sites.filter(s => {
+    return sites.filter((s) => {
       if (!sitesSearch) return true;
       const term = sitesSearch.toLowerCase();
-      return (s.name && s.name.toLowerCase().includes(term)) || (s.address && s.address.toLowerCase().includes(term));
+      return (
+        (s.name && s.name.toLowerCase().includes(term)) ||
+        (s.address && s.address.toLowerCase().includes(term))
+      );
     });
   }, [sites, sitesSearch]);
 
   const filteredAdmins = useMemo(() => {
-    return employees.filter(e => {
+    return employees.filter((e) => {
       if (!adminSearch) return true;
       return e.name.toLowerCase().includes(adminSearch.toLowerCase());
     });
@@ -1260,8 +1270,12 @@ export function AdminDashboard({
                   <div className="h-20 w-20 bg-muted/60 rounded-full flex items-center justify-center mb-5">
                     <FolderSearch className="h-10 w-10 text-muted-foreground/40" />
                   </div>
-                  <h4 className="text-lg font-semibold text-foreground mb-2">Активности пока нет</h4>
-                  <p className="text-sm text-muted-foreground max-w-sm mb-6">События, новые смены и инциденты будут появляться здесь в реальном времени.</p>
+                  <h4 className="text-lg font-semibold text-foreground mb-2">
+                    Активности пока нет
+                  </h4>
+                  <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                    События, новые смены и инциденты будут появляться здесь в реальном времени.
+                  </p>
                 </div>
               )}
             </>
@@ -1294,11 +1308,17 @@ export function AdminDashboard({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-36 rounded-xl">
-                        <DropdownMenuItem onSelect={() => exportShiftsAs("xlsx")} className="rounded-lg cursor-pointer">
+                        <DropdownMenuItem
+                          onSelect={() => exportShiftsAs("xlsx")}
+                          className="rounded-lg cursor-pointer"
+                        >
                           <FileSpreadsheet className="h-4 w-4 mr-2" />
                           Excel
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => exportShiftsAs("pdf")} className="rounded-lg cursor-pointer">
+                        <DropdownMenuItem
+                          onSelect={() => exportShiftsAs("pdf")}
+                          className="rounded-lg cursor-pointer"
+                        >
                           <FileBarChart className="h-4 w-4 mr-2" />
                           PDF
                         </DropdownMenuItem>
@@ -1306,7 +1326,7 @@ export function AdminDashboard({
                     </DropdownMenu>
                   </div>
                 </div>
-                
+
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <Input
@@ -1325,7 +1345,7 @@ export function AdminDashboard({
                       setPersonnelPage(0);
                     }}
                   >
-                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                    <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
                       <SelectValue placeholder="Роль" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -1341,7 +1361,7 @@ export function AdminDashboard({
                       setPersonnelPage(0);
                     }}
                   >
-                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                    <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
                       <SelectValue placeholder="Статус" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -1365,70 +1385,80 @@ export function AdminDashboard({
                           <TableHead>{t("admin.personnel.colRole")}</TableHead>
                           <TableHead>{t("admin.personnel.colStatus")}</TableHead>
                           <TableHead>{t("admin.personnel.colSite")}</TableHead>
-                          <TableHead className="text-right">{t("admin.personnel.colStart")}</TableHead>
-                          <TableHead className="text-right">{t("admin.personnel.colWork")}</TableHead>
-                          <TableHead className="text-right">{t("admin.personnel.colPause")}</TableHead>
-                          <TableHead className="text-right">{t("admin.personnel.colActions")}</TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.personnel.colStart")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.personnel.colWork")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.personnel.colPause")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.personnel.colActions")}
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredPersonnel.slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE).map((e) => {
-                          const st = EMP_STATUS[e.status];
-                          return (
-                            <TableRow key={e.id}>
-                              <TableCell className="font-medium">{tName(e.name)}</TableCell>
-                              <TableCell className="text-muted-foreground text-sm">
-                                {t(roleLabel[e.role])}
-                              </TableCell>
-                              <TableCell>
-                                <span
-                                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                                  style={{ backgroundColor: `${st.color}1A`, color: st.color }}
-                                >
+                        {filteredPersonnel
+                          .slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE)
+                          .map((e) => {
+                            const st = EMP_STATUS[e.status];
+                            return (
+                              <TableRow key={e.id}>
+                                <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                                <TableCell className="text-muted-foreground text-sm">
+                                  {t(roleLabel[e.role])}
+                                </TableCell>
+                                <TableCell>
                                   <span
-                                    className="h-1.5 w-1.5 rounded-full"
-                                    style={{ backgroundColor: st.color }}
-                                  />
-                                  {t(st.labelKey)}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground truncate max-w-[180px]">
-                                {e.siteName || "—"}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm">
-                                {e.since}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm">
-                                {formatHM(e.workedMs)}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                                {formatHM(e.lunchMs)}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex justify-end gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="rounded-lg"
-                                    onClick={() => setCalendarFor(e)}
-                                    title={t("admin.personnel.calTooltip")}
+                                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+                                    style={{ backgroundColor: `${st.color}1A`, color: st.color }}
                                   >
-                                    <CalendarDays className="h-3.5 w-3.5" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="rounded-lg"
-                                    onClick={() => openEditShift(e)}
-                                    title={t("admin.personnel.editTooltip")}
-                                  >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
+                                    <span
+                                      className="h-1.5 w-1.5 rounded-full"
+                                      style={{ backgroundColor: st.color }}
+                                    />
+                                    {t(st.labelKey)}
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground truncate max-w-45">
+                                  {e.siteName || "—"}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums text-sm">
+                                  {e.since}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums text-sm">
+                                  {formatHM(e.workedMs)}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
+                                  {formatHM(e.lunchMs)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="rounded-lg"
+                                      onClick={() => setCalendarFor(e)}
+                                      title={t("admin.personnel.calTooltip")}
+                                    >
+                                      <CalendarDays className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="rounded-lg"
+                                      onClick={() => openEditShift(e)}
+                                      title={t("admin.personnel.editTooltip")}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                       </TableBody>
                     </Table>
                     <TablePagination
@@ -1443,7 +1473,9 @@ export function AdminDashboard({
 
               <Card className="p-6 rounded-2xl">
                 <h3 className="font-semibold mb-1">{t("admin.personnel.distTitle")}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{t("admin.personnel.distDesc")}</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("admin.personnel.distDesc")}
+                </p>
                 <div className="space-y-3">
                   {(Object.keys(EMP_STATUS) as EmpStatus[]).map((k) => {
                     const count = employees.filter((e) => e.status === k).length;
@@ -1479,9 +1511,7 @@ export function AdminDashboard({
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-semibold">{t("admin.sites.title")}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("admin.sites.desc")}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t("admin.sites.desc")}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="rounded-full">
@@ -1522,60 +1552,68 @@ export function AdminDashboard({
                           <TableHead>{t("admin.sites.colAddress")}</TableHead>
                           <TableHead>{t("admin.sites.colCustomer")}</TableHead>
                           <TableHead className="text-right">Сотрудников</TableHead>
-                          <TableHead className="text-right">{t("admin.sites.colCreated")}</TableHead>
-                          <TableHead className="text-right">{t("admin.sites.colActions")}</TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.sites.colCreated")}
+                          </TableHead>
+                          <TableHead className="text-right">
+                            {t("admin.sites.colActions")}
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredSites.slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE).map((s) => {
-                          const empCount = employees.filter(e => e.siteName === s.name).length;
-                          return (
-                            <TableRow key={s.id}>
-                              <TableCell className="font-medium">{s.name}</TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {s.address || "—"}
-                              </TableCell>
-                              <TableCell className="text-sm text-muted-foreground">
-                                {s.customer || "—"}
-                              </TableCell>
-                              <TableCell className="text-right tabular-nums">
-                                <Badge variant="secondary" className="font-mono">{empCount || Math.floor(Math.random() * 15) + 1}</Badge>
-                              </TableCell>
-                              <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
-                                {new Date(s.created_at).toLocaleDateString("ru-RU")}
-                              </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-1">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="rounded-lg"
-                                  onClick={() =>
-                                    setSiteEdit({
-                                      id: s.id,
-                                      name: s.name,
-                                      address: s.address ?? "",
-                                      customer: s.customer ?? "",
-                                    })
-                                  }
-                                  title={t("admin.sites.edit")}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="rounded-lg text-destructive hover:text-destructive"
-                                  onClick={() => deleteSite(s.id, s.name)}
-                                  title={t("admin.sites.delete")}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                          );
-                        })}
+                        {filteredSites
+                          .slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE)
+                          .map((s) => {
+                            const empCount = employees.filter((e) => e.siteName === s.name).length;
+                            return (
+                              <TableRow key={s.id}>
+                                <TableCell className="font-medium">{s.name}</TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {s.address || "—"}
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {s.customer || "—"}
+                                </TableCell>
+                                <TableCell className="text-right tabular-nums">
+                                  <Badge variant="secondary" className="font-mono">
+                                    {empCount || Math.floor(Math.random() * 15) + 1}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                                  {new Date(s.created_at).toLocaleDateString("ru-RU")}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex justify-end gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="rounded-lg"
+                                      onClick={() =>
+                                        setSiteEdit({
+                                          id: s.id,
+                                          name: s.name,
+                                          address: s.address ?? "",
+                                          customer: s.customer ?? "",
+                                        })
+                                      }
+                                      title={t("admin.sites.edit")}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="rounded-lg text-destructive hover:text-destructive"
+                                      onClick={() => deleteSite(s.id, s.name)}
+                                      title={t("admin.sites.delete")}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                       </TableBody>
                     </Table>
                     <TablePagination
@@ -1661,9 +1699,7 @@ export function AdminDashboard({
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-semibold">{t("admin.reports.title")}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {t("admin.reports.desc")}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t("admin.reports.desc")}</p>
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -1673,11 +1709,17 @@ export function AdminDashboard({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-36 rounded-xl">
-                      <DropdownMenuItem onSelect={() => exportReports("xlsx")} className="rounded-lg cursor-pointer">
+                      <DropdownMenuItem
+                        onSelect={() => exportReports("xlsx")}
+                        className="rounded-lg cursor-pointer"
+                      >
                         <FileSpreadsheet className="h-4 w-4 mr-2" />
                         Excel
                       </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => exportReports("pdf")} className="rounded-lg cursor-pointer">
+                      <DropdownMenuItem
+                        onSelect={() => exportReports("pdf")}
+                        className="rounded-lg cursor-pointer"
+                      >
                         <FileBarChart className="h-4 w-4 mr-2" />
                         PDF
                       </DropdownMenuItem>
@@ -1693,18 +1735,20 @@ export function AdminDashboard({
                     className="w-full sm:w-[200px] rounded-xl bg-background"
                   />
                   <Select value={reportsSite} onValueChange={setReportsSite}>
-                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                    <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
                       <SelectValue placeholder="Объект" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl max-h-64">
                       <SelectItem value="all">Все объекты</SelectItem>
-                      {sites.map(s => (
-                        <SelectItem key={`rs-${s.id}`} value={s.id}>{s.name}</SelectItem>
+                      {sites.map((s) => (
+                        <SelectItem key={`rs-${s.id}`} value={s.id}>
+                          {s.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <Select value={reportsCrit} onValueChange={setReportsCrit}>
-                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                    <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
                       <SelectValue placeholder="Критичность" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -1715,7 +1759,7 @@ export function AdminDashboard({
                     </SelectContent>
                   </Select>
                   <Select value={reportsPeriod} onValueChange={setReportsPeriod}>
-                    <SelectTrigger className="w-full sm:w-[160px] rounded-xl bg-background">
+                    <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
                       <SelectValue placeholder="Период" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -1724,7 +1768,11 @@ export function AdminDashboard({
                       <SelectItem value="week">За 7 дней</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button variant="secondary" className="rounded-xl w-full sm:w-auto" onClick={() => loadFilteredReports(true)}>
+                  <Button
+                    variant="secondary"
+                    className="rounded-xl w-full sm:w-auto"
+                    onClick={() => loadFilteredReports(true)}
+                  >
                     Применить
                   </Button>
                 </div>
@@ -1734,49 +1782,51 @@ export function AdminDashboard({
                     <div className="h-20 w-20 bg-muted/60 rounded-full flex items-center justify-center mb-5">
                       <Camera className="h-10 w-10 text-muted-foreground/40" />
                     </div>
-                    <p className="text-base text-muted-foreground max-w-sm">{t("admin.reports.empty")}</p>
+                    <p className="text-base text-muted-foreground max-w-sm">
+                      {t("admin.reports.empty")}
+                    </p>
                   </div>
                 ) : (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {reports.map((r) => {
-                      const m = CRIT_META[r.criticality];
-                      return (
-                        <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3">
-                          <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
-                            {r.thumb ? (
-                              <img src={r.thumb} alt="" className="h-full w-full object-cover" />
-                            ) : (
-                              <Camera className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span
-                                className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                                style={{ backgroundColor: m.bg, color: m.color }}
-                              >
-                                {t(m.labelKey)}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground truncate">
-                                {r.site_name}
-                              </span>
+                        const m = CRIT_META[r.criticality];
+                        return (
+                          <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3">
+                            <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
+                              {r.thumb ? (
+                                <img src={r.thumb} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <Camera className="h-5 w-5 text-muted-foreground" />
+                              )}
                             </div>
-                            <p className="text-xs line-clamp-2">
-                              {r.description || t("admin.reports.noDesc")}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              {new Date(r.created_at).toLocaleString("ru-RU", {
-                                day: "numeric",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span
+                                  className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                  style={{ backgroundColor: m.bg, color: m.color }}
+                                >
+                                  {t(m.labelKey)}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground truncate">
+                                  {r.site_name}
+                                </span>
+                              </div>
+                              <p className="text-xs line-clamp-2">
+                                {r.description || t("admin.reports.noDesc")}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground mt-1">
+                                {new Date(r.created_at).toLocaleString("ru-RU", {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                     </div>
                     {reportsHasMore && (
                       <div className="mt-6 flex justify-center">
@@ -1803,18 +1853,26 @@ export function AdminDashboard({
           {activeTab === "security" && superMode && (
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
               <Card className="p-6 rounded-2xl xl:col-span-2">
-                <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+                <div className="space-y-6 max-h-125 overflow-y-auto pr-2">
                   {/* Current Session */}
                   <div>
-                    <h4 className="text-sm font-semibold mb-3">{t("admin.security.currentSession")}</h4>
+                    <h4 className="text-sm font-semibold mb-3">
+                      {t("admin.security.currentSession")}
+                    </h4>
                     {logs.length > 0 && (
                       <div className="flex items-start gap-4 p-4 rounded-2xl border bg-primary/5">
                         <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                          {logs[0].level === "info" ? <Smartphone className="h-5 w-5 text-primary" /> : <Laptop className="h-5 w-5 text-primary" />}
+                          {logs[0].level === "info" ? (
+                            <Smartphone className="h-5 w-5 text-primary" />
+                          ) : (
+                            <Laptop className="h-5 w-5 text-primary" />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate">{logs[0].action}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{logs[0].meta}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                            {logs[0].meta}
+                          </p>
                           <p className="text-xs text-primary mt-1 font-medium">{logs[0].user}</p>
                         </div>
                       </div>
@@ -1826,7 +1884,11 @@ export function AdminDashboard({
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-sm font-semibold">{t("admin.security.otherSessions")}</h4>
                       {logs.length > 1 && (
-                        <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
                           {t("admin.security.terminateAll")}
                         </Button>
                       )}
@@ -1836,26 +1898,38 @@ export function AdminDashboard({
                     ) : (
                       <div className="space-y-2">
                         {logs.slice(1).map((l) => (
-                          <div key={l.id} className="flex items-center justify-between p-3 rounded-2xl hover:bg-muted/50 transition-colors group">
+                          <div
+                            key={l.id}
+                            className="flex items-center justify-between p-3 rounded-2xl hover:bg-muted/50 transition-colors group"
+                          >
                             <div className="flex items-start gap-3 min-w-0">
                               <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
-                                {l.level === "info" ? <Smartphone className="h-4 w-4 text-muted-foreground" /> : <Laptop className="h-4 w-4 text-muted-foreground" />}
+                                {l.level === "info" ? (
+                                  <Smartphone className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <Laptop className="h-4 w-4 text-muted-foreground" />
+                                )}
                               </div>
                               <div className="min-w-0">
                                 <p className="text-sm font-medium truncate">{l.action}</p>
                                 <p className="text-xs text-muted-foreground truncate">{l.meta}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <p className="text-[11px] text-muted-foreground">
-                                    {new Date(l.ts).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                                    {new Date(l.ts).toLocaleString("ru-RU", {
+                                      day: "numeric",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
                                   </p>
                                   <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
                                   <p className="text-[11px] font-medium truncate">{l.user}</p>
                                 </div>
                               </div>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                               title={t("admin.security.terminate")}
                             >
@@ -1888,7 +1962,7 @@ export function AdminDashboard({
                   {t("admin.users.create")}
                 </Button>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <Input
                   placeholder="Поиск администратора..."
@@ -1923,96 +1997,132 @@ export function AdminDashboard({
                         </TableCell>
                       </TableRow>
                     )}
-                    {filteredAdmins.slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE).map((e) => {
-                      const lastLogin = e.lastShiftAt ? new Date(e.lastShiftAt).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Только что";
-                      return (
-                        <TableRow key={`mgr-${e.id}`}>
-                          <TableCell className="font-medium">{tName(e.name)}</TableCell>
-                          <TableCell>
-                            {e.is_active ? (
-                              <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">Активен</Badge>
-                            ) : (
-                              <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20">Модерация</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {lastLogin}
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              value={e.role}
-                              onValueChange={(v) => changeRole(e, v as AppRole)}
-                              disabled={userBusy || e.id === user?.id || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
-                            >
-                            <SelectTrigger className="h-8 w-[160px] rounded-lg">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
-                              <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
-                              {superMode && <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>}
-                              {superMode && (
-                                <SelectItem value="super_admin">
-                                  {t(roleLabel.super_admin)}
-                                </SelectItem>
+                    {filteredAdmins
+                      .slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE)
+                      .map((e) => {
+                        const lastLogin = e.lastShiftAt
+                          ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "Только что";
+                        return (
+                          <TableRow key={`mgr-${e.id}`}>
+                            <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                            <TableCell>
+                              {e.is_active ? (
+                                <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
+                                  Активен
+                                </Badge>
+                              ) : (
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20"
+                                >
+                                  Модерация
+                                </Badge>
                               )}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell className="text-right space-x-2">
-                          {!e.is_active && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-lg bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
-                              disabled={userBusy || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
-                              onClick={async () => {
-                                setUserBusy(true);
-                                try {
-                                  await adminToggleActiveFn({ data: { user_id: e.id, is_active: true } });
-                                  toast.success("Аккаунт одобрен");
-                                  loadAll();
-                                } catch (err) {
-                                  toast.error(err instanceof Error ? err.message : "Ошибка");
-                                } finally {
-                                  setUserBusy(false);
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {lastLogin}
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                value={e.role}
+                                onValueChange={(v) => changeRole(e, v as AppRole)}
+                                disabled={
+                                  userBusy ||
+                                  e.id === user?.id ||
+                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                 }
-                              }}
-                            >
-                              <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-                              Одобрить
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-lg"
-                            disabled={userBusy || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
-                            onClick={() =>
-                              setCredsEdit({
-                                user_id: e.id,
-                                user_name: e.name,
-                                email: "",
-                                password: "",
-                              })
-                            }
-                          >
-                            <KeyRound className="h-3.5 w-3.5 mr-1" />
-                            {t("admin.users.credentials")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="rounded-lg"
-                            disabled={userBusy || e.id === user?.id || (!superMode && (e.role === "super_admin" || e.role === "admin"))}
-                            onClick={() => removeUser(e)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                              >
+                                <SelectTrigger className="h-8 w-40 rounded-lg">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
+                                  <SelectItem value="brigadier">
+                                    {t(roleLabel.brigadier)}
+                                  </SelectItem>
+                                  {superMode && (
+                                    <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>
+                                  )}
+                                  {superMode && (
+                                    <SelectItem value="super_admin">
+                                      {t(roleLabel.super_admin)}
+                                    </SelectItem>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell className="text-right space-x-2">
+                              {!e.is_active && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="rounded-lg bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
+                                  disabled={
+                                    userBusy ||
+                                    (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                  }
+                                  onClick={async () => {
+                                    setUserBusy(true);
+                                    try {
+                                      await adminToggleActiveFn({
+                                        data: { user_id: e.id, is_active: true },
+                                      });
+                                      toast.success("Аккаунт одобрен");
+                                      loadAll();
+                                    } catch (err) {
+                                      toast.error(err instanceof Error ? err.message : "Ошибка");
+                                    } finally {
+                                      setUserBusy(false);
+                                    }
+                                  }}
+                                >
+                                  <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                                  Одобрить
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-lg"
+                                disabled={
+                                  userBusy ||
+                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                }
+                                onClick={() =>
+                                  setCredsEdit({
+                                    user_id: e.id,
+                                    user_name: e.name,
+                                    email: "",
+                                    password: "",
+                                  })
+                                }
+                              >
+                                <KeyRound className="h-3.5 w-3.5 mr-1" />
+                                {t("admin.users.credentials")}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="rounded-lg"
+                                disabled={
+                                  userBusy ||
+                                  e.id === user?.id ||
+                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                }
+                                onClick={() => removeUser(e)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                   </TableBody>
                 </Table>
                 <TablePagination
@@ -2031,17 +2141,21 @@ export function AdminDashboard({
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold tracking-tight">{t("admin.tab.calendar")}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Просмотр и редактирование смен сотрудников</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Просмотр и редактирование смен сотрудников
+                  </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Select value={calEmpId} onValueChange={setCalEmpId}>
-                    <SelectTrigger className="w-full sm:w-[250px] bg-background">
+                    <SelectTrigger className="w-full sm:w-62.5 bg-background">
                       <SelectValue placeholder="Выберите сотрудника" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__none__">-- Выберите сотрудника --</SelectItem>
-                      {employees.map(e => (
-                        <SelectItem key={`cal-${e.id}`} value={e.id}>{tName(e.name)}</SelectItem>
+                      {employees.map((e) => (
+                        <SelectItem key={`cal-${e.id}`} value={e.id}>
+                          {tName(e.name)}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -2054,7 +2168,9 @@ export function AdminDashboard({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))}
+                      onClick={() =>
+                        setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))
+                      }
                     >
                       <ChevronLeft className="h-4 w-4 mr-1" /> Пред.
                     </Button>
@@ -2064,12 +2180,14 @@ export function AdminDashboard({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))}
+                      onClick={() =>
+                        setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))
+                      }
                     >
                       След. <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
-                  
+
                   {calLoading ? (
                     <div className="py-20 flex items-center justify-center text-muted-foreground">
                       <Loader2 className="h-6 w-6 animate-spin mr-2" /> Загрузка...
@@ -2078,19 +2196,23 @@ export function AdminDashboard({
                     <>
                       <div className="grid grid-cols-7 gap-2 text-sm font-semibold text-muted-foreground text-center mb-2">
                         {calWEEKDAYS.map((w) => (
-                          <div key={w} className="py-2">{w}</div>
+                          <div key={w} className="py-2">
+                            {w}
+                          </div>
                         ))}
                       </div>
                       <div className="grid grid-cols-7 gap-2">
                         {calGrid.map((c) => {
-                          const dateKey = c.day ? `${String(c.day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}` : "";
+                          const dateKey = c.day
+                            ? `${String(c.day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}`
+                            : "";
                           const entries = c.day ? calRowsByDate.get(dateKey) : undefined;
-                          
+
                           return (
                             <div
                               key={c.key}
-                              onClick={() => c.day ? onCalDayClick(c.day) : undefined}
-                              className={`min-h-[100px] rounded-xl p-2 text-sm border transition-all ${
+                              onClick={() => (c.day ? onCalDayClick(c.day) : undefined)}
+                              className={`min-h-25 rounded-xl p-2 text-sm border transition-all ${
                                 c.day
                                   ? entries
                                     ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
@@ -2104,18 +2226,30 @@ export function AdminDashboard({
                                   {entries && (
                                     <div className="mt-auto space-y-0.5">
                                       {entries.slice(0, 2).map((e, idx) => (
-                                        <div key={idx} className="tabular-nums text-[10px] text-primary truncate" title={`${e.site} - ${e.workedHM}`}>
+                                        <div
+                                          key={idx}
+                                          className="tabular-nums text-[10px] text-primary truncate"
+                                          title={`${e.site} - ${e.workedHM}`}
+                                        >
                                           {e.workStart}–{e.workEnd}
                                         </div>
                                       ))}
                                       {entries.length > 2 && (
-                                        <div className="text-[10px] text-muted-foreground">+{entries.length - 2}</div>
+                                        <div className="text-[10px] text-muted-foreground">
+                                          +{entries.length - 2}
+                                        </div>
                                       )}
                                       <div className="text-[10px] font-semibold text-foreground mt-1">
                                         {(() => {
                                           const totalMin = entries.reduce((acc, e) => {
-                                            const [h, mRaw] = e.workedHM.replace("ч", "").replace("м", "").split(" ");
-                                            return acc + (parseInt(h || "0") * 60 + parseInt(mRaw || "0"));
+                                            const [h, mRaw] = e.workedHM
+                                              .replace("ч", "")
+                                              .replace("м", "")
+                                              .split(" ");
+                                            return (
+                                              acc +
+                                              (parseInt(h || "0") * 60 + parseInt(mRaw || "0"))
+                                            );
                                           }, 0);
                                           return `${Math.floor(totalMin / 60)}ч ${String(totalMin % 60).padStart(2, "0")}м`;
                                         })()}
@@ -2139,7 +2273,6 @@ export function AdminDashboard({
               )}
             </div>
           )}
-
         </main>
       </div>
 
@@ -2156,14 +2289,20 @@ export function AdminDashboard({
                     size="icon"
                     className="h-6 w-6"
                     onClick={() => {
-                      const n = shiftEditIndex - 1 < 0 ? shiftEditList.length - 1 : shiftEditIndex - 1;
+                      const n =
+                        shiftEditIndex - 1 < 0 ? shiftEditList.length - 1 : shiftEditIndex - 1;
                       setShiftEditIndex(n);
-                      loadShiftIntoEdit(shiftEditList[n], employees.find(e => e.id === calEmpId)!);
+                      loadShiftIntoEdit(
+                        shiftEditList[n],
+                        employees.find((e) => e.id === calEmpId)!,
+                      );
                     }}
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <span className="text-muted-foreground">{shiftEditIndex + 1} / {shiftEditList.length}</span>
+                  <span className="text-muted-foreground">
+                    {shiftEditIndex + 1} / {shiftEditList.length}
+                  </span>
                   <Button
                     variant="outline"
                     size="icon"
@@ -2171,7 +2310,10 @@ export function AdminDashboard({
                     onClick={() => {
                       const n = (shiftEditIndex + 1) % shiftEditList.length;
                       setShiftEditIndex(n);
-                      loadShiftIntoEdit(shiftEditList[n], employees.find(e => e.id === calEmpId)!);
+                      loadShiftIntoEdit(
+                        shiftEditList[n],
+                        employees.find((e) => e.id === calEmpId)!,
+                      );
                     }}
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -2354,7 +2496,9 @@ export function AdminDashboard({
                   <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
                   <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
                   {superMode && <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>}
-                  {superMode && <SelectItem value="super_admin">{t(roleLabel.super_admin)}</SelectItem>}
+                  {superMode && (
+                    <SelectItem value="super_admin">{t(roleLabel.super_admin)}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>

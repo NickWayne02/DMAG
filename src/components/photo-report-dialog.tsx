@@ -13,8 +13,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Camera as LucideCamera, Loader2, X, ImagePlus } from "lucide-react";
+import { Camera as LucideCamera, Loader2, X, ImagePlus, FolderSearch } from "lucide-react";
 import type { Site } from "./site-selector-dialog";
+import { StorageBrowserDialog } from "@/components/storage-browser-dialog";
 
 type Criticality = "info" | "important" | "urgent";
 
@@ -47,17 +48,21 @@ export function PhotoReportDialog({
   const [description, setDescription] = useState("");
   const [criticality, setCriticality] = useState<Criticality>("info");
   const [busy, setBusy] = useState(false);
+  const [browserOpen, setBrowserOpen] = useState(false);
+  const [selectedStoragePath, setSelectedStoragePath] = useState<string | null>(null);
 
   function reset() {
     setFile(null);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
+    setSelectedStoragePath(null);
     setDescription("");
     setCriticality("info");
   }
 
   function handleFile(f: File | null) {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+    setSelectedStoragePath(null);
     if (!f) {
       setFile(null);
       setPreviewUrl(null);
@@ -101,7 +106,7 @@ export function PhotoReportDialog({
       return;
     }
     if (!user) return;
-    if (!file && !description.trim()) {
+    if (!file && !selectedStoragePath && !description.trim()) {
       toast.error("Добавьте фото или описание");
       return;
     }
@@ -116,6 +121,8 @@ export function PhotoReportDialog({
           .upload(path, file, { upsert: false });
         if (up.error) throw up.error;
         photoPath = up.data.path;
+      } else if (selectedStoragePath) {
+        photoPath = selectedStoragePath;
       }
       const { error } = await supabase.from("photo_reports").insert({
         site_id: site.id,
@@ -177,7 +184,7 @@ export function PhotoReportDialog({
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -185,7 +192,7 @@ export function PhotoReportDialog({
                   onClick={() => takePhoto("CAMERA")}
                 >
                   <LucideCamera className="h-6 w-6" />
-                  <span className="text-xs">Сделать снимок</span>
+                  <span className="text-[10px]">Снимок</span>
                 </Button>
                 <Button
                   type="button"
@@ -194,7 +201,16 @@ export function PhotoReportDialog({
                   onClick={() => takePhoto("PHOTOS")}
                 >
                   <ImagePlus className="h-6 w-6" />
-                  <span className="text-xs">Из галереи</span>
+                  <span className="text-[10px]">Галерея</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-24 rounded-2xl flex flex-col gap-1"
+                  onClick={() => setBrowserOpen(true)}
+                >
+                  <FolderSearch className="h-6 w-6" />
+                  <span className="text-[10px]">Хранилище</span>
                 </Button>
               </div>
             )}
@@ -261,6 +277,18 @@ export function PhotoReportDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <StorageBrowserDialog
+        open={browserOpen}
+        onOpenChange={setBrowserOpen}
+        bucketName="photo-reports"
+        onSelect={(url, path) => {
+          if (previewUrl && previewUrl.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
+          setFile(null);
+          setSelectedStoragePath(path);
+          setPreviewUrl(url);
+        }}
+      />
     </Dialog>
   );
 }

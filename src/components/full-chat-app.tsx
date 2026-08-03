@@ -373,6 +373,7 @@ export function FullChatApp({
             key={`${activeChannelType}-${activeChannelId}-${refreshKey}`}
             channelType={activeChannelType}
             channelId={activeChannelId}
+            profiles={profiles}
           />
         </div>
       </div>

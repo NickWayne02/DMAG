@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { StorageBrowserDialog } from "@/components/storage-browser-dialog";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,7 +80,6 @@ import {
   triggerDownload,
   type ShiftDetail,
 } from "@/lib/shift-export";
-import { DeviceManagementDialog } from "@/components/device-management-dialog";
 import { FullChatApp } from "@/components/full-chat-app";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
@@ -957,26 +957,21 @@ export function AdminDashboard({
   const adminToggleActiveFn = useServerFn(adminToggleActive);
   const adminUpdateAvatarFn = useServerFn(adminUpdateAvatar);
 
-  const uploadAvatar = async (userId: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);
+  const [avatarBrowserTarget, setAvatarBrowserTarget] = useState<string | null>(null);
+
+  const handleAvatarSelect = async (publicUrl: string) => {
+    if (!avatarBrowserTarget) return;
     setUserBusy(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${userId}/${Date.now()}.${ext}`;
-      const up = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-      if (up.error) throw up.error;
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(path);
-      await adminUpdateAvatarFn({ data: { user_id: userId, avatar_url: publicUrl } });
+      await adminUpdateAvatarFn({ data: { user_id: avatarBrowserTarget, avatar_url: publicUrl } });
       toast.success("Аватар обновлен");
       loadAll();
     } catch (err: any) {
-      toast.error(err.message || "Ошибка загрузки");
+      toast.error(err.message || "Ошибка обновления");
     } finally {
       setUserBusy(false);
-      e.target.value = "";
+      setAvatarBrowserTarget(null);
     }
   };
 
@@ -2313,13 +2308,6 @@ export function AdminDashboard({
                                   {t("admin.users.credentials")}
                                 </Button>
 
-                                <input
-                                  type="file"
-                                  id={`avatar-upload-tbl-${e.id}`}
-                                  className="hidden"
-                                  accept="image/*"
-                                  onChange={(ev) => uploadAvatar(e.id, ev)}
-                                />
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -2328,9 +2316,10 @@ export function AdminDashboard({
                                     userBusy ||
                                     (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                   }
-                                  onClick={() =>
-                                    document.getElementById(`avatar-upload-tbl-${e.id}`)?.click()
-                                  }
+                                  onClick={() => {
+                                    setAvatarBrowserTarget(e.id);
+                                    setAvatarBrowserOpen(true);
+                                  }}
                                 >
                                   Фото
                                 </Button>
@@ -2480,13 +2469,6 @@ export function AdminDashboard({
                                 {t("admin.users.credentials")}
                               </Button>
 
-                              <input
-                                type="file"
-                                id={`avatar-upload-${e.id}`}
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(ev) => uploadAvatar(e.id, ev)}
-                              />
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -2495,9 +2477,10 @@ export function AdminDashboard({
                                   userBusy ||
                                   (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                 }
-                                onClick={() =>
-                                  document.getElementById(`avatar-upload-${e.id}`)?.click()
-                                }
+                                onClick={() => {
+                                  setAvatarBrowserTarget(e.id);
+                                  setAvatarBrowserOpen(true);
+                                }}
                               >
                                 Фото
                               </Button>
@@ -2852,6 +2835,13 @@ export function AdminDashboard({
       </Dialog>
 
       {/* ===== Create user dialog ===== */}
+      <StorageBrowserDialog
+        open={avatarBrowserOpen}
+        onOpenChange={setAvatarBrowserOpen}
+        bucketName="avatars"
+        onSelect={handleAvatarSelect}
+      />
+
       <Dialog
         open={createForm.open}
         onOpenChange={(o) => setCreateForm((f) => ({ ...f, open: o }))}

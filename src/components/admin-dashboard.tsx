@@ -1135,8 +1135,9 @@ export function AdminDashboard({
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col ${mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col ${
+          mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+        }`}
       >
         <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
           <img src={dmagLogo} alt="DMAG" className="h-10 w-10 rounded-xl object-cover shadow" />
@@ -1163,10 +1164,11 @@ export function AdminDashboard({
                   setActiveTab(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition ${activeTab === item.id
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                  : "hover:bg-sidebar-accent/60"
-                  }`}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition ${
+                  activeTab === item.id
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                    : "hover:bg-sidebar-accent/60"
+                }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 <span className="leading-tight">{item.label}</span>
@@ -1198,7 +1200,7 @@ export function AdminDashboard({
                 {activeTab === "security" && <span>{t("admin.tab.security")}</span>}
                 {activeTab === "admin-management" && <span>{t("admin.tab.users")}</span>}
               </h1>
-              <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+              <p className="hidden md:block text-[10px] md:text-xs text-muted-foreground truncate">
                 {t(roleLabel[role])} · {tName(name)}
               </p>
             </div>
@@ -1375,97 +1377,177 @@ export function AdminDashboard({
                 {filteredPersonnel.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("admin.personnel.noData")}</p>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{t("admin.personnel.colEmployee")}</TableHead>
-                          <TableHead>{t("admin.personnel.colRole")}</TableHead>
-                          <TableHead>{t("admin.personnel.colStatus")}</TableHead>
-                          <TableHead>{t("admin.personnel.colSite")}</TableHead>
-                          <TableHead className="text-right">
-                            {t("admin.personnel.colStart")}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {t("admin.personnel.colWork")}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {t("admin.personnel.colPause")}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {t("admin.personnel.colActions")}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredPersonnel
-                          .slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE)
-                          .map((e) => {
-                            const st = EMP_STATUS[e.status];
-                            return (
-                              <TableRow key={e.id}>
-                                <TableCell className="font-medium">{tName(e.name)}</TableCell>
-                                <TableCell className="text-muted-foreground text-sm">
-                                  {t(roleLabel[e.role])}
-                                </TableCell>
-                                <TableCell>
-                                  <span
-                                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                                    style={{ backgroundColor: `${st.color}1A`, color: st.color }}
-                                  >
+                  <>
+                    <div className="hidden md:block overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{t("admin.personnel.colEmployee")}</TableHead>
+                            <TableHead>{t("admin.personnel.colRole")}</TableHead>
+                            <TableHead>{t("admin.personnel.colStatus")}</TableHead>
+                            <TableHead>{t("admin.personnel.colSite")}</TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.personnel.colStart")}
+                            </TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.personnel.colWork")}
+                            </TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.personnel.colPause")}
+                            </TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.personnel.colActions")}
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredPersonnel
+                            .slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE)
+                            .map((e) => {
+                              const st = EMP_STATUS[e.status];
+                              return (
+                                <TableRow key={e.id}>
+                                  <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                                  <TableCell className="text-muted-foreground text-sm">
+                                    {t(roleLabel[e.role])}
+                                  </TableCell>
+                                  <TableCell>
                                     <span
-                                      className="h-1.5 w-1.5 rounded-full"
-                                      style={{ backgroundColor: st.color }}
-                                    />
-                                    {t(st.labelKey)}
+                                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+                                      style={{ backgroundColor: `${st.color}1A`, color: st.color }}
+                                    >
+                                      <span
+                                        className="h-1.5 w-1.5 rounded-full"
+                                        style={{ backgroundColor: st.color }}
+                                      />
+                                      {t(st.labelKey)}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-sm text-muted-foreground truncate max-w-45">
+                                    {e.siteName || "—"}
+                                  </TableCell>
+                                  <TableCell className="text-right tabular-nums text-sm">
+                                    {e.since}
+                                  </TableCell>
+                                  <TableCell className="text-right tabular-nums text-sm">
+                                    {formatHM(e.workedMs)}
+                                  </TableCell>
+                                  <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
+                                    {formatHM(e.lunchMs)}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <div className="flex justify-end gap-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="rounded-lg"
+                                        onClick={() => setCalendarFor(e)}
+                                        title={t("admin.personnel.calTooltip")}
+                                      >
+                                        <CalendarDays className="h-3.5 w-3.5" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="rounded-lg"
+                                        onClick={() => openEditShift(e)}
+                                        title={t("admin.personnel.editTooltip")}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    <div className="md:hidden space-y-3">
+                      {filteredPersonnel
+                        .slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE)
+                        .map((e) => {
+                          const st = EMP_STATUS[e.status];
+                          return (
+                            <div
+                              key={e.id}
+                              className="flex flex-col gap-2 rounded-2xl border bg-card p-4"
+                            >
+                              <div className="flex justify-between items-start gap-2">
+                                <div>
+                                  <h4 className="font-semibold">{tName(e.name)}</h4>
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    {t(roleLabel[e.role])}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-lg"
+                                    onClick={() => setCalendarFor(e)}
+                                  >
+                                    <CalendarDays className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-lg"
+                                    onClick={() => openEditShift(e)}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
+                                <span
+                                  className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                  style={{ backgroundColor: `${st.color}1A`, color: st.color }}
+                                >
+                                  <span
+                                    className="h-1.5 w-1.5 rounded-full"
+                                    style={{ backgroundColor: st.color }}
+                                  />
+                                  {t(st.labelKey)}
+                                </span>
+                                {e.siteName && (
+                                  <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md truncate max-w-[150px]">
+                                    {e.siteName}
                                   </span>
-                                </TableCell>
-                                <TableCell className="text-sm text-muted-foreground truncate max-w-45">
-                                  {e.siteName || "—"}
-                                </TableCell>
-                                <TableCell className="text-right tabular-nums text-sm">
-                                  {e.since}
-                                </TableCell>
-                                <TableCell className="text-right tabular-nums text-sm">
-                                  {formatHM(e.workedMs)}
-                                </TableCell>
-                                <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                                  {formatHM(e.lunchMs)}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <div className="flex justify-end gap-1">
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="rounded-lg"
-                                      onClick={() => setCalendarFor(e)}
-                                      title={t("admin.personnel.calTooltip")}
-                                    >
-                                      <CalendarDays className="h-3.5 w-3.5" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="rounded-lg"
-                                      onClick={() => openEditShift(e)}
-                                      title={t("admin.personnel.editTooltip")}
-                                    >
-                                      <Pencil className="h-3.5 w-3.5" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                      </TableBody>
-                    </Table>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t text-center text-xs">
+                                <div>
+                                  <p className="text-muted-foreground text-[10px] mb-0.5">
+                                    {t("admin.personnel.colStart")}
+                                  </p>
+                                  <p className="font-medium">{e.since}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground text-[10px] mb-0.5">
+                                    {t("admin.personnel.colWork")}
+                                  </p>
+                                  <p className="font-medium">{formatHM(e.workedMs)}</p>
+                                </div>
+                                <div>
+                                  <p className="text-muted-foreground text-[10px] mb-0.5">
+                                    {t("admin.personnel.colPause")}
+                                  </p>
+                                  <p className="font-medium">{formatHM(e.lunchMs)}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
                     <TablePagination
                       page={personnelPage}
                       total={filteredPersonnel.length}
                       pageSize={PAGE_SIZE}
                       onPageChange={setPersonnelPage}
                     />
-                  </div>
+                  </>
                 )}
               </Card>
 
@@ -1542,85 +1624,154 @@ export function AdminDashboard({
                 {filteredSites.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t("admin.sites.empty")}</p>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>{t("admin.sites.colName")}</TableHead>
-                          <TableHead>{t("admin.sites.colAddress")}</TableHead>
-                          <TableHead>{t("admin.sites.colCustomer")}</TableHead>
-                          <TableHead className="text-right">Сотрудников</TableHead>
-                          <TableHead className="text-right">
-                            {t("admin.sites.colCreated")}
-                          </TableHead>
-                          <TableHead className="text-right">
-                            {t("admin.sites.colActions")}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredSites
-                          .slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE)
-                          .map((s) => {
-                            const empCount = employees.filter((e) => e.siteName === s.name).length;
-                            return (
-                              <TableRow key={s.id}>
-                                <TableCell className="font-medium">{s.name}</TableCell>
-                                <TableCell className="text-sm text-muted-foreground">
-                                  {s.address || "—"}
-                                </TableCell>
-                                <TableCell className="text-sm text-muted-foreground">
-                                  {s.customer || "—"}
-                                </TableCell>
-                                <TableCell className="text-right tabular-nums">
-                                  <Badge variant="secondary" className="font-mono">
-                                    {empCount || Math.floor(Math.random() * 15) + 1}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
-                                  {new Date(s.created_at).toLocaleDateString("ru-RU")}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <div className="flex justify-end gap-1">
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="rounded-lg"
-                                      onClick={() =>
-                                        setSiteEdit({
-                                          id: s.id,
-                                          name: s.name,
-                                          address: s.address ?? "",
-                                          customer: s.customer ?? "",
-                                        })
-                                      }
-                                      title={t("admin.sites.edit")}
-                                    >
-                                      <Pencil className="h-3.5 w-3.5" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="rounded-lg text-destructive hover:text-destructive"
-                                      onClick={() => deleteSite(s.id, s.name)}
-                                      title={t("admin.sites.delete")}
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5" />
-                                    </Button>
+                  <>
+                    <div className="hidden md:block overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>{t("admin.sites.colName")}</TableHead>
+                            <TableHead>{t("admin.sites.colAddress")}</TableHead>
+                            <TableHead>{t("admin.sites.colCustomer")}</TableHead>
+                            <TableHead className="text-right">Сотрудников</TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.sites.colCreated")}
+                            </TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.sites.colActions")}
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredSites
+                            .slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE)
+                            .map((s) => {
+                              const empCount = employees.filter(
+                                (e) => e.siteName === s.name,
+                              ).length;
+                              return (
+                                <TableRow key={s.id}>
+                                  <TableCell className="font-medium">{s.name}</TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">
+                                    {s.address || "—"}
+                                  </TableCell>
+                                  <TableCell className="text-sm text-muted-foreground">
+                                    {s.customer || "—"}
+                                  </TableCell>
+                                  <TableCell className="text-right tabular-nums">
+                                    <Badge variant="secondary" className="font-mono">
+                                      {empCount || Math.floor(Math.random() * 15) + 1}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
+                                    {new Date(s.created_at).toLocaleDateString("ru-RU")}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <div className="flex justify-end gap-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="rounded-lg"
+                                        onClick={() =>
+                                          setSiteEdit({
+                                            id: s.id,
+                                            name: s.name,
+                                            address: s.address ?? "",
+                                            customer: s.customer ?? "",
+                                          })
+                                        }
+                                        title={t("admin.sites.edit")}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="rounded-lg text-destructive hover:text-destructive"
+                                        onClick={() => deleteSite(s.id, s.name)}
+                                        title={t("admin.sites.delete")}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                        </TableBody>
+                      </Table>
+                    </div>
+
+                    <div className="md:hidden space-y-3">
+                      {filteredSites
+                        .slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE)
+                        .map((s) => {
+                          const empCount = employees.filter((e) => e.siteName === s.name).length;
+                          return (
+                            <div
+                              key={s.id}
+                              className="flex flex-col gap-2 rounded-2xl border bg-card p-4"
+                            >
+                              <div className="flex justify-between items-start gap-2">
+                                <div>
+                                  <h4 className="font-semibold text-base">{s.name}</h4>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-lg"
+                                    onClick={() =>
+                                      setSiteEdit({
+                                        id: s.id,
+                                        name: s.name,
+                                        address: s.address ?? "",
+                                        customer: s.customer ?? "",
+                                      })
+                                    }
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => deleteSite(s.id, s.name)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-1 text-sm text-muted-foreground">
+                                {s.address && (
+                                  <div className="flex items-start gap-1.5">
+                                    <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+                                    <span className="line-clamp-2">{s.address}</span>
                                   </div>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                      </TableBody>
-                    </Table>
+                                )}
+                                {s.customer && (
+                                  <div className="flex items-start gap-1.5">
+                                    <Building2 className="h-4 w-4 shrink-0 mt-0.5" />
+                                    <span className="line-clamp-1">{s.customer}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex justify-between items-center mt-2 pt-3 border-t">
+                                <span className="text-xs text-muted-foreground">Сотрудников:</span>
+                                <Badge variant="secondary" className="font-mono">
+                                  {empCount || Math.floor(Math.random() * 15) + 1}
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
                     <TablePagination
                       page={sitesPage}
                       total={filteredSites.length}
                       pageSize={PAGE_SIZE}
                       onPageChange={setSitesPage}
                     />
-                  </div>
+                  </>
                 )}
               </Card>
 
@@ -1973,141 +2124,279 @@ export function AdminDashboard({
                 />
               </div>
 
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("admin.users.user")}</TableHead>
-                      <TableHead>Статус</TableHead>
-                      <TableHead>Последний вход</TableHead>
-                      <TableHead>{t("admin.users.role")}</TableHead>
-                      <TableHead className="text-right">{t("admin.users.actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAdmins.length === 0 && (
+              <>
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          className="text-sm text-muted-foreground text-center py-6"
-                        >
-                          {t("admin.users.empty")}
-                        </TableCell>
+                        <TableHead>{t("admin.users.user")}</TableHead>
+                        <TableHead>Статус</TableHead>
+                        <TableHead>Последний вход</TableHead>
+                        <TableHead>{t("admin.users.role")}</TableHead>
+                        <TableHead className="text-right">{t("admin.users.actions")}</TableHead>
                       </TableRow>
-                    )}
-                    {filteredAdmins
-                      .slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE)
-                      .map((e) => {
-                        const lastLogin = e.lastShiftAt
-                          ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                          : "Только что";
-                        return (
-                          <TableRow key={`mgr-${e.id}`}>
-                            <TableCell className="font-medium">{tName(e.name)}</TableCell>
-                            <TableCell>
-                              {e.is_active ? (
-                                <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
-                                  Активен
-                                </Badge>
-                              ) : (
-                                <Badge
-                                  variant="secondary"
-                                  className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20"
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAdmins.length === 0 && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            className="text-sm text-muted-foreground text-center py-6"
+                          >
+                            {t("admin.users.empty")}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {filteredAdmins
+                        .slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE)
+                        .map((e) => {
+                          const lastLogin = e.lastShiftAt
+                            ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
+                                day: "numeric",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "Только что";
+                          return (
+                            <TableRow key={`mgr-${e.id}`}>
+                              <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                              <TableCell>
+                                {e.is_active ? (
+                                  <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
+                                    Активен
+                                  </Badge>
+                                ) : (
+                                  <Badge
+                                    variant="secondary"
+                                    className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20"
+                                  >
+                                    Модерация
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {lastLogin}
+                              </TableCell>
+                              <TableCell>
+                                <Select
+                                  value={e.role}
+                                  onValueChange={(v) => changeRole(e, v as AppRole)}
+                                  disabled={
+                                    userBusy ||
+                                    e.id === user?.id ||
+                                    (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                  }
                                 >
-                                  Модерация
-                                </Badge>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {lastLogin}
-                            </TableCell>
-                            <TableCell>
-                              <Select
-                                value={e.role}
-                                onValueChange={(v) => changeRole(e, v as AppRole)}
-                                disabled={
-                                  userBusy ||
-                                  e.id === user?.id ||
-                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
-                                }
-                              >
-                                <SelectTrigger className="h-8 w-40 rounded-lg">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
-                                  <SelectItem value="brigadier">
-                                    {t(roleLabel.brigadier)}
-                                  </SelectItem>
-                                  {superMode && (
-                                    <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>
-                                  )}
-                                  {superMode && (
-                                    <SelectItem value="super_admin">
-                                      {t(roleLabel.super_admin)}
+                                  <SelectTrigger className="h-8 w-40 rounded-lg">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="employee">
+                                      {t(roleLabel.employee)}
                                     </SelectItem>
-                                  )}
-                                </SelectContent>
-                              </Select>
-                            </TableCell>
-                            <TableCell className="text-right space-x-2">
-                              {!e.is_active && (
+                                    <SelectItem value="brigadier">
+                                      {t(roleLabel.brigadier)}
+                                    </SelectItem>
+                                    {superMode && (
+                                      <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>
+                                    )}
+                                    {superMode && (
+                                      <SelectItem value="super_admin">
+                                        {t(roleLabel.super_admin)}
+                                      </SelectItem>
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
+                              <TableCell className="text-right space-x-2">
+                                {!e.is_active && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="rounded-lg bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
+                                    disabled={
+                                      userBusy ||
+                                      (!superMode &&
+                                        (e.role === "super_admin" || e.role === "admin"))
+                                    }
+                                    onClick={async () => {
+                                      setUserBusy(true);
+                                      try {
+                                        await adminToggleActiveFn({
+                                          data: { user_id: e.id, is_active: true },
+                                        });
+                                        toast.success("Аккаунт одобрен");
+                                        loadAll();
+                                      } catch (err) {
+                                        toast.error(err instanceof Error ? err.message : "Ошибка");
+                                      } finally {
+                                        setUserBusy(false);
+                                      }
+                                    }}
+                                  >
+                                    <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                                    Одобрить
+                                  </Button>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="rounded-lg bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
+                                  className="rounded-lg"
                                   disabled={
                                     userBusy ||
                                     (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                   }
-                                  onClick={async () => {
-                                    setUserBusy(true);
-                                    try {
-                                      await adminToggleActiveFn({
-                                        data: { user_id: e.id, is_active: true },
-                                      });
-                                      toast.success("Аккаунт одобрен");
-                                      loadAll();
-                                    } catch (err) {
-                                      toast.error(err instanceof Error ? err.message : "Ошибка");
-                                    } finally {
-                                      setUserBusy(false);
-                                    }
-                                  }}
+                                  onClick={() =>
+                                    setCredsEdit({
+                                      user_id: e.id,
+                                      user_name: e.name,
+                                      email: "",
+                                      password: "",
+                                    })
+                                  }
                                 >
-                                  <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-                                  Одобрить
+                                  <KeyRound className="h-3.5 w-3.5 mr-1" />
+                                  {t("admin.users.credentials")}
                                 </Button>
-                              )}
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="rounded-lg"
+                                  disabled={
+                                    userBusy ||
+                                    e.id === user?.id ||
+                                    (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                  }
+                                  onClick={() => removeUser(e)}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                <div className="md:hidden space-y-3">
+                  {filteredAdmins.length === 0 && (
+                    <div className="text-sm text-muted-foreground text-center py-6 border rounded-2xl bg-card">
+                      {t("admin.users.empty")}
+                    </div>
+                  )}
+                  {filteredAdmins
+                    .slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE)
+                    .map((e) => {
+                      return (
+                        <div
+                          key={e.id}
+                          className="flex flex-col gap-3 rounded-2xl border bg-card p-4"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div>
+                              <h4 className="font-semibold text-base truncate">{e.user}</h4>
+                              <p className="text-sm text-muted-foreground mt-0.5">
+                                {t(roleLabel[e.role])}
+                              </p>
+                            </div>
+                            <Badge
+                              variant={e.is_active ? "default" : "secondary"}
+                              className={
+                                e.is_active
+                                  ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                                  : ""
+                              }
+                            >
+                              {e.is_active ? "Активен" : "Отключен"}
+                            </Badge>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <span className="font-medium">Последний вход:</span>
+                            <span>
+                              {e.last_sign_in_at
+                                ? new Date(e.last_sign_in_at).toLocaleDateString("ru-RU", {
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "Никогда"}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 mt-2 pt-3 border-t">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 rounded-lg"
+                              disabled={
+                                userBusy ||
+                                e.id === user?.id ||
+                                (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                              }
+                              onClick={async () => {
+                                setUserBusy(true);
+                                try {
+                                  await setAdminRole(
+                                    e.id,
+                                    e.role === "admin" ? "super_admin" : "admin",
+                                  );
+                                } finally {
+                                  setUserBusy(false);
+                                }
+                              }}
+                            >
+                              {e.role === "admin" ? "Сделать Супер" : "Сделать Админ"}
+                            </Button>
+                            {!e.is_active && (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="rounded-lg"
+                                className="flex-1 rounded-lg bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
+                                disabled={
+                                  userBusy ||
+                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                }
+                                onClick={async () => {
+                                  setUserBusy(true);
+                                  try {
+                                    await toggleUserStatus(e.id, true);
+                                  } finally {
+                                    setUserBusy(false);
+                                  }
+                                }}
+                              >
+                                Включить
+                              </Button>
+                            )}
+                            <div className="w-full flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 rounded-lg"
                                 disabled={
                                   userBusy ||
                                   (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                 }
                                 onClick={() =>
-                                  setCredsEdit({
-                                    user_id: e.id,
-                                    user_name: e.name,
-                                    email: "",
+                                  setResetCreds({
+                                    id: e.id,
+                                    email: e.email,
+                                    name: e.user,
                                     password: "",
                                   })
                                 }
                               >
-                                <KeyRound className="h-3.5 w-3.5 mr-1" />
+                                <KeyRound className="h-4 w-4 mr-1.5" />
                                 {t("admin.users.credentials")}
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="rounded-lg"
+                                className="rounded-lg px-3"
                                 disabled={
                                   userBusy ||
                                   e.id === user?.id ||
@@ -2115,21 +2404,21 @@ export function AdminDashboard({
                                 }
                                 onClick={() => removeUser(e)}
                               >
-                                <Trash2 className="h-3.5 w-3.5" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
                 <TablePagination
                   page={adminPage}
                   total={filteredAdmins.length}
                   pageSize={PAGE_SIZE}
                   onPageChange={setAdminPage}
                 />
-              </div>
+              </>
             </Card>
           )}
 
@@ -2210,12 +2499,13 @@ export function AdminDashboard({
                             <div
                               key={c.key}
                               onClick={() => (c.day ? onCalDayClick(c.day) : undefined)}
-                              className={`min-h-25 rounded-xl p-2 text-sm border transition-all ${c.day
-                                ? entries
-                                  ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
-                                  : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50 hover:border-primary/20"
-                                : "border-transparent opacity-50"
-                                }`}
+                              className={`aspect-square md:aspect-auto md:min-h-25 rounded-xl p-1 md:p-2 text-sm border transition-all ${
+                                c.day
+                                  ? entries
+                                    ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
+                                    : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50 hover:border-primary/20"
+                                  : "border-transparent opacity-50"
+                              }`}
                             >
                               {c.day && (
                                 <div className="flex flex-col h-full">

@@ -320,7 +320,7 @@ export function EmployeeMobileView() {
               <div
                 className="rounded-3xl p-4 border mb-3"
                 style={{
-                  background: "rgba(5, 6, 15, 0.4)",
+                  background: "var(--neon-surface)",
                   borderColor: "var(--neon-border)",
                 }}
               >
@@ -329,13 +329,16 @@ export function EmployeeMobileView() {
                     className={`h-2.5 w-2.5 rounded-full ${status === "working" || status === "lunch" ? "animate-pulse" : ""}`}
                     style={{ background: statusAccent.color, boxShadow: statusAccent.glow }}
                   />
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em]"
+                    style={{ color: "var(--neon-text-dim)" }}
+                  >
                     {tr("status.current")}
                   </p>
                 </div>
                 <p
-                  className="text-base font-semibold mt-1 text-white"
-                  style={{ textShadow: statusAccent.glow }}
+                  className="text-base font-semibold mt-1"
+                  style={{ color: "var(--neon-text)", textShadow: statusAccent.glow }}
                 >
                   {statusLabel}
                 </p>
@@ -343,20 +346,29 @@ export function EmployeeMobileView() {
                 {shiftStart && (
                   <div className="mt-3 flex items-end justify-between gap-3">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                      <p
+                        className="text-[10px] uppercase tracking-[0.2em]"
+                        style={{ color: "var(--neon-text-dim)" }}
+                      >
                         {tr("shift.start")}
                       </p>
-                      <p className="text-xl font-bold tabular-nums leading-tight text-white">
+                      <p
+                        className="text-xl font-bold tabular-nums leading-tight"
+                        style={{ color: "var(--neon-text)" }}
+                      >
                         {formatClock(shiftStart)}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                      <p
+                        className="text-[10px] uppercase tracking-[0.2em]"
+                        style={{ color: "var(--neon-text-dim)" }}
+                      >
                         {tr("shift.worked")}
                       </p>
                       <p
-                        className="text-2xl font-extrabold tabular-nums leading-tight text-white"
-                        style={{ textShadow: statusAccent.glow }}
+                        className="text-2xl font-extrabold tabular-nums leading-tight"
+                        style={{ color: "var(--neon-text)", textShadow: statusAccent.glow }}
                       >
                         {formatHMS(workMs)}
                       </p>
@@ -457,9 +469,10 @@ export function EmployeeMobileView() {
                     placeholder={tr("travel.placeholder")}
                     value={travelTime}
                     onChange={(e) => setTravelTime(e.target.value.replace(/[^\d]/g, ""))}
-                    className="h-11 rounded-xl border-0 text-white placeholder:text-white/70"
+                    className="h-11 rounded-xl border-0 placeholder:opacity-50"
                     style={{
-                      background: "rgba(255,255,255,0.05)",
+                      color: "var(--neon-text)",
+                      background: "color-mix(in oklab, var(--neon-surface) 90%, transparent)",
                       boxShadow: "inset 0 0 0 1px var(--neon-border)",
                     }}
                   />

@@ -87,6 +87,7 @@ export type Database = {
           created_at: string;
           email: string | null;
           full_name: string | null;
+          avatar_url: string | null;
           id: string;
           is_active: boolean;
           language: string;
@@ -97,6 +98,7 @@ export type Database = {
           created_at?: string;
           email?: string | null;
           full_name?: string | null;
+          avatar_url?: string | null;
           id: string;
           is_active?: boolean;
           language?: string;
@@ -107,6 +109,7 @@ export type Database = {
           created_at?: string;
           email?: string | null;
           full_name?: string | null;
+          avatar_url?: string | null;
           id?: string;
           is_active?: boolean;
           language?: string;

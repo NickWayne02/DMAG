@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -111,7 +112,7 @@ export function FullChatApp({
       console.error(error);
     } else {
       toast.success("История чата очищена");
-      setRefreshKey(prev => prev + 1);
+      setRefreshKey((prev) => prev + 1);
     }
   }
 
@@ -124,14 +125,16 @@ export function FullChatApp({
     }
   }
 
-  const [profiles, setProfiles] = useState<{ id: string; full_name: string | null }[]>([]);
+  const [profiles, setProfiles] = useState<
+    { id: string; full_name: string | null; avatar_url: string | null }[]
+  >([]);
   const [showNewChat, setShowNewChat] = useState(false);
   const [dmMessages, setDmMessages] = useState<{ channel_id: string }[]>([]);
 
   useEffect(() => {
     supabase
       .from("profiles")
-      .select("id, full_name")
+      .select("id, full_name, avatar_url")
       .eq("is_active", true)
       .then((res) => {
         if (res.data) setProfiles(res.data);
@@ -161,6 +164,7 @@ export function FullChatApp({
         id: cid,
         otherId,
         name: otherProfile?.full_name || "Unknown",
+        avatarUrl: otherProfile?.avatar_url || null,
       };
     });
   }, [dmMessages, user, profiles]);
@@ -446,9 +450,11 @@ function ChannelButton({
 function ChannelContent({
   channelType,
   channelId,
+  profiles,
 }: {
   channelType: ChannelType;
   channelId: string;
+  profiles: { id: string; avatar_url: string | null }[];
 }) {
   const { user, roles } = useAuth();
   const isSuperAdmin = roles.includes("super_admin");
@@ -569,7 +575,14 @@ function ChannelContent({
             {t("chat.noMessages")}
           </div>
         ) : (
-          messages.map((m) => <MessageBubble key={m.id} m={m} onDelete={deleteMessage} />)
+          messages.map((m) => (
+            <MessageBubble
+              key={m.id}
+              m={m}
+              onDelete={deleteMessage}
+              avatarUrl={profiles.find((p) => p.id === m.author_id)?.avatar_url || null}
+            />
+          ))
         )}
       </div>
       <div className="p-3 bg-card border-t shrink-0">
@@ -596,7 +609,15 @@ function ChannelContent({
   );
 }
 
-function MessageBubble({ m, onDelete }: { m: DbMessage; onDelete: (id: string) => void }) {
+function MessageBubble({
+  m,
+  onDelete,
+  avatarUrl,
+}: {
+  m: DbMessage;
+  onDelete: (id: string) => void;
+  avatarUrl: string | null;
+}) {
   const { user, roles } = useAuth();
   const { lang } = useLanguage();
   const t = useT();
@@ -638,62 +659,70 @@ function MessageBubble({ m, onDelete }: { m: DbMessage; onDelete: (id: string) =
   }, [m.id, m.content, m.source_lang, lang, needsTranslate]);
 
   return (
-    <div className={cn("flex flex-col gap-1 w-full", isMine ? "items-end" : "items-start")}>
-      <div
-        className={cn(
-          "max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2 relative group",
-          isMine
-            ? "bg-primary text-primary-foreground rounded-br-none"
-            : "bg-card border rounded-bl-none shadow-sm",
-        )}
-      >
-        {!isMine && (
-          <div className="text-[11px] font-semibold opacity-70 mb-0.5">{m.author_name}</div>
-        )}
-        <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">{m.content}</div>
-
-        {needsTranslate && (
-          <div
-            className={cn(
-              "mt-1.5 pt-1.5 border-t",
-              isMine ? "border-primary-foreground/20" : "border-foreground/10",
-            )}
-          >
-            {translating && !translated ? (
-              <span className="inline-flex items-center gap-2 opacity-80 text-xs italic">
-                <Loader2 className="h-3 w-3 animate-spin" />…
-              </span>
-            ) : (
-              <p className="whitespace-pre-wrap break-words text-xs opacity-90">
-                {translated ?? ""}
-              </p>
-            )}
-          </div>
-        )}
-
+    <div className={cn("flex w-full gap-2", isMine ? "justify-end" : "justify-start")}>
+      {!isMine && (
+        <Avatar className="h-8 w-8 mt-auto shrink-0">
+          <AvatarImage src={avatarUrl || ""} />
+          <AvatarFallback>{m.author_name.substring(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+      )}
+      <div className={cn("flex flex-col gap-1 w-full", isMine ? "items-end" : "items-start")}>
         <div
           className={cn(
-            "text-[10px] mt-1 flex items-center justify-end gap-1 opacity-60",
-            isMine ? "text-primary-foreground" : "text-muted-foreground",
+            "max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2 relative group",
+            isMine
+              ? "bg-primary text-primary-foreground rounded-br-none"
+              : "bg-card border rounded-bl-none shadow-sm",
           )}
         >
-          {timeStr}
-        </div>
+          {!isMine && (
+            <div className="text-[11px] font-semibold opacity-70 mb-0.5">{m.author_name}</div>
+          )}
+          <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">{m.content}</div>
 
-        {(isSuperAdmin || isMine) && (
-          <button
-            onClick={() => onDelete(m.id)}
+          {needsTranslate && (
+            <div
+              className={cn(
+                "mt-1.5 pt-1.5 border-t",
+                isMine ? "border-primary-foreground/20" : "border-foreground/10",
+              )}
+            >
+              {translating && !translated ? (
+                <span className="inline-flex items-center gap-2 opacity-80 text-xs italic">
+                  <Loader2 className="h-3 w-3 animate-spin" />…
+                </span>
+              ) : (
+                <p className="whitespace-pre-wrap break-words text-xs opacity-90">
+                  {translated ?? ""}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div
             className={cn(
-              "absolute top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full",
-              isMine
-                ? "-left-10 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                : "-right-10 bg-destructive/10 text-destructive hover:bg-destructive/20",
+              "text-[10px] mt-1 flex items-center justify-end gap-1 opacity-60",
+              isMine ? "text-primary-foreground" : "text-muted-foreground",
             )}
-            title="Удалить"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        )}
+            {timeStr}
+          </div>
+
+          {(isSuperAdmin || isMine) && (
+            <button
+              onClick={() => onDelete(m.id)}
+              className={cn(
+                "absolute top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full",
+                isMine
+                  ? "-left-10 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                  : "-right-10 bg-destructive/10 text-destructive hover:bg-destructive/20",
+              )}
+              title="Удалить"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

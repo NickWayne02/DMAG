@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -89,6 +90,7 @@ import {
   adminSetRole,
   adminUpdateCredentials,
   adminToggleActive,
+  adminUpdateAvatar,
 } from "@/lib/admin-users.functions";
 import { getCurrentPosition, reverseGeocodeCity } from "@/lib/geocode";
 import { useLanguage } from "@/lib/i18n";
@@ -119,8 +121,9 @@ type EmpStatus = keyof typeof EMP_STATUS;
 type EmployeeRow = {
   id: string;
   name: string;
+  avatar_url?: string | null;
   role: AppRole;
-  status: EmpStatus;
+  status: "working" | "lunch" | "finished";
   since: string; // HH:MM (shift start)
   workedMs: number;
   lunchMs: number;
@@ -508,6 +511,7 @@ export function AdminDashboard({
         return {
           id: p.id,
           name: p.full_name || p.email || p.phone || "Без имени",
+          avatar_url: p.avatar_url ?? null,
           role: r,
           status,
           since,
@@ -951,6 +955,30 @@ export function AdminDashboard({
   const setRoleFn = useServerFn(adminSetRole);
   const updateCredsFn = useServerFn(adminUpdateCredentials);
   const adminToggleActiveFn = useServerFn(adminToggleActive);
+  const adminUpdateAvatarFn = useServerFn(adminUpdateAvatar);
+
+  const uploadAvatar = async (userId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUserBusy(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${userId}/${Date.now()}.${ext}`;
+      const up = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (up.error) throw up.error;
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("avatars").getPublicUrl(path);
+      await adminUpdateAvatarFn({ data: { user_id: userId, avatar_url: publicUrl } });
+      toast.success("Аватар обновлен");
+      loadAll();
+    } catch (err: any) {
+      toast.error(err.message || "Ошибка загрузки");
+    } finally {
+      setUserBusy(false);
+      e.target.value = "";
+    }
+  };
 
   // Mocks vs Real Data
 
@@ -1412,7 +1440,17 @@ export function AdminDashboard({
                               const st = EMP_STATUS[e.status];
                               return (
                                 <TableRow key={e.id}>
-                                  <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                                  <TableCell className="font-medium">
+                                    <div className="flex items-center gap-3">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarImage src={e.avatar_url || ""} />
+                                        <AvatarFallback>
+                                          {e.name.substring(0, 2).toUpperCase()}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span>{tName(e.name)}</span>
+                                    </div>
+                                  </TableCell>
                                   <TableCell className="text-muted-foreground text-sm">
                                     {t(roleLabel[e.role])}
                                   </TableCell>
@@ -2165,7 +2203,17 @@ export function AdminDashboard({
                             : "Только что";
                           return (
                             <TableRow key={`mgr-${e.id}`}>
-                              <TableCell className="font-medium">{tName(e.name)}</TableCell>
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={e.avatar_url || ""} />
+                                    <AvatarFallback>
+                                      {e.name.substring(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span>{tName(e.name)}</span>
+                                </div>
+                              </TableCell>
                               <TableCell>
                                 {e.is_active ? (
                                   <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
@@ -2264,6 +2312,29 @@ export function AdminDashboard({
                                   <KeyRound className="h-3.5 w-3.5 mr-1" />
                                   {t("admin.users.credentials")}
                                 </Button>
+
+                                <input
+                                  type="file"
+                                  id={`avatar-upload-tbl-${e.id}`}
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(ev) => uploadAvatar(e.id, ev)}
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="rounded-lg px-3"
+                                  disabled={
+                                    userBusy ||
+                                    (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                  }
+                                  onClick={() =>
+                                    document.getElementById(`avatar-upload-tbl-${e.id}`)?.click()
+                                  }
+                                >
+                                  Фото
+                                </Button>
+
                                 <Button
                                   size="sm"
                                   variant="destructive"
@@ -2300,11 +2371,21 @@ export function AdminDashboard({
                           className="flex flex-col gap-3 rounded-2xl border bg-card p-4"
                         >
                           <div className="flex justify-between items-start gap-2">
-                            <div>
-                              <h4 className="font-semibold text-base truncate">{tName(e.name)}</h4>
-                              <p className="text-sm text-muted-foreground mt-0.5">
-                                {t(roleLabel[e.role])}
-                              </p>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={e.avatar_url || ""} />
+                                <AvatarFallback>
+                                  {e.name.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <h4 className="font-semibold text-base truncate">
+                                  {tName(e.name)}
+                                </h4>
+                                <p className="text-sm text-muted-foreground mt-0.5">
+                                  {t(roleLabel[e.role])}
+                                </p>
+                              </div>
                             </div>
                             <Badge
                               variant={e.is_active ? "default" : "secondary"}
@@ -2397,6 +2478,28 @@ export function AdminDashboard({
                               >
                                 <KeyRound className="h-4 w-4 mr-1.5" />
                                 {t("admin.users.credentials")}
+                              </Button>
+
+                              <input
+                                type="file"
+                                id={`avatar-upload-${e.id}`}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(ev) => uploadAvatar(e.id, ev)}
+                              />
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-lg px-3"
+                                disabled={
+                                  userBusy ||
+                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                }
+                                onClick={() =>
+                                  document.getElementById(`avatar-upload-${e.id}`)?.click()
+                                }
+                              >
+                                Фото
                               </Button>
                               <Button
                                 size="sm"

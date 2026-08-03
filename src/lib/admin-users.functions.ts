@@ -146,3 +146,18 @@ export const adminToggleActive = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Update a user's avatar_url. Admin or super_admin only. */
+export const adminUpdateAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { user_id: string; avatar_url: string | null }) => data)
+  .handler(async ({ data, context }) => {
+    await assertAdminOrSuper(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ avatar_url: data.avatar_url })
+      .eq("id", data.user_id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });

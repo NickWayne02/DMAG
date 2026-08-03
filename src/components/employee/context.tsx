@@ -202,6 +202,17 @@ export function EmployeeProvider({
       window.localStorage.setItem("dmag_chat_open", String(val));
     }
   };
+
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").select("avatar_url").eq("id", user.id).single().then(({ data }) => {
+        if (data) setAvatarUrl(data.avatar_url);
+      });
+    } else {
+      setAvatarUrl(null);
+    }
+  }, [user]);
   const [selectedSite, setSelectedSite] = useState<Site | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -784,6 +795,7 @@ export function EmployeeProvider({
         lunchMs,
         totalMs,
         role,
+        avatarUrl,
         canSwitchToAdmin,
         onSwitchToAdmin,
       }}

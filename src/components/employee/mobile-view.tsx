@@ -222,6 +222,7 @@ export function EmployeeMobileView() {
     handleAutoLunchKeep,
     loadReports,
     name,
+    avatarUrl,
     statusAccent,
     statusLabel,
     workMs,
@@ -261,14 +262,34 @@ export function EmployeeMobileView() {
           }
         >
           <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0 text-left">
-              <p
-                className="text-[10px] uppercase tracking-[0.2em] text-cyan-300"
-                style={{ textShadow: "var(--neon-glow-cyan)" }}
-              >
-                {tr(`role.${role}`)}
-              </p>
-              <h1 className="text-lg font-bold truncate text-white">{name}</h1>
+            <div className="flex items-center gap-3 min-w-0">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={name}
+                  className="w-10 h-10 rounded-full object-cover border shrink-0"
+                  style={{ borderColor: "rgba(255,255,255,0.3)" }}
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full flex shrink-0 items-center justify-center font-bold text-lg border"
+                  style={{
+                    background: "rgba(255,255,255,0.1)",
+                    borderColor: "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  {name.substring(0, 1).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 text-left flex-1">
+                <p
+                  className="text-[10px] uppercase tracking-[0.2em] text-cyan-300"
+                  style={{ textShadow: "var(--neon-glow-cyan)" }}
+                >
+                  {tr(`role.${role}`)}
+                </p>
+                <h1 className="text-lg font-bold truncate text-white">{name}</h1>
+              </div>
             </div>
             <div className="flex items-center gap-1 shrink-0 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
               {canSwitchToAdmin && (
@@ -650,7 +671,10 @@ export function EmployeeMobileView() {
                 <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
                   <MessagesSquare className="h-5 w-5" />
                 </NeonIcon>
-                <span className="flex-1 text-left text-sm font-semibold" style={{ color: "var(--neon-text)" }}>
+                <span
+                  className="flex-1 text-left text-sm font-semibold"
+                  style={{ color: "var(--neon-text)" }}
+                >
                   {tr("tile.chat")}
                 </span>
                 <ChevronRight

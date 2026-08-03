@@ -35,7 +35,7 @@ import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import type { ShiftDetail } from "@/lib/shift-export";
 import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
-import { ChatDialog } from "@/components/chat-dialog";
+import { FullChatApp } from "@/components/full-chat-app";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { PrivacyModal, TermsModal, SupportModal } from "./footer-modals";
@@ -650,7 +650,7 @@ export function EmployeeMobileView() {
                 <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">
                   <MessagesSquare className="h-5 w-5" />
                 </NeonIcon>
-                <span className="text-sm font-semibold" style={{ color: "var(--neon-text)" }}>
+                <span className="flex-1 text-left text-sm font-semibold" style={{ color: "var(--neon-text)" }}>
                   {tr("tile.chat")}
                 </span>
                 <ChevronRight
@@ -781,7 +781,15 @@ export function EmployeeMobileView() {
         onSuccess={loadReports}
       />
 
-      <ChatDialog open={chatOpen} onOpenChange={setChatOpen} site={selectedSite} />
+      {chatOpen && (
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          <FullChatApp
+            onClose={() => setChatOpen(false)}
+            sites={selectedSite ? [selectedSite] : []}
+            initialChannelType="general"
+          />
+        </div>
+      )}
 
       <ShiftCalendarDialog
         open={myShiftsOpen}

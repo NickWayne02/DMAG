@@ -66,6 +66,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FolderSearch,
+  MessageSquare,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -77,6 +78,8 @@ import {
   triggerDownload,
   type ShiftDetail,
 } from "@/lib/shift-export";
+import { DeviceManagementDialog } from "@/components/device-management-dialog";
+import { FullChatApp } from "@/components/full-chat-app";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
 import dmagLogo from "@/assets/dmag-logo.png";
@@ -1155,6 +1158,7 @@ export function AdminDashboard({
             { id: "reports", icon: Camera, label: t("admin.tab.reports"), super: false },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
             { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
+            { id: "chat", icon: MessageSquare, label: "Чат", super: false },
           ]
             .filter((item) => !item.super || superMode)
             .map((item) => (
@@ -1199,6 +1203,7 @@ export function AdminDashboard({
                 {activeTab === "reports" && <span>{t("admin.tab.reports")}</span>}
                 {activeTab === "security" && <span>{t("admin.tab.security")}</span>}
                 {activeTab === "admin-management" && <span>{t("admin.tab.users")}</span>}
+                {activeTab === "chat" && <span>Чат</span>}
               </h1>
               <p className="hidden md:block text-[10px] md:text-xs text-muted-foreground truncate">
                 {t(roleLabel[role])} · {tName(name)}
@@ -2420,6 +2425,13 @@ export function AdminDashboard({
                 />
               </>
             </Card>
+          )}
+
+          {/* CHAT TAB */}
+          {activeTab === "chat" && (
+            <div className="h-[80vh] md:h-[calc(100vh-6rem)] w-full rounded-2xl overflow-hidden border shadow-sm">
+              <FullChatApp sites={sites} />
+            </div>
           )}
 
           {/* CALENDAR TAB */}

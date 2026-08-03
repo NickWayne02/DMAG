@@ -191,7 +191,17 @@ export function EmployeeProvider({
   const [now, setNow] = useState(() => Date.now());
   const [siteOpen, setSiteOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpenRaw] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("dmag_chat_open") === "true";
+  });
+
+  const setChatOpen = (val: boolean) => {
+    setChatOpenRaw(val);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("dmag_chat_open", String(val));
+    }
+  };
   const [selectedSite, setSelectedSite] = useState<Site | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -442,9 +452,7 @@ export function EmployeeProvider({
     setGpsRequest({ reason: "end", label: "Закончить смену" });
   }
 
-  async function reverseGeocodeCity(
-    coords: GeolocationCoordinates | null,
-  ): Promise<string | null> {
+  async function reverseGeocodeCity(coords: GeolocationCoordinates | null): Promise<string | null> {
     if (!coords || (coords.latitude === 0 && coords.longitude === 0)) return null;
     try {
       const r = await fetch(

@@ -123,7 +123,7 @@ type EmployeeRow = {
   name: string;
   avatar_url?: string | null;
   role: AppRole;
-  status: "working" | "lunch" | "finished";
+  status: "working" | "lunch" | "finished" | "offline";
   since: string; // HH:MM (shift start)
   workedMs: number;
   lunchMs: number;
@@ -137,6 +137,7 @@ type SiteRow = {
   name: string;
   address: string | null;
   customer: string | null;
+  comment: string | null;
   created_at: string;
 };
 
@@ -581,6 +582,7 @@ export function AdminDashboard({
       name: s.name,
       address: s.address,
       customer: s.customer,
+      comment: (s as any).comment ?? null,
       created_at: s.created_at,
     }));
     if (devMode && siteRows.length === 0) {
@@ -590,14 +592,16 @@ export function AdminDashboard({
           name: "DMAG Werkhalle Nord",
           address: "Industriestraße 14, Köln",
           customer: "DMAG",
+          comment: "test",
           created_at: new Date().toISOString(),
         },
         {
           id: "site-2",
-          name: "Bauprojekt Hafen Ost",
-          address: "Hafenstraße 8, Hamburg",
-          customer: "Meyer Anlagenbau",
-          created_at: new Date(Date.now() - 86400000).toISOString(),
+          name: "Bürokomplex Süd",
+          address: "Südstadt 2, Bonn",
+          customer: "TechCorp",
+          comment: null,
+          created_at: new Date().toISOString(),
         },
       ];
     }
@@ -2152,7 +2156,7 @@ export function AdminDashboard({
 
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <Input
-                  placeholder="Поиск администратора..."
+                  placeholder="Поиск пользователя..."
                   value={adminSearch}
                   onChange={(e) => {
                     setAdminSearch(e.target.value);
@@ -2415,9 +2419,9 @@ export function AdminDashboard({
                               onClick={async () => {
                                 setUserBusy(true);
                                 try {
-                                  await setAdminRole(
-                                    e.id,
-                                    e.role === "admin" ? "super_admin" : "admin",
+                                  await changeRole(
+                                    e,
+                                    e.role === "admin" ? "super_admin" : "admin"
                                   );
                                 } finally {
                                   setUserBusy(false);
@@ -2438,7 +2442,13 @@ export function AdminDashboard({
                                 onClick={async () => {
                                   setUserBusy(true);
                                   try {
-                                    await toggleUserStatus(e.id, true);
+                                    await adminToggleActiveFn({
+                                      data: { user_id: e.id, is_active: true }
+                                    });
+                                    toast.success("Аккаунт включен");
+                                    loadAll();
+                                  } catch (err) {
+                                    toast.error(err instanceof Error ? err.message : "Ошибка");
                                   } finally {
                                     setUserBusy(false);
                                   }

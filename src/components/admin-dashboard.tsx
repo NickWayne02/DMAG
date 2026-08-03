@@ -159,6 +159,52 @@ function formatHM(ms: number) {
   return `${h}ч ${m.toString().padStart(2, "0")}м`;
 }
 
+function TablePagination({
+  page,
+  total,
+  pageSize,
+  onPageChange,
+}: {
+  page: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (p: number) => void;
+}) {
+  const totalPages = Math.ceil(total / pageSize);
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+      <p className="text-sm text-muted-foreground">
+        Показано {page * pageSize + 1}-{Math.min((page + 1) * pageSize, total)} из {total}
+      </p>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 0}
+          className="h-8 w-8 p-0 rounded-lg"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <div className="text-sm font-medium px-2 text-muted-foreground">
+          {page + 1} / {totalPages}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= totalPages - 1}
+          className="h-8 w-8 p-0 rounded-lg"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function AdminDashboard({
   role,
   devMode = false,
@@ -178,6 +224,14 @@ export function AdminDashboard({
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
   const [sites, setSites] = useState<SiteRow[]>([]);
   const [reports, setReports] = useState<ReportRow[]>([]);
+  const [reportsHasMore, setReportsHasMore] = useState(true);
+  const [reportsLoadingMore, setReportsLoadingMore] = useState(false);
+
+  // Pagination states
+  const [personnelPage, setPersonnelPage] = useState(0);
+  const [sitesPage, setSitesPage] = useState(0);
+  const [adminPage, setAdminPage] = useState(0);
+  const PAGE_SIZE = 10;
   const logs = useMemo(() => {
     const now = Date.now();
     const simLogs: SecurityLog[] = [];
@@ -596,6 +650,31 @@ export function AdminDashboard({
     setShiftHistory(history);
 
     setLoading(false);
+  }
+
+  async function loadMoreReports() {
+    if (reportsLoadingMore || !reportsHasMore) return;
+    setReportsLoadingMore(true);
+    try {
+      const from = reports.length;
+      const to = from + 19;
+      const { data } = await supabase
+        .from("photo_reports")
+        .select("id, description, criticality, photo_url, created_at, site_id, author_id")
+        .order("created_at", { ascending: false })
+        .range(from, to);
+        
+      if (data && data.length > 0) {
+        setReports((prev) => [...prev, ...(data as any)]);
+        if (data.length < 20) setReportsHasMore(false);
+      } else {
+        setReportsHasMore(false);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setReportsLoadingMore(false);
+    }
   }
 
   useEffect(() => {
@@ -1189,7 +1268,7 @@ export function AdminDashboard({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {employees.map((e) => {
+                        {employees.slice(personnelPage * PAGE_SIZE, (personnelPage + 1) * PAGE_SIZE).map((e) => {
                           const st = EMP_STATUS[e.status];
                           return (
                             <TableRow key={e.id}>
@@ -1248,6 +1327,12 @@ export function AdminDashboard({
                         })}
                       </TableBody>
                     </Table>
+                    <TablePagination
+                      page={personnelPage}
+                      total={employees.length}
+                      pageSize={PAGE_SIZE}
+                      onPageChange={setPersonnelPage}
+                    />
                   </div>
                 )}
               </Card>
@@ -1325,7 +1410,7 @@ export function AdminDashboard({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {sites.map((s) => {
+                        {sites.slice(sitesPage * PAGE_SIZE, (sitesPage + 1) * PAGE_SIZE).map((s) => {
                           const empCount = employees.filter(e => e.siteName === s.name).length;
                           return (
                             <TableRow key={s.id}>
@@ -1376,6 +1461,12 @@ export function AdminDashboard({
                         })}
                       </TableBody>
                     </Table>
+                    <TablePagination
+                      page={sitesPage}
+                      total={sites.length}
+                      pageSize={PAGE_SIZE}
+                      onPageChange={setSitesPage}
+                    />
                   </div>
                 )}
               </Card>
@@ -1484,8 +1575,9 @@ export function AdminDashboard({
                     <p className="text-base text-muted-foreground max-w-sm">{t("admin.reports.empty")}</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {reports.map((r) => {
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {reports.map((r) => {
                       const m = CRIT_META[r.criticality];
                       return (
                         <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3">
@@ -1523,7 +1615,23 @@ export function AdminDashboard({
                         </div>
                       );
                     })}
-                  </div>
+                    </div>
+                    {reportsHasMore && (
+                      <div className="mt-6 flex justify-center">
+                        <Button
+                          variant="outline"
+                          onClick={loadMoreReports}
+                          disabled={reportsLoadingMore}
+                          className="rounded-xl px-8"
+                        >
+                          {reportsLoadingMore ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : null}
+                          Загрузить ещё
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </Card>
             </section>
@@ -1640,7 +1748,7 @@ export function AdminDashboard({
                         </TableCell>
                       </TableRow>
                     )}
-                    {employees.map((e) => {
+                    {employees.slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE).map((e) => {
                       const lastLogin = e.lastShiftAt ? new Date(e.lastShiftAt).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Только что";
                       return (
                         <TableRow key={`mgr-${e.id}`}>
@@ -1732,6 +1840,12 @@ export function AdminDashboard({
                   })}
                   </TableBody>
                 </Table>
+                <TablePagination
+                  page={adminPage}
+                  total={employees.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setAdminPage}
+                />
               </div>
             </Card>
           )}

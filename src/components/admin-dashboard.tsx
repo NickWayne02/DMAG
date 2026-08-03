@@ -436,7 +436,7 @@ export function AdminDashboard({
       { data: reportData },
       { data: shiftData },
     ] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, phone, is_active"),
+      supabase.from("profiles").select("id, full_name, email, phone, is_active, avatar_url"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")

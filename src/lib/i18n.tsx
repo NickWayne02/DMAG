@@ -3063,7 +3063,7 @@ type Ctx = {
 
 const LangContext = createContext<Ctx>({
   lang: "ru",
-  setLang: () => {},
+  setLang: () => { },
   t: (k) => k,
   tName: (n) => n,
 });

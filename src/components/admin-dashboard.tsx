@@ -1135,9 +1135,8 @@ export function AdminDashboard({
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col ${
-          mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col ${mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+          }`}
       >
         <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
           <img src={dmagLogo} alt="DMAG" className="h-10 w-10 rounded-xl object-cover shadow" />
@@ -1164,11 +1163,10 @@ export function AdminDashboard({
                   setActiveTab(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition ${
-                  activeTab === item.id
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                    : "hover:bg-sidebar-accent/60"
-                }`}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left transition ${activeTab === item.id
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
+                  : "hover:bg-sidebar-accent/60"
+                  }`}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
                 <span className="leading-tight">{item.label}</span>
@@ -1732,7 +1730,7 @@ export function AdminDashboard({
                     placeholder="Поиск по описанию..."
                     value={reportsSearch}
                     onChange={(e) => setReportsSearch(e.target.value)}
-                    className="w-full sm:w-[200px] rounded-xl bg-background"
+                    className="w-full sm:w-50 rounded-xl bg-background"
                   />
                   <Select value={reportsSite} onValueChange={setReportsSite}>
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
@@ -2002,11 +2000,11 @@ export function AdminDashboard({
                       .map((e) => {
                         const lastLogin = e.lastShiftAt
                           ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
-                              day: "numeric",
-                              month: "short",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                           : "Только что";
                         return (
                           <TableRow key={`mgr-${e.id}`}>
@@ -2212,13 +2210,12 @@ export function AdminDashboard({
                             <div
                               key={c.key}
                               onClick={() => (c.day ? onCalDayClick(c.day) : undefined)}
-                              className={`min-h-25 rounded-xl p-2 text-sm border transition-all ${
-                                c.day
-                                  ? entries
-                                    ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
-                                    : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50 hover:border-primary/20"
-                                  : "border-transparent opacity-50"
-                              }`}
+                              className={`min-h-25 rounded-xl p-2 text-sm border transition-all ${c.day
+                                ? entries
+                                  ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
+                                  : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50 hover:border-primary/20"
+                                : "border-transparent opacity-50"
+                                }`}
                             >
                               {c.day && (
                                 <div className="flex flex-col h-full">

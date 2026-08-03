@@ -305,7 +305,6 @@ export function EmployeeMobileView() {
             </div>
           </div>
         </header>
-
         <div className="flex-1 lg:grid lg:grid-cols-2 lg:gap-8 lg:px-5 mt-2">
           <div className="flex flex-col">
             {/* Status & Action buttons — sticky neon control deck */}
@@ -871,7 +870,7 @@ function StatusButton({
     neon: `inset 0 0 0 1px ${t.color}66, ${active ? t.glow : `0 0 12px -4px ${t.color}88`}`,
     custom: `inset 0 0 0 1px ${t.color}55, 0 6px 18px -10px ${t.color}99`,
   };
-  
+
   const textShadow = mode === "neon" && !solid ? t.glow : "none";
   const disabledBg =
     mode === "light"
@@ -887,10 +886,18 @@ function StatusButton({
         ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-[0.98]"}`}
       style={{
         background: disabled ? disabledBg : solid ? t.color : (bgByMode[mode] ?? bgByMode.dark),
-        color: disabled ? "var(--neon-text-dim)" : solid ? (mode === "light" ? "#fff" : "#000") : t.color,
+        color: disabled
+          ? "var(--neon-text-dim)"
+          : solid
+            ? mode === "light"
+              ? "#fff"
+              : "#000"
+            : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"
-          : solid ? t.glow : (shadowByMode[mode] ?? shadowByMode.dark),
+          : solid
+            ? t.glow
+            : (shadowByMode[mode] ?? shadowByMode.dark),
         textShadow,
       }}
     >

@@ -271,6 +271,17 @@ export function EmployeeMobileView() {
               <h1 className="text-lg font-bold truncate text-white">{name}</h1>
             </div>
             <div className="flex items-center gap-1 shrink-0 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
+              {canSwitchToAdmin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onSwitchToAdmin?.()}
+                  className="hover:bg-white/10 text-white"
+                  title={tr("header.openAdmin")}
+                >
+                  <ShieldCheck className="h-5 w-5" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -293,120 +304,108 @@ export function EmployeeMobileView() {
               </Button>
             </div>
           </div>
-
-          {canSwitchToAdmin && (
-            <button
-              type="button"
-              onClick={() => onSwitchToAdmin?.()}
-              className="mt-3 w-full rounded-xl px-4 py-3 flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-[0.15em] transition active:scale-[0.99]"
-              style={{
-                background: "linear-gradient(90deg, var(--neon-magenta), var(--neon-violet))",
-                color: "#fff",
-                boxShadow: "var(--neon-glow-violet)",
-              }}
-            >
-              <ShieldCheck className="h-5 w-5" />
-              {tr("header.openAdmin")}
-            </button>
-          )}
-
-          <div
-            className="mt-5 rounded-2xl px-4 py-4 border backdrop-blur"
-            style={{
-              background: "rgba(5, 6, 15, 0.55)",
-              borderColor: "var(--neon-border)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className={`h-2.5 w-2.5 rounded-full ${status === "working" || status === "lunch" ? "animate-pulse" : ""}`}
-                style={{ background: statusAccent.color, boxShadow: statusAccent.glow }}
-              />
-              <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
-                {tr("status.current")}
-              </p>
-            </div>
-            <p
-              className="text-base font-semibold mt-1 text-white"
-              style={{ textShadow: statusAccent.glow }}
-            >
-              {statusLabel}
-            </p>
-
-            {shiftStart && (
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
-                    {tr("shift.start")}
-                  </p>
-                  <p className="text-xl font-bold tabular-nums leading-tight text-white">
-                    {formatClock(shiftStart)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
-                    {tr("shift.worked")}
-                  </p>
-                  <p
-                    className="text-2xl font-extrabold tabular-nums leading-tight text-white"
-                    style={{ textShadow: statusAccent.glow }}
-                  >
-                    {formatHMS(workMs)}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {(status !== "idle" || shiftEnd) && (
-              <div className="grid grid-cols-3 gap-2 mt-4">
-                <Metric label={tr("metric.work")} value={formatHM(workMs)} tone="lime" />
-                <Metric label={tr("metric.lunch")} value={formatHM(lunchMs)} tone="amber" />
-                <Metric label={tr("metric.total")} value={formatHM(totalMs)} tone="cyan" />
-              </div>
-            )}
-          </div>
         </header>
-        <div className="flex-1 lg:grid lg:grid-cols-2 lg:gap-8 lg:px-5">
+
+        <div className="flex-1 lg:grid lg:grid-cols-2 lg:gap-8 lg:px-5 mt-2">
           <div className="flex flex-col">
-            {/* Action buttons — sticky neon control deck */}
+            {/* Status & Action buttons — sticky neon control deck */}
             <section
-              className="px-5 lg:px-0 grid grid-cols-2 lg:grid-cols-2 gap-3 sticky top-0 z-50 py-3 border-b lg:border-none lg:pt-5 lg:pb-0 lg:bg-transparent"
+              className="px-5 lg:px-0 sticky top-0 z-50 py-3 border-b lg:border-none lg:pt-3 lg:pb-0 lg:bg-transparent"
               style={{
                 background: "color-mix(in oklab, var(--neon-bg) 85%, transparent)",
                 backdropFilter: "blur(12px)",
                 borderColor: "var(--neon-border)",
               }}
             >
-              <StatusButton
-                tone="lime"
-                icon={<Rocket className="h-5 w-5" />}
-                label={tr("btn.startWork")}
-                active={status === "working"}
-                disabled={status === "working" || status === "lunch"}
-                onClick={startWork}
-              />
-              <StatusButton
-                tone="amber"
-                icon={<Pause className="h-5 w-5" />}
-                label={tr("btn.startLunch")}
-                active={status === "lunch"}
-                disabled={status !== "working"}
-                onClick={startLunch}
-              />
-              <StatusButton
-                tone="cyan"
-                icon={<PlayCircle className="h-5 w-5" />}
-                label={tr("btn.endLunch")}
-                disabled={status !== "lunch"}
-                onClick={endLunch}
-              />
-              <StatusButton
-                tone="red"
-                icon={<PowerOff className="h-5 w-5" />}
-                label={tr("btn.endShift")}
-                disabled={status !== "working" && status !== "lunch"}
-                onClick={endShift}
-              />
+              <div
+                className="rounded-3xl p-4 border mb-3"
+                style={{
+                  background: "rgba(5, 6, 15, 0.4)",
+                  borderColor: "var(--neon-border)",
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`h-2.5 w-2.5 rounded-full ${status === "working" || status === "lunch" ? "animate-pulse" : ""}`}
+                    style={{ background: statusAccent.color, boxShadow: statusAccent.glow }}
+                  />
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                    {tr("status.current")}
+                  </p>
+                </div>
+                <p
+                  className="text-base font-semibold mt-1 text-white"
+                  style={{ textShadow: statusAccent.glow }}
+                >
+                  {statusLabel}
+                </p>
+
+                {shiftStart && (
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                        {tr("shift.start")}
+                      </p>
+                      <p className="text-xl font-bold tabular-nums leading-tight text-white">
+                        {formatClock(shiftStart)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                        {tr("shift.worked")}
+                      </p>
+                      <p
+                        className="text-2xl font-extrabold tabular-nums leading-tight text-white"
+                        style={{ textShadow: statusAccent.glow }}
+                      >
+                        {formatHMS(workMs)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {(status !== "idle" || shiftEnd) && (
+                  <div className="grid grid-cols-3 gap-2 mt-4">
+                    <Metric label={tr("metric.work")} value={formatHM(workMs)} tone="lime" />
+                    <Metric label={tr("metric.lunch")} value={formatHM(lunchMs)} tone="amber" />
+                    <Metric label={tr("metric.total")} value={formatHM(totalMs)} tone="cyan" />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <StatusButton
+                  tone="lime"
+                  icon={<Rocket className="h-5 w-5" />}
+                  label={tr("btn.startWork")}
+                  active={status === "working"}
+                  disabled={status === "working" || status === "lunch"}
+                  onClick={startWork}
+                  solid={status === "idle"}
+                />
+                <StatusButton
+                  tone="amber"
+                  icon={<Pause className="h-5 w-5" />}
+                  label={tr("btn.startLunch")}
+                  active={status === "lunch"}
+                  disabled={status !== "working"}
+                  onClick={startLunch}
+                />
+                <StatusButton
+                  tone="cyan"
+                  icon={<PlayCircle className="h-5 w-5" />}
+                  label={tr("btn.endLunch")}
+                  disabled={status !== "lunch"}
+                  onClick={endLunch}
+                />
+                <StatusButton
+                  tone="red"
+                  icon={<PowerOff className="h-5 w-5" />}
+                  label={tr("btn.endShift")}
+                  disabled={status !== "working" && status !== "lunch"}
+                  onClick={endShift}
+                />
+              </div>
             </section>
 
             {/* Travel time + object */}
@@ -458,7 +457,7 @@ export function EmployeeMobileView() {
                     placeholder={tr("travel.placeholder")}
                     value={travelTime}
                     onChange={(e) => setTravelTime(e.target.value.replace(/[^\d]/g, ""))}
-                    className="h-11 rounded-xl border-0 text-white placeholder:text-white/40"
+                    className="h-11 rounded-xl border-0 text-white placeholder:text-white/70"
                     style={{
                       background: "rgba(255,255,255,0.05)",
                       boxShadow: "inset 0 0 0 1px var(--neon-border)",
@@ -827,6 +826,7 @@ function StatusButton({
   onClick,
   disabled,
   active,
+  solid,
 }: {
   tone: "lime" | "amber" | "cyan" | "red";
   icon: React.ReactNode;
@@ -834,6 +834,7 @@ function StatusButton({
   onClick: () => void;
   disabled?: boolean;
   active?: boolean;
+  solid?: boolean;
 }) {
   const t = TONE_MAP[tone];
   const { settings, resolvedPanels } = useSettings();
@@ -857,7 +858,8 @@ function StatusButton({
     neon: `inset 0 0 0 1px ${t.color}66, ${active ? t.glow : `0 0 12px -4px ${t.color}88`}`,
     custom: `inset 0 0 0 1px ${t.color}55, 0 6px 18px -10px ${t.color}99`,
   };
-  const textShadow = mode === "neon" ? t.glow : "none";
+  
+  const textShadow = mode === "neon" && !solid ? t.glow : "none";
   const disabledBg =
     mode === "light"
       ? "color-mix(in oklab, var(--foreground) 6%, transparent)"
@@ -871,11 +873,11 @@ function StatusButton({
       className={`rounded-2xl p-4 min-h-24 flex flex-col items-start justify-between text-left font-semibold transition
         ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-[0.98]"}`}
       style={{
-        background: disabled ? disabledBg : (bgByMode[mode] ?? bgByMode.dark),
-        color: disabled ? "var(--neon-text-dim)" : t.color,
+        background: disabled ? disabledBg : solid ? t.color : (bgByMode[mode] ?? bgByMode.dark),
+        color: disabled ? "var(--neon-text-dim)" : solid ? (mode === "light" ? "#fff" : "#000") : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"
-          : (shadowByMode[mode] ?? shadowByMode.dark),
+          : solid ? t.glow : (shadowByMode[mode] ?? shadowByMode.dark),
         textShadow,
       }}
     >

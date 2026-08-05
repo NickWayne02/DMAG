@@ -2230,14 +2230,17 @@ export function AdminDashboard({
                       {filteredAdmins
                         .slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE)
                         .map((e) => {
-                          const lastLogin = e.lastShiftAt
-                            ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
-                                day: "numeric",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "Только что";
+                          const isOnline = onlineUsers.includes(e.id);
+                          const lastLogin = isOnline 
+                            ? "В сети" 
+                            : e.lastShiftAt
+                              ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "Нет данных";
                           return (
                             <TableRow key={`mgr-${e.id}`}>
                               <TableCell className="font-medium">
@@ -2433,14 +2436,16 @@ export function AdminDashboard({
                           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                             <span className="font-medium">Последний вход:</span>
                             <span>
-                              {e.lastShiftAt
-                                ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
-                                    day: "numeric",
-                                    month: "short",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "Только что"}
+                              {onlineUsers.includes(e.id)
+                                ? "В сети"
+                                : e.lastShiftAt
+                                  ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
+                                      day: "numeric",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
+                                  : "Нет данных"}
                             </span>
                           </div>
 

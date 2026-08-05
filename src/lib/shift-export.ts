@@ -14,6 +14,8 @@ export type ShiftDetail = {
   started_at: string; // ISO
   ended_at: string | null; // ISO
   lunch_started_at: string | null; // ISO
+  start_city: string | null;
+  end_city: string | null;
   lunch_intervals: Array<{ start: number; end: number | null }>;
   lunch_total_ms: number;
   status: string;

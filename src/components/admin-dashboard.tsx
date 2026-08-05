@@ -690,7 +690,7 @@ export function AdminDashboard({
     const { data: histData } = await supabase
       .from("shifts")
       .select(
-        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, lunch_started_at",
+        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, lunch_started_at, start_city, end_city",
       )
       .gte("started_at", since30.toISOString())
       .order("started_at", { ascending: false });
@@ -703,6 +703,8 @@ export function AdminDashboard({
       started_at: s.started_at,
       ended_at: s.ended_at,
       lunch_started_at: s.lunch_started_at ?? null,
+      start_city: s.start_city ?? null,
+      end_city: s.end_city ?? null,
       lunch_intervals: Array.isArray(s.lunch_intervals) ? s.lunch_intervals : [],
       lunch_total_ms: Number(s.lunch_total_ms ?? 0),
       status: s.status,

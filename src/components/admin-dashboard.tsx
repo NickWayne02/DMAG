@@ -2092,7 +2092,13 @@ export function AdminDashboard({
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate">{logs[0].action}</p>
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold truncate">{logs[0].action}</p>
+                            <span className="text-[11px] font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                              В сети
+                            </span>
+                          </div>
                           <p className="text-xs text-muted-foreground mt-0.5 truncate">
                             {logs[0].meta}
                           </p>
@@ -2141,14 +2147,10 @@ export function AdminDashboard({
                                 <p className="text-sm font-medium truncate">{l.action}</p>
                                 <p className="text-xs text-muted-foreground truncate">{l.meta}</p>
                                 <div className="flex items-center gap-2 mt-1">
-                                  <p className="text-[11px] text-muted-foreground">
-                                    {new Date(l.ts).toLocaleString("ru-RU", {
-                                      day: "numeric",
-                                      month: "short",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
-                                  </p>
+                                  <span className="text-[11px] font-medium text-green-500 flex items-center gap-1">
+                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>
+                                    В сети
+                                  </span>
                                   <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
                                   <p className="text-[11px] font-medium truncate">{l.user}</p>
                                 </div>

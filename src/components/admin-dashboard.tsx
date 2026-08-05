@@ -1185,6 +1185,71 @@ export function AdminDashboard({
     });
   }, [employees, adminSearch]);
 
+  const activities = useMemo(() => {
+    const list: any[] = [];
+    shiftHistory.slice(0, 50).forEach((s) => {
+      const emp = employees.find((e) => e.id === s.user_id) || { name: "Неизвестный сотрудник" };
+      list.push({
+        id: `shift-start-${s.id}`,
+        ts: s.started_at,
+        type: "shift_start",
+        title: "Начало смены",
+        desc: `${emp.name} начал смену на объекте ${s.site_name || s.start_city || "Неизвестно"}`,
+        icon: <Users className="h-4 w-4" />,
+        color: "text-green-600 bg-green-500/10",
+      });
+      if (s.ended_at) {
+        list.push({
+          id: `shift-end-${s.id}`,
+          ts: s.ended_at,
+          type: "shift_end",
+          title: "Окончание смены",
+          desc: `${emp.name} завершил смену на объекте ${s.site_name || s.end_city || "Неизвестно"}`,
+          icon: <Activity className="h-4 w-4" />,
+          color: "text-blue-600 bg-blue-500/10",
+        });
+      }
+      if (Array.isArray(s.lunch_intervals)) {
+        s.lunch_intervals.forEach((interval: any, i: number) => {
+          if (interval.start) {
+            list.push({
+              id: `shift-lunch-start-${s.id}-${i}`,
+              ts: interval.start,
+              type: "lunch_start",
+              title: "Начало паузы",
+              desc: `${emp.name} ушел на перерыв`,
+              icon: <Clock className="h-4 w-4" />,
+              color: "text-amber-600 bg-amber-500/10",
+            });
+          }
+          if (interval.end) {
+            list.push({
+              id: `shift-lunch-end-${s.id}-${i}`,
+              ts: interval.end,
+              type: "lunch_end",
+              title: "Окончание паузы",
+              desc: `${emp.name} вернулся к работе`,
+              icon: <Clock className="h-4 w-4" />,
+              color: "text-amber-600 bg-amber-500/10",
+            });
+          }
+        });
+      }
+    });
+    reports.slice(0, 30).forEach((r) => {
+      list.push({
+        id: `report-${r.id}`,
+        ts: r.created_at,
+        type: "report",
+        title: "Новый фотоотчёт",
+        desc: r.description || "Без описания",
+        icon: <Camera className="h-4 w-4" />,
+        color: "text-orange-600 bg-orange-500/10",
+      });
+    });
+    return list.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).slice(0, 20);
+  }, [shiftHistory, reports, employees]);
+
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Mobile overlay */}
@@ -1329,7 +1394,7 @@ export function AdminDashboard({
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
                   <Loader2 className="h-4 w-4 animate-spin" /> Загружаем данные…
                 </div>
-              ) : (
+              ) : activities.length === 0 ? (
                 <div className="flex-1 mt-6 flex flex-col items-center justify-center py-20 px-6 text-center border-2 border-dashed rounded-2xl border-muted bg-card/30">
                   <div className="h-20 w-20 bg-muted/60 rounded-full flex items-center justify-center mb-5">
                     <FolderSearch className="h-10 w-10 text-muted-foreground/40" />
@@ -1340,6 +1405,26 @@ export function AdminDashboard({
                   <p className="text-sm text-muted-foreground max-w-sm mb-6">
                     События, новые смены и инциденты будут появляться здесь в реальном времени.
                   </p>
+                </div>
+              ) : (
+                <div className="mt-6 bg-card rounded-2xl p-6 border shadow-sm">
+                  <h3 className="font-semibold mb-4 text-lg">Последняя активность</h3>
+                  <div className="space-y-4">
+                    {activities.map((act) => (
+                      <div key={act.id} className="flex gap-4 items-start">
+                        <div className={`mt-0.5 shrink-0 h-9 w-9 rounded-full flex items-center justify-center ${act.color}`}>
+                          {act.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground">{act.title}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{act.desc}</p>
+                        </div>
+                        <div className="text-xs text-muted-foreground whitespace-nowrap pt-0.5 tabular-nums">
+                          {new Date(act.ts).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </>

@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { PresenceProvider } from "@/hooks/use-presence";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -26,5 +27,9 @@ export const Route = createFileRoute("/_authenticated")({
 
     return { user: data.user };
   },
-  component: () => <Outlet />,
+  component: () => (
+    <PresenceProvider>
+      <Outlet />
+    </PresenceProvider>
+  ),
 });

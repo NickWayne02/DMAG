@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, type AppRole } from "@/hooks/use-auth";
+import { usePresence } from "@/hooks/use-presence";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -221,7 +222,8 @@ export function AdminDashboard({
   devMode?: boolean;
   superMode?: boolean;
 }) {
-  const { user, onlineUsers } = useAuth();
+  const { user } = useAuth();
+  const { onlineUsers } = usePresence();
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
 

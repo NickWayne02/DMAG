@@ -541,7 +541,7 @@ export function EmployeeDesktopView() {
                       }}
                       loading="lazy"
                       allowFullScreen
-                      src={`https://www.google.com/maps?q=${encodeURIComponent(selectedSite.address || selectedSite.name)}&output=embed`}
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                     ></iframe>
                   </div>
                 </div>

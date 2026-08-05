@@ -1256,6 +1256,19 @@ export function AdminDashboard({
           }
         });
       }
+      
+      // Also render the active lunch start event if they are currently on a break
+      if (s.lunch_started_at) {
+        list.push({
+          id: `shift-lunch-start-active-${s.id}`,
+          ts: s.lunch_started_at,
+          type: "lunch_start",
+          title: "Уход на перерыв",
+          desc: `${emp.name} ушел на перерыв`,
+          icon: <Clock className="h-4 w-4" />,
+          color: "text-amber-600 bg-amber-500/10",
+        });
+      }
     });
     reports.slice(0, 30).forEach((r) => {
       list.push({

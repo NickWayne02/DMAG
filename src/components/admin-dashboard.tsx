@@ -1708,7 +1708,7 @@ export function AdminDashboard({
                                   {t(st.labelKey)}
                                 </span>
                                 {e.siteName && (
-                                  <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md truncate max-w-[150px]">
+                                  <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md truncate max-w-40">
                                     {e.siteName}
                                   </span>
                                 )}

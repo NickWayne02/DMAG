@@ -223,7 +223,7 @@ export function AdminDashboard({
   superMode?: boolean;
 }) {
   const { user } = useAuth();
-  const { onlineUsers } = usePresence();
+  const { onlineUsers, presenceMap } = usePresence();
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
 
@@ -262,31 +262,41 @@ export function AdminDashboard({
     const simLogs: SecurityLog[] = [];
 
     // 1. Current Session (Web)
+    const currentPData = user ? presenceMap[user.id] || {} : {};
+    const currentIp = currentPData.ip || "Unknown IP";
+    const currentCity = currentPData.city || "Unknown City";
+    const currentCountry = currentPData.country || "Unknown Country";
+
     simLogs.push({
       id: "session-current",
-      ts: new Date().toISOString(),
+      ts: currentPData.online_at || new Date().toISOString(),
       user: "Super-Admin", // will be replaced in UI or kept generic
       action: t("admin.security.deviceWeb"),
-      meta: "10.0.0.20 · Frankfurt, DE",
+      meta: `${currentIp} · ${currentCity}, ${currentCountry}`,
       level: "warn", // "warn" means Web/Laptop in our UI mapping
     });
 
     // 2. Other Sessions (Mobile Apps)
     employees
       .filter((e) => onlineUsers.includes(e.id) && e.id !== user?.id)
-      .forEach((e, i) => {
+      .forEach((e) => {
+        const pData = presenceMap[e.id] || {};
+        const ip = pData.ip || "Unknown IP";
+        const city = pData.city || "Unknown City";
+        const country = pData.country || "Unknown Country";
+        
         simLogs.push({
           id: `session-${e.id}`,
-          ts: new Date().toISOString(), // Since they are online right now, we can use current time or actually track online_at
+          ts: pData.online_at || new Date().toISOString(),
           user: e.name,
           action: t("admin.security.deviceApp"),
-          meta: `10.0.0.${21 + i} · ${["Berlin, DE", "Munich, DE", "Hamburg, DE"][i % 3]}`,
+          meta: `${ip} · ${city}, ${country}`,
           level: "info",
         });
       });
 
     setLogs(simLogs);
-  }, [employees, t, logs.length, onlineUsers, user?.id]);
+  }, [employees, t, logs.length, onlineUsers, presenceMap, user?.id]);
   const [loading, setLoading] = useState(true);
   const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);

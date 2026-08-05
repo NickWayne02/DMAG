@@ -4,17 +4,23 @@ import { useAuth } from "@/hooks/use-auth";
 
 interface PresenceContextType {
   onlineUsers: string[];
+  presenceMap: Record<string, any>;
 }
 
-const PresenceContext = createContext<PresenceContextType>({ onlineUsers: [] });
+const PresenceContext = createContext<PresenceContextType>({
+  onlineUsers: [],
+  presenceMap: {},
+});
 
 export function PresenceProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [presenceMap, setPresenceMap] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!user) {
       setOnlineUsers([]);
+      setPresenceMap({});
       return;
     }
 
@@ -25,11 +31,34 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
     channel.on("presence", { event: "sync" }, () => {
       const state = channel.presenceState();
       setOnlineUsers(Object.keys(state));
+      
+      const pMap: Record<string, any> = {};
+      for (const [key, presences] of Object.entries(state)) {
+        if (presences.length > 0) {
+          pMap[key] = presences[0];
+        }
+      }
+      setPresenceMap(pMap);
     });
 
     channel.subscribe(async (status) => {
       if (status === "SUBSCRIBED") {
-        await channel.track({ online_at: new Date().toISOString() });
+        let locData: any = {};
+        try {
+          const res = await fetch("https://ipwho.is/");
+          if (res.ok) {
+            locData = await res.json();
+          }
+        } catch (err) {
+          console.error("Failed to fetch location", err);
+        }
+
+        await channel.track({
+          online_at: new Date().toISOString(),
+          ip: locData.ip || "Unknown IP",
+          city: locData.city || "Unknown City",
+          country: locData.country_code || "Unknown Country",
+        });
       }
     });
 
@@ -39,7 +68,7 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <PresenceContext.Provider value={{ onlineUsers }}>
+    <PresenceContext.Provider value={{ onlineUsers, presenceMap }}>
       {children}
     </PresenceContext.Provider>
   );

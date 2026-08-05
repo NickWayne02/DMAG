@@ -221,7 +221,7 @@ export function AdminDashboard({
   devMode?: boolean;
   superMode?: boolean;
 }) {
-  const { user } = useAuth();
+  const { user, onlineUsers } = useAuth();
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
 
@@ -255,7 +255,7 @@ export function AdminDashboard({
   const [logs, setLogs] = useState<SecurityLog[]>([]);
 
   useEffect(() => {
-    if (employees.length === 0 || logs.length > 0) return;
+    if (employees.length === 0) return;
     const now = Date.now();
     const simLogs: SecurityLog[] = [];
 
@@ -271,20 +271,20 @@ export function AdminDashboard({
 
     // 2. Other Sessions (Mobile Apps)
     employees
-      .filter((e) => e.status === "working" || e.status === "lunch")
+      .filter((e) => onlineUsers.includes(e.id) && e.id !== user?.id)
       .forEach((e, i) => {
         simLogs.push({
           id: `session-${e.id}`,
-          ts: new Date(now - (i + 1) * 1000 * 60 * 45).toISOString(),
+          ts: new Date().toISOString(), // Since they are online right now, we can use current time or actually track online_at
           user: e.name,
           action: t("admin.security.deviceApp"),
           meta: `10.0.0.${21 + i} · ${["Berlin, DE", "Munich, DE", "Hamburg, DE"][i % 3]}`,
-          level: "info", // "info" means Mobile/App in our UI mapping
+          level: "info",
         });
       });
 
     setLogs(simLogs);
-  }, [employees, t, logs.length]);
+  }, [employees, t, logs.length, onlineUsers, user?.id]);
   const [loading, setLoading] = useState(true);
   const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);

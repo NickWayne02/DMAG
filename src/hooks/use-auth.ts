@@ -9,6 +9,7 @@ export interface AuthState {
   user: User | null;
   roles: AppRole[];
   loading: boolean;
+  onlineUsers: string[];
 }
 
 export function useAuth(): AuthState {
@@ -55,11 +56,40 @@ export function useAuth(): AuthState {
   const uid = session?.user?.id ?? null;
   const loading = sessionLoading || (!!uid && rolesLoadedFor !== uid);
 
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!uid) {
+      setOnlineUsers([]);
+      return;
+    }
+
+    const channel = supabase.channel("online-users", {
+      config: { presence: { key: uid } },
+    });
+
+    channel.on("presence", { event: "sync" }, () => {
+      const state = channel.presenceState();
+      setOnlineUsers(Object.keys(state));
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        await channel.track({ online_at: new Date().toISOString() });
+      }
+    });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [uid]);
+
   return {
     session,
     user: session?.user ?? null,
     roles,
     loading,
+    onlineUsers,
   };
 }
 

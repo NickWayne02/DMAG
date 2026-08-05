@@ -131,6 +131,7 @@ type EmployeeRow = {
   siteName: string | null;
   lastShiftAt: string | null; // ISO
   is_active: boolean;
+  updated_at?: string;
 };
 
 type SiteRow = {
@@ -467,7 +468,7 @@ export function AdminDashboard({
       { data: reportData },
       { data: shiftData },
     ] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, phone, is_active, avatar_url"),
+      supabase.from("profiles").select("id, full_name, email, phone, is_active, avatar_url, updated_at"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")
@@ -551,6 +552,7 @@ export function AdminDashboard({
           siteName,
           lastShiftAt,
           is_active: p.is_active ?? true,
+          updated_at: p.updated_at,
         };
       });
 
@@ -2233,8 +2235,8 @@ export function AdminDashboard({
                           const isOnline = onlineUsers.includes(e.id);
                           const lastLogin = isOnline 
                             ? "В сети" 
-                            : e.lastShiftAt
-                              ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
+                            : e.updated_at
+                              ? new Date(e.updated_at).toLocaleString("ru-RU", {
                                   day: "numeric",
                                   month: "short",
                                   hour: "2-digit",
@@ -2438,8 +2440,8 @@ export function AdminDashboard({
                             <span>
                               {onlineUsers.includes(e.id)
                                 ? "В сети"
-                                : e.lastShiftAt
-                                  ? new Date(e.lastShiftAt).toLocaleString("ru-RU", {
+                                : e.updated_at
+                                  ? new Date(e.updated_at).toLocaleString("ru-RU", {
                                       day: "numeric",
                                       month: "short",
                                       hour: "2-digit",

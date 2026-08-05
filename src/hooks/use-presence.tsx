@@ -59,6 +59,12 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
           city: locData.city || "Unknown City",
           country: locData.country_code || "Unknown Country",
         });
+
+        // Trigger updated_at on the user's profile to persist their last login time
+        await supabase
+          .from("profiles")
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", user.id);
       }
     });
 

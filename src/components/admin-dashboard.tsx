@@ -252,7 +252,10 @@ export function AdminDashboard({
   const [reportsSite, setReportsSite] = useState("all");
   const [reportsCrit, setReportsCrit] = useState("all");
   const [reportsPeriod, setReportsPeriod] = useState("all");
-  const logs = useMemo(() => {
+  const [logs, setLogs] = useState<SecurityLog[]>([]);
+
+  useEffect(() => {
+    if (employees.length === 0 || logs.length > 0) return;
     const now = Date.now();
     const simLogs: SecurityLog[] = [];
 
@@ -267,19 +270,21 @@ export function AdminDashboard({
     });
 
     // 2. Other Sessions (Mobile Apps)
-    employees.slice(0, 3).forEach((e, i) => {
-      simLogs.push({
-        id: `session-${e.id}`,
-        ts: new Date(now - (i + 1) * 1000 * 60 * 45).toISOString(),
-        user: e.name,
-        action: t("admin.security.deviceApp"),
-        meta: `10.0.0.${21 + i} · ${["Berlin, DE", "Munich, DE", "Hamburg, DE"][i % 3]}`,
-        level: "info", // "info" means Mobile/App in our UI mapping
+    employees
+      .filter((e) => e.status === "working" || e.status === "lunch")
+      .forEach((e, i) => {
+        simLogs.push({
+          id: `session-${e.id}`,
+          ts: new Date(now - (i + 1) * 1000 * 60 * 45).toISOString(),
+          user: e.name,
+          action: t("admin.security.deviceApp"),
+          meta: `10.0.0.${21 + i} · ${["Berlin, DE", "Munich, DE", "Hamburg, DE"][i % 3]}`,
+          level: "info", // "info" means Mobile/App in our UI mapping
+        });
       });
-    });
 
-    return simLogs;
-  }, [employees, t]);
+    setLogs(simLogs);
+  }, [employees, t, logs.length]);
   const [loading, setLoading] = useState(true);
   const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
@@ -2078,6 +2083,10 @@ export function AdminDashboard({
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => {
+                            setLogs((prev) => prev.slice(0, 1));
+                            toast.success("Все остальные сеансы успешно завершены");
+                          }}
                           className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                           {t("admin.security.terminateAll")}
@@ -2121,6 +2130,10 @@ export function AdminDashboard({
                             <Button
                               variant="ghost"
                               size="icon"
+                              onClick={() => {
+                                setLogs((prev) => prev.filter((log) => log.id !== l.id));
+                                toast.success(`Сеанс ${l.user} завершен`);
+                              }}
                               className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                               title={t("admin.security.terminate")}
                             >

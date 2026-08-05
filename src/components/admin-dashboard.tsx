@@ -758,7 +758,7 @@ export function AdminDashboard({
 
   useEffect(() => {
     loadAll();
-    const id = setInterval(loadAll, 30_000);
+    const id = setInterval(loadAll, 2000); // 2 seconds for near-instant UI updates without manual SQL setup
     
     const sub = supabase
       .channel("admin-dashboard-changes")

@@ -759,7 +759,21 @@ export function AdminDashboard({
   useEffect(() => {
     loadAll();
     const id = setInterval(loadAll, 30_000);
-    return () => clearInterval(id);
+    
+    const sub = supabase
+      .channel("admin-dashboard-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "shifts" }, () => {
+        loadAll();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "photo_reports" }, () => {
+        loadAll();
+      })
+      .subscribe();
+
+    return () => {
+      clearInterval(id);
+      supabase.removeChannel(sub);
+    };
   }, []);
 
   const stats = useMemo(() => {

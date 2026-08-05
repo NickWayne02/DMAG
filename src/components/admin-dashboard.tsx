@@ -263,16 +263,19 @@ export function AdminDashboard({
 
     // 1. Current Session (Web)
     const currentPData = user ? presenceMap[user.id] || {} : {};
-    const currentIp = currentPData.ip || "Unknown IP";
-    const currentCity = currentPData.city || "Unknown City";
-    const currentCountry = currentPData.country || "Unknown Country";
+    let currentMeta = "Определение локации...";
+    if (currentPData.ip && currentPData.ip !== "Unknown IP") {
+      currentMeta = `${currentPData.ip} · ${currentPData.city}, ${currentPData.country}`;
+    } else if (currentPData.ip === "Unknown IP") {
+      currentMeta = "Локация недоступна";
+    }
 
     simLogs.push({
       id: "session-current",
       ts: currentPData.online_at || new Date().toISOString(),
       user: "Super-Admin", // will be replaced in UI or kept generic
       action: t("admin.security.deviceWeb"),
-      meta: `${currentIp} · ${currentCity}, ${currentCountry}`,
+      meta: currentMeta,
       level: "warn", // "warn" means Web/Laptop in our UI mapping
     });
 
@@ -281,16 +284,19 @@ export function AdminDashboard({
       .filter((e) => onlineUsers.includes(e.id) && e.id !== user?.id)
       .forEach((e) => {
         const pData = presenceMap[e.id] || {};
-        const ip = pData.ip || "Unknown IP";
-        const city = pData.city || "Unknown City";
-        const country = pData.country || "Unknown Country";
+        let meta = "Определение локации...";
+        if (pData.ip && pData.ip !== "Unknown IP") {
+          meta = `${pData.ip} · ${pData.city}, ${pData.country}`;
+        } else if (pData.ip === "Unknown IP") {
+          meta = "Локация недоступна";
+        }
         
         simLogs.push({
           id: `session-${e.id}`,
           ts: pData.online_at || new Date().toISOString(),
           user: e.name,
           action: t("admin.security.deviceApp"),
-          meta: `${ip} · ${city}, ${country}`,
+          meta,
           level: "info",
         });
       });

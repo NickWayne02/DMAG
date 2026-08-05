@@ -41,6 +41,8 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
       setPresenceMap(pMap);
     });
 
+    let heartbeat: ReturnType<typeof setInterval>;
+
     channel.subscribe(async (status) => {
       if (status === "SUBSCRIBED") {
         let locData: any = {};
@@ -60,15 +62,25 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
           country: locData.country_code || "Unknown Country",
         });
 
-        // Trigger updated_at on the user's profile to persist their last login time
+        // Trigger updated_at initially
         await supabase
           .from("profiles")
           .update({ updated_at: new Date().toISOString() })
           .eq("id", user.id);
+
+        // Keep updating updated_at every minute while the tab is open
+        // so that the DB reflects the exact time they closed the tab/app.
+        heartbeat = setInterval(async () => {
+          await supabase
+            .from("profiles")
+            .update({ updated_at: new Date().toISOString() })
+            .eq("id", user.id);
+        }, 60000);
       }
     });
 
     return () => {
+      if (heartbeat) clearInterval(heartbeat);
       supabase.removeChannel(channel);
     };
   }, [user]);

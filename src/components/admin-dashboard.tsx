@@ -1230,22 +1230,29 @@ export function AdminDashboard({
               id: `shift-lunch-start-${s.id}-${i}`,
               ts: interval.start,
               type: "lunch_start",
-              title: "Начало паузы",
+              title: "Уход на перерыв",
               desc: `${emp.name} ушел на перерыв`,
               icon: <Clock className="h-4 w-4" />,
               color: "text-amber-600 bg-amber-500/10",
             });
           }
           if (interval.end) {
-            list.push({
-              id: `shift-lunch-end-${s.id}-${i}`,
-              ts: interval.end,
-              type: "lunch_end",
-              title: "Окончание паузы",
-              desc: `${emp.name} вернулся к работе`,
-              icon: <Clock className="h-4 w-4" />,
-              color: "text-amber-600 bg-amber-500/10",
-            });
+            // If the lunch ended at the exact same time the shift ended (auto-close), don't show a duplicate event
+            const endLunchMs = new Date(interval.end).getTime();
+            const endShiftMs = s.ended_at ? new Date(s.ended_at).getTime() : 0;
+            const isAutoClosed = s.ended_at && Math.abs(endShiftMs - endLunchMs) < 2000;
+            
+            if (!isAutoClosed) {
+              list.push({
+                id: `shift-lunch-end-${s.id}-${i}`,
+                ts: interval.end,
+                type: "lunch_end",
+                title: "Возврат с перерыва",
+                desc: `${emp.name} вернулся к работе`,
+                icon: <Clock className="h-4 w-4" />,
+                color: "text-amber-600 bg-amber-500/10",
+              });
+            }
           }
         });
       }

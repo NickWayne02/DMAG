@@ -698,11 +698,11 @@ export function EmployeeDesktopView() {
           />
         </div>
       )}
-      {(user?.role === "admin" || user?.role === "super_admin") ? (
+      {(role === "admin" || role === "super_admin") && user ? (
         <AdminEditableCalendarDialog
           open={myShiftsOpen}
           onClose={() => setMyShiftsOpen(false)}
-          employeeId={user.id}
+          employeeId={user?.id || ""}
           employeeName={name}
         />
       ) : (

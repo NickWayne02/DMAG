@@ -462,6 +462,7 @@ function ChannelContent({
   channelType,
   channelId,
   profiles,
+  onOpenReport,
 }: {
   channelType: ChannelType;
   channelId: string;

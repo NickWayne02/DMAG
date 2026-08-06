@@ -262,68 +262,74 @@ export function EmployeeMobileView() {
             } as React.CSSProperties
           }
         >
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-3 min-w-0">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={name}
-                  className="w-10 h-10 rounded-full object-cover border shrink-0"
-                  style={{ borderColor: "rgba(255,255,255,0.3)" }}
-                />
-              ) : (
-                <div
-                  className="w-10 h-10 rounded-full flex shrink-0 items-center justify-center font-bold text-lg border"
-                  style={{
-                    background: "rgba(255,255,255,0.1)",
-                    borderColor: "rgba(255,255,255,0.3)",
-                  }}
-                >
-                  {name.substring(0, 1).toUpperCase()}
-                </div>
-              )}
-              <div className="min-w-0 text-left flex-1">
-                <p
-                  className="text-[10px] uppercase tracking-[0.2em] text-cyan-300"
-                  style={{ textShadow: "var(--neon-glow-cyan)" }}
-                >
-                  {tr(`role.${role}`)}
-                </p>
-                <h1 className="text-lg font-bold truncate text-white">{name}</h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
-              {canSwitchToAdmin && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onSwitchToAdmin?.()}
-                  className="hover:bg-white/10 text-white"
-                  title={tr("header.openAdmin")}
-                >
-                  <ShieldCheck className="h-5 w-5" />
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={openMyShifts}
-                className="hover:bg-white/10 text-white"
-                title={tr("header.myShifts")}
-              >
-                <CalendarDays className="h-5 w-5" />
-              </Button>
-              <LanguageSwitcher />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-end gap-2 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
+              <LanguageSwitcher compact />
               <SettingsDialog />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={signOut}
-                className="hover:bg-white/10 text-white"
+                className="hover:bg-white/10 text-white h-8 w-8"
                 title={tr("header.signOut")}
               >
-                <LogOut className="h-5 w-5" />
+                <LogOut className="h-4 w-4" />
               </Button>
+            </div>
+            
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-3 min-w-0">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={name}
+                    className="w-10 h-10 rounded-full object-cover border shrink-0"
+                    style={{ borderColor: "rgba(255,255,255,0.3)" }}
+                  />
+                ) : (
+                  <div
+                    className="w-10 h-10 rounded-full flex shrink-0 items-center justify-center font-bold text-lg border"
+                    style={{
+                      background: "rgba(255,255,255,0.1)",
+                      borderColor: "rgba(255,255,255,0.3)",
+                    }}
+                  >
+                    {name.substring(0, 1).toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0 text-left flex-1">
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em] text-cyan-300"
+                    style={{ textShadow: "var(--neon-glow-cyan)" }}
+                  >
+                    {tr(`role.${role}`)}
+                  </p>
+                  <h1 className="text-lg font-bold truncate text-white leading-tight mt-0.5">{name}</h1>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1 shrink-0 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
+                {canSwitchToAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onSwitchToAdmin?.()}
+                    className="hover:bg-white/10 text-white"
+                    title={tr("header.openAdmin")}
+                  >
+                    <ShieldCheck className="h-5 w-5" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={openMyShifts}
+                  className="hover:bg-white/10 text-white"
+                  title={tr("header.myShifts")}
+                >
+                  <CalendarDays className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </div>
         </header>

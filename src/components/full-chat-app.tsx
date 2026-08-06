@@ -119,6 +119,24 @@ export function FullChatApp({
     }
   }
 
+  async function handlePhotoReportSuccess(data: { photoPath: string | null; description: string; criticality: string }) {
+    if (!user) return;
+    const authorName = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
+    const text = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;
+    const { error } = await supabase.from("chat_messages").insert({
+      channel_type: activeChannelType,
+      channel_id: activeChannelId,
+      author_id: user.id,
+      author_name: authorName,
+      content: text,
+      source_lang: lang,
+    });
+    if (error) {
+      toast.error(t("chat.sendFailed"));
+      console.error(error);
+    }
+  }
+
   // Auto-close sidebar on mobile when selecting a channel
   function handleSelectChannel(type: ChannelType, id: string) {
     setActiveChannelType(type);
@@ -386,6 +404,7 @@ export function FullChatApp({
         open={reportOpen}
         onOpenChange={setReportOpen}
         site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
+        onSuccess={handlePhotoReportSuccess}
       />
 
       <Dialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
@@ -680,6 +699,19 @@ function MessageBubble({
     };
   }, [m.id, m.content, m.source_lang, lang, needsTranslate]);
 
+  const isPhotoReport = m.content.startsWith("[PHOTO_REPORT] ");
+  let photoPath = "";
+  let criticality = "";
+  let description = m.content;
+  if (isPhotoReport) {
+    const parts = m.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+    if (parts.length >= 3) {
+      photoPath = parts[0];
+      criticality = parts[1];
+      description = parts.slice(2).join(" | ");
+    }
+  }
+
   return (
     <div className={cn("flex w-full gap-2", isMine ? "justify-end" : "justify-start")}>
       {!isMine && (
@@ -700,7 +732,18 @@ function MessageBubble({
           {!isMine && (
             <div className="text-[11px] font-semibold opacity-70 mb-0.5">{m.author_name}</div>
           )}
-          <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">{m.content}</div>
+          
+          {isPhotoReport && photoPath && (
+            <div className="mb-2 rounded-lg overflow-hidden border bg-black/5">
+              <img src={supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl} alt="report" className="w-full h-auto object-cover max-h-64" />
+            </div>
+          )}
+          {isPhotoReport && criticality && (
+            <div className={cn("mb-1 text-[10px] font-bold uppercase tracking-wider", criticality === "urgent" ? "text-red-500" : criticality === "important" ? "text-amber-500" : "opacity-70")}>
+              {criticality === "info" ? "Информация" : criticality === "important" ? "Важно" : "Срочно"}
+            </div>
+          )}
+          <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">{description}</div>
 
           {needsTranslate && (
             <div

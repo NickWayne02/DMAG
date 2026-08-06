@@ -39,7 +39,7 @@ export function PhotoReportDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   site: Site | null;
-  onSuccess?: () => void;
+  onSuccess?: (data: { photoPath: string | null; description: string; criticality: string }) => void;
 }) {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -133,7 +133,7 @@ export function PhotoReportDialog({
       });
       if (error) throw error;
       toast.success("Фотоотчет отправлен");
-      onSuccess?.();
+      onSuccess?.({ photoPath, description: description.trim(), criticality });
       reset();
       onOpenChange(false);
     } catch (e: any) {

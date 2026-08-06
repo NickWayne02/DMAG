@@ -32,6 +32,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
+import { AdminEditableCalendarDialog } from "@/components/admin-editable-calendar-dialog";
 import type { ShiftDetail } from "@/lib/shift-export";
 import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
@@ -815,12 +816,21 @@ export function EmployeeMobileView() {
         </div>
       )}
 
-      <ShiftCalendarDialog
-        open={myShiftsOpen}
-        onClose={() => setMyShiftsOpen(false)}
-        employeeName={name}
-        shifts={myShifts}
-      />
+      {(user?.role === "admin" || user?.role === "super_admin") ? (
+        <AdminEditableCalendarDialog
+          open={myShiftsOpen}
+          onClose={() => setMyShiftsOpen(false)}
+          employeeId={user.id}
+          employeeName={name}
+        />
+      ) : (
+        <ShiftCalendarDialog
+          open={myShiftsOpen}
+          onClose={() => setMyShiftsOpen(false)}
+          employeeName={name}
+          shifts={myShifts}
+        />
+      )}
 
       <PrivacyModal open={privacyOpen} onOpenChange={setPrivacyOpen} />
       <TermsModal open={termsOpen} onOpenChange={setTermsOpen} />

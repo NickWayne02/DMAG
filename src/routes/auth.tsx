@@ -121,12 +121,12 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-primary/10">
-      <Card className="w-full max-w-md p-8 rounded-2xl shadow-xl border-0 relative">
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-2 [&_button]:!bg-primary [&_button]:!text-primary-foreground [&_button]:!shadow-md hover:[&_button]:!bg-primary/90">
-          <LanguageSwitcher />
-          <SettingsDialog />
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 [&_button]:!bg-primary [&_button]:!text-primary-foreground [&_button]:!shadow-md hover:[&_button]:!bg-primary/90">
+        <LanguageSwitcher />
+        <SettingsDialog />
+      </div>
+      <Card className="w-full max-w-md p-8 rounded-2xl shadow-xl border-0 relative mt-8">
         <div className="flex flex-col items-center mb-6">
           <img src={dmagLogo} alt="DMAG" className="w-[140px] h-auto rounded-xl shadow-md" />
           <p className="mt-3 text-sm text-muted-foreground">Maschinen und Anlagenbau</p>

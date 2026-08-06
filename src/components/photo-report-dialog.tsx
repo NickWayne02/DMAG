@@ -132,7 +132,7 @@ export function PhotoReportDialog({
         photo_url: photoPath,
       });
       if (error) throw error;
-      toast.success("Фотоотчет сохранен");
+      toast.success("Фотоотчет отправлен");
       onSuccess?.();
       reset();
       onOpenChange(false);
@@ -273,7 +273,7 @@ export function PhotoReportDialog({
           </Button>
           <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || !site}>
             {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Сохранить
+            Отправить
           </Button>
         </DialogFooter>
       </DialogContent>

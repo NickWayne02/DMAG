@@ -353,26 +353,7 @@ export function EmployeeDesktopView() {
               <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
             </button>
 
-            <button
-              type="button"
-              className="w-full flex items-center p-3 rounded-xl transition hover:brightness-110 active:scale-[0.98]"
-              style={{
-                background: "var(--neon-surface)",
-                border: "1px solid var(--neon-border)",
-              }}
-              onClick={openReport}
-            >
-              <NeonIcon color="var(--neon-violet)" glow="var(--neon-glow-violet)">
-                <ScanLine className="h-5 w-5" />
-              </NeonIcon>
-              <span
-                className="ml-4 flex-1 text-left text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "var(--neon-text)" }}
-              >
-                {tr("report.create")}
-              </span>
-              <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
-            </button>
+
 
             <button
               type="button"
@@ -682,12 +663,6 @@ export function EmployeeDesktopView() {
         onOpenChange={setSiteOpen}
         onSelect={pickSite}
         selectedId={selectedSite?.id}
-      />
-      <PhotoReportDialog
-        open={reportOpen}
-        onOpenChange={setReportOpen}
-        site={selectedSite}
-        onSuccess={loadReports}
       />
       {chatOpen && (
         <div className="fixed inset-0 z-50 bg-background flex flex-col">

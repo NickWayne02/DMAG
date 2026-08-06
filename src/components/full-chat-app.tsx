@@ -15,6 +15,7 @@ import {
   Search,
   MoreVertical,
   Plus,
+  Camera,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PhotoReportDialog } from "@/components/photo-report-dialog";
 
 type ChannelType = "general" | "direct" | "site";
 
@@ -68,6 +70,7 @@ export function FullChatApp({
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [mutedChannels, setMutedChannels] = useState<string[]>([]);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("muted_channels");
@@ -374,9 +377,16 @@ export function FullChatApp({
             channelType={activeChannelType}
             channelId={activeChannelId}
             profiles={profiles}
+            onOpenReport={() => setReportOpen(true)}
           />
         </div>
       </div>
+
+      <PhotoReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
+      />
 
       <Dialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
         <DialogContent>
@@ -456,6 +466,7 @@ function ChannelContent({
   channelType: ChannelType;
   channelId: string;
   profiles: { id: string; avatar_url: string | null }[];
+  onOpenReport?: () => void;
 }) {
   const { user, roles } = useAuth();
   const isSuperAdmin = roles.includes("super_admin");
@@ -588,6 +599,15 @@ function ChannelContent({
       </div>
       <div className="p-3 bg-card border-t shrink-0">
         <div className="flex items-center gap-2 max-w-4xl mx-auto">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="rounded-full shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => onOpenReport?.()}
+            title={t("report.create")}
+          >
+            <Camera className="h-5 w-5" />
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}

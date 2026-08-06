@@ -547,39 +547,7 @@ export function EmployeeMobileView() {
               )}
             </section>
 
-            {/* Photo report — neon CTA */}
-            <section className="px-5 lg:px-0 mt-5">
-              <button
-                type="button"
-                onClick={openReport}
-                className="w-full rounded-2xl p-4 flex items-center gap-3 min-h-22 active:scale-[0.99] transition text-left"
-                style={{
-                  background: "linear-gradient(120deg, var(--primary), var(--neon-violet) 80%)",
-                  color: "#fff",
-                  boxShadow:
-                    "0 12px 40px -10px var(--primary), 0 0 0 1px rgba(255,255,255,0.08) inset",
-                }}
-              >
-                <div
-                  className="h-12 w-12 rounded-2xl grid place-items-center shrink-0"
-                  style={{
-                    background: "rgba(0,0,0,0.35)",
-                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)",
-                  }}
-                >
-                  <ScanLine className="h-6 w-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-base">{tr("report.create")}</p>
-                  <p className="text-xs opacity-90 truncate">
-                    {selectedSite
-                      ? `${tr("report.linkedTo")}: ${selectedSite.name}`
-                      : tr("report.selectFirst")}
-                  </p>
-                </div>
-                <ChevronRight className="h-5 w-5 opacity-80 shrink-0" />
-              </button>
-            </section>
+
           </div>{" "}
           {/* End Left Column */}
           <div className="flex flex-col lg:pt-5">
@@ -803,13 +771,6 @@ export function EmployeeMobileView() {
         onOpenChange={setSiteOpen}
         selectedId={selectedSite?.id ?? null}
         onSelect={pickSite}
-      />
-
-      <PhotoReportDialog
-        open={reportOpen}
-        onOpenChange={setReportOpen}
-        site={selectedSite}
-        onSuccess={loadReports}
       />
 
       {chatOpen && (

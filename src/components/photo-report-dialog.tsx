@@ -136,9 +136,9 @@ export function PhotoReportDialog({
       onSuccess?.();
       reset();
       onOpenChange(false);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("Не удалось сохранить отчет");
+      toast.error(`Не удалось сохранить отчет: ${e?.message || JSON.stringify(e)}`);
     } finally {
       setBusy(false);
     }

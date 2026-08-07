@@ -192,17 +192,7 @@ export function EmployeeProvider({
   const [now, setNow] = useState(() => Date.now());
   const [siteOpen, setSiteOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [chatOpen, setChatOpenRaw] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("dmag_chat_open") === "true";
-  });
-
-  const setChatOpen = (val: boolean) => {
-    setChatOpenRaw(val);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("dmag_chat_open", String(val));
-    }
-  };
+  const [chatOpen, setChatOpen] = useState(false);
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);

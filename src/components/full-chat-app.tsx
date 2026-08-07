@@ -436,7 +436,7 @@ export function FullChatApp({
             .eq("id", editingPhotoReportMessage.id);
           
           if (error) {
-            toast.error("Ошибка при редактировании");
+            throw error;
           }
           setEditingPhotoReportMessage(null);
         }}

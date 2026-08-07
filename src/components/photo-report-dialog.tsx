@@ -41,7 +41,7 @@ export function PhotoReportDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   site: Site | null;
-  onSuccess?: (data: { photoPath: string | null; description: string; criticality: string }) => void;
+  onSuccess?: (data: { photoPath: string | null; description: string; criticality: string }) => Promise<void> | void;
   initialData?: {
     photoPath: string | null;
     description: string;
@@ -159,8 +159,10 @@ export function PhotoReportDialog({
         });
         if (error) throw error;
       }
+      
+      await onSuccess?.({ photoPath, description: description.trim(), criticality });
+      
       toast.success(skipDbInsert ? "Изменения сохранены" : "Фотоотчет отправлен");
-      onSuccess?.({ photoPath, description: description.trim(), criticality });
       reset();
       onOpenChange(false);
     } catch (e: any) {

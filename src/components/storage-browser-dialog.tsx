@@ -182,7 +182,7 @@ export function StorageBrowserDialog({
 
         <div
           className={cn(
-            "flex-1 min-h-[400px] overflow-hidden flex flex-col border-t bg-muted/5 relative transition-colors",
+            "flex-1 min-h-100 overflow-hidden flex flex-col border-t bg-muted/5 relative transition-colors",
             isDragging && "bg-primary/10 border-primary/50"
           )}
           onDragEnter={handleDragEnter}
@@ -219,7 +219,7 @@ export function StorageBrowserDialog({
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              <div className="text-sm font-medium text-muted-foreground flex items-center gap-1.5 overflow-x-auto max-w-[200px] sm:max-w-[400px]">
+              <div className="text-sm font-medium text-muted-foreground flex items-center gap-1.5 overflow-x-auto max-w-50 sm:max-w-100">
                 <span>/</span>
                 {currentPath.map((p, i) => (
                   <span key={i} className="flex items-center gap-1.5 shrink-0">

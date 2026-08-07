@@ -190,9 +190,32 @@ export function EmployeeProvider({
   const [gpsRequest, setGpsRequest] = useState<GpsRequest | null>(null);
   const [gpsBusy, setGpsBusy] = useState(false);
   const [now, setNow] = useState(() => Date.now());
-  const [siteOpen, setSiteOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [siteOpen, setSiteOpenRaw] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.sessionStorage.getItem("dmag_site_open") === "true";
+  });
+  const setSiteOpen = (val: boolean) => {
+    setSiteOpenRaw(val);
+    if (typeof window !== "undefined") window.sessionStorage.setItem("dmag_site_open", String(val));
+  };
+
+  const [reportOpen, setReportOpenRaw] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.sessionStorage.getItem("dmag_report_open") === "true";
+  });
+  const setReportOpen = (val: boolean) => {
+    setReportOpenRaw(val);
+    if (typeof window !== "undefined") window.sessionStorage.setItem("dmag_report_open", String(val));
+  };
+
+  const [chatOpen, setChatOpenRaw] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.sessionStorage.getItem("dmag_chat_open") === "true";
+  });
+  const setChatOpen = (val: boolean) => {
+    setChatOpenRaw(val);
+    if (typeof window !== "undefined") window.sessionStorage.setItem("dmag_chat_open", String(val));
+  };
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);

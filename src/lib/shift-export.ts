@@ -143,8 +143,21 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
     head: [HEADERS],
     body: rows.map(rowToArray),
     startY: 74,
-    styles: { font: "Roboto", fontSize: 9, cellPadding: 4 },
-    headStyles: { fillColor: [37, 99, 235] },
+    styles: { font: "Roboto", fontStyle: "normal", fontSize: 9, cellPadding: 6, textColor: [50, 50, 50] },
+    headStyles: { 
+      fontStyle: "normal", 
+      fillColor: [13, 71, 161], 
+      textColor: [255, 255, 255], 
+      fontSize: 10,
+      halign: "center"
+    },
+    bodyStyles: {
+      halign: "center"
+    },
+    columnStyles: {
+      1: { halign: "left" },
+      2: { halign: "left" }
+    },
     alternateRowStyles: { fillColor: [245, 247, 250] },
   });
 

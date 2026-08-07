@@ -1216,7 +1216,15 @@ export function AdminDashboard({
         head: [headers], 
         body: rows.map((r) => Object.values(r)), 
         startY: 74,
-        styles: { font: "Roboto" } 
+        styles: { font: "Roboto", fontStyle: "normal", fontSize: 9, cellPadding: 6, textColor: [50, 50, 50] },
+        headStyles: { 
+          fontStyle: "normal", 
+          fillColor: [13, 71, 161], 
+          textColor: [255, 255, 255], 
+          fontSize: 10,
+          halign: "left"
+        },
+        alternateRowStyles: { fillColor: [245, 247, 250] }
       });
       const blob = doc.output("blob");
       triggerDownload(blob, `${filename}.pdf`);

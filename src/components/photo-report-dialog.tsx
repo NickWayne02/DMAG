@@ -223,7 +223,10 @@ export function PhotoReportDialog({
                   size="icon"
                   variant="secondary"
                   className="absolute top-2 right-2 h-9 w-9 rounded-full shadow"
-                  onClick={() => handleFile(null)}
+                  onPointerDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    handleFile(null);
+                  }}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -233,7 +236,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background active:bg-accent md:hover:bg-accent focus-visible:ring-0"
+                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
                   onClick={(e) => {
                     e.currentTarget.blur();
                     takePhoto("CAMERA");
@@ -245,7 +248,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background active:bg-accent md:hover:bg-accent focus-visible:ring-0"
+                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
                   onClick={(e) => {
                     e.currentTarget.blur();
                     takePhoto("PHOTOS");
@@ -257,7 +260,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background active:bg-accent md:hover:bg-accent focus-visible:ring-0"
+                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
                   onClick={(e) => {
                     e.currentTarget.blur();
                     setBrowserOpen(true);

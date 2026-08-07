@@ -233,7 +233,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
+                  className="h-24 rounded-2xl flex flex-col gap-1 bg-background hover:bg-background hover:text-foreground active:bg-background active:text-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
                   onClick={() => takePhoto("CAMERA")}
                 >
                   <LucideCamera className="h-6 w-6" />
@@ -242,7 +242,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
+                  className="h-24 rounded-2xl flex flex-col gap-1 bg-background hover:bg-background hover:text-foreground active:bg-background active:text-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
                   onClick={() => takePhoto("PHOTOS")}
                 >
                   <ImagePlus className="h-6 w-6" />
@@ -251,7 +251,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
+                  className="h-24 rounded-2xl flex flex-col gap-1 bg-background hover:bg-background hover:text-foreground active:bg-background active:text-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
                   onClick={() => setBrowserOpen(true)}
                 >
                   <FolderSearch className="h-6 w-6" />

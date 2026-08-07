@@ -156,7 +156,7 @@ export function PhotoReportDialog({
       }
       if (!skipDbInsert) {
         const { error } = await supabase.from("photo_reports").insert({
-          site_id: site.id,
+          site_id: site!.id,
           author_id: user.id,
           description: description.trim() || null,
           criticality,

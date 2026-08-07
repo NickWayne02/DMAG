@@ -71,6 +71,7 @@ export function FullChatApp({
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
   const [mutedChannels, setMutedChannels] = useState<string[]>([]);
   const [reportOpen, setReportOpen] = useState(false);
   const [editingPhotoReportMessage, setEditingPhotoReportMessage] = useState<DbMessage | null>(
@@ -393,6 +394,9 @@ export function FullChatApp({
               <DropdownMenuItem onClick={() => setInfoDialogOpen(true)}>
                 Информация о чате
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setMediaDialogOpen(true)}>
+                Вложенные медиа
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleMute}>
                 {mutedChannels.includes(activeChannelId)
                   ? "Включить уведомления"
@@ -498,6 +502,13 @@ export function FullChatApp({
           </div>
         </DialogContent>
       </Dialog>
+
+      <ChatMediaDialog
+        open={mediaDialogOpen}
+        onOpenChange={setMediaDialogOpen}
+        channelType={activeChannelType}
+        channelId={activeChannelId}
+      />
     </div>
   );
 }
@@ -982,5 +993,78 @@ function MessageBubble({
         </Avatar>
       )}
     </div>
+  );
+}
+
+function ChatMediaDialog({
+  open,
+  onOpenChange,
+  channelType,
+  channelId,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  channelType: "general" | "direct" | "site";
+  channelId: string;
+}) {
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    supabase
+      .from("chat_messages")
+      .select("content")
+      .eq("channel_type", channelType)
+      .eq("channel_id", channelId)
+      .like("content", "[PHOTO_REPORT]%")
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          const urls = data.map((m) => {
+            const parts = m.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+            const photoPath = parts[0];
+            return supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl;
+          });
+          setPhotos(urls);
+        }
+        setLoading(false);
+      });
+  }, [open, channelType, channelId]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 bg-background overflow-hidden">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle>Вложенные медиа</DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="flex-1 p-4">
+          {loading ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : photos.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
+              <Camera className="h-12 w-12 mb-2 opacity-20" />
+              <p>Нет вложенных медиа</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 pb-4">
+              {photos.map((url, i) => (
+                <div key={i} className="aspect-square rounded-xl overflow-hidden border bg-muted">
+                  <img
+                    src={url}
+                    alt="media"
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 }

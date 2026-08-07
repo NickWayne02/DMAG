@@ -140,7 +140,7 @@ export function PhotoReportDialog({
       let photoPath: string | null = null;
       if (file) {
         const ext = file.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${site.id}/${Date.now()}.${ext}`;
+        const path = `${Date.now()}_${user.id.substring(0, 5)}.${ext}`;
         const up = await supabase.storage
           .from("photo-reports")
           .upload(path, file, { upsert: false });

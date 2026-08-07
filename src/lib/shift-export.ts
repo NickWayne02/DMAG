@@ -166,20 +166,7 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
 }
 
 export function triggerDownload(blob: Blob, filename: string) {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  );
-  if (isMobile) {
-    toast.success("Файл успешно сформирован", {
-      duration: 15000,
-      action: {
-        label: "Скачать",
-        onClick: () => triggerDownloadSync(blob, filename),
-      },
-    });
-  } else {
-    triggerDownloadSync(blob, filename);
-  }
+  triggerDownloadSync(blob, filename);
 }
 
 function triggerDownloadSync(blob: Blob, filename: string) {

@@ -190,43 +190,21 @@ function triggerDownloadSync(blob: Blob, filename: string) {
         const base64data = reader.result as string;
         const base64 = base64data.split(",")[1];
 
-        const savedFile = await Filesystem.writeFile({
+        await Filesystem.writeFile({
           path: filename,
           data: base64,
-          directory: Directory.Cache,
+          directory: Directory.Documents,
         });
-
-        await Share.share({
-          title: filename,
-          url: savedFile.uri,
-        });
+        toast.success("Файл сохранён в Документы");
       } catch (e) {
-        console.error("Capacitor share error", e);
+        console.error("Capacitor save error", e);
+        toast.error("Ошибка сохранения файла");
       }
     };
     reader.readAsDataURL(blob);
     return;
   }
 
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  );
-  if (isMobile && navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], filename, { type: blob.type });
-      if (navigator.canShare({ files: [file] })) {
-        navigator
-          .share({
-            files: [file],
-            title: filename,
-          })
-          .catch(() => fallbackDownload(blob, filename));
-        return;
-      }
-    } catch (err) {
-      console.warn("Share API error", err);
-    }
-  }
   fallbackDownload(blob, filename);
 }
 

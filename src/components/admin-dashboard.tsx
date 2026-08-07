@@ -269,6 +269,7 @@ export function AdminDashboard({
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [reportsHasMore, setReportsHasMore] = useState(true);
   const [reportsLoadingMore, setReportsLoadingMore] = useState(false);
+  const [editingReport, setEditingReport] = useState<{ id: string; description: string; criticality: Crit } | null>(null);
 
   // Pagination states
   const [personnelPage, setPersonnelPage] = useState(0);
@@ -801,6 +802,38 @@ export function AdminDashboard({
       loadFilteredReports(true);
     } else {
       toast.success("Фотоотчёт удален");
+    }
+  }
+
+  async function savePhotoReportEdit() {
+    if (!editingReport) return;
+    
+    // Optimistic update
+    setReports((prev) => 
+      prev.map((r) => 
+        r.id === editingReport.id 
+          ? { ...r, description: editingReport.description, criticality: editingReport.criticality }
+          : r
+      )
+    );
+    
+    const reportId = editingReport.id;
+    const newDesc = editingReport.description;
+    const newCrit = editingReport.criticality;
+    setEditingReport(null);
+    toast.success("Изменения сохранены");
+
+    const { error } = await supabase
+      .from("photo_reports")
+      .update({
+        description: newDesc,
+        criticality: newCrit
+      })
+      .eq("id", reportId);
+
+    if (error) {
+      toast.error("Ошибка при сохранении");
+      loadFilteredReports(true);
     }
   }
 
@@ -2295,14 +2328,28 @@ export function AdminDashboard({
                                 })}
                               </p>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => deletePhotoReport(r.id, r.photo_url)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                onClick={() => setEditingReport({
+                                  id: r.id,
+                                  description: r.description || "",
+                                  criticality: r.criticality
+                                })}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => deletePhotoReport(r.id, r.photo_url)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         );
                       })}

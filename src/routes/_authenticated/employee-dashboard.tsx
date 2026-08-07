@@ -41,7 +41,12 @@ function EmployeeDashboardRoute() {
     <EmployeeMobile
       role={mobileRole}
       canSwitchToAdmin={canOpenReports}
-      onSwitchToAdmin={() => navigate({ to: "/admin-dashboard" })}
+      onSwitchToAdmin={() => {
+        window.sessionStorage.removeItem("dmag_site_open");
+        window.sessionStorage.removeItem("dmag_report_open");
+        window.sessionStorage.removeItem("dmag_chat_open");
+        navigate({ to: "/admin-dashboard" });
+      }}
     />
   );
 }

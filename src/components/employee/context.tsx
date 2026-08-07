@@ -435,6 +435,10 @@ export function EmployeeProvider({
   const workMs = Math.max(0, totalMs - lunchMs);
 
   async function signOut() {
+    window.sessionStorage.removeItem("adminActiveTab");
+    window.sessionStorage.removeItem("dmag_site_open");
+    window.sessionStorage.removeItem("dmag_report_open");
+    window.sessionStorage.removeItem("dmag_chat_open");
     await supabase.auth.signOut();
     navigate({ to: "/auth" });
   }

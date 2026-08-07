@@ -486,6 +486,7 @@ export function AdminDashboard({
   const name = user?.user_metadata?.full_name || user?.email || "Администратор";
 
   async function signOut() {
+    window.sessionStorage.removeItem("adminActiveTab");
     window.sessionStorage.removeItem("dmag_dev_admin");
     window.sessionStorage.removeItem("dmag_super_admin");
     if (devMode) {
@@ -1452,7 +1453,10 @@ export function AdminDashboard({
           <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
-              onClick={() => navigate({ to: "/employee-dashboard" })}
+              onClick={() => {
+                sessionStorage.removeItem("adminActiveTab");
+                navigate({ to: "/employee-dashboard" });
+              }}
               className="rounded-full h-9 px-3 md:px-4 text-muted-foreground hover:text-foreground"
               title="К смене"
             >

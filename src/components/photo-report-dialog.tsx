@@ -230,33 +230,30 @@ export function PhotoReportDialog({
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 bg-background hover:bg-background hover:text-foreground active:bg-background active:text-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
+                <div
+                  role="button"
+                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm active:scale-95 transition-transform cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
                   onClick={() => takePhoto("CAMERA")}
                 >
                   <LucideCamera className="h-6 w-6" />
-                  <span className="text-[10px]">Снимок</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 bg-background hover:bg-background hover:text-foreground active:bg-background active:text-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
+                  <span className="text-[10px] font-medium">Снимок</span>
+                </div>
+                <div
+                  role="button"
+                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm active:scale-95 transition-transform cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
                   onClick={() => takePhoto("PHOTOS")}
                 >
                   <ImagePlus className="h-6 w-6" />
-                  <span className="text-[10px]">Галерея</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1 bg-background hover:bg-background hover:text-foreground active:bg-background active:text-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
+                  <span className="text-[10px] font-medium">Галерея</span>
+                </div>
+                <div
+                  role="button"
+                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm active:scale-95 transition-transform cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
                   onClick={() => setBrowserOpen(true)}
                 >
                   <FolderSearch className="h-6 w-6" />
-                  <span className="text-[10px]">Хранилище</span>
-                </Button>
+                  <span className="text-[10px] font-medium">Хранилище</span>
+                </div>
               </div>
             )}
             <input

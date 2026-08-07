@@ -186,6 +186,7 @@ export function FullChatApp({
 
     // We only need channel_id to extract unique chats
     if (user) {
+      setLoadingChannels(true);
       supabase
         .from("chat_messages")
         .select("channel_id")

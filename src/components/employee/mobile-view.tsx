@@ -277,11 +277,11 @@ export function EmployeeMobileView() {
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-3 min-w-0">
-                <div 
-                  className="cursor-pointer relative group shrink-0" 
+                <div
+                  className="cursor-pointer relative group shrink-0"
                   onClick={openAvatarBrowser}
                   title="Сменить фото"
                 >
@@ -311,10 +311,12 @@ export function EmployeeMobileView() {
                   >
                     {tr(`role.${role}`)}
                   </p>
-                  <h1 className="text-lg font-bold truncate text-white leading-tight mt-0.5">{name}</h1>
+                  <h1 className="text-lg font-bold truncate text-white leading-tight mt-0.5">
+                    {name}
+                  </h1>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-1 shrink-0 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
                 {canSwitchToAdmin && (
                   <Button
@@ -553,8 +555,6 @@ export function EmployeeMobileView() {
                 </NeonCard>
               )}
             </section>
-
-
           </div>{" "}
           {/* End Left Column */}
           <div className="flex flex-col lg:pt-5">

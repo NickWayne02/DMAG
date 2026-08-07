@@ -41,7 +41,6 @@ export function StorageBrowserDialog({
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (open) {
       loadFiles(currentPath);
@@ -58,7 +57,11 @@ export function StorageBrowserDialog({
         sortBy: { column: "created_at", order: "desc" },
       });
       if (error) throw error;
-      setFiles((data as { id: string | null; name: string }[])?.filter((f) => f.name !== ".emptyFolderPlaceholder") || []);
+      setFiles(
+        (data as { id: string | null; name: string }[])?.filter(
+          (f) => f.name !== ".emptyFolderPlaceholder",
+        ) || [],
+      );
     } catch (e) {
       console.error(e);
       toast.error("Не удалось загрузить файлы");
@@ -79,11 +82,9 @@ export function StorageBrowserDialog({
       const fileName = `${Date.now()}_${user.id.substring(0, 5)}.${ext}`;
       const uploadPath = baseFolderPath ? `${baseFolderPath}/${fileName}` : fileName;
 
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .upload(uploadPath, file, {
-          upsert: false,
-        });
+      const { error } = await supabase.storage.from(bucketName).upload(uploadPath, file, {
+        upsert: false,
+      });
       if (error) throw error;
 
       toast.success("Файл загружен!");
@@ -148,13 +149,13 @@ export function StorageBrowserDialog({
   async function handleFileDelete(e: React.MouseEvent, file: { id: string | null; name: string }) {
     e.stopPropagation();
     if (!confirm("Удалить файл?")) return;
-    
+
     const folderPath = currentPath.join("/");
     const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
-    
+
     // Optimistic update
-    setFiles(prev => prev.filter(f => f.name !== file.name));
-    
+    setFiles((prev) => prev.filter((f) => f.name !== file.name));
+
     try {
       const { error } = await supabase.storage.from(bucketName).remove([fullPath]);
       if (error) {
@@ -183,7 +184,7 @@ export function StorageBrowserDialog({
         <div
           className={cn(
             "flex-1 min-h-100 overflow-hidden flex flex-col border-t bg-muted/5 relative transition-colors",
-            isDragging && "bg-primary/10 border-primary/50"
+            isDragging && "bg-primary/10 border-primary/50",
           )}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}

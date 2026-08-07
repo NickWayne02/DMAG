@@ -229,9 +229,9 @@ function AuthPage() {
         </Tabs>
 
         <div className="mt-4 text-center">
-          <Button 
-            type="button" 
-            variant="link" 
+          <Button
+            type="button"
+            variant="link"
             onClick={() => toast.info(t("auth.recover"))}
             className="text-sm text-muted-foreground hover:text-foreground"
           >

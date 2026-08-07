@@ -1,6 +1,8 @@
 export function renderErrorPage(errorStr?: string) {
-  const errorDetails = errorStr ? `<div style="margin-top: 2rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 8px; text-align: left; font-family: monospace; white-space: pre-wrap; font-size: 12px; overflow-x: auto;">${escapeHtml(errorStr)}</div>` : '';
-  
+  const errorDetails = errorStr
+    ? `<div style="margin-top: 2rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-radius: 8px; text-align: left; font-family: monospace; white-space: pre-wrap; font-size: 12px; overflow-x: auto;">${escapeHtml(errorStr)}</div>`
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,10 +30,10 @@ export function renderErrorPage(errorStr?: string) {
 }
 
 function escapeHtml(unsafe: string) {
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }

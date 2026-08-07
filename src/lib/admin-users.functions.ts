@@ -76,7 +76,7 @@ export const adminUpdateCredentials = createServerFn({ method: "POST" })
       _user_id: context.userId,
       _role: "super_admin",
     });
-    
+
     if (!isSuper) {
       const { data: targetRoleData } = await context.supabase
         .from("user_roles")
@@ -125,7 +125,7 @@ export const adminToggleActive = createServerFn({ method: "POST" })
       _user_id: context.userId,
       _role: "super_admin",
     });
-    
+
     if (!isSuper) {
       const { data: targetRoleData } = await context.supabase
         .from("user_roles")

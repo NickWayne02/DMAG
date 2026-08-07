@@ -1,4 +1,13 @@
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState, useRef, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  useRef,
+  type ReactNode,
+} from "react";
 
 export type AccentPreset = {
   id: string;
@@ -219,7 +228,8 @@ function applySettings(s: Settings, accent: AccentPreset, animate: boolean = fal
 
     // Panel colors — merge base for the mode with user overrides (custom mode uses full overrides).
     const base = resolveBase(s.mode);
-    const panels: Required<PanelColors> = s.mode === "custom" ? { ...base, ...s.panelColors } : { ...base };
+    const panels: Required<PanelColors> =
+      s.mode === "custom" ? { ...base, ...s.panelColors } : { ...base };
 
     // If user picked a custom accent hex, override primary regardless of mode.
     if (s.customAccent) panels.primary = s.customAccent;

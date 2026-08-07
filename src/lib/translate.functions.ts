@@ -25,7 +25,11 @@ const LANG_NAMES: Record<string, string> = {
   tg: "Tajik",
 };
 
-export async function translateMessage(data: { text: string; sourceLang: string; targetLang: string }) {
+export async function translateMessage(data: {
+  text: string;
+  sourceLang: string;
+  targetLang: string;
+}) {
   const parsed = InputSchema.parse(data);
 
   if (parsed.sourceLang === parsed.targetLang) {
@@ -44,7 +48,11 @@ export async function translateMessage(data: { text: string; sourceLang: string;
   return { translated: out };
 }
 
-export async function translateBatch(data: { items: string[]; sourceLang: string; targetLang: string }) {
+export async function translateBatch(data: {
+  items: string[];
+  sourceLang: string;
+  targetLang: string;
+}) {
   const parsed = BatchSchema.parse(data);
 
   if (parsed.sourceLang === parsed.targetLang) {
@@ -58,18 +66,18 @@ export async function translateBatch(data: { items: string[]; sourceLang: string
 
   if (!res.ok) {
     return { translations: parsed.items, error: `gateway_${res.status}` as const };
-    }
-    const json = await res.json();
-    const raw = json[0].map((item: any) => item[0]).join("");
-    const lines = raw
-      .split(/\r?\n/)
-      .map((l: string) => l.trim())
-      .filter(Boolean);
-    const map = new Map<number, string>();
-    for (const line of lines) {
-      const m = line.match(/^(\d+)[.)\]]\s*(.+)$/);
-      if (m) map.set(Number(m[1]), m[2].trim());
-    }
-    const translations = parsed.items.map((orig, i) => map.get(i + 1) ?? orig);
-    return { translations };
+  }
+  const json = await res.json();
+  const raw = json[0].map((item: any) => item[0]).join("");
+  const lines = raw
+    .split(/\r?\n/)
+    .map((l: string) => l.trim())
+    .filter(Boolean);
+  const map = new Map<number, string>();
+  for (const line of lines) {
+    const m = line.match(/^(\d+)[.)\]]\s*(.+)$/);
+    if (m) map.set(Number(m[1]), m[2].trim());
+  }
+  const translations = parsed.items.map((orig, i) => map.get(i + 1) ?? orig);
+  return { translations };
 }

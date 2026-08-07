@@ -41,7 +41,11 @@ export function PhotoReportDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   site: Site | null;
-  onSuccess?: (data: { photoPath: string | null; description: string; criticality: string }) => Promise<void> | void;
+  onSuccess?: (data: {
+    photoPath: string | null;
+    description: string;
+    criticality: string;
+  }) => Promise<void> | void;
   initialData?: {
     photoPath: string | null;
     description: string;
@@ -59,11 +63,12 @@ export function PhotoReportDialog({
   const [browserOpen, setBrowserOpen] = useState(false);
   const [selectedStoragePath, setSelectedStoragePath] = useState<string | null>(null);
 
-
   useEffect(() => {
     if (open && initialData) {
       if (initialData.photoPath) {
-        setPreviewUrl(supabase.storage.from("photo-reports").getPublicUrl(initialData.photoPath).data.publicUrl);
+        setPreviewUrl(
+          supabase.storage.from("photo-reports").getPublicUrl(initialData.photoPath).data.publicUrl,
+        );
         setSelectedStoragePath(initialData.photoPath);
       } else {
         setPreviewUrl(null);
@@ -159,9 +164,9 @@ export function PhotoReportDialog({
         });
         if (error) throw error;
       }
-      
+
       await onSuccess?.({ photoPath, description: description.trim(), criticality });
-      
+
       toast.success(skipDbInsert ? "Изменения сохранены" : "Фотоотчет отправлен");
       reset();
       onOpenChange(false);

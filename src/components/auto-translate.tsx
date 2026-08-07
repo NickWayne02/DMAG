@@ -131,7 +131,9 @@ export function AutoTranslate({ children }: { children: ReactNode }) {
             if (cancelled) return;
             const items = allMissing.slice(i, i + 80);
             const res = await translateBatch({
-              items, sourceLang: "ru", targetLang: lang
+              items,
+              sourceLang: "ru",
+              targetLang: lang,
             });
             if (cancelled) return;
             res.translations.forEach((tx, j) => {

@@ -58,7 +58,7 @@ export function AdminEditableCalendarDialog({
   employeeName: string;
 }) {
   const { t, lang } = useLanguage();
-  
+
   const [shifts, setShifts] = useState<ShiftRow[]>([]);
   const [sites, setSites] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,9 +87,11 @@ export function AdminEditableCalendarDialog({
       const [shiftsRes, sitesRes] = await Promise.all([
         supabase
           .from("shifts")
-          .select("id, user_id, site_name, started_at, ended_at, lunch_total_ms, start_city, end_city")
+          .select(
+            "id, user_id, site_name, started_at, ended_at, lunch_total_ms, start_city, end_city",
+          )
           .eq("user_id", employeeId),
-        supabase.from("sites").select("id, name")
+        supabase.from("sites").select("id, name"),
       ]);
       if (shiftsRes.data) setShifts(shiftsRes.data);
       if (sitesRes.data) setSites(sitesRes.data);
@@ -117,30 +119,34 @@ export function AdminEditableCalendarDialog({
   }, [lang, cursor]);
 
   const rowsByDate = useMemo(() => {
-    const map = new Map<string, Array<{
-      site: string;
-      workStart: string;
-      workEnd: string;
-      workedHM: string;
-      row: ShiftRow;
-    }>>();
-    
+    const map = new Map<
+      string,
+      Array<{
+        site: string;
+        workStart: string;
+        workEnd: string;
+        workedHM: string;
+        row: ShiftRow;
+      }>
+    >();
+
     shifts.forEach((s) => {
       const startD = new Date(s.started_at);
       const dateKey = `${String(startD.getDate()).padStart(2, "0")}.${String(startD.getMonth() + 1).padStart(2, "0")}.${startD.getFullYear()}`;
-      
+
       const arr = map.get(dateKey) ?? [];
       const endMs = s.ended_at ? new Date(s.ended_at).getTime() : Date.now();
       const ms = Math.max(0, endMs - startD.getTime() - (s.lunch_total_ms || 0));
-      
-      const fmtTime = (d: Date) => d.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" });
-      
+
+      const fmtTime = (d: Date) =>
+        d.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" });
+
       arr.push({
         site: s.site_name || "Не указан",
         workStart: fmtTime(startD),
         workEnd: s.ended_at ? fmtTime(new Date(s.ended_at)) : "...",
         workedHM: `${Math.floor(ms / 3600000)}ч ${String(Math.floor((ms % 3600000) / 60000)).padStart(2, "0")}м`,
-        row: s
+        row: s,
       });
       map.set(dateKey, arr);
     });
@@ -163,7 +169,7 @@ export function AdminEditableCalendarDialog({
     const pad = (n: number) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
-  
+
   function fromLocalInput(s: string) {
     if (!s) return null;
     const d = new Date(s);
@@ -188,7 +194,7 @@ export function AdminEditableCalendarDialog({
   function onDayClick(day: number) {
     const dateKey = `${String(day).padStart(2, "0")}.${String(cursor.getMonth() + 1).padStart(2, "0")}.${cursor.getFullYear()}`;
     const entries = rowsByDate.get(dateKey) || [];
-    
+
     if (entries.length === 0) {
       const d = new Date(cursor.getFullYear(), cursor.getMonth(), day, 9, 0);
       setShiftEditList([]);
@@ -209,7 +215,7 @@ export function AdminEditableCalendarDialog({
       setShiftEditIndex(0);
       loadShiftIntoEdit(entries[0].row);
     } else {
-      const list = entries.map(e => ({
+      const list = entries.map((e) => ({
         id: e.row.id,
         user_id: e.row.user_id,
         user_name: employeeName,
@@ -237,7 +243,7 @@ export function AdminEditableCalendarDialog({
     const ended = fromLocalInput(shiftEdit.ended_at);
     const lunch_total_ms = Math.max(0, shiftEdit.lunch_minutes) * 60000;
     const status = ended ? "finished" : "working";
-    
+
     setShiftSaving(true);
     try {
       if (shiftEdit.id) {
@@ -307,27 +313,43 @@ export function AdminEditableCalendarDialog({
           </DialogHeader>
 
           <div className="flex items-center justify-between mb-3">
-            <Button variant="outline" size="sm" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
+            >
               <ChevronLeft className="h-4 w-4 mr-1" /> Пред.
             </Button>
             <div className="font-semibold">
               {monthName} {cursor.getFullYear()}
             </div>
-            <Button variant="outline" size="sm" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
+            >
               След. <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
 
           {loading ? (
-            <div className="py-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>
+            <div className="py-12 flex justify-center">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
           ) : (
             <>
               <div className="grid grid-cols-7 gap-2 text-sm font-semibold text-muted-foreground text-center mb-2">
-                {WEEKDAYS.map((w) => <div key={w} className="py-1">{w}</div>)}
+                {WEEKDAYS.map((w) => (
+                  <div key={w} className="py-1">
+                    {w}
+                  </div>
+                ))}
               </div>
               <div className="grid grid-cols-7 gap-2">
                 {grid.map((c) => {
-                  const dateKey = c.day ? `${String(c.day).padStart(2, "0")}.${String(cursor.getMonth() + 1).padStart(2, "0")}.${cursor.getFullYear()}` : "";
+                  const dateKey = c.day
+                    ? `${String(c.day).padStart(2, "0")}.${String(cursor.getMonth() + 1).padStart(2, "0")}.${cursor.getFullYear()}`
+                    : "";
                   const entries = c.day ? rowsByDate.get(dateKey) : undefined;
 
                   return (
@@ -348,15 +370,26 @@ export function AdminEditableCalendarDialog({
                           {entries && (
                             <div className="mt-auto space-y-0.5">
                               {entries.slice(0, 2).map((e, idx) => (
-                                <div key={idx} className="tabular-nums text-[10px] text-primary truncate" title={e.site}>
+                                <div
+                                  key={idx}
+                                  className="tabular-nums text-[10px] text-primary truncate"
+                                  title={e.site}
+                                >
                                   {e.workStart}–{e.workEnd}
                                 </div>
                               ))}
-                              {entries.length > 2 && <div className="text-[10px] text-muted-foreground">+{entries.length - 2}</div>}
+                              {entries.length > 2 && (
+                                <div className="text-[10px] text-muted-foreground">
+                                  +{entries.length - 2}
+                                </div>
+                              )}
                               <div className="text-[10px] font-semibold text-foreground mt-1">
                                 {(() => {
                                   const totalMin = entries.reduce((acc, e) => {
-                                    const [h, m] = e.workedHM.replace("ч", "").replace("м", "").split(" ");
+                                    const [h, m] = e.workedHM
+                                      .replace("ч", "")
+                                      .replace("м", "")
+                                      .split(" ");
                                     return acc + (parseInt(h || "0") * 60 + parseInt(m || "0"));
                                   }, 0);
                                   return `${Math.floor(totalMin / 60)}ч ${String(totalMin % 60).padStart(2, "0")}м`;
@@ -365,7 +398,9 @@ export function AdminEditableCalendarDialog({
                             </div>
                           )}
                           {!entries && (
-                            <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 hover:opacity-100 text-center">+ Смена</div>
+                            <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 hover:opacity-100 text-center">
+                              + Смена
+                            </div>
                           )}
                         </div>
                       )}
@@ -386,27 +421,38 @@ export function AdminEditableCalendarDialog({
               {shiftEditList.length > 1 && (
                 <div className="flex items-center space-x-2 mr-6 text-sm">
                   <Button
-                    variant="outline" size="icon" className="h-6 w-6"
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6"
                     onClick={() => {
-                      const n = shiftEditIndex - 1 < 0 ? shiftEditList.length - 1 : shiftEditIndex - 1;
+                      const n =
+                        shiftEditIndex - 1 < 0 ? shiftEditList.length - 1 : shiftEditIndex - 1;
                       setShiftEditIndex(n);
                       setShiftEdit(shiftEditList[n]);
                     }}
-                  ><ChevronLeft className="h-4 w-4" /></Button>
-                  <span className="text-muted-foreground">{shiftEditIndex + 1} / {shiftEditList.length}</span>
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-muted-foreground">
+                    {shiftEditIndex + 1} / {shiftEditList.length}
+                  </span>
                   <Button
-                    variant="outline" size="icon" className="h-6 w-6"
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6"
                     onClick={() => {
                       const n = (shiftEditIndex + 1) % shiftEditList.length;
                       setShiftEditIndex(n);
                       setShiftEdit(shiftEditList[n]);
                     }}
-                  ><ChevronRight className="h-4 w-4" /></Button>
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
               )}
             </div>
           </DialogHeader>
-          
+
           {shiftEdit && (
             <div className="space-y-3">
               <div>
@@ -414,42 +460,70 @@ export function AdminEditableCalendarDialog({
                 <Select
                   value={shiftEdit.site_name || "__none__"}
                   onValueChange={(v) => {
-                    if (v === "__none__") setShiftEdit({ ...shiftEdit, site_id: null, site_name: null });
+                    if (v === "__none__")
+                      setShiftEdit({ ...shiftEdit, site_id: null, site_name: null });
                     else {
                       const s = sites.find((x) => x.name === v);
                       setShiftEdit({ ...shiftEdit, site_id: s?.id ?? null, site_name: v });
                     }
                   }}
                 >
-                  <SelectTrigger><SelectValue placeholder="— Без объекта —" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="— Без объекта —" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">— Без объекта —</SelectItem>
-                    {sites.map((s) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+                    {sites.map((s) => (
+                      <SelectItem key={s.id} value={s.name}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Начало</Label>
-                  <Input type="datetime-local" value={shiftEdit.started_at} onChange={(ev) => setShiftEdit({ ...shiftEdit, started_at: ev.target.value })} />
+                  <Input
+                    type="datetime-local"
+                    value={shiftEdit.started_at}
+                    onChange={(ev) => setShiftEdit({ ...shiftEdit, started_at: ev.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>Конец</Label>
-                  <Input type="datetime-local" value={shiftEdit.ended_at} onChange={(ev) => setShiftEdit({ ...shiftEdit, ended_at: ev.target.value })} />
+                  <Input
+                    type="datetime-local"
+                    value={shiftEdit.ended_at}
+                    onChange={(ev) => setShiftEdit({ ...shiftEdit, ended_at: ev.target.value })}
+                  />
                 </div>
               </div>
               <div>
                 <Label>Пауза (минут)</Label>
-                <Input type="number" min={0} value={shiftEdit.lunch_minutes} onChange={(ev) => setShiftEdit({ ...shiftEdit, lunch_minutes: Number(ev.target.value) || 0 })} />
+                <Input
+                  type="number"
+                  min={0}
+                  value={shiftEdit.lunch_minutes}
+                  onChange={(ev) =>
+                    setShiftEdit({ ...shiftEdit, lunch_minutes: Number(ev.target.value) || 0 })
+                  }
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>GPS город (старт)</Label>
-                  <Input value={shiftEdit.start_city} onChange={(ev) => setShiftEdit({ ...shiftEdit, start_city: ev.target.value })} />
+                  <Input
+                    value={shiftEdit.start_city}
+                    onChange={(ev) => setShiftEdit({ ...shiftEdit, start_city: ev.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>GPS город (конец)</Label>
-                  <Input value={shiftEdit.end_city} onChange={(ev) => setShiftEdit({ ...shiftEdit, end_city: ev.target.value })} />
+                  <Input
+                    value={shiftEdit.end_city}
+                    onChange={(ev) => setShiftEdit({ ...shiftEdit, end_city: ev.target.value })}
+                  />
                 </div>
               </div>
             </div>
@@ -462,7 +536,9 @@ export function AdminEditableCalendarDialog({
               </Button>
             )}
             <div className="flex-1" />
-            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>Отмена</Button>
+            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>
+              Отмена
+            </Button>
             <Button onClick={saveShift} disabled={shiftSaving}>
               {shiftSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Сохранить

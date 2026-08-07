@@ -31,7 +31,7 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
     channel.on("presence", { event: "sync" }, () => {
       const state = channel.presenceState();
       setOnlineUsers(Object.keys(state));
-      
+
       const pMap: Record<string, any> = {};
       for (const [key, presences] of Object.entries(state)) {
         if (presences.length > 0) {

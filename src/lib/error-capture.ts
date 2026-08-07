@@ -22,10 +22,10 @@ console.error = function (...args) {
     // If it looks like an Error object, record it
     if (args[0] instanceof Error) {
       record(args[0]);
-    } else if (typeof args[0] === 'string' && args[0].includes('h3')) {
-      record(new Error(args.join(' ')));
+    } else if (typeof args[0] === "string" && args[0].includes("h3")) {
+      record(new Error(args.join(" ")));
     } else {
-      record(new Error(args.join(' ')));
+      record(new Error(args.join(" ")));
     }
   }
   originalConsoleError.apply(console, args);

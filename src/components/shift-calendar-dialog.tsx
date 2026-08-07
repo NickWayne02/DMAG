@@ -93,12 +93,16 @@ export function ShiftCalendarDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t("admin.personnel.calTooltip")} · {employeeName}</DialogTitle>
+          <DialogTitle>
+            {t("admin.personnel.calTooltip")} · {employeeName}
+          </DialogTitle>
           <DialogDescription>
             {t("admin.personnel.workedMonth")}{" "}
             <b>
-              {Math.floor(monthWorkedMs / 3600000)}{t("time.hours.short")}{" "}
-              {String(Math.floor((monthWorkedMs % 3600000) / 60000)).padStart(2, "0")}{t("time.minutes.short")}
+              {Math.floor(monthWorkedMs / 3600000)}
+              {t("time.hours.short")}{" "}
+              {String(Math.floor((monthWorkedMs % 3600000) / 60000)).padStart(2, "0")}
+              {t("time.minutes.short")}
             </b>
           </DialogDescription>
         </DialogHeader>
@@ -160,7 +164,9 @@ export function ShiftCalendarDialog({
                           </div>
                         ))}
                         <div className="text-[10px] font-semibold text-foreground">
-                          {Math.floor(totalMin / 60)}{t("time.hours.short")} {String(totalMin % 60).padStart(2, "0")}{t("time.minutes.short")}
+                          {Math.floor(totalMin / 60)}
+                          {t("time.hours.short")} {String(totalMin % 60).padStart(2, "0")}
+                          {t("time.minutes.short")}
                         </div>
                       </div>
                     )}

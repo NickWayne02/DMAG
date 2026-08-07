@@ -8,19 +8,22 @@ export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
-    
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("is_active")
       .eq("id", data.user.id)
       .single();
-      
+
     if (profile && profile.is_active === false) {
       await supabase.auth.signOut();
       setTimeout(() => {
-        toast.error("Ваш аккаунт находится на рассмотрении. Ожидайте подтверждения от администратора.", {
-          duration: 10000,
-        });
+        toast.error(
+          "Ваш аккаунт находится на рассмотрении. Ожидайте подтверждения от администратора.",
+          {
+            duration: 10000,
+          },
+        );
       }, 500);
       throw redirect({ to: "/auth" });
     }

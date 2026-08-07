@@ -209,9 +209,14 @@ export function EmployeeProvider({
 
   useEffect(() => {
     if (user) {
-      supabase.from("profiles").select("avatar_url").eq("id", user.id).single().then(({ data }) => {
-        if (data) setAvatarUrl(data.avatar_url);
-      });
+      supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setAvatarUrl(data.avatar_url);
+        });
     } else {
       setAvatarUrl(null);
     }
@@ -220,7 +225,10 @@ export function EmployeeProvider({
   const handleAvatarSelect = async (publicUrl: string, path: string) => {
     if (!user) return;
     setAvatarUrl(publicUrl);
-    const { error } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("id", user.id);
     if (!error) {
       toast.success("Аватар обновлен");
     } else {
@@ -228,7 +236,7 @@ export function EmployeeProvider({
     }
     setAvatarBrowserOpen(false);
   };
-  
+
   const [selectedSite, setSelectedSite] = useState<Site | null>(() => {
     if (typeof window === "undefined") return null;
     try {

@@ -235,7 +235,7 @@ export function AdminDashboard({
   useEffect(() => {
     localStorage.setItem("adminActiveTab", activeTab);
   }, [activeTab]);
-  
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
@@ -263,21 +263,33 @@ export function AdminDashboard({
   const [reportsCrit, setReportsCrit] = useState("all");
   const [reportsPeriod, setReportsPeriod] = useState("all");
 
-  const reportsFiltersRef = useRef({ search: "", site: "all", crit: "all", period: "all", paginated: false });
+  const reportsFiltersRef = useRef({
+    search: "",
+    site: "all",
+    crit: "all",
+    period: "all",
+    paginated: false,
+  });
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    reportsFiltersRef.current = { search: reportsSearch, site: reportsSite, crit: reportsCrit, period: reportsPeriod, paginated: reports.length > 20 };
-    
+    reportsFiltersRef.current = {
+      search: reportsSearch,
+      site: reportsSite,
+      crit: reportsCrit,
+      period: reportsPeriod,
+      paginated: reports.length > 20,
+    };
+
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    
+
     const timeoutId = setTimeout(() => {
       loadFilteredReports(true);
     }, 400);
-    
+
     return () => clearTimeout(timeoutId);
   }, [reportsSearch, reportsSite, reportsCrit, reportsPeriod, reports.length]);
 
@@ -317,7 +329,7 @@ export function AdminDashboard({
         } else if (pData.ip === "Unknown IP") {
           meta = "Локация недоступна";
         }
-        
+
         simLogs.push({
           id: `session-${e.id}`,
           ts: pData.online_at || new Date().toISOString(),
@@ -487,7 +499,9 @@ export function AdminDashboard({
       { data: reportData },
       { data: shiftData },
     ] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, phone, is_active, avatar_url, updated_at"),
+      supabase
+        .from("profiles")
+        .select("id, full_name, email, phone, is_active, avatar_url, updated_at"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")
@@ -665,7 +679,9 @@ export function AdminDashboard({
       criticality: r.criticality as Crit,
       created_at: r.created_at,
       site_name: siteNameMap.get(r.site_id) ?? "—",
-      thumb: r.photo_url ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl : null,
+      thumb: r.photo_url
+        ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
+        : null,
       photo_url: r.photo_url || null,
     }));
     if (devMode && repRows.length === 0) {
@@ -693,9 +709,10 @@ export function AdminDashboard({
 
     setEmployees(emps);
     setSites(siteRows);
-    
+
     const f = reportsFiltersRef.current;
-    const hasFilters = f.search !== "" || f.site !== "all" || f.crit !== "all" || f.period !== "all";
+    const hasFilters =
+      f.search !== "" || f.site !== "all" || f.crit !== "all" || f.period !== "all";
     if (!hasFilters && !f.paginated) {
       setReports(repRows);
     }
@@ -733,15 +750,12 @@ export function AdminDashboard({
 
   async function deletePhotoReport(id: string, photo_url: string | null) {
     if (!confirm("Удалить фотоотчёт?")) return;
-    
+
     setReports((prev) => prev.filter((x) => x.id !== id));
-    
+
     const { error } = await supabase.from("photo_reports").delete().eq("id", id);
     if (!error && photo_url) {
-      await supabase
-        .from("chat_messages")
-        .delete()
-        .like("content", `%${photo_url}%`);
+      await supabase.from("chat_messages").delete().like("content", `%${photo_url}%`);
     }
 
     if (error) {
@@ -783,14 +797,16 @@ export function AdminDashboard({
 
       if (data && data.length > 0) {
         const siteNameMap = new Map(sites.map((s) => [s.id, s.name]));
-        
+
         const newRepRows = data.map((r: any) => ({
           id: r.id,
           description: r.description,
           criticality: r.criticality,
           created_at: r.created_at,
           site_name: siteNameMap.get(r.site_id) ?? "—",
-          thumb: r.photo_url ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl : null,
+          thumb: r.photo_url
+            ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
+            : null,
           photo_url: r.photo_url || null,
         }));
 
@@ -812,7 +828,7 @@ export function AdminDashboard({
   useEffect(() => {
     loadAll();
     const id = setInterval(loadAll, 2000); // 2 seconds for near-instant UI updates without manual SQL setup
-    
+
     const sub = supabase
       .channel("admin-dashboard-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "shifts" }, () => {
@@ -1276,7 +1292,7 @@ export function AdminDashboard({
             const endLunchMs = new Date(interval.end).getTime();
             const endShiftMs = s.ended_at ? new Date(s.ended_at).getTime() : 0;
             const isAutoClosed = s.ended_at && Math.abs(endShiftMs - endLunchMs) < 2000;
-            
+
             if (!isAutoClosed) {
               list.push({
                 id: `shift-lunch-end-${s.id}-${i}`,
@@ -1291,7 +1307,7 @@ export function AdminDashboard({
           }
         });
       }
-      
+
       // Also render the active lunch start event if they are currently on a break
       if (s.lunch_started_at) {
         list.push({
@@ -1481,15 +1497,24 @@ export function AdminDashboard({
                   <div className="space-y-4">
                     {activities.map((act) => (
                       <div key={act.id} className="flex gap-4 items-start">
-                        <div className={`mt-0.5 shrink-0 h-9 w-9 rounded-full flex items-center justify-center ${act.color}`}>
+                        <div
+                          className={`mt-0.5 shrink-0 h-9 w-9 rounded-full flex items-center justify-center ${act.color}`}
+                        >
                           {act.icon}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground">{act.title}</p>
-                          <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{act.desc}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                            {act.desc}
+                          </p>
                         </div>
                         <div className="text-xs text-muted-foreground whitespace-nowrap pt-0.5 tabular-nums">
-                          {new Date(act.ts).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          {new Date(act.ts).toLocaleString("ru-RU", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </div>
                       </div>
                     ))}
@@ -2151,7 +2176,10 @@ export function AdminDashboard({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {reports.map((r) => {
                         return (
-                          <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3 relative group">
+                          <div
+                            key={r.id}
+                            className="flex gap-3 rounded-2xl border bg-card p-3 relative group"
+                          >
                             <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
                               {r.thumb ? (
                                 <img src={r.thumb} alt="" className="h-full w-full object-cover" />
@@ -2233,8 +2261,7 @@ export function AdminDashboard({
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold truncate">{logs[0].action}</p>
                             <span className="text-[11px] font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                              В сети
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>В сети
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 truncate">
@@ -2286,8 +2313,8 @@ export function AdminDashboard({
                                 <p className="text-xs text-muted-foreground truncate">{l.meta}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-[11px] font-medium text-green-500 flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>
-                                    В сети
+                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>В
+                                    сети
                                   </span>
                                   <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
                                   <p className="text-[11px] font-medium truncate">{l.user}</p>
@@ -2373,8 +2400,8 @@ export function AdminDashboard({
                         .slice(adminPage * PAGE_SIZE, (adminPage + 1) * PAGE_SIZE)
                         .map((e) => {
                           const isOnline = onlineUsers.includes(e.id);
-                          const lastLogin = isOnline 
-                            ? "В сети" 
+                          const lastLogin = isOnline
+                            ? "В сети"
                             : e.updated_at
                               ? new Date(e.updated_at).toLocaleString("ru-RU", {
                                   day: "numeric",
@@ -2588,10 +2615,7 @@ export function AdminDashboard({
                               onClick={async () => {
                                 setUserBusy(true);
                                 try {
-                                  await changeRole(
-                                    e,
-                                    e.role === "admin" ? "super_admin" : "admin"
-                                  );
+                                  await changeRole(e, e.role === "admin" ? "super_admin" : "admin");
                                 } finally {
                                   setUserBusy(false);
                                 }
@@ -2612,7 +2636,7 @@ export function AdminDashboard({
                                   setUserBusy(true);
                                   try {
                                     await adminToggleActiveFn({
-                                      data: { user_id: e.id, is_active: true }
+                                      data: { user_id: e.id, is_active: true },
                                     });
                                     toast.success("Аккаунт включен");
                                     loadAll();

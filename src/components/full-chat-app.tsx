@@ -73,7 +73,9 @@ export function FullChatApp({
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [mutedChannels, setMutedChannels] = useState<string[]>([]);
   const [reportOpen, setReportOpen] = useState(false);
-  const [editingPhotoReportMessage, setEditingPhotoReportMessage] = useState<DbMessage | null>(null);
+  const [editingPhotoReportMessage, setEditingPhotoReportMessage] = useState<DbMessage | null>(
+    null,
+  );
 
   const editingPhotoReportInitialData = useMemo(() => {
     if (!editingPhotoReportMessage) return null;
@@ -132,9 +134,14 @@ export function FullChatApp({
     }
   }
 
-  async function handlePhotoReportSuccess(data: { photoPath: string | null; description: string; criticality: string }) {
+  async function handlePhotoReportSuccess(data: {
+    photoPath: string | null;
+    description: string;
+    criticality: string;
+  }) {
     if (!user) return;
-    const authorName = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
+    const authorName =
+      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
     const text = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;
     const { error } = await supabase.from("chat_messages").insert({
       channel_type: activeChannelType,
@@ -417,14 +424,14 @@ export function FullChatApp({
       <PhotoReportDialog
         open={reportOpen}
         onOpenChange={setReportOpen}
-        site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
+        site={sites.find((s) => s.id === activeChannelId) || sites[0] || null}
         onSuccess={handlePhotoReportSuccess}
       />
 
       <PhotoReportDialog
         open={!!editingPhotoReportMessage}
         onOpenChange={(o) => !o && setEditingPhotoReportMessage(null)}
-        site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
+        site={sites.find((s) => s.id === activeChannelId) || sites[0] || null}
         skipDbInsert={true}
         initialData={editingPhotoReportInitialData}
         onSuccess={async (data) => {
@@ -435,18 +442,22 @@ export function FullChatApp({
             .update({ content: newContent, source_lang: lang })
             .eq("id", editingPhotoReportMessage.id)
             .select();
-          
+
           if (error) {
             throw error;
           }
           if (!updatedData || updatedData.length === 0) {
-            throw new Error("Не удалось применить изменения: возможно, нет прав на редактирование.");
+            throw new Error(
+              "Не удалось применить изменения: возможно, нет прав на редактирование.",
+            );
           }
-          
-          document.dispatchEvent(new CustomEvent("localMessageUpdate", {
-            detail: { id: editingPhotoReportMessage.id, content: newContent }
-          }));
-          
+
+          document.dispatchEvent(
+            new CustomEvent("localMessageUpdate", {
+              detail: { id: editingPhotoReportMessage.id, content: newContent },
+            }),
+          );
+
           setEditingPhotoReportMessage(null);
         }}
       />
@@ -548,7 +559,9 @@ function ChannelContent({
 
   useEffect(() => {
     const handleLocalUpdate = (e: any) => {
-      setMessages((prev) => prev.map((x) => (x.id === e.detail.id ? { ...x, content: e.detail.content } : x)));
+      setMessages((prev) =>
+        prev.map((x) => (x.id === e.detail.id ? { ...x, content: e.detail.content } : x)),
+      );
     };
     document.addEventListener("localMessageUpdate", handleLocalUpdate);
 
@@ -639,7 +652,7 @@ function ChannelContent({
         .from("chat_messages")
         .update({ content: text, source_lang: lang })
         .eq("id", editingMessage.id);
-      
+
       setSending(false);
       if (error) {
         toast.error("Ошибка при редактировании");
@@ -672,14 +685,14 @@ function ChannelContent({
 
   async function deleteMessage(id: string) {
     if (!confirm("Удалить сообщение?")) return;
-    
+
     const msg = messages.find((m) => m.id === id);
 
     // Optimistic delete
     setMessages((prev) => prev.filter((x) => x.id !== id));
-    
+
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
-    
+
     if (!error && msg?.content.startsWith("[PHOTO_REPORT] ")) {
       const parts = msg.content.replace("[PHOTO_REPORT] ", "").split(" | ");
       const photoPath = parts[0];
@@ -735,7 +748,13 @@ function ChannelContent({
                 <Pencil className="h-3.5 w-3.5 shrink-0" />
                 Редактирование сообщения
               </span>
-              <button onClick={() => { setEditingMessage(null); setInput(""); }} className="p-1 hover:bg-black/5 rounded-full transition-colors">
+              <button
+                onClick={() => {
+                  setEditingMessage(null);
+                  setInput("");
+                }}
+                className="p-1 hover:bg-black/5 rounded-full transition-colors"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -765,7 +784,11 @@ function ChannelContent({
               disabled={!input.trim() || sending}
               onClick={send}
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -859,24 +882,38 @@ function MessageBubble({
           {!isMine && (
             <div className="text-[11px] font-semibold opacity-70 mb-0.5">{m.author_name}</div>
           )}
-          
+
           {isPhotoReport && photoPath && (
             <>
-              <div 
+              <div
                 className="mb-2 rounded-lg overflow-hidden border bg-black/5 cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => setImagePreviewOpen(true)}
               >
-                <img src={supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl} alt="report" className="w-full h-auto object-cover max-h-64" />
+                <img
+                  src={
+                    supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl
+                  }
+                  alt="report"
+                  className="w-full h-auto object-cover max-h-64"
+                />
               </div>
               <Dialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
                 <DialogContent className="max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center">
                   <DialogTitle className="sr-only">Предпросмотр фото</DialogTitle>
-                  <img src={supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl} alt="report" className="max-w-full max-h-[85vh] object-contain rounded-xl" />
+                  <img
+                    src={
+                      supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl
+                    }
+                    alt="report"
+                    className="max-w-full max-h-[85vh] object-contain rounded-xl"
+                  />
                 </DialogContent>
               </Dialog>
             </>
           )}
-          <div className="text-sm whitespace-pre-wrap wrap-break-word leading-relaxed">{description}</div>
+          <div className="text-sm whitespace-pre-wrap wrap-break-word leading-relaxed">
+            {description}
+          </div>
 
           {needsTranslate && (
             <div

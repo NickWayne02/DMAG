@@ -247,8 +247,8 @@ export function EmployeeDesktopView() {
         <div className="max-w-7xl w-full mx-auto px-8 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              <div 
-                className="cursor-pointer relative group" 
+              <div
+                className="cursor-pointer relative group"
                 onClick={openAvatarBrowser}
                 title="Сменить фото"
               >
@@ -359,8 +359,6 @@ export function EmployeeDesktopView() {
               </span>
               <ChevronRight className="h-5 w-5 ml-auto" style={{ color: "var(--neon-text-dim)" }} />
             </button>
-
-
 
             <button
               type="button"

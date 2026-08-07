@@ -15,6 +15,7 @@ export async function reverseGeocodeCity(
 }
 
 import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
 
 export async function getCurrentPosition(
   options?: PositionOptions,
@@ -22,15 +23,23 @@ export async function getCurrentPosition(
   try {
     if (typeof window === "undefined") return null;
     const { Geolocation } = await import("@capacitor/geolocation");
-    const permissions = await Geolocation.checkPermissions();
-    if (permissions.location !== "granted") {
-      const request = await Geolocation.requestPermissions();
-      if (request.location !== "granted") {
-        toast.error(
-          "GPS Permission Denied. Please enable location permissions for this app in Settings.",
-          { duration: 5000 },
-        );
-        return null;
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const permissions = await Geolocation.checkPermissions();
+        if (permissions.location !== "granted") {
+          const request = await Geolocation.requestPermissions();
+          if (request.location !== "granted") {
+            toast.error(
+              "GPS Permission Denied. Please enable location permissions for this app in Settings.",
+              { duration: 5000 },
+            );
+            return null;
+          }
+        }
+      } catch (err: any) {
+        // Fallback if permission check fails on some Android devices
+        console.warn("Permission check failed:", err);
       }
     }
 

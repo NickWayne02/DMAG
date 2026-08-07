@@ -3291,28 +3291,12 @@ export function AdminDashboard({
                   className="flex min-h-20 w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   value={editingReport.description}
                   onChange={(e) => setEditingReport({ ...editingReport, description: e.target.value })}
+                  autoFocus
+                  onFocus={(e) => {
+                    const len = e.target.value.length;
+                    e.target.setSelectionRange(len, len);
+                  }}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label>Уровень важности</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["info", "important", "urgent"] as Crit[]).map((c) => (
-                    <div
-                      key={c}
-                      onClick={() => setEditingReport({ ...editingReport, criticality: c })}
-                      className={`flex flex-col items-center justify-center p-3 rounded-2xl cursor-pointer transition border-2 ${
-                        editingReport.criticality === c
-                          ? `border-${CRIT_META[c].color.split("-")[1]}-500 bg-${CRIT_META[c].color.split("-")[1]}-500/10`
-                          : "border-transparent bg-muted hover:bg-muted/80"
-                      }`}
-                    >
-                      {c === "info" ? <FileText className="h-5 w-5 mb-1" /> : c === "important" ? <FileBarChart className="h-5 w-5 mb-1" /> : <ShieldCheck className="h-5 w-5 mb-1" />}
-                      <span className="text-xs font-medium text-center leading-tight">
-                        {t(CRIT_META[c].labelKey)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           )}

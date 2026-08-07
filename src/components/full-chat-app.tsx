@@ -676,6 +676,13 @@ function ChannelContent({
             <div className="flex items-center justify-between bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm mb-1">
               <span className="flex items-center gap-2 truncate font-medium">
                 <Pencil className="h-3.5 w-3.5 shrink-0" />
+                {editingMessage.content.startsWith("[PHOTO_REPORT] ") && (
+                  <img
+                    src={supabase.storage.from("photo-reports").getPublicUrl(editingMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ")[0]).data.publicUrl}
+                    className="h-6 w-8 rounded object-cover shadow-sm"
+                    alt="thumbnail"
+                  />
+                )}
                 Редактирование сообщения
               </span>
               <button onClick={() => { setEditingMessage(null); setInput(""); }} className="p-1 hover:bg-black/5 rounded-full transition-colors">

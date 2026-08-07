@@ -60,12 +60,36 @@ export function SiteSelectorDialog({
       return;
     }
     const city = await reverseGeocodeCity(coords);
-    setForm((f) => ({
-      ...f,
-      name: city || f.name,
-      address: `GPS: ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`,
-    }));
+    
+    const name = city || "Новый объект";
+    const address = `GPS: ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`;
+
+    if (!user) return;
+    setBusy(true);
+    const { data, error } = await supabase
+      .from("sites")
+      .insert({
+        name,
+        address,
+        created_by: user.id,
+      })
+      .select("id,name,address,customer,comment")
+      .single();
+    
+    setBusy(false);
     setGpsBusy(false);
+
+    if (error || !data) {
+      toast.error(tr("siteDlg.errCreate"));
+      return;
+    }
+
+    toast.success(tr("siteDlg.okCreate"));
+    setForm({ name: "", address: "", customer: "", comment: "" });
+    setCreating(false);
+    setSites((prev) => [data, ...prev]);
+    onSelect(data);
+    onOpenChange(false);
   }
 
   useEffect(() => {
@@ -176,26 +200,7 @@ export function SiteSelectorDialog({
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="site-customer">{tr("siteDlg.fCustomer")}</Label>
-              <Input
-                id="site-customer"
-                placeholder={tr("siteDlg.phCustomer")}
-                value={form.customer}
-                onChange={(e) => setForm({ ...form, customer: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="site-comment">{tr("siteDlg.fComment")}</Label>
-              <Textarea
-                id="site-comment"
-                placeholder={tr("siteDlg.phComment")}
-                rows={3}
-                value={form.comment}
-                onChange={(e) => setForm({ ...form, comment: e.target.value })}
-              />
-            </div>
-            <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2">
+            <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2 pt-4">
               <Button
                 variant="outline"
                 className="h-11 rounded-xl"

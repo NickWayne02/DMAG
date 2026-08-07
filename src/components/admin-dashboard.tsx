@@ -349,7 +349,7 @@ export function AdminDashboard({
   useEffect(() => {
     if (activeTab !== "calendar" || calEmpId === "__none__") return;
     async function loadCal() {
-      setCalLoading(true);
+      if (calShifts.length === 0) setCalLoading(true);
       const start = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1, 0, 0, 0, 0);
       const end = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0, 23, 59, 59, 999);
       const { data } = await supabase
@@ -474,8 +474,8 @@ export function AdminDashboard({
   }
 
   async function loadAll() {
-    setLoading(true);
-    setCalRefresh((r) => r + 1);
+    // Background polling should not set loading=true to prevent UI flickering
+    // Calendar is refreshed via postgres_changes on shifts instead of polling
 
     // Window for "active today" shifts: from local midnight
     const sinceMidnight = new Date();
@@ -818,6 +818,7 @@ export function AdminDashboard({
       .channel("admin-dashboard-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "shifts" }, () => {
         loadAll();
+        setCalRefresh((r) => r + 1);
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "photo_reports" }, () => {
         loadAll();

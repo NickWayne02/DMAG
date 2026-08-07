@@ -59,7 +59,7 @@ export function StorageBrowserDialog({
       if (error) throw error;
       setFiles(
         (data as { id: string | null; name: string }[])?.filter(
-          (f) => f.name !== ".emptyFolderPlaceholder",
+          (f) => f.name !== ".emptyFolderPlaceholder" && f.id !== null
         ) || [],
       );
     } catch (e) {

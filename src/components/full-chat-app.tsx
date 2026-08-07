@@ -136,6 +136,31 @@ export function FullChatApp({
     }
   }
 
+  async function handleDeleteChat(chatId: string) {
+    if (!user) return;
+    
+    // Optimistic update
+    setDmMessages((prev) => prev.filter((m) => m.channel_id !== chatId));
+    
+    if (activeChannelType === "direct" && activeChannelId === chatId) {
+      setActiveChannelType("general");
+      setActiveChannelId("general");
+    }
+
+    const { error } = await supabase
+      .from("chat_messages")
+      .delete()
+      .eq("channel_type", "direct")
+      .eq("channel_id", chatId);
+
+    if (error) {
+      toast.error("Ошибка при удалении чата");
+      console.error(error);
+    } else {
+      toast.success("Чат удален");
+    }
+  }
+
   async function handlePhotoReportSuccess(data: {
     photoPath: string | null;
     description: string;
@@ -348,6 +373,10 @@ export function FullChatApp({
                     icon={<User className="h-4 w-4" />}
                     title={dm.name}
                     onClick={() => handleSelectChannel("direct", dm.id)}
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      handleDeleteChat(dm.id);
+                    }}
                   />
                 ))}
               </div>
@@ -529,25 +558,38 @@ function ChannelButton({
   icon,
   title,
   onClick,
+  onDelete,
 }: {
   active: boolean;
   icon: React.ReactNode;
   title: string;
   onClick: () => void;
+  onDelete?: (e: React.MouseEvent) => void;
 }) {
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors text-left",
-        active
-          ? "bg-primary text-primary-foreground font-medium shadow-sm"
-          : "hover:bg-muted text-foreground",
+    <div className="relative group flex items-center">
+      <button
+        onClick={onClick}
+        className={cn(
+          "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors text-left",
+          active
+            ? "bg-primary text-primary-foreground font-medium shadow-sm"
+            : "hover:bg-muted text-foreground",
+          onDelete ? "pr-10" : ""
+        )}
+      >
+        <div className={cn("shrink-0 opacity-80", active && "opacity-100")}>{icon}</div>
+        <span className="truncate flex-1">{title}</span>
+      </button>
+      {onDelete && (
+        <button
+          onClick={onDelete}
+          className="absolute right-2 p-1.5 rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
       )}
-    >
-      <div className={cn("shrink-0 opacity-80", active && "opacity-100")}>{icon}</div>
-      <span className="truncate flex-1">{title}</span>
-    </button>
+    </div>
   );
 }
 

@@ -673,10 +673,21 @@ function ChannelContent({
   async function deleteMessage(id: string) {
     if (!confirm("Удалить сообщение?")) return;
     
+    const msg = messages.find((m) => m.id === id);
+
     // Optimistic delete
     setMessages((prev) => prev.filter((x) => x.id !== id));
     
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
+    
+    if (!error && msg?.content.startsWith("[PHOTO_REPORT] ")) {
+      const parts = msg.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+      const photoPath = parts[0];
+      if (photoPath) {
+        await supabase.from("photo_reports").delete().eq("photo_url", photoPath);
+      }
+    }
+
     if (error) {
       toast.error("Ошибка при удалении");
     }

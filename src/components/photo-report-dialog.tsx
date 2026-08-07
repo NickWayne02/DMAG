@@ -354,9 +354,12 @@ export function PhotoReportDialog({
       />
 
       <Dialog open={fullScreenPreview} onOpenChange={setFullScreenPreview}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh] sm:h-screen sm:max-h-screen rounded-none sm:rounded-none">
+        <DialogContent 
+          className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh] sm:h-screen sm:max-h-screen rounded-none sm:rounded-none cursor-pointer"
+          onClick={() => setFullScreenPreview(false)}
+        >
           {previewUrl && (
-            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] sm:max-h-screen object-contain" />
+            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] sm:max-h-screen object-contain pointer-events-none" />
           )}
         </DialogContent>
       </Dialog>

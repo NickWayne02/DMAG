@@ -918,14 +918,17 @@ function MessageBubble({
                 />
               </div>
               <Dialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
-                <DialogContent className="max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center">
+                <DialogContent 
+                  className="max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center cursor-pointer"
+                  onClick={() => setImagePreviewOpen(false)}
+                >
                   <DialogTitle className="sr-only">Предпросмотр фото</DialogTitle>
                   <img
                     src={
                       supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl
                     }
                     alt="report"
-                    className="max-w-full max-h-[85vh] object-contain rounded-xl"
+                    className="max-w-full max-h-[85vh] object-contain rounded-xl pointer-events-none"
                   />
                 </DialogContent>
               </Dialog>
@@ -1153,9 +1156,12 @@ function ChatMediaDialog({
       </Dialog>
 
       <Dialog open={!!previewUrl} onOpenChange={(o) => { if (!o) setPreviewUrl(null); }}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh]">
+        <DialogContent 
+          className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh] cursor-pointer"
+          onClick={() => setPreviewUrl(null)}
+        >
           {previewUrl && (
-            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] object-contain" />
+            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] object-contain pointer-events-none" />
           )}
         </DialogContent>
       </Dialog>

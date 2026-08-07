@@ -109,6 +109,11 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.addEventListener('gesturestart', function (e) { e.preventDefault(); });`,
+          }}
+        />
       </head>
       <body>
         {children}

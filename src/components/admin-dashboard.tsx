@@ -1260,7 +1260,7 @@ export function AdminDashboard({
 
         // Fetch original photos for better quality
         const imagesData = await Promise.all(
-          reports.map(r => r.photo_url ? fetchImageData(r.photo_url) : Promise.resolve(null))
+          reports.map(r => r.thumb ? fetchImageData(r.thumb) : Promise.resolve(null))
         );
 
         const { jsPDF } = await import("jspdf");

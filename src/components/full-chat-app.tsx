@@ -16,6 +16,8 @@ import {
   MoreVertical,
   Plus,
   Camera,
+  Pencil,
+  X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -497,6 +499,7 @@ function ChannelContent({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editingMessage, setEditingMessage] = useState<DbMessage | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -537,6 +540,20 @@ function ChannelContent({
       .on(
         "postgres_changes",
         {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_messages",
+          filter: `channel_id=eq.${channelId}`,
+        },
+        (payload) => {
+          const m = payload.new as DbMessage;
+          if (m.channel_type !== channelType) return;
+          setMessages((prev) => prev.map((x) => (x.id === m.id ? m : x)));
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
           event: "DELETE",
           schema: "public",
           table: "chat_messages",
@@ -565,6 +582,33 @@ function ChannelContent({
     const text = input.trim();
     if (!text || !user || sending) return;
     setSending(true);
+
+    if (editingMessage) {
+      let newContent = text;
+      const isPhotoReport = editingMessage.content.startsWith("[PHOTO_REPORT] ");
+      if (isPhotoReport) {
+        const parts = editingMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+        if (parts.length >= 3) {
+          newContent = `[PHOTO_REPORT] ${parts[0]} | ${parts[1]} | ${text}`;
+        }
+      }
+
+      const { error } = await supabase
+        .from("chat_messages")
+        .update({ content: newContent, source_lang: lang })
+        .eq("id", editingMessage.id);
+      
+      setSending(false);
+      if (error) {
+        toast.error("Ошибка при редактировании");
+        console.error(error);
+        return;
+      }
+      setInput("");
+      setEditingMessage(null);
+      return;
+    }
+
     const authorName =
       (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
     const { error } = await supabase.from("chat_messages").insert({
@@ -612,38 +656,61 @@ function ChannelContent({
               key={m.id}
               m={m}
               onDelete={deleteMessage}
+              onEdit={(msg) => {
+                setEditingMessage(msg);
+                if (msg.content.startsWith("[PHOTO_REPORT] ")) {
+                  const parts = msg.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+                  setInput(parts.length >= 3 ? parts.slice(2).join(" | ") : msg.content);
+                } else {
+                  setInput(msg.content);
+                }
+              }}
               avatarUrl={profiles.find((p) => p.id === m.author_id)?.avatar_url || null}
             />
           ))
         )}
       </div>
       <div className="p-3 bg-card border-t shrink-0">
-        <div className="flex items-center gap-2 max-w-4xl mx-auto">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="rounded-full shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            onClick={() => onOpenReport?.()}
-            title={t("report.create")}
-          >
-            <Camera className="h-5 w-5" />
-          </Button>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder={t("chat.placeholder", { lang: langLabel(lang) })}
-            className="rounded-full bg-muted/50 border-transparent focus-visible:ring-1"
-            disabled={sending}
-          />
-          <Button
-            size="icon"
-            className="rounded-full shrink-0"
-            disabled={!input.trim() || sending}
-            onClick={send}
-          >
-            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+        <div className="flex flex-col gap-2 max-w-4xl mx-auto">
+          {editingMessage && (
+            <div className="flex items-center justify-between bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm mb-1">
+              <span className="flex items-center gap-2 truncate font-medium">
+                <Pencil className="h-3.5 w-3.5 shrink-0" />
+                Редактирование сообщения
+              </span>
+              <button onClick={() => { setEditingMessage(null); setInput(""); }} className="p-1 hover:bg-black/5 rounded-full transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="rounded-full shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              onClick={() => onOpenReport?.()}
+              title={t("report.create")}
+              disabled={!!editingMessage}
+            >
+              <Camera className="h-5 w-5" />
+            </Button>
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && send()}
+              placeholder={t("chat.placeholder", { lang: langLabel(lang) })}
+              className="rounded-full bg-muted/50 border-transparent focus-visible:ring-1"
+              disabled={sending}
+            />
+            <Button
+              size="icon"
+              className="rounded-full shrink-0"
+              disabled={!input.trim() || sending}
+              onClick={send}
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -653,10 +720,12 @@ function ChannelContent({
 function MessageBubble({
   m,
   onDelete,
+  onEdit,
   avatarUrl,
 }: {
   m: DbMessage;
   onDelete: (id: string) => void;
+  onEdit: (m: DbMessage) => void;
   avatarUrl: string | null;
 }) {
   const { user, roles } = useAuth();
@@ -672,6 +741,7 @@ function MessageBubble({
   const needsTranslate = m.source_lang !== lang;
   const [translated, setTranslated] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
 
   useEffect(() => {
     if (!needsTranslate) {
@@ -734,9 +804,20 @@ function MessageBubble({
           )}
           
           {isPhotoReport && photoPath && (
-            <div className="mb-2 rounded-lg overflow-hidden border bg-black/5">
-              <img src={supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl} alt="report" className="w-full h-auto object-cover max-h-64" />
-            </div>
+            <>
+              <div 
+                className="mb-2 rounded-lg overflow-hidden border bg-black/5 cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => setImagePreviewOpen(true)}
+              >
+                <img src={supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl} alt="report" className="w-full h-auto object-cover max-h-64" />
+              </div>
+              <Dialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
+                <DialogContent className="max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center">
+                  <DialogTitle className="sr-only">Предпросмотр фото</DialogTitle>
+                  <img src={supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl} alt="report" className="max-w-full max-h-[85vh] object-contain rounded-xl" />
+                </DialogContent>
+              </Dialog>
+            </>
           )}
           {isPhotoReport && criticality && (
             <div className={cn("mb-1 text-[10px] font-bold uppercase tracking-wider", criticality === "urgent" ? "text-red-500" : criticality === "important" ? "text-amber-500" : "opacity-70")}>
@@ -774,18 +855,33 @@ function MessageBubble({
           </div>
 
           {(isSuperAdmin || isMine) && (
-            <button
-              onClick={() => onDelete(m.id)}
-              className={cn(
-                "absolute top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full",
-                isMine
-                  ? "-left-10 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                  : "-right-10 bg-destructive/10 text-destructive hover:bg-destructive/20",
-              )}
-              title="Удалить"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "absolute top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full",
+                    isMine
+                      ? "-left-8 text-muted-foreground hover:bg-black/10 hover:text-foreground"
+                      : "-right-8 text-muted-foreground hover:bg-black/10 hover:text-foreground",
+                  )}
+                  title="Опции"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isMine ? "end" : "start"}>
+                {isMine && (
+                  <DropdownMenuItem onClick={() => onEdit(m)}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Редактировать
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => onDelete(m.id)} className="text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Удалить
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>

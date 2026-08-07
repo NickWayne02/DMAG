@@ -425,6 +425,7 @@ export function FullChatApp({
         open={reportOpen}
         onOpenChange={setReportOpen}
         site={sites.find((s) => s.id === activeChannelId) || sites[0] || null}
+        skipDbInsert={activeChannelType !== "site"}
         onSuccess={handlePhotoReportSuccess}
       />
 

@@ -131,7 +131,7 @@ export function PhotoReportDialog({
   }
 
   async function submit() {
-    if (!site) {
+    if (!site && !skipDbInsert) {
       toast.error("Сначала выберите объект");
       return;
     }
@@ -194,6 +194,8 @@ export function PhotoReportDialog({
               <>
                 Объект: <span className="font-medium">{site.name}</span>
               </>
+            ) : skipDbInsert ? (
+              "Фото будет отправлено в текущий чат"
             ) : (
               "Сначала выберите объект на главном экране"
             )}
@@ -280,7 +282,7 @@ export function PhotoReportDialog({
           >
             Отмена
           </Button>
-          <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || !site}>
+          <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || (!site && !skipDbInsert)}>
             {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Отправить
           </Button>

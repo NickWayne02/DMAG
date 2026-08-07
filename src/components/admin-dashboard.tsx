@@ -1423,7 +1423,7 @@ export function AdminDashboard({
             <Button
               variant="outline"
               onClick={() => navigate({ to: "/employee-dashboard" })}
-              className="rounded-full h-9 px-3 md:px-4 border-gray-200 hover:bg-gray-50"
+              className="rounded-full h-9 px-3 md:px-4 text-muted-foreground hover:text-foreground"
               title="К смене"
             >
               <ArrowLeft className="h-4 w-4 md:mr-2" />
@@ -1431,12 +1431,12 @@ export function AdminDashboard({
             </Button>
             <SettingsDialog
               variant="icon"
-              className="inline-flex items-center justify-center rounded-full h-9 w-9 hover:bg-gray-100 text-gray-500 hover:text-gray-900 shrink-0 transition-colors"
+              className="inline-flex items-center justify-center rounded-full h-9 w-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground shrink-0 transition-colors"
             />
             <Button
               variant="ghost"
               onClick={signOut}
-              className="rounded-full h-9 w-9 p-0 shrink-0 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+              className="rounded-full h-9 w-9 p-0 shrink-0 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
             >
               <LogOut className="h-4 w-4" />
             </Button>

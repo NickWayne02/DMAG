@@ -949,10 +949,10 @@ function MessageBubble({
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "absolute top-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1 rounded-full",
+                    "absolute top-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all p-1.5 rounded-full bg-background border shadow-sm z-10",
                     isMine
-                      ? "-left-8 text-muted-foreground hover:bg-black/10 hover:text-foreground"
-                      : "-right-8 text-muted-foreground hover:bg-black/10 hover:text-foreground",
+                      ? "-left-10 text-foreground hover:bg-accent"
+                      : "-right-10 text-foreground hover:bg-accent",
                   )}
                   title="Опции"
                 >

@@ -18,6 +18,7 @@ import {
   Camera,
   Pencil,
   X,
+  CheckCircle2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -575,7 +576,13 @@ function ChannelContent({
         prev.map((x) => (x.id === e.detail.id ? { ...x, content: e.detail.content } : x)),
       );
     };
+    const handleLocalDelete = (e: any) => {
+      if (e.detail?.ids) {
+        setMessages((prev) => prev.filter((x) => !e.detail.ids.includes(x.id)));
+      }
+    };
     document.addEventListener("localMessageUpdate", handleLocalUpdate);
+    document.addEventListener("localMessageDelete", handleLocalDelete);
 
     setLoading(true);
     let cancelled = false;
@@ -645,6 +652,7 @@ function ChannelContent({
     return () => {
       cancelled = true;
       document.removeEventListener("localMessageUpdate", handleLocalUpdate);
+      document.removeEventListener("localMessageDelete", handleLocalDelete);
       supabase.removeChannel(channel);
     };
   }, [channelType, channelId]);
@@ -1007,64 +1015,150 @@ function ChatMediaDialog({
   channelType: "general" | "direct" | "site";
   channelId: string;
 }) {
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ id: string; url: string; path: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSelectionMode(false);
+      setSelected([]);
+      setPreviewUrl(null);
+      return;
+    }
     setLoading(true);
     supabase
       .from("chat_messages")
-      .select("content")
+      .select("id, content")
       .eq("channel_type", channelType)
       .eq("channel_id", channelId)
       .like("content", "[PHOTO_REPORT]%")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
         if (!error && data) {
-          const urls = data.map((m) => {
+          const loaded = data.map((m) => {
             const parts = m.content.replace("[PHOTO_REPORT] ", "").split(" | ");
             const photoPath = parts[0];
-            return supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl;
+            return {
+              id: m.id,
+              path: photoPath,
+              url: supabase.storage.from("photo-reports").getPublicUrl(photoPath).data.publicUrl,
+            };
           });
-          setPhotos(urls);
+          setPhotos(loaded);
         }
         setLoading(false);
       });
   }, [open, channelType, channelId]);
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const handleDelete = async () => {
+    if (selected.length === 0) return;
+    if (!confirm(`Удалить ${selected.length} фото? Это удалит и соответствующие сообщения из чата.`)) return;
+
+    const pathsToDelete = photos.filter((p) => selected.includes(p.id)).map((p) => p.path);
+    if (pathsToDelete.length > 0) {
+      await supabase.storage.from("photo-reports").remove(pathsToDelete);
+    }
+
+    const { error } = await supabase.from("chat_messages").delete().in("id", selected);
+    if (error) {
+      toast.error("Ошибка при удалении");
+    } else {
+      toast.success("Удалено");
+      document.dispatchEvent(new CustomEvent("localMessageDelete", { detail: { ids: selected } }));
+      setPhotos((prev) => prev.filter((p) => !selected.includes(p.id)));
+      setSelected([]);
+      setSelectionMode(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 bg-background overflow-hidden">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle>Вложенные медиа</DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="flex-1 p-4">
-          {loading ? (
-            <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 bg-background overflow-hidden">
+          <div className="p-4 border-b flex flex-row items-center justify-between shadow-sm z-10">
+            <DialogTitle className="text-lg">Вложенные медиа</DialogTitle>
+            <div className="flex items-center gap-2 mr-8">
+              {selectionMode ? (
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => { setSelectionMode(false); setSelected([]); }}>
+                    Отмена
+                  </Button>
+                  <Button variant="destructive" size="sm" disabled={selected.length === 0} onClick={handleDelete}>
+                    Удалить ({selected.length})
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => setSelectionMode(true)} disabled={photos.length === 0}>
+                  Выбрать
+                </Button>
+              )}
             </div>
-          ) : photos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
-              <Camera className="h-12 w-12 mb-2 opacity-20" />
-              <p>Нет вложенных медиа</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 pb-4">
-              {photos.map((url, i) => (
-                <div key={i} className="aspect-square rounded-xl overflow-hidden border bg-muted">
-                  <img
-                    src={url}
-                    alt="media"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
+          </div>
+          <ScrollArea className="flex-1 p-4">
+            {loading ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : photos.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
+                <Camera className="h-12 w-12 mb-2 opacity-20" />
+                <p>Нет вложенных медиа</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 pb-4">
+                {photos.map((photo) => {
+                  const isSelected = selected.includes(photo.id);
+                  return (
+                    <button
+                      key={photo.id}
+                      onClick={() => {
+                        if (selectionMode) {
+                          toggleSelect(photo.id);
+                        } else {
+                          setPreviewUrl(photo.url);
+                        }
+                      }}
+                      className={cn(
+                        "relative aspect-square rounded-xl overflow-hidden border bg-muted group",
+                        selectionMode && isSelected && "ring-2 ring-primary"
+                      )}
+                    >
+                      <img
+                        src={photo.url}
+                        alt="media"
+                        className={cn("w-full h-full object-cover transition-all", selectionMode && isSelected && "scale-90 rounded-lg")}
+                        loading="lazy"
+                      />
+                      {selectionMode && (
+                        <div className="absolute top-1.5 right-1.5 z-10">
+                          <CheckCircle2
+                            className={cn("h-5 w-5", isSelected ? "text-primary fill-background" : "text-white/70")}
+                          />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!previewUrl} onOpenChange={(o) => { if (!o) setPreviewUrl(null); }}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh]">
+          {previewUrl && (
+            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] object-contain" />
           )}
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

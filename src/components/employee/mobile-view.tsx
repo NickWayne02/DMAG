@@ -484,6 +484,25 @@ export function EmployeeMobileView() {
                 </NeonCard>
               </button>
 
+              {selectedSite && (
+                <div
+                  className="w-full rounded-2xl overflow-hidden relative h-48"
+                  style={{ border: "1px solid var(--neon-border)" }}
+                >
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    style={{
+                      border: 0,
+                      filter: "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)",
+                    }}
+                    loading="lazy"
+                    allowFullScreen
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  ></iframe>
+                </div>
+              )}
+
               <NeonCard>
                 <div className="flex items-center gap-3">
                   <NeonIcon color="var(--neon-violet)" glow="var(--neon-glow-violet)">

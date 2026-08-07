@@ -232,7 +232,7 @@ export function PhotoReportDialog({
               <div className="grid grid-cols-3 gap-2">
                 <div
                   role="button"
-                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm active:scale-95 transition-transform cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
                   onClick={() => takePhoto("CAMERA")}
                 >
                   <LucideCamera className="h-6 w-6" />
@@ -240,7 +240,7 @@ export function PhotoReportDialog({
                 </div>
                 <div
                   role="button"
-                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm active:scale-95 transition-transform cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
                   onClick={() => takePhoto("PHOTOS")}
                 >
                   <ImagePlus className="h-6 w-6" />
@@ -248,7 +248,7 @@ export function PhotoReportDialog({
                 </div>
                 <div
                   role="button"
-                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm active:scale-95 transition-transform cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
                   onClick={() => setBrowserOpen(true)}
                 >
                   <FolderSearch className="h-6 w-6" />

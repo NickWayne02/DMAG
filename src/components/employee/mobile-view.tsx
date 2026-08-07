@@ -230,6 +230,7 @@ export function EmployeeMobileView() {
     lunchMs,
     totalMs,
     role,
+    openAvatarBrowser,
     canSwitchToAdmin,
     onSwitchToAdmin,
   } = useEmployeeLogic();
@@ -279,24 +280,30 @@ export function EmployeeMobileView() {
             
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-3 min-w-0">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={name}
-                    className="w-10 h-10 rounded-full object-cover border shrink-0"
-                    style={{ borderColor: "rgba(255,255,255,0.3)" }}
-                  />
-                ) : (
-                  <div
-                    className="w-10 h-10 rounded-full flex shrink-0 items-center justify-center font-bold text-lg border"
-                    style={{
-                      background: "rgba(255,255,255,0.1)",
-                      borderColor: "rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {name.substring(0, 1).toUpperCase()}
-                  </div>
-                )}
+                <div 
+                  className="cursor-pointer relative group shrink-0" 
+                  onClick={openAvatarBrowser}
+                  title="Сменить фото"
+                >
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={name}
+                      className="w-10 h-10 rounded-full object-cover border group-hover:opacity-80 transition-opacity"
+                      style={{ borderColor: "rgba(255,255,255,0.3)" }}
+                    />
+                  ) : (
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border group-hover:opacity-80 transition-opacity"
+                      style={{
+                        background: "rgba(255,255,255,0.1)",
+                        borderColor: "rgba(255,255,255,0.3)",
+                      }}
+                    >
+                      {name.substring(0, 1).toUpperCase()}
+                    </div>
+                  )}
+                </div>
                 <div className="min-w-0 text-left flex-1">
                   <p
                     className="text-[10px] uppercase tracking-[0.2em] text-cyan-300"

@@ -39,6 +39,7 @@ import type { ShiftDetail } from "@/lib/shift-export";
 import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
 import { ChatDialog } from "@/components/chat-dialog";
+import { StorageBrowserDialog } from "@/components/storage-browser-dialog";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { useT, useLanguage } from "@/lib/i18n";
@@ -204,6 +205,8 @@ export function EmployeeProvider({
   };
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);
+
   useEffect(() => {
     if (user) {
       supabase.from("profiles").select("avatar_url").eq("id", user.id).single().then(({ data }) => {
@@ -213,6 +216,19 @@ export function EmployeeProvider({
       setAvatarUrl(null);
     }
   }, [user]);
+
+  const handleAvatarSelect = async (publicUrl: string, path: string) => {
+    if (!user) return;
+    setAvatarUrl(publicUrl);
+    const { error } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
+    if (!error) {
+      toast.success("Аватар обновлен");
+    } else {
+      toast.error("Ошибка при обновлении аватара");
+    }
+    setAvatarBrowserOpen(false);
+  };
+  
   const [selectedSite, setSelectedSite] = useState<Site | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -243,7 +259,7 @@ export function EmployeeProvider({
     const { data } = await supabase
       .from("shifts")
       .select(
-        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals",
+        "id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, lunch_intervals, start_city, end_city",
       )
       .eq("user_id", user.id)
       .gte("started_at", since.toISOString())
@@ -255,6 +271,9 @@ export function EmployeeProvider({
       site_name: s.site_name ?? null,
       started_at: s.started_at,
       ended_at: s.ended_at,
+      lunch_started_at: s.lunch_started_at ?? null,
+      start_city: s.start_city ?? null,
+      end_city: s.end_city ?? null,
       lunch_intervals: Array.isArray(s.lunch_intervals) ? s.lunch_intervals : [],
       lunch_total_ms: Number(s.lunch_total_ms ?? 0),
       status: s.status,
@@ -796,11 +815,18 @@ export function EmployeeProvider({
         totalMs,
         role,
         avatarUrl,
+        openAvatarBrowser: () => setAvatarBrowserOpen(true),
         canSwitchToAdmin,
         onSwitchToAdmin,
       }}
     >
       {children}
+      <StorageBrowserDialog
+        open={avatarBrowserOpen}
+        onOpenChange={setAvatarBrowserOpen}
+        bucketName="avatars"
+        onSelect={handleAvatarSelect}
+      />
     </EmployeeContext.Provider>
   );
 }

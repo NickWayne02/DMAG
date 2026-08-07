@@ -230,6 +230,7 @@ export function EmployeeDesktopView() {
     lunchMs,
     totalMs,
     role,
+    openAvatarBrowser,
     canSwitchToAdmin,
     onSwitchToAdmin,
   } = useEmployeeLogic();
@@ -246,24 +247,30 @@ export function EmployeeDesktopView() {
         <div className="max-w-7xl w-full mx-auto px-8 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={name}
-                  className="w-12 h-12 rounded-full object-cover border"
-                  style={{ borderColor: "rgba(255,255,255,0.3)" }}
-                />
-              ) : (
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl border"
-                  style={{
-                    background: "rgba(255,255,255,0.1)",
-                    borderColor: "rgba(255,255,255,0.3)",
-                  }}
-                >
-                  {name.substring(0, 1).toUpperCase()}
-                </div>
-              )}
+              <div 
+                className="cursor-pointer relative group" 
+                onClick={openAvatarBrowser}
+                title="Сменить фото"
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={name}
+                    className="w-12 h-12 rounded-full object-cover border group-hover:opacity-80 transition-opacity"
+                    style={{ borderColor: "rgba(255,255,255,0.3)" }}
+                  />
+                ) : (
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl border group-hover:opacity-80 transition-opacity"
+                    style={{
+                      background: "rgba(255,255,255,0.1)",
+                      borderColor: "rgba(255,255,255,0.3)",
+                    }}
+                  >
+                    {name.substring(0, 1).toUpperCase()}
+                  </div>
+                )}
+              </div>
               <div>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
                   {tr(`role.${role}`)}

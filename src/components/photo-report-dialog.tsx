@@ -103,6 +103,9 @@ export function PhotoReportDialog({
   }
 
   async function takePhoto(source: "CAMERA" | "PHOTOS") {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     const isNative = typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
     
     if (isNative) {
@@ -249,7 +252,10 @@ export function PhotoReportDialog({
                   type="button"
                   variant="outline"
                   className="h-24 rounded-2xl flex flex-col gap-1"
-                  onClick={() => setBrowserOpen(true)}
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    setBrowserOpen(true);
+                  }}
                 >
                   <FolderSearch className="h-6 w-6" />
                   <span className="text-[10px]">Хранилище</span>

@@ -580,8 +580,7 @@ export function EmployeeMobileView() {
                 className="w-full rounded-2xl p-4 flex items-center gap-3 min-h-18 active:scale-[0.98] transition text-left"
                 style={{
                   background: "var(--neon-surface)",
-                  boxShadow:
-                    "inset 0 0 0 1px var(--neon-border), 0 0 24px -8px rgba(34,211,238,0.35)",
+                  boxShadow: "inset 0 0 0 1px var(--neon-border)",
                 }}
               >
                 <NeonIcon color="var(--neon-cyan)" glow="var(--neon-glow-cyan)">

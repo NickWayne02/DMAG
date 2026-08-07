@@ -173,6 +173,7 @@ export function FullChatApp({
   >([]);
   const [showNewChat, setShowNewChat] = useState(false);
   const [dmMessages, setDmMessages] = useState<{ channel_id: string }[]>([]);
+  const [loadingChannels, setLoadingChannels] = useState(true);
 
   useEffect(() => {
     supabase
@@ -192,7 +193,10 @@ export function FullChatApp({
         .like("channel_id", `%${user.id}%`)
         .then((res) => {
           if (res.data) setDmMessages(res.data as { channel_id: string }[]);
+          setLoadingChannels(false);
         });
+    } else {
+      setLoadingChannels(false);
     }
   }, [user]);
 
@@ -326,9 +330,14 @@ export function FullChatApp({
               )}
 
               <div className="space-y-1">
-                {dmChannels.length === 0 && !showNewChat && (
+                {dmChannels.length === 0 && !showNewChat && !loadingChannels && (
                   <div className="text-xs text-muted-foreground px-3 py-2 italic opacity-60">
                     Нет активных чатов
+                  </div>
+                )}
+                {dmChannels.length === 0 && loadingChannels && (
+                  <div className="text-xs text-muted-foreground px-3 py-2 italic opacity-60 animate-pulse">
+                    Загрузка...
                   </div>
                 )}
                 {dmChannels.map((dm) => (

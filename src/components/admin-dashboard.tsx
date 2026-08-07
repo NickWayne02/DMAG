@@ -164,21 +164,16 @@ type SecurityLog = {
 };
 
 function useSessionState<T>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [state, setState] = useState<T>(defaultValue);
-  const isMounted = useRef(false);
-
-  useEffect(() => {
+  const [state, setState] = useState<T>(() => {
     if (typeof window !== "undefined") {
-      const stored = window.sessionStorage.getItem(key);
-      if (stored !== null) {
-        try {
-          setState(JSON.parse(stored));
-        } catch (e) {
-          // ignore
-        }
-      }
+      try {
+        const stored = window.sessionStorage.getItem(key);
+        if (stored !== null) return JSON.parse(stored);
+      } catch (e) {}
     }
-  }, [key]);
+    return defaultValue;
+  });
+  const isMounted = useRef(false);
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -260,14 +255,17 @@ export function AdminDashboard({
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
 
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => setIsHydrated(true), []);
+
   const [activeTab, setActiveTab] = useSessionState("dmag_admin_activeTab", "dashboard");
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [employees, setEmployees] = useState<EmployeeRow[]>([]);
-  const [sites, setSites] = useState<SiteRow[]>([]);
-  const [reports, setReports] = useState<ReportRow[]>([]);
-  const [reportsHasMore, setReportsHasMore] = useState(true);
+  const [employees, setEmployees] = useSessionState<EmployeeRow[]>("dmag_admin_cached_emps", []);
+  const [sites, setSites] = useSessionState<SiteRow[]>("dmag_admin_cached_sites", []);
+  const [reports, setReports] = useSessionState<ReportRow[]>("dmag_admin_cached_reports", []);
+  const [reportsHasMore, setReportsHasMore] = useSessionState("dmag_admin_cached_reportsHasMore", false);
   const [reportsLoadingMore, setReportsLoadingMore] = useState(false);
   const [editingReport, setEditingReport] = useState<{ id: string; description: string; criticality: Crit } | null>(null);
 
@@ -318,7 +316,7 @@ export function AdminDashboard({
     }, 400);
 
     return () => clearTimeout(timeoutId);
-  }, [reportsSearch, reportsSite, reportsCrit, reportsPeriod, reports.length]);
+  }, [reportsSearch, reportsSite, reportsCrit, reportsPeriod]);
 
   const [logs, setLogs] = useState<SecurityLog[]>([]);
 
@@ -381,7 +379,7 @@ export function AdminDashboard({
     setLogs(simLogs);
   }, [employees, t, logs.length, onlineUsers, presenceMap, user?.id]);
   const [loading, setLoading] = useState(true);
-  const [shiftHistory, setShiftHistory] = useState<ShiftDetail[]>([]);
+  const [shiftHistory, setShiftHistory] = useSessionState<ShiftDetail[]>("dmag_admin_cached_shiftHist", []);
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
 
   const [calCursor, setCalCursor] = useState(() => {
@@ -546,11 +544,23 @@ export function AdminDashboard({
         .from("sites")
         .select("id, name, address, customer, created_at")
         .order("created_at", { ascending: false }),
-      supabase
-        .from("photo_reports")
-        .select("id, description, criticality, photo_url, created_at, site_id, author_id")
-        .order("created_at", { ascending: false })
-        .limit(20),
+      (function() {
+        let q = supabase
+          .from("photo_reports")
+          .select("id, description, criticality, photo_url, created_at, site_id, author_id")
+          .order("created_at", { ascending: false });
+        if (reportsSite !== "all") q = q.eq("site_id", reportsSite);
+        if (reportsCrit !== "all") q = q.eq("criticality", reportsCrit as "info" | "important" | "urgent");
+        if (reportsSearch) q = q.ilike("description", `%${reportsSearch}%`);
+        if (reportsPeriod === "today") {
+          const d = new Date(); d.setHours(0, 0, 0, 0);
+          q = q.gte("created_at", d.toISOString());
+        } else if (reportsPeriod === "week") {
+          const d = new Date(); d.setDate(d.getDate() - 7);
+          q = q.gte("created_at", d.toISOString());
+        }
+        return q.limit(20);
+      })(),
       supabase
         .from("shifts")
         .select(
@@ -750,10 +760,9 @@ export function AdminDashboard({
     setSites(siteRows);
 
     const f = reportsFiltersRef.current;
-    const hasFilters =
-      f.search !== "" || f.site !== "all" || f.crit !== "all" || f.period !== "all";
-    if (!hasFilters && !f.paginated) {
+    if (!f.paginated) {
       setReports(repRows);
+      setReportsHasMore(repRows.length === 20);
     }
 
     // Full shift history (last 30 days) for exports and calendar view
@@ -1474,6 +1483,10 @@ export function AdminDashboard({
     });
     return list.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).slice(0, 20);
   }, [shiftHistory, reports, employees]);
+
+  if (!isHydrated) {
+    return <div className="min-h-screen bg-muted/30" />;
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">

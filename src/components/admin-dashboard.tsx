@@ -229,7 +229,13 @@ export function AdminDashboard({
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem("adminActiveTab") || "dashboard";
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("adminActiveTab", activeTab);
+  }, [activeTab]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

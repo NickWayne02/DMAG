@@ -949,7 +949,7 @@ function MessageBubble({
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    "absolute top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full",
+                    "absolute top-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1 rounded-full",
                     isMine
                       ? "-left-8 text-muted-foreground hover:bg-black/10 hover:text-foreground"
                       : "-right-8 text-muted-foreground hover:bg-black/10 hover:text-foreground",

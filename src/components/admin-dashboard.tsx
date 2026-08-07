@@ -3276,6 +3276,56 @@ export function AdminDashboard({
         employeeName={calendarFor ? tName(calendarFor.name) : ""}
         shifts={calendarFor ? shiftHistory.filter((s) => s.user_id === calendarFor.id) : []}
       />
+
+      {/* Edit Report Dialog */}
+      <Dialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)}>
+        <DialogContent className="max-w-md rounded-2xl w-[calc(100vw-32px)]">
+          <DialogHeader>
+            <DialogTitle>Редактирование отчёта</DialogTitle>
+          </DialogHeader>
+          {editingReport && (
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label>Описание</Label>
+                <textarea
+                  className="flex min-h-20 w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  value={editingReport.description}
+                  onChange={(e) => setEditingReport({ ...editingReport, description: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Уровень важности</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["info", "important", "urgent"] as Crit[]).map((c) => (
+                    <div
+                      key={c}
+                      onClick={() => setEditingReport({ ...editingReport, criticality: c })}
+                      className={`flex flex-col items-center justify-center p-3 rounded-2xl cursor-pointer transition border-2 ${
+                        editingReport.criticality === c
+                          ? `border-${CRIT_META[c].color.split("-")[1]}-500 bg-${CRIT_META[c].color.split("-")[1]}-500/10`
+                          : "border-transparent bg-muted hover:bg-muted/80"
+                      }`}
+                    >
+                      {c === "info" ? <FileText className="h-5 w-5 mb-1" /> : c === "important" ? <FileBarChart className="h-5 w-5 mb-1" /> : <ShieldCheck className="h-5 w-5 mb-1" />}
+                      <span className="text-xs font-medium text-center leading-tight">
+                        {t(CRIT_META[c].labelKey)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="mt-2">
+            <Button variant="outline" className="rounded-xl w-full sm:w-auto" onClick={() => setEditingReport(null)}>
+              Отмена
+            </Button>
+            <Button className="rounded-xl w-full sm:w-auto" onClick={savePhotoReportEdit}>
+              Сохранить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

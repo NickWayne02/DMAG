@@ -714,6 +714,20 @@ export function AdminDashboard({
     setLoading(false);
   }
 
+  async function deletePhotoReport(id: string) {
+    if (!confirm("Удалить фотоотчёт?")) return;
+    
+    setReports((prev) => prev.filter((x) => x.id !== id));
+    
+    const { error } = await supabase.from("photo_reports").delete().eq("id", id);
+    if (error) {
+      toast.error("Ошибка при удалении");
+      loadFilteredReports(true);
+    } else {
+      toast.success("Фотоотчёт удален");
+    }
+  }
+
   async function loadFilteredReports(reset: boolean = false) {
     if (reportsLoadingMore) return;
     if (!reset && !reportsHasMore) return;
@@ -2137,7 +2151,7 @@ export function AdminDashboard({
                       {reports.map((r) => {
                         const m = CRIT_META[r.criticality];
                         return (
-                          <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3">
+                          <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3 relative group">
                             <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
                               {r.thumb ? (
                                 <img src={r.thumb} alt="" className="h-full w-full object-cover" />
@@ -2169,6 +2183,14 @@ export function AdminDashboard({
                                 })}
                               </p>
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => deletePhotoReport(r.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         );
                       })}

@@ -671,9 +671,14 @@ function ChannelContent({
   }
 
   async function deleteMessage(id: string) {
+    if (!confirm("Удалить сообщение?")) return;
+    
+    // Optimistic delete
+    setMessages((prev) => prev.filter((x) => x.id !== id));
+    
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
     if (error) {
-      toast.error(t("chat.deleteFailed"));
+      toast.error("Ошибка при удалении");
     }
   }
 

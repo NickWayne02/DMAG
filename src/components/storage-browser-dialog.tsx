@@ -152,11 +152,16 @@ export function StorageBrowserDialog({
     const folderPath = currentPath.join("/");
     const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
     
+    // Optimistic update
+    setFiles(prev => prev.filter(f => f.name !== file.name));
+    
     try {
       const { error } = await supabase.storage.from(bucketName).remove([fullPath]);
-      if (error) throw error;
+      if (error) {
+        await loadFiles(currentPath);
+        throw error;
+      }
       toast.success("Файл удален");
-      await loadFiles(currentPath);
     } catch (err: any) {
       console.error(err);
       toast.error("Не удалось удалить файл");

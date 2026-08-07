@@ -769,7 +769,26 @@ export function AdminDashboard({
       const { data } = await query.range(from, to);
 
       if (data && data.length > 0) {
-        setReports((prev) => (reset ? (data as any) : [...prev, ...(data as any)]));
+        const siteNameMap = new Map(sites.map((s) => [s.id, s.name]));
+        const thumbs = await Promise.all(
+          data.map(async (r) => {
+            if (!r.photo_url) return null;
+            const { data: thumbData } = await supabase.storage
+              .from("photo-reports")
+              .createSignedUrl(r.photo_url, 3600);
+            return thumbData?.signedUrl ?? null;
+          }),
+        );
+        const newRepRows = data.map((r: any, i) => ({
+          id: r.id,
+          description: r.description,
+          criticality: r.criticality,
+          created_at: r.created_at,
+          site_name: siteNameMap.get(r.site_id) ?? "—",
+          thumb: thumbs[i],
+        }));
+
+        setReports((prev) => (reset ? newRepRows : [...prev, ...newRepRows]));
         setReportsHasMore(data.length === 20);
       } else {
         if (reset) setReports([]);

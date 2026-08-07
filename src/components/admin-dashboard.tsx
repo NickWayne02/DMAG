@@ -309,13 +309,24 @@ export function AdminDashboard({
       currentMeta = "Локация недоступна";
     }
 
+    const getDeviceAction = (deviceType: string | undefined) => {
+      if (deviceType === "app") return t("admin.security.deviceApp");
+      if (deviceType === "mobile_web") return t("admin.security.deviceMobileWeb");
+      return t("admin.security.deviceWeb");
+    };
+
+    const getDeviceLevel = (deviceType: string | undefined) => {
+      if (deviceType === "app" || deviceType === "mobile_web") return "info"; // phone icon
+      return "warn"; // laptop icon
+    };
+
     simLogs.push({
       id: "session-current",
       ts: currentPData.online_at || new Date().toISOString(),
       user: "Super-Admin", // will be replaced in UI or kept generic
-      action: t("admin.security.deviceWeb"),
+      action: getDeviceAction(currentPData.device_type),
       meta: currentMeta,
-      level: "warn", // "warn" means Web/Laptop in our UI mapping
+      level: getDeviceLevel(currentPData.device_type) as "info" | "warn",
     });
 
     // 2. Other Sessions (Mobile Apps)
@@ -334,9 +345,9 @@ export function AdminDashboard({
           id: `session-${e.id}`,
           ts: pData.online_at || new Date().toISOString(),
           user: e.name,
-          action: t("admin.security.deviceApp"),
+          action: getDeviceAction(pData.device_type),
           meta,
-          level: "info",
+          level: getDeviceLevel(pData.device_type) as "info" | "warn",
         });
       });
 

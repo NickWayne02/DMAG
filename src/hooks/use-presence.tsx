@@ -55,11 +55,21 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
           console.error("Failed to fetch location", err);
         }
 
+        let deviceType = "desktop_web";
+        if (typeof window !== "undefined") {
+          if ((window as any).Capacitor?.isNativePlatform?.()) {
+            deviceType = "app";
+          } else if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            deviceType = "mobile_web";
+          }
+        }
+
         await channel.track({
           online_at: new Date().toISOString(),
           ip: locData.ip || "Unknown IP",
           city: locData.city || "Unknown City",
           country: locData.country_code || "Unknown Country",
+          device_type: deviceType,
         });
 
         // Trigger updated_at initially

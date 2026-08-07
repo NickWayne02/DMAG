@@ -1112,6 +1112,17 @@ const DICT: Dict = {
     uz: "Veb-versiya",
     tg: "Версияи веб",
   },
+  "admin.security.deviceMobileWeb": {
+    ru: "Мобильная веб-версия",
+    en: "Mobile Web",
+    de: "Mobiles Web",
+    ro: "Web mobil",
+    bg: "Мобилна уеб версия",
+    pl: "Wersja mobilna (Web)",
+    uk: "Мобільна веб-версія",
+    uz: "Mobil veb-versiya",
+    tg: "Версияи мобилии веб",
+  },
   "admin.security.empty": {
     ru: "Событий нет",
     en: "No events",

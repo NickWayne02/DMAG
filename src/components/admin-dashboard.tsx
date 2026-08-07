@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { StorageBrowserDialog } from "@/components/storage-browser-dialog";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -258,10 +258,16 @@ export function AdminDashboard({
   const [sitesSearch, setSitesSearch] = useState("");
   const [adminSearch, setAdminSearch] = useState("");
 
-  const [reportsSearch, setReportsSearch] = useState("");
+  const [reportsSearch, setReportsSearch] = useState<string>("");
   const [reportsSite, setReportsSite] = useState("all");
   const [reportsCrit, setReportsCrit] = useState("all");
   const [reportsPeriod, setReportsPeriod] = useState("all");
+
+  const reportsFiltersRef = useRef({ search: "", site: "all", crit: "all", period: "all", paginated: false });
+  useEffect(() => {
+    reportsFiltersRef.current = { search: reportsSearch, site: reportsSite, crit: reportsCrit, period: reportsPeriod, paginated: reports.length > 20 };
+  }, [reportsSearch, reportsSite, reportsCrit, reportsPeriod, reports.length]);
+
   const [logs, setLogs] = useState<SecurityLog[]>([]);
 
   useEffect(() => {
@@ -681,7 +687,12 @@ export function AdminDashboard({
 
     setEmployees(emps);
     setSites(siteRows);
-    setReports(repRows);
+    
+    const f = reportsFiltersRef.current;
+    const hasFilters = f.search !== "" || f.site !== "all" || f.crit !== "all" || f.period !== "all";
+    if (!hasFilters && !f.paginated) {
+      setReports(repRows);
+    }
 
     // Full shift history (last 30 days) for exports and calendar view
     const since30 = new Date();

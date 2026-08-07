@@ -148,7 +148,9 @@ export function StorageBrowserDialog({
 
   async function handleFileDelete(e: React.MouseEvent, file: { id: string | null; name: string }) {
     e.stopPropagation();
-    if (!confirm("Удалить файл?")) return;
+    
+    const isFolder = !file.id;
+    if (!confirm(isFolder ? `Удалить папку "${file.name}" и все файлы внутри?` : "Удалить файл?")) return;
 
     const folderPath = currentPath.join("/");
     const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
@@ -157,15 +159,28 @@ export function StorageBrowserDialog({
     setFiles((prev) => prev.filter((f) => f.name !== file.name));
 
     try {
-      const { error } = await supabase.storage.from(bucketName).remove([fullPath]);
-      if (error) {
-        await loadFiles(currentPath);
-        throw error;
+      if (isFolder) {
+        // List files in the folder (up to 100 for simplicity)
+        const { data, error: listError } = await supabase.storage.from(bucketName).list(fullPath, { limit: 100 });
+        if (listError) throw listError;
+        
+        const filesToRemove = data?.map(f => `${fullPath}/${f.name}`) || [];
+        filesToRemove.push(`${fullPath}/.emptyFolderPlaceholder`); // Just in case
+        
+        if (filesToRemove.length > 0) {
+          const { error: removeError } = await supabase.storage.from(bucketName).remove(filesToRemove);
+          if (removeError) throw removeError;
+        }
+        toast.success("Папка удалена");
+      } else {
+        const { error } = await supabase.storage.from(bucketName).remove([fullPath]);
+        if (error) throw error;
+        toast.success("Файл удален");
       }
-      toast.success("Файл удален");
     } catch (err: any) {
       console.error(err);
-      toast.error("Не удалось удалить файл");
+      toast.error("Не удалось удалить");
+      await loadFiles(currentPath);
     }
   }
 
@@ -270,12 +285,20 @@ export function StorageBrowserDialog({
                       )}
                     >
                       {isFolder ? (
-                        <div className="flex flex-col items-center gap-2">
-                          <FolderIcon className="w-12 h-12 text-blue-500/70 group-hover:text-blue-500 transition-colors" />
-                          <span className="text-xs font-medium truncate max-w-[90%]">
-                            {file.name}
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex flex-col items-center gap-2">
+                            <FolderIcon className="w-12 h-12 text-blue-500/70 group-hover:text-blue-500 transition-colors" />
+                            <span className="text-xs font-medium truncate max-w-[90%]">
+                              {file.name}
+                            </span>
+                          </div>
+                          <button
+                            onClick={(e) => handleFileDelete(e, file)}
+                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-destructive text-white rounded-full opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all z-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
                       ) : (
                         <>
                           <img

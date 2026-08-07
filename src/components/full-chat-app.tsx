@@ -1082,7 +1082,7 @@ function ChatMediaDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 bg-background overflow-hidden">
-          <div className="p-4 border-b flex flex-row items-center justify-between shadow-sm z-10">
+          <div className="p-4 border-b flex flex-row items-center justify-between shadow-sm">
             <DialogTitle className="text-lg">Вложенные медиа</DialogTitle>
             <div className="flex items-center gap-2 mr-8">
               {selectionMode ? (

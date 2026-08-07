@@ -75,6 +75,16 @@ export function FullChatApp({
   const [reportOpen, setReportOpen] = useState(false);
   const [editingPhotoReportMessage, setEditingPhotoReportMessage] = useState<DbMessage | null>(null);
 
+  const editingPhotoReportInitialData = useMemo(() => {
+    if (!editingPhotoReportMessage) return null;
+    const parts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+    return {
+      photoPath: parts[0] || null,
+      criticality: parts[1] || "info",
+      description: parts.length >= 3 ? parts.slice(2).join(" | ") : "",
+    };
+  }, [editingPhotoReportMessage]);
+
   useEffect(() => {
     const saved = localStorage.getItem("muted_channels");
     if (saved) {
@@ -416,18 +426,7 @@ export function FullChatApp({
         onOpenChange={(o) => !o && setEditingPhotoReportMessage(null)}
         site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
         skipDbInsert={true}
-        initialData={
-          editingPhotoReportMessage
-            ? (() => {
-                const parts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
-                return {
-                  photoPath: parts[0] || null,
-                  criticality: parts[1] || "info",
-                  description: parts.length >= 3 ? parts.slice(2).join(" | ") : "",
-                };
-              })()
-            : null
-        }
+        initialData={editingPhotoReportInitialData}
         onSuccess={async (data) => {
           if (!editingPhotoReportMessage) return;
           const newContent = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;

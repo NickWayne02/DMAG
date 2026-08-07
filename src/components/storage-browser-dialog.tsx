@@ -292,7 +292,7 @@ export function StorageBrowserDialog({
                           </div>
                           <button
                             onClick={(e) => handleFileDelete(e, file)}
-                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
+                            className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-destructive text-white rounded-full opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all z-10"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

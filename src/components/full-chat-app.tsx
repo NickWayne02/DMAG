@@ -73,6 +73,7 @@ export function FullChatApp({
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
   const [mutedChannels, setMutedChannels] = useState<string[]>([]);
   const [reportOpen, setReportOpen] = useState(false);
+  const [editingPhotoReportMessage, setEditingPhotoReportMessage] = useState<DbMessage | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("muted_channels");
@@ -398,6 +399,7 @@ export function FullChatApp({
             channelId={activeChannelId}
             profiles={profiles}
             onOpenReport={() => setReportOpen(true)}
+            onEditPhotoReport={(msg) => setEditingPhotoReportMessage(msg)}
           />
         </div>
       </div>
@@ -407,6 +409,38 @@ export function FullChatApp({
         onOpenChange={setReportOpen}
         site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
         onSuccess={handlePhotoReportSuccess}
+      />
+
+      <PhotoReportDialog
+        open={!!editingPhotoReportMessage}
+        onOpenChange={(o) => !o && setEditingPhotoReportMessage(null)}
+        site={sites.find(s => s.id === activeChannelId) || sites[0] || null}
+        skipDbInsert={true}
+        initialData={
+          editingPhotoReportMessage
+            ? (() => {
+                const parts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+                return {
+                  photoPath: parts[0] || null,
+                  criticality: parts[1] || "info",
+                  description: parts.length >= 3 ? parts.slice(2).join(" | ") : "",
+                };
+              })()
+            : null
+        }
+        onSuccess={async (data) => {
+          if (!editingPhotoReportMessage) return;
+          const newContent = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;
+          const { error } = await supabase
+            .from("chat_messages")
+            .update({ content: newContent, source_lang: lang })
+            .eq("id", editingPhotoReportMessage.id);
+          
+          if (error) {
+            toast.error("Ошибка при редактировании");
+          }
+          setEditingPhotoReportMessage(null);
+        }}
       />
 
       <Dialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
@@ -484,11 +518,13 @@ function ChannelContent({
   channelId,
   profiles,
   onOpenReport,
+  onEditPhotoReport,
 }: {
   channelType: ChannelType;
   channelId: string;
   profiles: { id: string; avatar_url: string | null }[];
   onOpenReport?: () => void;
+  onEditPhotoReport?: (m: DbMessage) => void;
 }) {
   const { user, roles } = useAuth();
   const isSuperAdmin = roles.includes("super_admin");
@@ -584,18 +620,9 @@ function ChannelContent({
     setSending(true);
 
     if (editingMessage) {
-      let newContent = text;
-      const isPhotoReport = editingMessage.content.startsWith("[PHOTO_REPORT] ");
-      if (isPhotoReport) {
-        const parts = editingMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
-        if (parts.length >= 3) {
-          newContent = `[PHOTO_REPORT] ${parts[0]} | ${parts[1]} | ${text}`;
-        }
-      }
-
       const { error } = await supabase
         .from("chat_messages")
-        .update({ content: newContent, source_lang: lang })
+        .update({ content: text, source_lang: lang })
         .eq("id", editingMessage.id);
       
       setSending(false);
@@ -657,11 +684,10 @@ function ChannelContent({
               m={m}
               onDelete={deleteMessage}
               onEdit={(msg) => {
-                setEditingMessage(msg);
                 if (msg.content.startsWith("[PHOTO_REPORT] ")) {
-                  const parts = msg.content.replace("[PHOTO_REPORT] ", "").split(" | ");
-                  setInput(parts.length >= 3 ? parts.slice(2).join(" | ") : msg.content);
+                  onEditPhotoReport?.(msg);
                 } else {
+                  setEditingMessage(msg);
                   setInput(msg.content);
                 }
               }}
@@ -676,13 +702,6 @@ function ChannelContent({
             <div className="flex items-center justify-between bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm mb-1">
               <span className="flex items-center gap-2 truncate font-medium">
                 <Pencil className="h-3.5 w-3.5 shrink-0" />
-                {editingMessage.content.startsWith("[PHOTO_REPORT] ") && (
-                  <img
-                    src={supabase.storage.from("photo-reports").getPublicUrl(editingMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ")[0]).data.publicUrl}
-                    className="h-6 w-8 rounded object-cover shadow-sm"
-                    alt="thumbnail"
-                  />
-                )}
                 Редактирование сообщения
               </span>
               <button onClick={() => { setEditingMessage(null); setInput(""); }} className="p-1 hover:bg-black/5 rounded-full transition-colors">
@@ -831,7 +850,7 @@ function MessageBubble({
               {criticality === "info" ? "Информация" : criticality === "important" ? "Важно" : "Срочно"}
             </div>
           )}
-          <div className="text-sm whitespace-pre-wrap break-words leading-relaxed">{description}</div>
+          <div className="text-sm whitespace-pre-wrap wrap-break-word leading-relaxed">{description}</div>
 
           {needsTranslate && (
             <div
@@ -845,7 +864,7 @@ function MessageBubble({
                   <Loader2 className="h-3 w-3 animate-spin" />…
                 </span>
               ) : (
-                <p className="whitespace-pre-wrap break-words text-xs opacity-90">
+                <p className="whitespace-pre-wrap wrap-break-word text-xs opacity-90">
                   {translated ?? ""}
                 </p>
               )}

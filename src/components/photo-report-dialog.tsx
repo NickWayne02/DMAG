@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -35,11 +35,19 @@ export function PhotoReportDialog({
   onOpenChange,
   site,
   onSuccess,
+  initialData,
+  skipDbInsert,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   site: Site | null;
   onSuccess?: (data: { photoPath: string | null; description: string; criticality: string }) => void;
+  initialData?: {
+    photoPath: string | null;
+    description: string;
+    criticality: string;
+  } | null;
+  skipDbInsert?: boolean;
 }) {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,6 +58,23 @@ export function PhotoReportDialog({
   const [busy, setBusy] = useState(false);
   const [browserOpen, setBrowserOpen] = useState(false);
   const [selectedStoragePath, setSelectedStoragePath] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    if (open && initialData) {
+      if (initialData.photoPath) {
+        setPreviewUrl(supabase.storage.from("photo-reports").getPublicUrl(initialData.photoPath).data.publicUrl);
+        setSelectedStoragePath(initialData.photoPath);
+      } else {
+        setPreviewUrl(null);
+        setSelectedStoragePath(null);
+      }
+      setDescription(initialData.description);
+      setCriticality((initialData.criticality as Criticality) || "info");
+    } else if (!open) {
+      reset();
+    }
+  }, [open, initialData]);
 
   function reset() {
     setFile(null);
@@ -124,15 +149,17 @@ export function PhotoReportDialog({
       } else if (selectedStoragePath) {
         photoPath = selectedStoragePath;
       }
-      const { error } = await supabase.from("photo_reports").insert({
-        site_id: site.id,
-        author_id: user.id,
-        description: description.trim() || null,
-        criticality,
-        photo_url: photoPath,
-      });
-      if (error) throw error;
-      toast.success("Фотоотчет отправлен");
+      if (!skipDbInsert) {
+        const { error } = await supabase.from("photo_reports").insert({
+          site_id: site.id,
+          author_id: user.id,
+          description: description.trim() || null,
+          criticality,
+          photo_url: photoPath,
+        });
+        if (error) throw error;
+      }
+      toast.success(skipDbInsert ? "Изменения сохранены" : "Фотоотчет отправлен");
       onSuccess?.({ photoPath, description: description.trim(), criticality });
       reset();
       onOpenChange(false);
@@ -154,7 +181,7 @@ export function PhotoReportDialog({
     >
       <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Новый фотоотчет</DialogTitle>
+          <DialogTitle>{initialData ? "Редактирование фотоотчета" : "Новый фотоотчет"}</DialogTitle>
           <DialogDescription>
             {site ? (
               <>

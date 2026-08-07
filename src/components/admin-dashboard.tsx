@@ -163,21 +163,28 @@ type SecurityLog = {
   level: "info" | "warn" | "alert";
 };
 
-function useSessionState<T>(key: string, defaultValue: T): [T, (val: T | ((prev: T) => T)) => void] {
-  const [state, setState] = useState<T>(() => {
-    if (typeof window === "undefined") return defaultValue;
-    const stored = window.sessionStorage.getItem(key);
-    if (stored !== null) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        return defaultValue;
-      }
-    }
-    return defaultValue;
-  });
+function useSessionState<T>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [state, setState] = useState<T>(defaultValue);
+  const isMounted = useRef(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = window.sessionStorage.getItem(key);
+      if (stored !== null) {
+        try {
+          setState(JSON.parse(stored));
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+  }, [key]);
+
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
     if (typeof window !== "undefined") {
       window.sessionStorage.setItem(key, JSON.stringify(state));
     }

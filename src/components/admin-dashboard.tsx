@@ -86,6 +86,7 @@ import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
 import dmagLogo from "@/assets/dmag-logo.png";
 import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
+import { clearAdminSession } from "@/lib/admin-session";
 import {
   adminCreateUser,
   adminDeleteUser,
@@ -162,6 +163,29 @@ type SecurityLog = {
   level: "info" | "warn" | "alert";
 };
 
+function useSessionState<T>(key: string, defaultValue: T): [T, (val: T | ((prev: T) => T)) => void] {
+  const [state, setState] = useState<T>(() => {
+    if (typeof window === "undefined") return defaultValue;
+    const stored = window.sessionStorage.getItem(key);
+    if (stored !== null) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return defaultValue;
+      }
+    }
+    return defaultValue;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem(key, JSON.stringify(state));
+    }
+  }, [key, state]);
+
+  return [state, setState];
+}
+
 function formatHM(ms: number) {
   const totalMin = Math.max(0, Math.floor(ms / 60000));
   const h = Math.floor(totalMin / 60);
@@ -229,13 +253,7 @@ export function AdminDashboard({
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
 
-  const [activeTab, setActiveTab] = useState(() => {
-    return sessionStorage.getItem("adminActiveTab") || "dashboard";
-  });
-
-  useEffect(() => {
-    sessionStorage.setItem("adminActiveTab", activeTab);
-  }, [activeTab]);
+  const [activeTab, setActiveTab] = useSessionState("dmag_admin_activeTab", "dashboard");
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -252,17 +270,17 @@ export function AdminDashboard({
   const PAGE_SIZE = 10;
 
   // Filter states
-  const [personnelSearch, setPersonnelSearch] = useState("");
-  const [personnelRole, setPersonnelRole] = useState("all");
-  const [personnelStatus, setPersonnelStatus] = useState("all");
+  const [personnelSearch, setPersonnelSearch] = useSessionState("dmag_admin_personnelSearch", "");
+  const [personnelRole, setPersonnelRole] = useSessionState("dmag_admin_personnelRole", "all");
+  const [personnelStatus, setPersonnelStatus] = useSessionState("dmag_admin_personnelStatus", "all");
 
-  const [sitesSearch, setSitesSearch] = useState("");
-  const [adminSearch, setAdminSearch] = useState("");
+  const [sitesSearch, setSitesSearch] = useSessionState("dmag_admin_sitesSearch", "");
+  const [adminSearch, setAdminSearch] = useSessionState("dmag_admin_adminSearch", "");
 
-  const [reportsSearch, setReportsSearch] = useState<string>("");
-  const [reportsSite, setReportsSite] = useState("all");
-  const [reportsCrit, setReportsCrit] = useState("all");
-  const [reportsPeriod, setReportsPeriod] = useState("all");
+  const [reportsSearch, setReportsSearch] = useSessionState<string>("dmag_admin_reportsSearch", "");
+  const [reportsSite, setReportsSite] = useSessionState("dmag_admin_reportsSite", "all");
+  const [reportsCrit, setReportsCrit] = useSessionState("dmag_admin_reportsCrit", "all");
+  const [reportsPeriod, setReportsPeriod] = useSessionState("dmag_admin_reportsPeriod", "all");
 
   const reportsFiltersRef = useRef({
     search: "",
@@ -486,7 +504,7 @@ export function AdminDashboard({
   const name = user?.user_metadata?.full_name || user?.email || "Администратор";
 
   async function signOut() {
-    window.sessionStorage.removeItem("adminActiveTab");
+    clearAdminSession();
     window.sessionStorage.removeItem("dmag_dev_admin");
     window.sessionStorage.removeItem("dmag_super_admin");
     if (devMode) {
@@ -1454,7 +1472,7 @@ export function AdminDashboard({
             <Button
               variant="outline"
               onClick={() => {
-                sessionStorage.removeItem("adminActiveTab");
+                clearAdminSession();
                 navigate({ to: "/employee-dashboard" });
               }}
               className="rounded-full h-9 px-3 md:px-4 text-muted-foreground hover:text-foreground"

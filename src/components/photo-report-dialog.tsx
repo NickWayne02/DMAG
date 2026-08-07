@@ -103,30 +103,36 @@ export function PhotoReportDialog({
   }
 
   async function takePhoto(source: "CAMERA" | "PHOTOS") {
-    try {
-      if (typeof window === "undefined") return;
-      const { Camera } = await import("@capacitor/camera");
-      const photo = await Camera.getPhoto({
-        resultType: "uri" as any,
-        source: source as any,
-        quality: 80,
-      });
-      if (photo.webPath) {
-        const response = await fetch(photo.webPath);
-        const blob = await response.blob();
-        const f = new File([blob], `photo.${photo.format}`, { type: `image/${photo.format}` });
-        handleFile(f);
-      }
-    } catch (e) {
-      console.error("Camera error:", e);
-      if (fileInputRef.current) {
-        if (source === "CAMERA") {
-          fileInputRef.current.setAttribute("capture", "environment");
-        } else {
-          fileInputRef.current.removeAttribute("capture");
+    const isNative = typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
+    
+    if (isNative) {
+      try {
+        const { Camera } = await import("@capacitor/camera");
+        const photo = await Camera.getPhoto({
+          resultType: "uri" as any,
+          source: source as any,
+          quality: 80,
+        });
+        if (photo.webPath) {
+          const response = await fetch(photo.webPath);
+          const blob = await response.blob();
+          const f = new File([blob], `photo.${photo.format}`, { type: `image/${photo.format}` });
+          handleFile(f);
         }
-        fileInputRef.current.click();
+        return;
+      } catch (e) {
+        console.error("Camera error:", e);
       }
+    }
+
+    // Web fallback - MUST be synchronous to user click
+    if (fileInputRef.current) {
+      if (source === "CAMERA") {
+        fileInputRef.current.setAttribute("capture", "environment");
+      } else {
+        fileInputRef.current.removeAttribute("capture");
+      }
+      fileInputRef.current.click();
     }
   }
 

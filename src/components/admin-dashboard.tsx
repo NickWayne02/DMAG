@@ -150,6 +150,7 @@ type ReportRow = {
   created_at: string;
   site_name: string;
   thumb: string | null;
+  photo_url: string | null;
 };
 
 type SecurityLog = {
@@ -666,6 +667,7 @@ export function AdminDashboard({
       created_at: r.created_at,
       site_name: siteNameMap.get(r.site_id) ?? "—",
       thumb: r.photo_url ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl : null,
+      photo_url: r.photo_url || null,
     }));
     if (devMode && repRows.length === 0) {
       repRows = [
@@ -676,6 +678,7 @@ export function AdminDashboard({
           created_at: new Date().toISOString(),
           site_name: siteRows[0]?.name ?? "DMAG",
           thumb: null,
+          photo_url: null,
         },
         {
           id: "report-2",
@@ -684,6 +687,7 @@ export function AdminDashboard({
           created_at: new Date(Date.now() - 1800000).toISOString(),
           site_name: siteRows[1]?.name ?? "DMAG",
           thumb: null,
+          photo_url: null,
         },
       ];
     }
@@ -728,12 +732,19 @@ export function AdminDashboard({
     setLoading(false);
   }
 
-  async function deletePhotoReport(id: string) {
+  async function deletePhotoReport(id: string, photo_url: string | null) {
     if (!confirm("Удалить фотоотчёт?")) return;
     
     setReports((prev) => prev.filter((x) => x.id !== id));
     
     const { error } = await supabase.from("photo_reports").delete().eq("id", id);
+    if (!error && photo_url) {
+      await supabase
+        .from("chat_messages")
+        .delete()
+        .like("content", `%${photo_url}%`);
+    }
+
     if (error) {
       toast.error("Ошибка при удалении");
       loadFilteredReports(true);
@@ -781,6 +792,7 @@ export function AdminDashboard({
           created_at: r.created_at,
           site_name: siteNameMap.get(r.site_id) ?? "—",
           thumb: r.photo_url ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl : null,
+          photo_url: r.photo_url || null,
         }));
 
         setReports((prev) => (reset ? newRepRows : [...prev, ...newRepRows]));
@@ -2205,7 +2217,7 @@ export function AdminDashboard({
                               variant="ghost"
                               size="icon"
                               className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => deletePhotoReport(r.id)}
+                              onClick={() => deletePhotoReport(r.id, r.photo_url)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

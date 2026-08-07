@@ -264,8 +264,21 @@ export function AdminDashboard({
   const [reportsPeriod, setReportsPeriod] = useState("all");
 
   const reportsFiltersRef = useRef({ search: "", site: "all", crit: "all", period: "all", paginated: false });
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
     reportsFiltersRef.current = { search: reportsSearch, site: reportsSite, crit: reportsCrit, period: reportsPeriod, paginated: reports.length > 20 };
+    
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
+    const timeoutId = setTimeout(() => {
+      loadFilteredReports(true);
+    }, 400);
+    
+    return () => clearTimeout(timeoutId);
   }, [reportsSearch, reportsSite, reportsCrit, reportsPeriod, reports.length]);
 
   const [logs, setLogs] = useState<SecurityLog[]>([]);
@@ -645,24 +658,14 @@ export function AdminDashboard({
     }
     const siteNameMap = new Map(siteRows.map((s) => [s.id, s.name]));
 
-    // Sign thumbnails in parallel
     const reportsRaw = reportData ?? [];
-    const thumbs = await Promise.all(
-      reportsRaw.map(async (r) => {
-        if (!r.photo_url) return null;
-        const { data } = await supabase.storage
-          .from("photo-reports")
-          .createSignedUrl(r.photo_url, 3600);
-        return data?.signedUrl ?? null;
-      }),
-    );
-    let repRows: ReportRow[] = reportsRaw.map((r, i) => ({
+    let repRows: ReportRow[] = reportsRaw.map((r) => ({
       id: r.id,
       description: r.description,
       criticality: r.criticality as Crit,
       created_at: r.created_at,
       site_name: siteNameMap.get(r.site_id) ?? "—",
-      thumb: thumbs[i],
+      thumb: r.photo_url ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl : null,
     }));
     if (devMode && repRows.length === 0) {
       repRows = [
@@ -770,22 +773,14 @@ export function AdminDashboard({
 
       if (data && data.length > 0) {
         const siteNameMap = new Map(sites.map((s) => [s.id, s.name]));
-        const thumbs = await Promise.all(
-          data.map(async (r) => {
-            if (!r.photo_url) return null;
-            const { data: thumbData } = await supabase.storage
-              .from("photo-reports")
-              .createSignedUrl(r.photo_url, 3600);
-            return thumbData?.signedUrl ?? null;
-          }),
-        );
-        const newRepRows = data.map((r: any, i) => ({
+        
+        const newRepRows = data.map((r: any) => ({
           id: r.id,
           description: r.description,
           criticality: r.criticality,
           created_at: r.created_at,
           site_name: siteNameMap.get(r.site_id) ?? "—",
-          thumb: thumbs[i],
+          thumb: r.photo_url ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl : null,
         }));
 
         setReports((prev) => (reset ? newRepRows : [...prev, ...newRepRows]));
@@ -2157,13 +2152,6 @@ export function AdminDashboard({
                       <SelectItem value="week">За 7 дней</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button
-                    variant="secondary"
-                    className="rounded-xl w-full sm:w-auto"
-                    onClick={() => loadFilteredReports(true)}
-                  >
-                    Применить
-                  </Button>
                 </div>
 
                 {reports.length === 0 ? (

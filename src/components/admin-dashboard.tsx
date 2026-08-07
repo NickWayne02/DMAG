@@ -1205,61 +1205,121 @@ export function AdminDashboard({
   }
 
   async function exportReports(fmt: "xlsx" | "pdf") {
-    const filename = `dmag-reports-${new Date().toISOString().slice(0, 10)}`;
-    const rows = reports.map((r) => ({
-      ID: r.id,
-      Дата: new Date(r.created_at).toLocaleString("ru-RU"),
-      Объект: r.site_name,
-      Критичность: t(CRIT_META[r.criticality].labelKey),
-      Описание: r.description ?? "",
-    }));
-
-    if (rows.length === 0) {
-      toast.info("Нет данных для экспорта");
-      return;
-    }
-
-    if (fmt === "xlsx") {
-      const XLSX = await import("xlsx");
-      const headers = Object.keys(rows[0]);
-      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map((r) => Object.values(r))]);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Отчёты");
-      const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-      const blob = new Blob([excelBuffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      triggerDownload(blob, `${filename}.xlsx`);
-    } else if (fmt === "pdf") {
-      const { jsPDF } = await import("jspdf");
-      const autoTable = (await import("jspdf-autotable")).default;
-      const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+    setUserBusy(true);
+    try {
+      const filename = `dmag-reports-${new Date().toISOString().slice(0, 10)}`;
       
-      doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
-      doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
-      doc.setFont("Roboto");
+      if (reports.length === 0) {
+        toast.info("Нет данных для экспорта");
+        return;
+      }
 
-      const headers = Object.keys(rows[0]);
-      doc.setFontSize(14);
-      doc.text("Отчёты", 40, 40);
-      doc.setFontSize(9);
-      doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
-      autoTable(doc, { 
-        head: [headers], 
-        body: rows.map((r) => Object.values(r)), 
-        startY: 74,
-        styles: { font: "Roboto", fontStyle: "normal", fontSize: 9, cellPadding: 6, textColor: [50, 50, 50] },
-        headStyles: { 
-          fontStyle: "normal", 
-          fillColor: [13, 71, 161], 
-          textColor: [255, 255, 255], 
-          fontSize: 10,
-          halign: "left"
-        },
-        alternateRowStyles: { fillColor: [245, 247, 250] }
-      });
-      const blob = doc.output("blob");
-      triggerDownload(blob, `${filename}.pdf`);
+      if (fmt === "xlsx") {
+        const rows = reports.map((r) => ({
+          ID: r.id,
+          Дата: new Date(r.created_at).toLocaleString("ru-RU"),
+          Объект: r.site_name,
+          Критичность: t(CRIT_META[r.criticality].labelKey),
+          Описание: r.description ?? "",
+          "Ссылка на фото": r.photo_url ?? "Нет фото",
+        }));
+        const XLSX = await import("xlsx");
+        const headers = Object.keys(rows[0]);
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map((r) => Object.values(r))]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Отчёты");
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        triggerDownload(blob, `${filename}.xlsx`);
+      } else if (fmt === "pdf") {
+        toast.info("Подготовка PDF с фотографиями, подождите...");
+        
+        async function fetchImageAsBase64(url: string): Promise<string | null> {
+          try {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            return await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = () => resolve(null);
+              reader.readAsDataURL(blob);
+            });
+          } catch (e) {
+            return null;
+          }
+        }
+
+        const imagesBase64 = await Promise.all(
+          reports.map(r => r.thumb ? fetchImageAsBase64(r.thumb) : Promise.resolve(null))
+        );
+
+        const rows = reports.map((r, i) => [
+          new Date(r.created_at).toLocaleString("ru-RU"),
+          r.site_name,
+          t(CRIT_META[r.criticality].labelKey),
+          r.description ?? "",
+          imagesBase64[i] ? " " : "Нет",
+        ]);
+
+        const { jsPDF } = await import("jspdf");
+        const autoTable = (await import("jspdf-autotable")).default;
+        const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+        
+        doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
+        doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+        doc.setFont("Roboto");
+
+        doc.setFontSize(14);
+        doc.text("Фотоотчёты по объектам", 40, 40);
+        doc.setFontSize(9);
+        doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
+        
+        autoTable(doc, { 
+          head: [["Дата", "Объект", "Критичность", "Описание", "Фото"]], 
+          body: rows, 
+          startY: 74,
+          styles: { font: "Roboto", fontStyle: "normal", fontSize: 9, cellPadding: 6, textColor: [50, 50, 50], minCellHeight: 60, valign: "middle" },
+          headStyles: { 
+            fontStyle: "normal", 
+            fillColor: [13, 71, 161], 
+            textColor: [255, 255, 255], 
+            fontSize: 10,
+            halign: "left"
+          },
+          columnStyles: {
+            4: { cellWidth: 80, halign: "center" }
+          },
+          alternateRowStyles: { fillColor: [245, 247, 250] },
+          didDrawCell: (data) => {
+            if (data.section === "body" && data.column.index === 4) {
+              const base64Img = imagesBase64[data.row.index];
+              if (base64Img) {
+                // center image in cell
+                const imgSize = 52;
+                const dim = data.cell;
+                const x = dim.x + (dim.width - imgSize) / 2;
+                const y = dim.y + (dim.height - imgSize) / 2;
+                try {
+                  // doc.addImage handles data URIs safely
+                  doc.addImage(base64Img, x, y, imgSize, imgSize);
+                } catch(e) {
+                  console.error("Failed to add image to PDF", e);
+                }
+              }
+            }
+          }
+        });
+        
+        const blob = doc.output("blob");
+        triggerDownload(blob, `${filename}.pdf`);
+      }
+    } catch(e) {
+      console.error(e);
+      toast.error("Ошибка при экспорте");
+    } finally {
+      setUserBusy(false);
     }
   }
 

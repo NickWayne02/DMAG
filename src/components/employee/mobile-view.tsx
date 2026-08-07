@@ -244,11 +244,6 @@ export function EmployeeMobileView() {
     >
       <div
         className="w-full max-w-md md:max-w-2xl lg:max-w-5xl min-h-screen flex flex-col relative overflow-hidden mx-auto"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--neon-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--neon-grid-line) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
       >
         {/* Neon header */}
         <header

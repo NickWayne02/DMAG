@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -193,106 +194,143 @@ export function PhotoReportDialog({
       }}
     >
       <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{initialData ? "Редактирование фотоотчета" : "Новый фотоотчет"}</DialogTitle>
-          <DialogDescription>
-            {site ? (
-              <>
-                Объект: <span className="font-medium">{site.name}</span>
-              </>
-            ) : skipDbInsert ? (
-              "Фото будет отправлено в текущий чат"
-            ) : (
-              "Сначала выберите объект на главном экране"
-            )}
-          </DialogDescription>
+        <DialogHeader className={previewUrl ? "border-b pb-3 mb-2" : ""}>
+          <DialogTitle>{previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
+          {!previewUrl && (
+            <DialogDescription>
+              {site ? (
+                <>
+                  Объект: <span className="font-medium">{site.name}</span>
+                </>
+              ) : skipDbInsert ? (
+                "Фото будет отправлено в текущий чат"
+              ) : (
+                "Сначала выберите объект на главном экране"
+              )}
+            </DialogDescription>
+          )}
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Photo upload */}
-          <div className="space-y-2">
-            <Label>Фото</Label>
-            {previewUrl ? (
-              <div className="relative rounded-2xl overflow-hidden border">
-                <img src={previewUrl} alt="preview" className="w-full max-h-64 object-cover" />
+          {!previewUrl ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Фото</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div
+                    role="button"
+                    className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                    onClick={() => takePhoto("CAMERA")}
+                  >
+                    <LucideCamera className="h-6 w-6" />
+                    <span className="text-[10px] font-medium">Снимок</span>
+                  </div>
+                  <div
+                    role="button"
+                    className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                    onClick={() => takePhoto("PHOTOS")}
+                  >
+                    <ImagePlus className="h-6 w-6" />
+                    <span className="text-[10px] font-medium">Галерея</span>
+                  </div>
+                  <div
+                    role="button"
+                    className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                    onClick={() => setBrowserOpen(true)}
+                  >
+                    <FolderSearch className="h-6 w-6" />
+                    <span className="text-[10px] font-medium">Хранилище</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-1.5">
+                <Label htmlFor="report-desc">Описание</Label>
+                <Textarea
+                  id="report-desc"
+                  placeholder="Скрытые работы, дефект, замечание..."
+                  rows={4}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 flex flex-col">
+              <div className="relative rounded-lg overflow-hidden bg-black/10 flex items-center justify-center">
+                <img src={previewUrl} alt="preview" className="w-full max-h-[60vh] object-contain" />
                 <Button
                   type="button"
                   size="icon"
-                  variant="secondary"
-                  className="absolute top-2 right-2 h-9 w-9 rounded-full shadow"
+                  variant="destructive"
+                  className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
                   onPointerDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    handleFile(null);
-                  }}
+                  onClick={() => handleFile(null)}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-2">
-                <div
-                  role="button"
-                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
-                  onClick={() => takePhoto("CAMERA")}
-                >
-                  <LucideCamera className="h-6 w-6" />
-                  <span className="text-[10px] font-medium">Снимок</span>
-                </div>
-                <div
-                  role="button"
-                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
-                  onClick={() => takePhoto("PHOTOS")}
-                >
-                  <ImagePlus className="h-6 w-6" />
-                  <span className="text-[10px] font-medium">Галерея</span>
-                </div>
-                <div
-                  role="button"
-                  className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
-                  onClick={() => setBrowserOpen(true)}
-                >
-                  <FolderSearch className="h-6 w-6" />
-                  <span className="text-[10px] font-medium">Хранилище</span>
-                </div>
-              </div>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-            />
-          </div>
 
-          {/* Description */}
-          <div className="space-y-1.5">
-            <Label htmlFor="report-desc">Описание</Label>
-            <Textarea
-              id="report-desc"
-              placeholder="Скрытые работы, дефект, замечание..."
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
+              <div className="relative">
+                <Input
+                  placeholder="Подпись..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="border-0 border-b border-input rounded-none px-1 shadow-none focus-visible:ring-0 focus-visible:border-primary text-base"
+                />
+              </div>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+          />
         </div>
 
-        <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2">
-          <Button
-            variant="outline"
-            className="h-11 rounded-xl"
-            onClick={() => onOpenChange(false)}
-            disabled={busy}
-          >
-            Отмена
-          </Button>
-          <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || (!site && !skipDbInsert)}>
-            {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Отправить
-          </Button>
-        </DialogFooter>
+        {!previewUrl ? (
+          <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2 mt-4">
+            <Button
+              variant="outline"
+              className="h-11 rounded-xl"
+              onClick={() => onOpenChange(false)}
+              disabled={busy}
+            >
+              Отмена
+            </Button>
+            <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || (!site && !skipDbInsert)}>
+              {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Отправить
+            </Button>
+          </DialogFooter>
+        ) : (
+          <DialogFooter className="flex flex-row justify-between items-center sm:justify-between mt-4">
+            <Button
+              variant="ghost"
+              className="h-10 text-muted-foreground hover:text-foreground font-normal px-2"
+              onClick={() => onOpenChange(false)}
+              disabled={busy}
+            >
+              Отмена
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="h-10 text-primary hover:text-primary/90 font-medium px-2" 
+              onClick={submit} 
+              disabled={busy || (!site && !skipDbInsert)}
+            >
+              {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Отправить
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
 
       <StorageBrowserDialog

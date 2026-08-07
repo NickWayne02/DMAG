@@ -247,6 +247,22 @@ export function EmployeeProvider({
     }
   });
 
+  useEffect(() => {
+    if (!selectedSite?.id) return;
+    async function checkSite() {
+      const { data, error } = await supabase
+        .from("sites")
+        .select("id")
+        .eq("id", selectedSite!.id)
+        .maybeSingle();
+      if (!data && !error) {
+        setSelectedSite(null);
+        window.localStorage.removeItem(SITE_STORAGE_KEY);
+      }
+    }
+    void checkSite();
+  }, [selectedSite?.id]);
+
   type SiteReport = {
     id: string;
     description: string | null;

@@ -119,10 +119,10 @@ export function PhotoReportDialog({
           const f = new File([blob], `photo.${photo.format}`, { type: `image/${photo.format}` });
           handleFile(f);
         }
-        return;
       } catch (e) {
         console.error("Camera error:", e);
       }
+      return; // Never fall back to web input if native!
     }
 
     // Web fallback - MUST be synchronous to user click

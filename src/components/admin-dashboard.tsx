@@ -91,7 +91,6 @@ import {
   adminSetRole,
   adminUpdateCredentials,
   adminToggleActive,
-  adminUpdateAvatar,
 } from "@/lib/admin-users.functions";
 import { getCurrentPosition, reverseGeocodeCity } from "@/lib/geocode";
 import { useLanguage } from "@/lib/i18n";
@@ -1060,25 +1059,6 @@ export function AdminDashboard({
   const setRoleFn = useServerFn(adminSetRole);
   const updateCredsFn = useServerFn(adminUpdateCredentials);
   const adminToggleActiveFn = useServerFn(adminToggleActive);
-  const adminUpdateAvatarFn = useServerFn(adminUpdateAvatar);
-
-  const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);
-  const [avatarBrowserTarget, setAvatarBrowserTarget] = useState<string | null>(null);
-
-  const handleAvatarSelect = async (publicUrl: string) => {
-    if (!avatarBrowserTarget) return;
-    setUserBusy(true);
-    try {
-      await adminUpdateAvatarFn({ data: { user_id: avatarBrowserTarget, avatar_url: publicUrl } });
-      toast.success("Аватар обновлен");
-      loadAll();
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка обновления");
-    } finally {
-      setUserBusy(false);
-      setAvatarBrowserTarget(null);
-    }
-  };
 
   // Mocks vs Real Data
 
@@ -2517,22 +2497,6 @@ export function AdminDashboard({
 
                                 <Button
                                   size="sm"
-                                  variant="outline"
-                                  className="rounded-lg px-3"
-                                  disabled={
-                                    userBusy ||
-                                    (!superMode && (e.role === "super_admin" || e.role === "admin"))
-                                  }
-                                  onClick={() => {
-                                    setAvatarBrowserTarget(e.id);
-                                    setAvatarBrowserOpen(true);
-                                  }}
-                                >
-                                  Фото
-                                </Button>
-
-                                <Button
-                                  size="sm"
                                   variant="destructive"
                                   className="rounded-lg"
                                   disabled={
@@ -2682,22 +2646,6 @@ export function AdminDashboard({
                               >
                                 <KeyRound className="h-4 w-4 mr-1.5" />
                                 {t("admin.users.credentials")}
-                              </Button>
-
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="rounded-lg px-3"
-                                disabled={
-                                  userBusy ||
-                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
-                                }
-                                onClick={() => {
-                                  setAvatarBrowserTarget(e.id);
-                                  setAvatarBrowserOpen(true);
-                                }}
-                              >
-                                Фото
                               </Button>
                               <Button
                                 size="sm"
@@ -3050,12 +2998,6 @@ export function AdminDashboard({
       </Dialog>
 
       {/* ===== Create user dialog ===== */}
-      <StorageBrowserDialog
-        open={avatarBrowserOpen}
-        onOpenChange={setAvatarBrowserOpen}
-        bucketName="avatars"
-        onSelect={handleAvatarSelect}
-      />
 
       <Dialog
         open={createForm.open}

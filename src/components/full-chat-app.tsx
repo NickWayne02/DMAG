@@ -430,14 +430,23 @@ export function FullChatApp({
         onSuccess={async (data) => {
           if (!editingPhotoReportMessage) return;
           const newContent = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;
-          const { error } = await supabase
+          const { data: updatedData, error } = await supabase
             .from("chat_messages")
             .update({ content: newContent, source_lang: lang })
-            .eq("id", editingPhotoReportMessage.id);
+            .eq("id", editingPhotoReportMessage.id)
+            .select();
           
           if (error) {
             throw error;
           }
+          if (!updatedData || updatedData.length === 0) {
+            throw new Error("Не удалось применить изменения: возможно, нет прав на редактирование.");
+          }
+          
+          document.dispatchEvent(new CustomEvent("localMessageUpdate", {
+            detail: { id: editingPhotoReportMessage.id, content: newContent }
+          }));
+          
           setEditingPhotoReportMessage(null);
         }}
       />
@@ -538,6 +547,12 @@ function ChannelContent({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const handleLocalUpdate = (e: any) => {
+      setMessages((prev) => prev.map((x) => (x.id === e.detail.id ? { ...x, content: e.detail.content } : x)));
+    };
+    document.addEventListener("localMessageUpdate", handleLocalUpdate);
+
+    setLoading(true);
     let cancelled = false;
     setLoading(true);
     setMessages([]);
@@ -604,6 +619,7 @@ function ChannelContent({
 
     return () => {
       cancelled = true;
+      document.removeEventListener("localMessageUpdate", handleLocalUpdate);
       supabase.removeChannel(channel);
     };
   }, [channelType, channelId]);

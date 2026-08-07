@@ -1316,8 +1316,7 @@ export function AdminDashboard({
           doc.setFontSize(11);
           doc.setTextColor(180, 180, 180);
           const dateStr = new Date(r.created_at).toLocaleString("ru-RU");
-          const critStr = t(CRIT_META[r.criticality].labelKey);
-          doc.text(`${dateStr}  •  ${critStr}`, 30, textYStart + 20);
+          doc.text(dateStr, 30, textYStart + 20);
           
           doc.setTextColor(220, 220, 220);
           doc.text(r.description || "Без описания", 30, textYStart + 45, { maxWidth: pageWidth - 60 });

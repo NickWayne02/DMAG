@@ -1214,26 +1214,7 @@ export function AdminDashboard({
         return;
       }
 
-      if (fmt === "xlsx") {
-        const rows = reports.map((r) => ({
-          ID: r.id,
-          Дата: new Date(r.created_at).toLocaleString("ru-RU"),
-          Объект: r.site_name,
-          Критичность: t(CRIT_META[r.criticality].labelKey),
-          Описание: r.description ?? "",
-          "Ссылка на фото": r.photo_url ?? "Нет фото",
-        }));
-        const XLSX = await import("xlsx");
-        const headers = Object.keys(rows[0]);
-        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows.map((r) => Object.values(r))]);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Отчёты");
-        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        const blob = new Blob([excelBuffer], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-        triggerDownload(blob, `${filename}.xlsx`);
-      } else if (fmt === "pdf") {
+      if (fmt === "pdf") {
         toast.info("Подготовка PDF, скачивание оригиналов...");
         
         async function fetchImageData(url: string): Promise<{ base64: string, w: number, h: number } | null> {
@@ -2232,30 +2213,10 @@ export function AdminDashboard({
                     <h3 className="font-semibold">{t("admin.reports.title")}</h3>
                     <p className="text-sm text-muted-foreground">{t("admin.reports.desc")}</p>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="sm" variant="outline" className="rounded-xl">
-                        <Download className="h-3.5 w-3.5 mr-1.5" />
-                        {t("admin.header.export")}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-36 rounded-xl">
-                      <DropdownMenuItem
-                        onSelect={() => exportReports("xlsx")}
-                        className="rounded-lg cursor-pointer"
-                      >
-                        <FileSpreadsheet className="h-4 w-4 mr-2" />
-                        Excel
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onSelect={() => exportReports("pdf")}
-                        className="rounded-lg cursor-pointer"
-                      >
-                        <FileBarChart className="h-4 w-4 mr-2" />
-                        PDF
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => exportReports("pdf")}>
+                    <Download className="h-3.5 w-3.5 mr-1.5" />
+                    {t("admin.header.export")}
+                  </Button>
                 </div>
 
                 <div className="flex flex-col flex-wrap sm:flex-row gap-3 mb-6">

@@ -187,13 +187,14 @@ export function PhotoReportDialog({
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => {
-        if (!o && !busy) reset();
-        onOpenChange(o);
-      }}
-    >
+    <>
+      <Dialog
+        open={open}
+        onOpenChange={(o) => {
+          if (!o && !busy) reset();
+          onOpenChange(o);
+        }}
+      >
       <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className={previewUrl ? "border-b pb-3 mb-2" : ""}>
           <DialogTitle>{previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
@@ -338,6 +339,7 @@ export function PhotoReportDialog({
           </DialogFooter>
         )}
       </DialogContent>
+      </Dialog>
 
       <StorageBrowserDialog
         open={browserOpen}
@@ -358,6 +360,6 @@ export function PhotoReportDialog({
           )}
         </DialogContent>
       </Dialog>
-    </Dialog>
+    </>
   );
 }

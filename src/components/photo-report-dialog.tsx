@@ -233,8 +233,11 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1"
-                  onClick={() => takePhoto("CAMERA")}
+                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background active:bg-accent md:hover:bg-accent focus-visible:ring-0"
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    takePhoto("CAMERA");
+                  }}
                 >
                   <LucideCamera className="h-6 w-6" />
                   <span className="text-[10px]">Снимок</span>
@@ -242,8 +245,11 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1"
-                  onClick={() => takePhoto("PHOTOS")}
+                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background active:bg-accent md:hover:bg-accent focus-visible:ring-0"
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    takePhoto("PHOTOS");
+                  }}
                 >
                   <ImagePlus className="h-6 w-6" />
                   <span className="text-[10px]">Галерея</span>
@@ -251,7 +257,7 @@ export function PhotoReportDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-24 rounded-2xl flex flex-col gap-1"
+                  className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background active:bg-accent md:hover:bg-accent focus-visible:ring-0"
                   onClick={(e) => {
                     e.currentTarget.blur();
                     setBrowserOpen(true);

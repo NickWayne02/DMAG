@@ -62,6 +62,7 @@ export function PhotoReportDialog({
   const [criticality, setCriticality] = useState<Criticality>("info");
   const [busy, setBusy] = useState(false);
   const [browserOpen, setBrowserOpen] = useState(false);
+  const [fullScreenPreview, setFullScreenPreview] = useState(false);
   const [selectedStoragePath, setSelectedStoragePath] = useState<string | null>(null);
 
   useEffect(() => {
@@ -261,7 +262,12 @@ export function PhotoReportDialog({
           ) : (
             <div className="space-y-4 flex flex-col">
               <div className="relative rounded-lg overflow-hidden bg-black/10 flex items-center justify-center">
-                <img src={previewUrl} alt="preview" className="w-full max-h-[60vh] object-contain" />
+                <img 
+                  src={previewUrl} 
+                  alt="preview" 
+                  className="w-full max-h-[60vh] object-contain cursor-pointer" 
+                  onClick={() => setFullScreenPreview(true)}
+                />
                 <Button
                   type="button"
                   size="icon"
@@ -344,6 +350,14 @@ export function PhotoReportDialog({
           setPreviewUrl(url);
         }}
       />
+
+      <Dialog open={fullScreenPreview} onOpenChange={setFullScreenPreview}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh] sm:h-screen sm:max-h-screen rounded-none sm:rounded-none">
+          {previewUrl && (
+            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] sm:max-h-screen object-contain" />
+          )}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

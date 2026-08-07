@@ -103,9 +103,6 @@ export function PhotoReportDialog({
   }
 
   async function takePhoto(source: "CAMERA" | "PHOTOS") {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     const isNative = typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
     
     if (isNative) {
@@ -237,10 +234,7 @@ export function PhotoReportDialog({
                   type="button"
                   variant="outline"
                   className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
-                  onClick={(e) => {
-                    e.currentTarget.blur();
-                    takePhoto("CAMERA");
-                  }}
+                  onClick={() => takePhoto("CAMERA")}
                 >
                   <LucideCamera className="h-6 w-6" />
                   <span className="text-[10px]">Снимок</span>
@@ -249,10 +243,7 @@ export function PhotoReportDialog({
                   type="button"
                   variant="outline"
                   className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
-                  onClick={(e) => {
-                    e.currentTarget.blur();
-                    takePhoto("PHOTOS");
-                  }}
+                  onClick={() => takePhoto("PHOTOS")}
                 >
                   <ImagePlus className="h-6 w-6" />
                   <span className="text-[10px]">Галерея</span>
@@ -261,10 +252,7 @@ export function PhotoReportDialog({
                   type="button"
                   variant="outline"
                   className="h-24 rounded-2xl flex flex-col gap-1 hover:bg-background hover:text-foreground active:bg-accent active:text-accent-foreground md:hover:bg-accent md:hover:text-accent-foreground focus-visible:ring-0"
-                  onClick={(e) => {
-                    e.currentTarget.blur();
-                    setBrowserOpen(true);
-                  }}
+                  onClick={() => setBrowserOpen(true)}
                 >
                   <FolderSearch className="h-6 w-6" />
                   <span className="text-[10px]">Хранилище</span>

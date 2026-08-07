@@ -264,31 +264,6 @@ export function PhotoReportDialog({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-
-          {/* Criticality pills */}
-          <div className="space-y-2">
-            <Label>Уровень критичности</Label>
-            <div className="flex flex-wrap gap-2">
-              {CRIT_OPTIONS.map((opt) => {
-                const active = criticality === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setCriticality(opt.value)}
-                    style={{
-                      backgroundColor: active ? opt.color : opt.light,
-                      color: active ? "#fff" : opt.color,
-                      borderColor: opt.color,
-                    }}
-                    className="rounded-full px-5 py-2.5 text-sm font-semibold border-2 transition active:scale-95"
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
 
         <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2">

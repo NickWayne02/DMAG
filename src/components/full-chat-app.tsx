@@ -865,11 +865,6 @@ function MessageBubble({
               </Dialog>
             </>
           )}
-          {isPhotoReport && criticality && (
-            <div className={cn("mb-1 text-[10px] font-bold uppercase tracking-wider", criticality === "urgent" ? "text-red-500" : criticality === "important" ? "text-amber-500" : "opacity-70")}>
-              {criticality === "info" ? "Информация" : criticality === "important" ? "Важно" : "Срочно"}
-            </div>
-          )}
           <div className="text-sm whitespace-pre-wrap wrap-break-word leading-relaxed">{description}</div>
 
           {needsTranslate && (

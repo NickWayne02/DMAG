@@ -2143,17 +2143,7 @@ export function AdminDashboard({
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select value={reportsCrit} onValueChange={setReportsCrit}>
-                    <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
-                      <SelectValue placeholder="Критичность" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-xl">
-                      <SelectItem value="all">Любая</SelectItem>
-                      <SelectItem value="info">Инфо</SelectItem>
-                      <SelectItem value="important">Предупреждение</SelectItem>
-                      <SelectItem value="urgent">Срочно</SelectItem>
-                    </SelectContent>
-                  </Select>
+
                   <Select value={reportsPeriod} onValueChange={setReportsPeriod}>
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
                       <SelectValue placeholder="Период" />
@@ -2179,7 +2169,6 @@ export function AdminDashboard({
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {reports.map((r) => {
-                        const m = CRIT_META[r.criticality];
                         return (
                           <div key={r.id} className="flex gap-3 rounded-2xl border bg-card p-3 relative group">
                             <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
@@ -2191,12 +2180,6 @@ export function AdminDashboard({
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span
-                                  className="inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                                  style={{ backgroundColor: m.bg, color: m.color }}
-                                >
-                                  {t(m.labelKey)}
-                                </span>
                                 <span className="text-[10px] text-muted-foreground truncate">
                                   {r.site_name}
                                 </span>

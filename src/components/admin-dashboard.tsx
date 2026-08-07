@@ -85,6 +85,7 @@ import { FullChatApp } from "@/components/full-chat-app";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
 import dmagLogo from "@/assets/dmag-logo.png";
+import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
 import {
   adminCreateUser,
   adminDeleteUser,
@@ -1201,12 +1202,22 @@ export function AdminDashboard({
       const { jsPDF } = await import("jspdf");
       const autoTable = (await import("jspdf-autotable")).default;
       const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+      
+      doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
+      doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+      doc.setFont("Roboto");
+
       const headers = Object.keys(rows[0]);
       doc.setFontSize(14);
       doc.text("Отчёты", 40, 40);
       doc.setFontSize(9);
       doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
-      autoTable(doc, { head: [headers], body: rows.map((r) => Object.values(r)), startY: 74 });
+      autoTable(doc, { 
+        head: [headers], 
+        body: rows.map((r) => Object.values(r)), 
+        startY: 74,
+        styles: { font: "Roboto" } 
+      });
       const blob = doc.output("blob");
       triggerDownload(blob, `${filename}.pdf`);
     }

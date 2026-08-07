@@ -2,6 +2,7 @@ import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
+import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
 
 // Export helpers for shift monitoring: CSV / Excel / PDF
 // Detailed rows: employee, site, date, start work, start pause, end pause, end work.
@@ -129,6 +130,11 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+  
+  doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
+  doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
+  doc.setFont("Roboto");
+
   doc.setFontSize(14);
   doc.text(title, 40, 40);
   doc.setFontSize(9);
@@ -137,7 +143,7 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
     head: [HEADERS],
     body: rows.map(rowToArray),
     startY: 74,
-    styles: { fontSize: 9, cellPadding: 4 },
+    styles: { font: "Roboto", fontSize: 9, cellPadding: 4 },
     headStyles: { fillColor: [37, 99, 235] },
     alternateRowStyles: { fillColor: [245, 247, 250] },
   });

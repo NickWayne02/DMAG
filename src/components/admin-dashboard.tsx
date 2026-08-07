@@ -1234,82 +1234,93 @@ export function AdminDashboard({
         });
         triggerDownload(blob, `${filename}.xlsx`);
       } else if (fmt === "pdf") {
-        toast.info("Подготовка PDF с фотографиями, подождите...");
+        toast.info("Подготовка PDF, скачивание оригиналов...");
         
-        async function fetchImageAsBase64(url: string): Promise<string | null> {
+        async function fetchImageData(url: string): Promise<{ base64: string, w: number, h: number } | null> {
           try {
             const res = await fetch(url);
             const blob = await res.blob();
-            return await new Promise((resolve) => {
+            const base64 = await new Promise<string | null>((resolve) => {
               const reader = new FileReader();
               reader.onloadend = () => resolve(reader.result as string);
               reader.onerror = () => resolve(null);
               reader.readAsDataURL(blob);
+            });
+            if (!base64) return null;
+            return await new Promise((resolve) => {
+              const img = new Image();
+              img.onload = () => resolve({ base64, w: img.width, h: img.height });
+              img.onerror = () => resolve(null);
+              img.src = base64;
             });
           } catch (e) {
             return null;
           }
         }
 
-        const imagesBase64 = await Promise.all(
-          reports.map(r => r.thumb ? fetchImageAsBase64(r.thumb) : Promise.resolve(null))
+        // Fetch original photos for better quality
+        const imagesData = await Promise.all(
+          reports.map(r => r.photo_url ? fetchImageData(r.photo_url) : Promise.resolve(null))
         );
 
-        const rows = reports.map((r, i) => [
-          new Date(r.created_at).toLocaleString("ru-RU"),
-          r.site_name,
-          t(CRIT_META[r.criticality].labelKey),
-          r.description ?? "",
-          imagesBase64[i] ? " " : "Нет",
-        ]);
-
         const { jsPDF } = await import("jspdf");
-        const autoTable = (await import("jspdf-autotable")).default;
-        const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+        const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+        const pageWidth = 595.28;
+        const pageHeight = 841.89;
         
         doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
         doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
         doc.setFont("Roboto");
 
-        doc.setFontSize(14);
-        doc.text("Фотоотчёты по объектам", 40, 40);
-        doc.setFontSize(9);
-        doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
-        
-        autoTable(doc, { 
-          head: [["Дата", "Объект", "Критичность", "Описание", "Фото"]], 
-          body: rows, 
-          startY: 74,
-          styles: { font: "Roboto", fontStyle: "normal", fontSize: 9, cellPadding: 6, textColor: [50, 50, 50], minCellHeight: 60, valign: "middle" },
-          headStyles: { 
-            fontStyle: "normal", 
-            fillColor: [13, 71, 161], 
-            textColor: [255, 255, 255], 
-            fontSize: 10,
-            halign: "left"
-          },
-          columnStyles: {
-            4: { cellWidth: 80, halign: "center" }
-          },
-          alternateRowStyles: { fillColor: [245, 247, 250] },
-          didDrawCell: (data) => {
-            if (data.section === "body" && data.column.index === 4) {
-              const base64Img = imagesBase64[data.row.index];
-              if (base64Img) {
-                // center image in cell
-                const imgSize = 52;
-                const dim = data.cell;
-                const x = dim.x + (dim.width - imgSize) / 2;
-                const y = dim.y + (dim.height - imgSize) / 2;
-                try {
-                  // doc.addImage handles data URIs safely
-                  doc.addImage(base64Img, x, y, imgSize, imgSize);
-                } catch(e) {
-                  console.error("Failed to add image to PDF", e);
-                }
-              }
+        reports.forEach((r, i) => {
+          if (i > 0) doc.addPage();
+          
+          // Fill background
+          doc.setFillColor(20, 20, 20);
+          doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+          const imgData = imagesData[i];
+          if (imgData) {
+            // Calculate contain dimensions for the top 85% of the page
+            const drawAreaHeight = pageHeight * 0.85;
+            const ratio = imgData.w / imgData.h;
+            let drawW = pageWidth;
+            let drawH = drawW / ratio;
+
+            if (drawH > drawAreaHeight) {
+              drawH = drawAreaHeight;
+              drawW = drawH * ratio;
             }
+
+            const x = (pageWidth - drawW) / 2;
+            const y = (drawAreaHeight - drawH) / 2;
+
+            try {
+              doc.addImage(imgData.base64, x, y, drawW, drawH);
+            } catch(e) {
+              console.error("Failed to add image", e);
+            }
+          } else {
+            doc.setTextColor(150, 150, 150);
+            doc.setFontSize(16);
+            doc.text("Нет фото", pageWidth / 2, pageHeight * 0.4, { align: "center" });
           }
+
+          // Draw text block at the bottom 15%
+          const textYStart = pageHeight * 0.85 + 25;
+          doc.setTextColor(255, 255, 255);
+          
+          doc.setFontSize(16);
+          doc.text(r.site_name, 30, textYStart);
+          
+          doc.setFontSize(11);
+          doc.setTextColor(180, 180, 180);
+          const dateStr = new Date(r.created_at).toLocaleString("ru-RU");
+          const critStr = t(CRIT_META[r.criticality].labelKey);
+          doc.text(`${dateStr}  •  ${critStr}`, 30, textYStart + 20);
+          
+          doc.setTextColor(220, 220, 220);
+          doc.text(r.description || "Без описания", 30, textYStart + 45, { maxWidth: pageWidth - 60 });
         });
         
         const blob = doc.output("blob");

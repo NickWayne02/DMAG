@@ -212,38 +212,43 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                     );
                   })}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="color"
-                    value={customHex}
-                    onChange={(e) => {
-                      setCustomHex(e.target.value);
-                      setSettings({ customAccent: e.target.value });
-                    }}
-                    className="h-10 w-14 p-1 rounded-lg cursor-pointer"
-                  />
-                  <Input
-                    value={customHex}
-                    onChange={(e) => setCustomHex(e.target.value)}
-                    onBlur={() => {
-                      if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(customHex)) {
-                        setSettings({ customAccent: customHex });
-                      }
-                    }}
-                    placeholder="#0D47A1"
-                    className="h-10 flex-1 rounded-lg"
-                  />
-                  {settings.customAccent && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSettings({ customAccent: null })}
-                    >
-                      {t("settings.clearCustom")}
-                    </Button>
-                  )}
-                </div>
+                {activeAccent.id !== "system" && (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="color"
+                      value={customHex}
+                      onChange={(e) => {
+                        setCustomHex(e.target.value);
+                        setSettings({ customAccent: e.target.value });
+                      }}
+                      className="h-10 w-14 p-1 rounded-lg cursor-pointer"
+                    />
+                    <Input
+                      value={customHex}
+                      onChange={(e) => setCustomHex(e.target.value)}
+                      onBlur={() => {
+                        if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(customHex)) {
+                          setSettings({ customAccent: customHex });
+                        }
+                      }}
+                      placeholder="#0D47A1"
+                      className="h-10 flex-1 rounded-lg"
+                    />
+                    {settings.customAccent && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSettings({ customAccent: null });
+                          setCustomHex(activeAccent.primary);
+                        }}
+                      >
+                        {t("settings.clearCustom")}
+                      </Button>
+                    )}
+                  </div>
+                )}
               </section>
             </>
           )}

@@ -262,7 +262,7 @@ export function EmployeeDesktopView() {
         style={{
           background: "var(--header-gradient)",
           borderColor: "var(--neon-border)",
-          color: "white",
+          color: settings.accentId === "system" && mode === "light" ? "var(--foreground)" : "white",
         }}
       >
         <div className="max-w-7xl w-full mx-auto px-8 py-4 flex items-center justify-between relative z-10">
@@ -866,7 +866,7 @@ function StatusButton({
       onClick={onClick}
       disabled={disabled}
       className={`rounded-2xl px-4 py-3 min-h-13 flex items-center justify-center gap-2 text-center font-bold uppercase tracking-wider transition w-full
-        ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-[0.98] hover:brightness-110"}`}
+        ${disabled ? (mode === "light" ? "opacity-75 cursor-not-allowed" : "opacity-40 cursor-not-allowed") : "active:scale-[0.98] hover:brightness-110"}`}
       style={{
         background: disabled ? disabledBg : solid ? t.color : bgMode,
         color: disabled

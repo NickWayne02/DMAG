@@ -203,9 +203,17 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                         title={p.label}
                       >
                         {active && (
-                          <Check className="h-5 w-5 text-white absolute top-1 right-1 drop-shadow" />
+                          <Check
+                            className={`h-5 w-5 absolute top-1 right-1 drop-shadow ${
+                              p.id === "system" ? "text-foreground" : "text-white"
+                            }`}
+                          />
                         )}
-                        <span className="absolute bottom-1 left-2 text-[10px] font-semibold text-white/90 drop-shadow">
+                        <span
+                          className={`absolute bottom-1 left-2 text-[10px] font-semibold drop-shadow ${
+                            p.id === "system" ? "text-foreground" : "text-white/90"
+                          }`}
+                        >
                           {p.label}
                         </span>
                       </button>

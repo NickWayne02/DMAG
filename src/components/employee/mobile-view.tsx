@@ -274,8 +274,8 @@ export function EmployeeMobileView() {
               background: "var(--header-gradient), var(--neon-surface)",
               borderColor: "var(--neon-border)",
               boxShadow: "var(--header-shadow)",
-              "--neon-text": "white",
-              "--neon-text-dim": "rgba(255, 255, 255, 0.7)",
+              "--neon-text": settings.accentId === "system" && mode === "light" ? "var(--foreground)" : "white",
+              "--neon-text-dim": settings.accentId === "system" && mode === "light" ? "color-mix(in oklab, var(--foreground) 70%, transparent)" : "rgba(255, 255, 255, 0.7)",
             } as React.CSSProperties
           }
         >
@@ -920,7 +920,7 @@ function StatusButton({
       onClick={onClick}
       disabled={disabled}
       className={`rounded-2xl p-4 min-h-24 flex flex-col items-start justify-between text-left font-semibold transition
-        ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-[0.98]"}`}
+        ${disabled ? (mode === "light" ? "opacity-75 cursor-not-allowed" : "opacity-40 cursor-not-allowed") : "active:scale-[0.98]"}`}
       style={{
         background: disabled ? disabledBg : solid ? t.color : (bgByMode[mode] ?? bgByMode.dark),
         color: disabled

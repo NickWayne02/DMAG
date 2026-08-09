@@ -479,7 +479,7 @@ export function EmployeeDesktopView() {
                   active={status === "working"}
                   disabled={status === "working" || status === "lunch"}
                   onClick={startWork}
-                  solid={status === "idle"}
+                  solid={status === "idle" || status === "finished"}
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <StatusButton
@@ -489,6 +489,7 @@ export function EmployeeDesktopView() {
                     active={status === "lunch"}
                     disabled={status !== "working"}
                     onClick={startLunch}
+                    solid={status === "working"}
                   />
                   <StatusButton
                     tone="cyan"
@@ -496,6 +497,7 @@ export function EmployeeDesktopView() {
                     label={tr("btn.endLunch")}
                     disabled={status !== "lunch"}
                     onClick={endLunch}
+                    solid={status === "lunch"}
                   />
                   <div className="col-span-2">
                     <StatusButton
@@ -504,6 +506,7 @@ export function EmployeeDesktopView() {
                       label={tr("btn.endShift")}
                       disabled={status !== "working" && status !== "lunch"}
                       onClick={endShift}
+                      solid={status === "working" || status === "lunch"}
                     />
                   </div>
                 </div>
@@ -854,7 +857,7 @@ function StatusButton({
   const bgMode = `linear-gradient(160deg, ${t.color}22, ${surface})`;
   const shadowMode = `inset 0 0 0 1px ${t.color}55, 0 6px 18px -10px ${t.color}99`;
 
-  const disabledBg = "rgba(0,0,0,0.05)";
+  const disabledBg = mode === "light" ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
   const textShadow = mode === "neon" && !solid ? t.glow : "none";
 
   return (

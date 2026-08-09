@@ -440,34 +440,37 @@ export function EmployeeMobileView() {
               <div className="grid grid-cols-2 gap-3">
                 <StatusButton
                   tone="lime"
-                  icon={<Rocket className="h-5 w-5" />}
+                  icon={<Rocket className="h-5 w-5 shrink-0" />}
                   label={tr("btn.startWork")}
                   active={status === "working"}
                   disabled={status === "working" || status === "lunch"}
                   onClick={startWork}
-                  solid={status === "idle"}
+                  solid={status === "idle" || status === "finished"}
                 />
                 <StatusButton
                   tone="amber"
-                  icon={<Pause className="h-5 w-5" />}
+                  icon={<Pause className="h-4 w-4 shrink-0" />}
                   label={tr("btn.startLunch")}
                   active={status === "lunch"}
                   disabled={status !== "working"}
                   onClick={startLunch}
+                  solid={status === "working"}
                 />
                 <StatusButton
                   tone="cyan"
-                  icon={<PlayCircle className="h-5 w-5" />}
+                  icon={<PlayCircle className="h-4 w-4 shrink-0" />}
                   label={tr("btn.endLunch")}
                   disabled={status !== "lunch"}
                   onClick={endLunch}
+                  solid={status === "lunch"}
                 />
                 <StatusButton
                   tone="red"
-                  icon={<PowerOff className="h-5 w-5" />}
+                  icon={<PowerOff className="h-4 w-4 shrink-0" />}
                   label={tr("btn.endShift")}
                   disabled={status !== "working" && status !== "lunch"}
                   onClick={endShift}
+                  solid={status === "working" || status === "lunch"}
                 />
               </div>
             </section>
@@ -909,7 +912,7 @@ function StatusButton({
   const disabledBg =
     mode === "light"
       ? "color-mix(in oklab, var(--foreground) 6%, transparent)"
-      : "rgba(255,255,255,0.03)";
+      : "rgba(255,255,255,0.05)";
 
   return (
     <button

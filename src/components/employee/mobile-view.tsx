@@ -283,14 +283,14 @@ export function EmployeeMobileView() {
           }
         >
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-end gap-2 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
+            <div className="flex items-center justify-end gap-2 [&_button]:text-inherit [&_svg]:text-inherit [&_span]:text-inherit">
               <LanguageSwitcher compact />
               <SettingsDialog />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={signOut}
-                className="hover:bg-white/10 text-white h-8 w-8"
+                className="hover:bg-black/10 dark:hover:bg-white/10 h-8 w-8"
                 title={tr("header.signOut")}
               >
                 <LogOut className="h-4 w-4" />
@@ -325,24 +325,24 @@ export function EmployeeMobileView() {
                 </div>
                 <div className="min-w-0 text-left flex-1">
                   <p
-                    className="text-[10px] uppercase tracking-[0.2em] text-cyan-300"
+                    className="text-[10px] uppercase tracking-[0.2em] opacity-70"
                     style={{ textShadow: "var(--neon-glow-cyan)" }}
                   >
                     {tr(`role.${role}`)}
                   </p>
-                  <h1 className="text-lg font-bold truncate text-white leading-tight mt-0.5">
+                  <h1 className="text-lg font-bold truncate leading-tight mt-0.5">
                     {name}
                   </h1>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
+              <div className="flex items-center gap-1 shrink-0 [&_button]:text-inherit [&_svg]:text-inherit [&_span]:text-inherit">
                 {canSwitchToAdmin && (
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => onSwitchToAdmin?.()}
-                    className="hover:bg-white/10 text-white"
+                    className="hover:bg-black/10 dark:hover:bg-white/10"
                     title={tr("header.openAdmin")}
                   >
                     <ShieldCheck className="h-5 w-5" />
@@ -352,7 +352,7 @@ export function EmployeeMobileView() {
                   variant="ghost"
                   size="icon"
                   onClick={openMyShifts}
-                  className="hover:bg-white/10 text-white"
+                  className="hover:bg-black/10 dark:hover:bg-white/10"
                   title={tr("header.myShifts")}
                 >
                   <CalendarDays className="h-5 w-5" />

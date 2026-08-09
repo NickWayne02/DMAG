@@ -296,15 +296,15 @@ export function EmployeeDesktopView() {
                 )}
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-white/70">
+                <p className="text-[10px] uppercase tracking-[0.2em] opacity-70">
                   {tr(`role.${role}`)}
                 </p>
-                <h1 className="font-bold text-xl text-white">{name}</h1>
+                <h1 className="font-bold text-xl">{name}</h1>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 [&_button]:text-white [&_svg]:text-white [&_span]:text-white">
+          <div className="flex items-center gap-2 [&_button]:text-inherit [&_svg]:text-inherit [&_span]:text-inherit">
             <div className="flex items-center gap-2">
               <LanguageSwitcher />
               <SettingsDialog />
@@ -312,13 +312,13 @@ export function EmployeeDesktopView() {
             {canSwitchToAdmin && (
               <Button
                 variant="outline"
-                className="bg-transparent hover:bg-white/20 hover:text-white border-white/30 text-white"
+                className="bg-transparent hover:bg-black/10 dark:hover:bg-white/20 border-current"
                 onClick={onSwitchToAdmin}
               >
                 {tr("header.openAdmin")}
               </Button>
             )}
-            <Button variant="ghost" className="hover:bg-red-500/20 text-white" onClick={signOut}>
+            <Button variant="ghost" className="hover:bg-red-500/20" onClick={signOut}>
               <LogOut className="w-5 h-5 mr-2" />
               {tr("header.signOut")}
             </Button>

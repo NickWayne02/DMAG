@@ -53,10 +53,13 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
   const { settings, setSettings, setPanelColor, reset, activeAccent, resolvedPanels } =
     useSettings();
   const [open, setOpen] = useState(false);
-  const [customHex, setCustomHex] = useState<string>(settings.customAccent ?? activeAccent.primary);
+  const getValidHex = (hex: string) => (hex === "AccentColor" ? "#0D47A1" : hex);
+  const [customHex, setCustomHex] = useState<string>(
+    settings.customAccent ?? getValidHex(activeAccent.primary),
+  );
 
   useEffect(() => {
-    setCustomHex(settings.customAccent ?? activeAccent.primary);
+    setCustomHex(settings.customAccent ?? getValidHex(activeAccent.primary));
   }, [settings.customAccent, activeAccent.primary]);
 
   return (
@@ -192,7 +195,10 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                             : "border-border hover:border-primary/40"
                         }`}
                         style={{
-                          background: `linear-gradient(135deg, ${p.primary}, ${p.violet} 60%, ${p.cyan})`,
+                          background:
+                            p.primary === "AccentColor"
+                              ? p.primary
+                              : `linear-gradient(135deg, ${p.primary}, ${p.violet} 60%, ${p.cyan})`,
                         }}
                         title={p.label}
                       >

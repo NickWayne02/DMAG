@@ -20,6 +20,14 @@ export type AccentPreset = {
 
 export const ACCENT_PRESETS: AccentPreset[] = [
   {
+    id: "system",
+    label: "Системный (OS)",
+    primary: "AccentColor",
+    cyan: "color-mix(in oklab, AccentColor 80%, white)",
+    magenta: "color-mix(in oklab, AccentColor 60%, white)",
+    violet: "color-mix(in oklab, AccentColor 40%, black)",
+  },
+  {
     id: "dmag",
     label: "DMAG Blue",
     primary: "#0D47A1",

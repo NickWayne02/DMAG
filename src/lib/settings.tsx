@@ -244,20 +244,21 @@ function applySettings(s: Settings, accent: AccentPreset, animate: boolean = fal
     else if (s.mode !== "custom") panels.primary = accent.primary;
 
     // Dynamically tint neutral backgrounds using the primary color for a cohesive theme canvas
+    const isAccentColor = panels.primary === "AccentColor";
     const mixBg =
-      s.mode === "custom"
+      s.mode === "custom" || isAccentColor
         ? panels.background
         : `color-mix(in oklab, ${panels.background} 96%, ${panels.primary})`;
     const mixCard =
-      s.mode === "custom"
+      s.mode === "custom" || isAccentColor
         ? panels.card
         : `color-mix(in oklab, ${panels.card} 95%, ${panels.primary})`;
     const mixMuted =
-      s.mode === "custom"
+      s.mode === "custom" || isAccentColor
         ? panels.muted
         : `color-mix(in oklab, ${panels.muted} 90%, ${panels.primary})`;
     const mixBorder =
-      s.mode === "custom"
+      s.mode === "custom" || isAccentColor
         ? panels.border
         : `color-mix(in oklab, ${panels.border} 80%, ${panels.primary})`;
 
@@ -302,11 +303,11 @@ function applySettings(s: Settings, accent: AccentPreset, animate: boolean = fal
     );
     root.style.setProperty(
       "--neon-border",
-      `color-mix(in oklab, ${panels.primary} 30%, ${panels.border})`,
+      isAccentColor ? panels.border : `color-mix(in oklab, ${panels.primary} 30%, ${panels.border})`,
     );
     root.style.setProperty(
       "--neon-grid-line",
-      `color-mix(in oklab, ${panels.primary} 12%, transparent)`,
+      isAccentColor ? "transparent" : `color-mix(in oklab, ${panels.primary} 12%, transparent)`,
     );
 
     // Neon accent trio — driven by the selected accent (or custom accent hex).

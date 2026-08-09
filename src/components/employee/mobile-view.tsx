@@ -30,6 +30,10 @@ import {
   ShieldCheck,
   Sparkles,
   CalendarDays,
+  Map as MapIcon,
+  MapPin,
+  ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { AdminEditableCalendarDialog } from "@/components/admin-editable-calendar-dialog";
@@ -42,6 +46,7 @@ import { SettingsDialog } from "@/components/settings-dialog";
 import { PrivacyModal, TermsModal, SupportModal } from "./footer-modals";
 import { useT, useLanguage } from "@/lib/i18n";
 import { useSettings } from "@/lib/settings";
+import { getCurrentPosition } from "@/lib/geocode";
 
 const LOCALE_MAP: Record<string, string> = {
   ru: "ru-RU",
@@ -234,6 +239,22 @@ export function EmployeeMobileView() {
     canSwitchToAdmin,
     onSwitchToAdmin,
   } = useEmployeeLogic();
+
+  const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [mapType, setMapType] = useState<"m" | "k">("m");
+
+  useEffect(() => {
+    if (!myCoords) {
+      getCurrentPosition()
+        .then((pos: any) => {
+          if (pos && pos.latitude && pos.longitude) {
+            setMyCoords(pos);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [myCoords]);
+
   return (
     <div
       className="min-h-screen flex justify-center"
@@ -481,19 +502,83 @@ export function EmployeeMobileView() {
 
               {selectedSite && (
                 <div
-                  className="w-full rounded-2xl overflow-hidden relative h-48"
+                  className="w-full rounded-2xl overflow-hidden relative h-48 group"
                   style={{ border: "1px solid var(--neon-border)" }}
                 >
+                  {/* Floating Map Controls */}
+                  <div className="absolute top-2 right-2 z-10 flex flex-col gap-2 opacity-90">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="bg-black/50 backdrop-blur-md border border-(--neon-border) w-8 h-8 rounded-full"
+                      onClick={() => setMapType(mapType === "m" ? "k" : "m")}
+                      title="Переключить вид (Схема/Спутник)"
+                    >
+                      {mapType === "m" ? <MapIcon className="w-4 h-4 text-white" /> : <MapPin className="w-4 h-4 text-white" />}
+                    </Button>
+
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="bg-black/50 backdrop-blur-md border border-(--neon-border) hover:bg-black/70 w-8 h-8 rounded-full"
+                      onClick={() => {
+                        setMyCoords(null);
+                        toast.info("Обновление геопозиции...");
+                      }}
+                      title="Обновить координаты"
+                    >
+                      <RefreshCw className="w-4 h-4 text-white" />
+                    </Button>
+                    
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="bg-black/50 backdrop-blur-md border border-(--neon-border) w-8 h-8 rounded-full"
+                      onClick={() => {
+                        const lat = myCoords?.latitude || 0;
+                        const lon = myCoords?.longitude || 0;
+                        if (lat && lon) {
+                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
+                        } else {
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                        }
+                      }}
+                      title="Проложить маршрут"
+                    >
+                      <Navigation className="w-4 h-4 text-white" />
+                    </Button>
+
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="bg-black/50 backdrop-blur-md border border-(--neon-border) w-8 h-8 rounded-full"
+                      onClick={() => {
+                        if (myCoords) {
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`, "_blank");
+                        } else {
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                        }
+                      }}
+                      title="Открыть в Google Maps"
+                    >
+                      <ExternalLink className="w-4 h-4 text-white" />
+                    </Button>
+                  </div>
+
                   <iframe
                     width="100%"
                     height="100%"
                     style={{
                       border: 0,
-                      filter: "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)",
+                      filter: mapType === "m" ? "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)" : "none",
                     }}
                     loading="lazy"
                     allowFullScreen
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                    src={
+                      myCoords
+                        ? `https://maps.google.com/maps?q=${myCoords.latitude},${myCoords.longitude}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
+                        : `https://maps.google.com/maps?q=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
+                    }
                   ></iframe>
                 </div>
               )}

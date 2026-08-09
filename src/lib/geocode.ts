@@ -44,20 +44,20 @@ export async function getCurrentPosition(
     }
 
     try {
-      // Extremely fast 2-second timeout for high accuracy. If the GPS satellite lock is ready, it returns instantly.
+      // 10-second timeout for high accuracy. GPS lock can take a few seconds on cold start.
       const pos = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 2000,
+        timeout: 10000,
         maximumAge: 60000,
         ...options,
       });
       return pos.coords;
     } catch (e: any) {
-      // Fast 3-second timeout for low accuracy (network/wifi), allowing cached locations
+      // 5-second timeout for low accuracy (network/wifi), allowing cached locations
       try {
         const fallbackPos = await Geolocation.getCurrentPosition({
           enableHighAccuracy: false,
-          timeout: 3000,
+          timeout: 5000,
           maximumAge: 3600000,
           ...options,
         });
@@ -74,6 +74,7 @@ export async function getCurrentPosition(
             if (ipRes.ok) {
               const ipData = await ipRes.json();
               if (ipData.latitude && ipData.longitude) {
+                toast.warning("Слабый сигнал GPS. Показано приблизительное местоположение (по IP компьютера).", { duration: 5000 });
                 return {
                   latitude: parseFloat(ipData.latitude),
                   longitude: parseFloat(ipData.longitude),

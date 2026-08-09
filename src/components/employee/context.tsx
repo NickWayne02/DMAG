@@ -718,22 +718,7 @@ export function EmployeeProvider({
       else commitEndShift(coords);
     };
 
-    let pos: any = null;
-
-    // If a site is selected, fake the GPS lock using the site's data so the real location is NOT recorded
-    if (selectedSite) {
-      if (selectedSite.address && selectedSite.address.startsWith("GPS: ")) {
-        const parts = selectedSite.address.replace("GPS: ", "").split(",");
-        pos = { latitude: parseFloat(parts[0]), longitude: parseFloat(parts[1]) };
-      } else {
-        // Fallback fake coords if the site doesn't have GPS in address
-        pos = { latitude: 0, longitude: 0 };
-      }
-      // Small artificial delay to simulate GPS lock
-      await new Promise((r) => setTimeout(r, 600));
-    } else {
-      pos = await getCurrentPosition();
-    }
+    const pos = await getCurrentPosition();
 
     if (pos) {
       if (selectedSite?.name) {

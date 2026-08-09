@@ -924,11 +924,15 @@ function StatusButton({
       style={{
         background: disabled ? disabledBg : solid ? t.color : (bgByMode[mode] ?? bgByMode.dark),
         color: disabled
-          ? "var(--neon-text-dim)"
+          ? mode === "light"
+            ? "rgba(0,0,0,0.45)"
+            : "var(--neon-text-dim)"
           : solid
-            ? mode === "light"
-              ? "#fff"
-              : "#000"
+            ? settings.accentId === "system"
+              ? "AccentColorText"
+              : mode === "light"
+                ? "#fff"
+                : "#000"
             : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"

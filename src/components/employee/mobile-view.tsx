@@ -165,6 +165,9 @@ export function EmployeeMobileView() {
   const [termsOpen, setTermsOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
 
+  const { settings } = useSettings();
+  const mode = settings.mode;
+
   const {
     user,
     navigate,

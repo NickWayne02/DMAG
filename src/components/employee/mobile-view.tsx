@@ -277,8 +277,8 @@ export function EmployeeMobileView() {
               background: "var(--header-gradient), var(--neon-surface)",
               borderColor: "var(--neon-border)",
               boxShadow: "var(--header-shadow)",
-              "--neon-text": settings.accentId === "system" && mode === "light" ? "var(--foreground)" : "white",
-              "--neon-text-dim": settings.accentId === "system" && mode === "light" ? "color-mix(in oklab, var(--foreground) 70%, transparent)" : "rgba(255, 255, 255, 0.7)",
+              "--neon-text": "white",
+              "--neon-text-dim": "rgba(255, 255, 255, 0.7)",
             } as React.CSSProperties
           }
         >
@@ -898,11 +898,9 @@ function StatusButton({
             ? "rgba(0,0,0,0.45)"
             : "var(--neon-text-dim)"
           : isSolid
-            ? settings.accentId === "system"
-              ? "AccentColorText"
-              : mode === "light"
-                ? "#fff"
-                : "#000"
+            ? mode === "light"
+              ? "#fff"
+              : "#000"
             : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"

@@ -265,7 +265,7 @@ export function EmployeeDesktopView() {
         style={{
           background: "var(--header-gradient)",
           borderColor: "var(--neon-border)",
-          color: settings.accentId === "system" && mode === "light" ? "var(--foreground)" : "white",
+          color: "white",
         }}
       >
         <div className="max-w-7xl w-full mx-auto px-8 py-4 flex items-center justify-between relative z-10">
@@ -878,11 +878,9 @@ function StatusButton({
             ? "rgba(0,0,0,0.45)"
             : "var(--neon-text-dim)"
           : isSolid
-            ? settings.accentId === "system"
-              ? "AccentColorText"
-              : mode === "light"
-                ? "#fff"
-                : "#000"
+            ? mode === "light"
+              ? "#fff"
+              : "#000"
             : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"

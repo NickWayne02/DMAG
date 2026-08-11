@@ -20,14 +20,6 @@ export type AccentPreset = {
 
 export const ACCENT_PRESETS: AccentPreset[] = [
   {
-    id: "system",
-    label: "Системный (OS)",
-    primary: "AccentColor",
-    cyan: "AccentColor",
-    magenta: "AccentColor",
-    violet: "AccentColor",
-  },
-  {
     id: "dmag",
     label: "DMAG Blue",
     primary: "#0D47A1",

@@ -891,6 +891,7 @@ function StatusButton({
   const t = TONE_MAP[tone];
   const { settings, resolvedPanels } = useSettings();
   const mode = settings.mode;
+  const isSolid = settings.buttonStyle === "text" ? false : solid;
 
   // Per-theme visual language for action buttons.
   // light: soft pastel tint on card surface with colored ring + shadow.
@@ -911,7 +912,7 @@ function StatusButton({
     custom: `inset 0 0 0 1px ${t.color}55, 0 6px 18px -10px ${t.color}99`,
   };
 
-  const textShadow = mode === "neon" && !solid ? t.glow : "none";
+  const textShadow = mode === "neon" && !isSolid ? t.glow : "none";
   const disabledBg =
     mode === "light"
       ? "color-mix(in oklab, var(--foreground) 6%, transparent)"
@@ -925,12 +926,12 @@ function StatusButton({
       className={`rounded-2xl p-4 min-h-24 flex flex-col items-start justify-between text-left font-semibold transition
         ${disabled ? (mode === "light" ? "opacity-75 cursor-not-allowed" : "opacity-40 cursor-not-allowed") : "active:scale-[0.98]"}`}
       style={{
-        background: disabled ? disabledBg : solid ? t.color : (bgByMode[mode] ?? bgByMode.dark),
+        background: disabled ? disabledBg : isSolid ? t.color : (bgByMode[mode] ?? bgByMode.dark),
         color: disabled
           ? mode === "light"
             ? "rgba(0,0,0,0.45)"
             : "var(--neon-text-dim)"
-          : solid
+          : isSolid
             ? settings.accentId === "system"
               ? "AccentColorText"
               : mode === "light"
@@ -939,7 +940,7 @@ function StatusButton({
             : t.color,
         boxShadow: disabled
           ? "inset 0 0 0 1px var(--neon-border)"
-          : solid
+          : isSolid
             ? t.glow
             : (shadowByMode[mode] ?? shadowByMode.dark),
         textShadow,

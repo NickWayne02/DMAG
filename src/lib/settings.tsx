@@ -152,6 +152,7 @@ export type Settings = {
   scale: number; // 0.85 – 1.25
   radius: number; // 0.25 – 1.5 (rem)
   density: "compact" | "cozy" | "spacious";
+  buttonStyle: "solid" | "text"; // "solid" (bg color), "text" (text color on neutral bg)
 };
 
 const DEFAULTS: Settings = {
@@ -162,6 +163,7 @@ const DEFAULTS: Settings = {
   scale: 1,
   radius: 0.875,
   density: "cozy",
+  buttonStyle: "solid",
 };
 
 const STORAGE_KEY = "dmag.settings.v2";

@@ -855,13 +855,14 @@ function StatusButton({
   const t = TONE_MAP[tone];
   const { settings } = useSettings();
   const mode = settings.mode;
+  const isSolid = settings.buttonStyle === "text" ? false : solid;
 
   const surface = "var(--neon-surface)";
   const bgMode = `linear-gradient(160deg, ${t.color}22, ${surface})`;
   const shadowMode = `inset 0 0 0 1px ${t.color}55, 0 6px 18px -10px ${t.color}99`;
 
   const disabledBg = mode === "light" ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
-  const textShadow = mode === "neon" && !solid ? t.glow : "none";
+  const textShadow = mode === "neon" && !isSolid ? t.glow : "none";
 
   return (
     <button
@@ -871,12 +872,12 @@ function StatusButton({
       className={`rounded-2xl px-4 py-3 min-h-13 flex items-center justify-center gap-2 text-center font-bold uppercase tracking-wider transition w-full
         ${disabled ? (mode === "light" ? "opacity-75 cursor-not-allowed" : "opacity-40 cursor-not-allowed") : "active:scale-[0.98] hover:brightness-110"}`}
       style={{
-        background: disabled ? disabledBg : solid ? t.color : bgMode,
+        background: disabled ? disabledBg : isSolid ? t.color : bgMode,
         color: disabled
           ? mode === "light"
             ? "rgba(0,0,0,0.45)"
             : "var(--neon-text-dim)"
-          : solid
+          : isSolid
             ? settings.accentId === "system"
               ? "AccentColorText"
               : mode === "light"
@@ -887,7 +888,7 @@ function StatusButton({
           ? "inset 0 0 0 1px var(--neon-border)"
           : active
             ? `inset 0 0 0 1px ${t.color}, ${t.glow}`
-            : solid
+            : isSolid
               ? t.glow
               : shadowMode,
         textShadow: active ? t.glow : textShadow,

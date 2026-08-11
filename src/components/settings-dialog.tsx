@@ -263,6 +263,40 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
 
           <div className="h-px bg-border" />
 
+          {/* Button Style cluster */}
+          <section className="space-y-3">
+            <Label className="text-sm font-semibold flex items-center gap-2">
+              <Type className="h-4 w-4" /> {/* Or another icon like Layout */}
+              Стиль кнопок
+            </Label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSettings({ buttonStyle: "solid" })}
+                className={`flex items-center justify-center h-10 rounded-xl border text-xs font-semibold transition ${
+                  settings.buttonStyle === "solid"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                Цветной фон
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettings({ buttonStyle: "text" })}
+                className={`flex items-center justify-center h-10 rounded-xl border text-xs font-semibold transition ${
+                  settings.buttonStyle === "text"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border hover:bg-muted"
+                }`}
+              >
+                Цветной текст
+              </button>
+            </div>
+          </section>
+
+          <div className="h-px bg-border" />
+
           {/* UI Scale cluster */}
           <section className="space-y-2">
             <div className="flex items-center justify-between">

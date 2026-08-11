@@ -589,40 +589,6 @@ export function EmployeeMobileView() {
                 </div>
               )}
 
-              <NeonCard>
-                <div className="flex items-center gap-3">
-                  <NeonIcon color="var(--neon-violet)" glow="var(--neon-glow-violet)">
-                    <CarFront className="h-5 w-5" />
-                  </NeonIcon>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
-                      {tr("travel.title")}
-                    </p>
-                    <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
-                      {tr("travel.hint")}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <Input
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    placeholder={tr("travel.placeholder")}
-                    value={travelTime}
-                    onChange={(e) => setTravelTime(e.target.value.replace(/[^\d]/g, ""))}
-                    className="h-11 rounded-xl border-0 placeholder:opacity-50"
-                    style={{
-                      color: "var(--neon-text)",
-                      background: "color-mix(in oklab, var(--neon-surface) 90%, transparent)",
-                      boxShadow: "inset 0 0 0 1px var(--neon-border)",
-                    }}
-                  />
-                  <span className="text-sm shrink-0" style={{ color: "var(--neon-text-dim)" }}>
-                    {tr("travel.unit")}
-                  </span>
-                </div>
-              </NeonCard>
-
               {status === "finished" && (
                 <NeonCard glowColor="var(--neon-cyan)">
                   <div className="flex items-center gap-3">

@@ -246,17 +246,16 @@ export function EmployeeMobileView() {
   const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [mapType, setMapType] = useState<"m" | "k">("m");
 
-  useEffect(() => {
-    if (!myCoords) {
-      getCurrentPosition()
-        .then((pos: any) => {
-          if (pos && pos.latitude && pos.longitude) {
-            setMyCoords(pos);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [myCoords]);
+  const handleRefreshCoords = () => {
+    toast.info("Обновление геопозиции...");
+    getCurrentPosition()
+      .then((pos: any) => {
+        if (pos && pos.latitude && pos.longitude) {
+          setMyCoords(pos);
+        }
+      })
+      .catch(() => {});
+  };
 
   return (
     <div
@@ -527,10 +526,7 @@ export function EmployeeMobileView() {
                       size="icon"
                       variant="secondary"
                       className="bg-black/50 backdrop-blur-md border border-(--neon-border) hover:bg-black/70 w-8 h-8 rounded-full"
-                      onClick={() => {
-                        setMyCoords(null);
-                        toast.info("Обновление геопозиции...");
-                      }}
+                      onClick={handleRefreshCoords}
                       title="Обновить координаты"
                     >
                       <RefreshCw className="w-4 h-4 text-white" />

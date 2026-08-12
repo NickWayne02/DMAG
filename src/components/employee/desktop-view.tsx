@@ -246,17 +246,16 @@ export function EmployeeDesktopView() {
   const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [mapType, setMapType] = useState<"m" | "k">("m"); // "m" = map, "k" = satellite
 
-  useEffect(() => {
-    if (!myCoords) {
-      getCurrentPosition()
-        .then((pos: any) => {
-          if (pos && pos.latitude && pos.longitude) {
-            setMyCoords(pos);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [myCoords]);
+  const handleRefreshCoords = () => {
+    toast.info("Обновление геопозиции...");
+    getCurrentPosition()
+      .then((pos: any) => {
+        if (pos && pos.latitude && pos.longitude) {
+          setMyCoords(pos);
+        }
+      })
+      .catch(() => {});
+  };
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background text-foreground">
@@ -562,10 +561,7 @@ export function EmployeeDesktopView() {
                         size="icon"
                         variant="secondary"
                         className="bg-black/50 backdrop-blur-md border border-(--neon-border) hover:bg-black/70 w-10 h-10 rounded-full"
-                        onClick={() => {
-                          setMyCoords(null); // Setting to null triggers the useEffect to re-fetch!
-                          toast.info("Обновление геопозиции...");
-                        }}
+                        onClick={handleRefreshCoords}
                         title="Обновить координаты"
                       >
                         <RefreshCw className="w-5 h-5 text-white" />

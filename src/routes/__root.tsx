@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
@@ -126,23 +126,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => {
-    import("@capacitor/core")
-      .then(({ Capacitor }) => {
-        if (Capacitor.isNativePlatform()) {
-          import("@capacitor/geolocation").then(({ Geolocation }) => {
-            Geolocation.checkPermissions()
-              .then((perm) => {
-                if (perm.location !== "granted") {
-                  Geolocation.requestPermissions().catch(() => {});
-                }
-              })
-              .catch(() => {});
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
+  // Proactive geolocation request removed; permissions will be requested when needed.
 
   return (
     <QueryClientProvider client={queryClient}>

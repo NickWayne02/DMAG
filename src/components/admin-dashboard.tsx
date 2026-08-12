@@ -1604,7 +1604,7 @@ export function AdminDashboard({
           {activeTab === "dashboard" && (
             <>
               {/* KPI tiles */}
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Kpi
                   label={t("dashboard.kpi.workers")}
                   value={String(stats.working)}

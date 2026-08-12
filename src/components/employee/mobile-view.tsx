@@ -364,7 +364,7 @@ export function EmployeeMobileView() {
           <div className="flex flex-col">
             {/* Status & Action buttons — sticky neon control deck */}
             <section
-              className="px-5 lg:px-0 sticky top-0 z-50 py-3 border-b lg:border-none lg:pt-3 lg:pb-0 lg:bg-transparent"
+              className="px-5 lg:px-0 sticky top-0 z-50 pt-3 pb-4 border-b lg:border-none lg:pt-3 lg:pb-0 lg:bg-transparent"
               style={{
                 background: "color-mix(in oklab, var(--neon-bg) 85%, transparent)",
                 backdropFilter: "blur(12px)",
@@ -372,7 +372,7 @@ export function EmployeeMobileView() {
               }}
             >
               <div
-                className="rounded-3xl p-4 border mb-3"
+                className="rounded-3xl p-4 border mb-4"
                 style={{
                   background: "var(--neon-surface)",
                   borderColor: "var(--neon-border)",
@@ -439,7 +439,7 @@ export function EmployeeMobileView() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <StatusButton
                   tone="lime"
                   icon={<Rocket className="h-5 w-5 shrink-0" />}
@@ -478,7 +478,7 @@ export function EmployeeMobileView() {
             </section>
 
             {/* Travel time + object */}
-            <section className="px-5 lg:px-0 mt-5 space-y-3">
+            <section className="px-5 lg:px-0 pt-4 pb-4 space-y-4">
               <button type="button" onClick={() => setSiteOpen(true)} className="w-full text-left">
                 <NeonCard>
                   <div className="flex items-center gap-3">

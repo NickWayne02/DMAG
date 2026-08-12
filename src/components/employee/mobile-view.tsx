@@ -478,7 +478,7 @@ export function EmployeeMobileView() {
             </section>
 
             {/* Travel time + object */}
-            <section className="px-5 lg:px-0 pb-4 space-y-4">
+            <section className="px-5 lg:px-0 pt-4 pb-4 space-y-4">
               <button type="button" onClick={() => setSiteOpen(true)} className="w-full text-left">
                 <NeonCard>
                   <div className="flex items-center gap-3">

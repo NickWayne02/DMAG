@@ -364,7 +364,7 @@ export function EmployeeMobileView() {
           <div className="flex flex-col">
             {/* Status & Action buttons — sticky neon control deck */}
             <section
-              className="px-5 lg:px-0 sticky top-0 z-50 pt-3 pb-4 border-b lg:border-none lg:pt-3 lg:pb-0 lg:bg-transparent"
+              className="px-5 lg:px-0 sticky top-0 z-50 pt-3 pb-4 lg:border-none lg:pt-3 lg:pb-0 lg:bg-transparent"
               style={{
                 background: "color-mix(in oklab, var(--neon-bg) 85%, transparent)",
                 backdropFilter: "blur(12px)",
@@ -656,7 +656,7 @@ export function EmployeeMobileView() {
         </div>{" "}
         {/* End Grid */}
         <footer
-          className="mt-auto py-8 text-center border-t"
+          className="mt-auto py-8 text-center"
           style={{
             background: "rgba(0,0,0,0.15)",
             borderColor: "var(--neon-border)",

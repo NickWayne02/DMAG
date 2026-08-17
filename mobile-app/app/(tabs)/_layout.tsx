@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { View, Text, StyleSheet } from 'react-native';
+import { LayoutDashboard, MessageSquare, Settings } from 'lucide-react-native';
 
 export default function TabLayout() {
   const { session } = useAuth();
@@ -18,34 +19,41 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: colors.card, borderBottomWidth: 1, borderBottomColor: colors.border },
-        headerTintColor: colors.foreground,
-        headerTitleStyle: { fontFamily: 'Inter_600SemiBold' },
+        headerShown: false,
         tabBarStyle: { 
-          backgroundColor: settings.mode === 'neon' ? '#000' : colors.card, 
-          borderTopColor: colors.border 
+          backgroundColor: '#000000', 
+          borderTopColor: colors.border,
+          borderTopWidth: 1,
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+          elevation: 0,
+          shadowOpacity: 0
         },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.muted,
-        tabBarLabelStyle: { fontFamily: 'Inter_500Medium' },
+        tabBarActiveTintColor: colors.neonCyan,
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
+        tabBarLabelStyle: { fontFamily: 'Inter_500Medium', fontSize: 12 },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Дашборд',
+          tabBarIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} />
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Чат',
+          tabBarIcon: ({ color, size }) => <MessageSquare color={color} size={size} />
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Настройки',
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />
         }}
       />
     </Tabs>

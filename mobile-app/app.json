@@ -32,6 +32,12 @@
       "expo-font",
       "expo-router",
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "31837706-8049-4d7e-91fe-70433e17e8c9"
+      }
+    }
   }
 }

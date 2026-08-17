@@ -93,23 +93,23 @@ export default function ChatViewScreen() {
     return (
       <View style={[styles.messageRow, isMe ? styles.messageRowMe : styles.messageRowThem]}>
         {!isMe && (
-          <View style={[styles.avatar, { backgroundColor: colors.muted }]}>
-            <Text style={[styles.avatarText, { color: colors.foreground }]}>{item.author_name?.charAt(0).toUpperCase() || '?'}</Text>
+          <View style={[styles.avatar, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1 }]}>
+            <Text style={[styles.avatarText, { color: '#ffffff' }]}>{item.author_name?.charAt(0).toUpperCase() || '?'}</Text>
           </View>
         )}
-        <View style={[styles.bubble, isMe ? [styles.bubbleMe, { backgroundColor: colors.primary }] : [styles.bubbleThem, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]]}>
-          {!isMe && <Text style={[styles.authorName, { color: colors.muted }]}>{item.author_name}</Text>}
+        <View style={[styles.bubble, isMe ? [styles.bubbleMe, { backgroundColor: colors.neonCyan, shadowColor: colors.neonCyan, shadowRadius: 10, shadowOpacity: 0.5, elevation: 5 }] : [styles.bubbleThem, { backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }]]}>
+          {!isMe && <Text style={[styles.authorName, { color: colors.neonCyan }]}>{item.author_name}</Text>}
           
           {isPhotoReport && reportData ? (
-            <View style={[styles.reportContainer, { backgroundColor: 'rgba(0,0,0,0.1)' }]}>
-              <Text style={[styles.reportTag, { color: isMe ? colors.primaryForeground : colors.primary }]}>📸 Фотоотчет ({reportData.crit})</Text>
-              {reportData.desc ? <Text style={[styles.messageText, { color: isMe ? colors.primaryForeground : colors.cardForeground }]}>{reportData.desc}</Text> : null}
+            <View style={[styles.reportContainer, { backgroundColor: 'rgba(0,0,0,0.2)' }]}>
+              <Text style={[styles.reportTag, { color: isMe ? '#000000' : colors.neonCyan }]}>📸 Фотоотчет ({reportData.crit})</Text>
+              {reportData.desc ? <Text style={[styles.messageText, { color: isMe ? '#000000' : '#ffffff' }]}>{reportData.desc}</Text> : null}
             </View>
           ) : (
-            <Text style={[styles.messageText, { color: isMe ? colors.primaryForeground : colors.cardForeground }]}>{item.content}</Text>
+            <Text style={[styles.messageText, { color: isMe ? '#000000' : '#ffffff' }]}>{item.content}</Text>
           )}
           
-          <Text style={[styles.timeText, { color: isMe ? 'rgba(255,255,255,0.7)' : colors.muted }]}>
+          <Text style={[styles.timeText, { color: isMe ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.4)' }]}>
             {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
         </View>
@@ -118,13 +118,13 @@ export default function ChatViewScreen() {
   };
 
   return (
-    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
+    <View style={[styles.container, { backgroundColor: '#000000' }]}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <View style={[styles.header, { backgroundColor: '#0a0a0a', borderBottomColor: 'rgba(255,255,255,0.1)' }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ArrowLeft color={colors.foreground} size={24} />
+            <ArrowLeft color="#ffffff" size={24} />
           </Pressable>
-          <Text style={[styles.headerTitle, { color: colors.foreground }]}>{channelName}</Text>
+          <Text style={[styles.headerTitle, { color: '#ffffff' }]}>{channelName}</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -134,7 +134,7 @@ export default function ChatViewScreen() {
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
           {loading ? (
-            <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1, justifyContent: 'center' }} />
+            <ActivityIndicator size="large" color={colors.neonCyan} style={{ flex: 1, justifyContent: 'center' }} />
           ) : (
             <FlatList
               ref={flatListRef}
@@ -145,26 +145,26 @@ export default function ChatViewScreen() {
             />
           )}
 
-          <View style={[styles.inputContainer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: Platform.OS === 'ios' ? 32 : 16 }]}>
+          <View style={[styles.inputContainer, { backgroundColor: '#0a0a0a', borderTopColor: 'rgba(255,255,255,0.1)', paddingBottom: Platform.OS === 'ios' ? 32 : 16 }]}>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.background, color: colors.foreground, borderColor: colors.border }]}
+              style={[styles.input, { backgroundColor: '#000000', color: '#ffffff', borderColor: 'rgba(255,255,255,0.1)' }]}
               placeholder="Сообщение..."
-              placeholderTextColor={colors.muted}
+              placeholderTextColor="rgba(255,255,255,0.4)"
               value={inputText}
               onChangeText={setInputText}
               multiline
             />
             <Pressable 
-              style={[styles.sendBtn, { backgroundColor: colors.primary }, (!inputText.trim() || sending) && styles.sendBtnDisabled]} 
+              style={[styles.sendBtn, { backgroundColor: colors.neonCyan, shadowColor: colors.neonCyan, shadowRadius: 10, shadowOpacity: 0.8, elevation: 5 }, (!inputText.trim() || sending) && styles.sendBtnDisabled]} 
               onPress={sendMessage}
               disabled={!inputText.trim() || sending}
             >
-              <Send color={colors.primaryForeground} size={20} />
+              <Send color="#000000" size={20} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -172,25 +172,25 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
-  backBtn: { padding: 8 },
+  backBtn: { padding: 8, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.03)' },
   headerTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18 },
   keyboardView: { flex: 1 },
-  list: { padding: 16, paddingBottom: 24 },
-  messageRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'flex-end' },
+  list: { padding: 16, paddingBottom: 32 },
+  messageRow: { flexDirection: 'row', marginBottom: 20, alignItems: 'flex-end' },
   messageRowMe: { justifyContent: 'flex-end' },
   messageRowThem: { justifyContent: 'flex-start' },
-  avatar: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
+  avatar: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   avatarText: { fontFamily: 'Inter_700Bold', fontSize: 14 },
-  bubble: { maxWidth: '75%', padding: 12, borderRadius: 20 },
-  bubbleMe: { borderBottomRightRadius: 4 },
-  bubbleThem: { borderBottomLeftRadius: 4 },
-  authorName: { fontFamily: 'Inter_600SemiBold', fontSize: 12, marginBottom: 4 },
-  messageText: { fontFamily: 'Inter_400Regular', fontSize: 16, lineHeight: 22 },
-  timeText: { fontFamily: 'Inter_400Regular', fontSize: 10, alignSelf: 'flex-end', marginTop: 4 },
-  reportContainer: { padding: 8, borderRadius: 8, marginTop: 4 },
-  reportTag: { fontFamily: 'Inter_600SemiBold', fontSize: 14, marginBottom: 4 },
+  bubble: { maxWidth: '78%', padding: 16, borderRadius: 24 },
+  bubbleMe: { borderBottomRightRadius: 6 },
+  bubbleThem: { borderBottomLeftRadius: 6 },
+  authorName: { fontFamily: 'Inter_600SemiBold', fontSize: 13, marginBottom: 6 },
+  messageText: { fontFamily: 'Inter_400Regular', fontSize: 16, lineHeight: 24 },
+  timeText: { fontFamily: 'Inter_400Regular', fontSize: 11, alignSelf: 'flex-end', marginTop: 6 },
+  reportContainer: { padding: 12, borderRadius: 12, marginTop: 8 },
+  reportTag: { fontFamily: 'Inter_600SemiBold', fontSize: 14, marginBottom: 6 },
   inputContainer: { flexDirection: 'row', alignItems: 'center', padding: 16, borderTopWidth: 1 },
-  input: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12, fontSize: 16, maxHeight: 100, minHeight: 40, fontFamily: 'Inter_400Regular', borderWidth: 1 },
-  sendBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
+  input: { flex: 1, borderRadius: 24, paddingHorizontal: 20, paddingTop: 14, paddingBottom: 14, fontSize: 16, maxHeight: 120, minHeight: 50, fontFamily: 'Inter_400Regular', borderWidth: 1 },
+  sendBtn: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
   sendBtnDisabled: { opacity: 0.5 }
 });

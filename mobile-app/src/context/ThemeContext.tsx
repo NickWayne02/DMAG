@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type ThemeMode = 'light' | 'dark' | 'neon';
+export type ThemeMode = 'neon'; // Force neon mode only for exact web matching
 export type AccentId = 'dmag' | 'sunset' | 'emerald' | 'royal' | 'ruby' | 'graphite';
 
 export type AccentPreset = {
@@ -13,17 +13,19 @@ export type AccentPreset = {
   violet: string;
 };
 
+// Web app exact colors
 export const ACCENT_PRESETS: AccentPreset[] = [
-  { id: 'dmag', label: 'DMAG Blue', primary: '#0D47A1', cyan: '#42A5F5', magenta: '#1565C0', violet: '#0a2351' },
-  { id: 'sunset', label: 'Sunset', primary: '#F97316', cyan: '#fbbf24', magenta: '#ef4444', violet: '#9a3412' },
-  { id: 'emerald', label: 'Emerald', primary: '#10B981', cyan: '#34d399', magenta: '#14b8a6', violet: '#064e3b' },
-  { id: 'royal', label: 'Royal', primary: '#7C3AED', cyan: '#22d3ee', magenta: '#e879f9', violet: '#4c1d95' },
-  { id: 'ruby', label: 'Ruby', primary: '#E11D48', cyan: '#fb7185', magenta: '#f43f5e', violet: '#881337' },
-  { id: 'graphite', label: 'Graphite', primary: '#334155', cyan: '#94a3b8', magenta: '#64748b', violet: '#1e293b' },
+  { id: 'dmag', label: 'DMAG Blue', primary: '#10b981', cyan: '#10b981', magenta: '#ec4899', violet: '#8b5cf6' },
+  { id: 'sunset', label: 'Sunset', primary: '#f59e0b', cyan: '#f59e0b', magenta: '#ef4444', violet: '#8b5cf6' },
+  { id: 'emerald', label: 'Emerald', primary: '#22c55e', cyan: '#22c55e', magenta: '#10b981', violet: '#064e3b' },
+  { id: 'royal', label: 'Royal', primary: '#8b5cf6', cyan: '#8b5cf6', magenta: '#ec4899', violet: '#4c1d95' },
+  { id: 'ruby', label: 'Ruby', primary: '#ef4444', cyan: '#ef4444', magenta: '#ec4899', violet: '#881337' },
+  { id: 'graphite', label: 'Graphite', primary: '#a1a1aa', cyan: '#a1a1aa', magenta: '#52525b', violet: '#27272a' },
 ];
 
 export type PanelColors = {
   background: string;
+  surface: string;
   foreground: string;
   card: string;
   cardForeground: string;
@@ -31,38 +33,31 @@ export type PanelColors = {
   primaryForeground: string;
   muted: string;
   border: string;
+  neonCyan: string;
+  neonMagenta: string;
+  neonViolet: string;
+  neonLime: string;
+  neonAmber: string;
+  neonRed: string;
 };
 
 export const THEME_BASE_COLORS: Record<ThemeMode, PanelColors> = {
-  light: {
-    background: '#f8fafc',
-    foreground: '#0f172a',
-    card: '#ffffff',
-    cardForeground: '#0f172a',
-    primary: '#0D47A1',
-    primaryForeground: '#ffffff',
-    muted: '#f1f5f9',
-    border: '#e2e8f0',
-  },
-  dark: {
-    background: '#09090b',
-    foreground: '#fafafa',
-    card: '#18181b',
-    cardForeground: '#fafafa',
-    primary: '#3b82f6',
-    primaryForeground: '#ffffff',
-    muted: '#27272a',
-    border: '#3f3f46',
-  },
   neon: {
     background: '#000000',
+    surface: '#000000',
     foreground: '#ffffff',
     card: '#0a0a0a',
     cardForeground: '#ffffff',
     primary: '#10b981',
     primaryForeground: '#000000',
     muted: '#111111',
-    border: '#222222',
+    border: 'rgba(255, 255, 255, 0.1)',
+    neonCyan: '#10b981',
+    neonMagenta: '#ec4899',
+    neonViolet: '#8b5cf6',
+    neonLime: '#22c55e',
+    neonAmber: '#f59e0b',
+    neonRed: '#ef4444',
   },
 };
 
@@ -74,7 +69,7 @@ export type Settings = {
 };
 
 const DEFAULTS: Settings = {
-  mode: 'dark',
+  mode: 'neon',
   accentId: 'dmag',
   radius: 14,
   scale: 1,
@@ -82,17 +77,14 @@ const DEFAULTS: Settings = {
 
 const STORAGE_KEY = 'dmag.mobile.theme';
 
-// Helper to mix colors rudimentarily for RN. Web uses color-mix.
-// Here we just return the base colors or a generic mix for dark mode.
 function generateColors(s: Settings): PanelColors {
-  const base = THEME_BASE_COLORS[s.mode];
+  const base = THEME_BASE_COLORS.neon;
   const accent = ACCENT_PRESETS.find(a => a.id === s.accentId) || ACCENT_PRESETS[0];
   
   return {
     ...base,
     primary: accent.primary,
-    // In dark/neon mode, cards can have a slight tint of the primary color, but for RN it's easier to keep them neutral
-    // and use opacity. We'll return the base for now.
+    neonCyan: accent.cyan,
   };
 }
 
@@ -114,7 +106,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (raw) {
         try {
           const parsed = JSON.parse(raw);
-          setSettings(prev => ({ ...prev, ...parsed }));
+          // Force mode to neon
+          setSettings(prev => ({ ...prev, ...parsed, mode: 'neon' }));
         } catch (e) {}
       }
       setLoaded(true);
@@ -123,7 +116,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const updateSettings = (patch: Partial<Settings>) => {
     setSettings(prev => {
-      const next = { ...prev, ...patch };
+      const next = { ...prev, ...patch, mode: 'neon' as ThemeMode };
       AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       return next;
     });
@@ -132,7 +125,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const colors = useMemo(() => generateColors(settings), [settings]);
   const accent = useMemo(() => ACCENT_PRESETS.find(a => a.id === settings.accentId) || ACCENT_PRESETS[0], [settings]);
 
-  if (!loaded) return null; // or a splash screen
+  if (!loaded) return null;
 
   return (
     <ThemeContext.Provider value={{ settings, colors, accent, updateSettings }}>

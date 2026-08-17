@@ -1,0 +1,56 @@
+name: Native Mobile - iOS Build
+
+on:
+  push:
+    branches: ["native-mobile-app", "main", "master"]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/expo-ios-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build iOS App
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'mobile-app/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd mobile-app
+          npm install --legacy-peer-deps
+
+      - name: Expo Prebuild
+        run: |
+          cd mobile-app
+          npx expo prebuild --platform ios --clean
+
+      - name: Install CocoaPods
+        run: |
+          cd mobile-app/ios
+          pod install
+
+      - name: Build iOS App (Simulator)
+        run: |
+          cd mobile-app/ios
+          xcodebuild \
+            -workspace mobileapp.xcworkspace \
+            -scheme mobileapp \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload iOS App
+        uses: actions/upload-artifact@v4
+        with:
+          name: DMAG-Native-iOS-App
+          path: mobile-app/ios/build/Build/Products/Debug-iphonesimulator/mobileapp.app

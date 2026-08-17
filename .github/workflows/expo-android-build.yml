@@ -1,0 +1,58 @@
+name: Native Mobile - Android Build
+
+on:
+  push:
+    branches: ["native-mobile-app", "main", "master"]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/expo-android-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'mobile-app/package-lock.json'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "21"
+
+      - name: Install dependencies
+        run: |
+          cd mobile-app
+          npm install --legacy-peer-deps
+
+      - name: Expo Prebuild
+        run: |
+          cd mobile-app
+          npx expo prebuild --platform android --clean
+
+      - name: Build Android APK
+        run: |
+          export GRADLE_OPTS="-Dorg.gradle.jvmargs='-Xmx4096m -XX:MaxMetaspaceSize=1024m'"
+          cd mobile-app/android
+          keytool -genkey -v -keystore release.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
+          chmod +x ./gradlew
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/release.keystore \
+            -Pandroid.injected.signing.store.password=android \
+            -Pandroid.injected.signing.key.alias=androiddebugkey \
+            -Pandroid.injected.signing.key.password=android
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DMAG-Native-Android-APK
+          path: mobile-app/android/app/build/outputs/apk/release/app-release.apk

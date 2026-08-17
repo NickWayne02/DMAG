@@ -2,6 +2,7 @@
   "expo": {
     "name": "mobile-app",
     "slug": "mobile-app",
+    "scheme": "dmag",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,10 +20,18 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font",
+      "expo-router",
+      "expo-status-bar"
+    ]
   }
 }

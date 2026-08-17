@@ -48,7 +48,7 @@ function ScaleButton({ onPress, children, style, disabled }: any) {
 }
 
 export default function DashboardScreen() {
-  const { session } = useAuth();
+  const { session, role } = useAuth();
   const router = useRouter();
   
   const [status, setStatus] = useState<ShiftStatus>('idle');
@@ -274,6 +274,21 @@ export default function DashboardScreen() {
             <Text style={styles.reportSub}>График и история работы</Text>
           </View>
         </ScaleButton>
+
+        {(role === 'admin' || role === 'super_admin') && (
+          <ScaleButton 
+            style={[styles.glassCard, styles.reportCard, { backgroundColor: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.2)', marginTop: 16 }]} 
+            onPress={() => router.push('/(admin)')}
+          >
+            <View style={{ width: 32, height: 32, backgroundColor: '#8b5cf6', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: '#fff', fontFamily: 'Inter_700Bold' }}>A</Text>
+            </View>
+            <View style={{ marginLeft: 16 }}>
+              <Text style={[styles.reportTitle, { color: '#8b5cf6' }]}>Админ-панель</Text>
+              <Text style={styles.reportSub}>Управление и мониторинг</Text>
+            </View>
+          </ScaleButton>
+        )}
 
       </ScrollView>
     </LinearGradient>

@@ -1,0 +1,52 @@
+name: Native Mobile - Android Build
+
+on:
+  push:
+    branches: ["native-mobile-app", "main", "master"]
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/expo-android-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'mobile-app/package-lock.json'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "21"
+
+      - name: Install dependencies
+        run: |
+          cd mobile-app
+          npm ci
+
+      - name: Expo Prebuild
+        run: |
+          cd mobile-app
+          npx expo prebuild --platform android --clean
+
+      - name: Build Android APK
+        run: |
+          cd mobile-app/android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DMAG-Native-Android-APK
+          path: mobile-app/android/app/build/outputs/apk/debug/app-debug.apk

@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, Animated, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTheme } from '../../src/context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../src/lib/supabase';
 import { format } from 'date-fns';
-import { PlayCircle, Pause, CheckCircle2, Loader2, Camera } from 'lucide-react-native';
+import { PlayCircle, Pause, CheckCircle2, Loader2, Camera, CalendarClock, Shield } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 type ShiftStatus = 'idle' | 'working' | 'lunch' | 'finished';
@@ -49,6 +50,7 @@ function ScaleButton({ onPress, children, style, disabled }: any) {
 
 export default function DashboardScreen() {
   const { session, role } = useAuth();
+  const { colors, settings } = useTheme();
   const router = useRouter();
   
   const [status, setStatus] = useState<ShiftStatus>('idle');
@@ -111,7 +113,7 @@ export default function DashboardScreen() {
       started_at: new Date().toISOString(),
       start_lat: coords.latitude,
       start_lon: coords.longitude,
-      site_name: 'Mobile Site' // Placeholder, implement site selection later if needed
+      site_name: 'Mobile Site' // Placeholder
     }).select('id').single();
 
     if (error) {
@@ -186,8 +188,8 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#10b981" />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -197,53 +199,53 @@ export default function DashboardScreen() {
   const totalLunch = lunchAccumMs + currentLunch;
 
   return (
-    <LinearGradient colors={['#0f172a', '#064e3b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
         
-        <View style={styles.glassCard}>
-          <Text style={styles.cardLabel}>Сотрудник</Text>
-          <Text style={styles.cardValue}>{session?.user.email}</Text>
+        <View style={[styles.glassCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.cardLabel, { color: colors.muted }]}>Сотрудник</Text>
+          <Text style={[styles.cardValue, { color: colors.foreground }]}>{session?.user.email}</Text>
         </View>
 
-        <View style={[styles.glassCard, { marginTop: 16, alignItems: 'center' }]}>
-          <Text style={styles.timerTitle}>
+        <View style={[styles.glassCard, { marginTop: 16, alignItems: 'center', backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.timerTitle, { color: colors.muted }]}>
             {status === 'idle' ? 'Смена не начата' : status === 'working' ? 'Работа идёт' : 'Обед'}
           </Text>
           
-          <Text style={[styles.timer, status === 'working' && styles.timerActive, status === 'lunch' && styles.timerWarning]}>
+          <Text style={[styles.timer, { color: colors.foreground }, status === 'working' && { color: colors.primary }, status === 'lunch' && { color: '#f59e0b' }]}>
             {formatHMS(shiftDuration)}
           </Text>
           
           {(totalLunch > 0 || status === 'lunch') && (
-            <Text style={styles.lunchTimer}>Обед: {formatHMS(totalLunch)}</Text>
+            <Text style={[styles.lunchTimer, { color: colors.muted }]}>Обед: {formatHMS(totalLunch)}</Text>
           )}
 
           <View style={styles.buttonRow}>
             {status === 'idle' && (
-              <ScaleButton style={[styles.actionButton, styles.startBtn]} onPress={handleStartShift} disabled={actionLoading}>
-                {actionLoading ? <ActivityIndicator color="#fff" /> : <PlayCircle color="#fff" size={24} />}
-                <Text style={styles.actionText}>Начать смену</Text>
+              <ScaleButton style={[styles.actionButton, { backgroundColor: colors.primary }]} onPress={handleStartShift} disabled={actionLoading}>
+                {actionLoading ? <ActivityIndicator color={colors.primaryForeground} /> : <PlayCircle color={colors.primaryForeground} size={24} />}
+                <Text style={[styles.actionText, { color: colors.primaryForeground }]}>Начать смену</Text>
               </ScaleButton>
             )}
 
             {status === 'working' && (
-              <ScaleButton style={[styles.actionButton, styles.pauseBtn]} onPress={handleStartLunch} disabled={actionLoading}>
+              <ScaleButton style={[styles.actionButton, { backgroundColor: '#f59e0b' }]} onPress={handleStartLunch} disabled={actionLoading}>
                 {actionLoading ? <ActivityIndicator color="#fff" /> : <Pause color="#fff" size={24} />}
-                <Text style={styles.actionText}>Начать обед</Text>
+                <Text style={[styles.actionText, { color: '#fff' }]}>Начать обед</Text>
               </ScaleButton>
             )}
 
             {status === 'lunch' && (
-              <ScaleButton style={[styles.actionButton, styles.resumeBtn]} onPress={handleEndLunch} disabled={actionLoading}>
+              <ScaleButton style={[styles.actionButton, { backgroundColor: '#3b82f6' }]} onPress={handleEndLunch} disabled={actionLoading}>
                 {actionLoading ? <ActivityIndicator color="#fff" /> : <PlayCircle color="#fff" size={24} />}
-                <Text style={styles.actionText}>Продолжить</Text>
+                <Text style={[styles.actionText, { color: '#fff' }]}>Продолжить</Text>
               </ScaleButton>
             )}
             
             {(status === 'working' || status === 'lunch') && (
-              <ScaleButton style={[styles.actionButton, styles.endBtn]} onPress={handleEndShift} disabled={actionLoading}>
+              <ScaleButton style={[styles.actionButton, { backgroundColor: 'rgba(239, 68, 68, 0.8)' }]} onPress={handleEndShift} disabled={actionLoading}>
                 {actionLoading ? <ActivityIndicator color="#fff" /> : <CheckCircle2 color="#fff" size={24} />}
-                <Text style={styles.actionText}>Завершить</Text>
+                <Text style={[styles.actionText, { color: '#fff' }]}>Завершить</Text>
               </ScaleButton>
             )}
           </View>
@@ -251,13 +253,13 @@ export default function DashboardScreen() {
 
         {(status === 'working' || status === 'lunch') && (
           <ScaleButton 
-            style={[styles.glassCard, styles.reportCard]} 
+            style={[styles.glassCard, styles.reportCard, { backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)' }]} 
             onPress={() => router.push('/photo-report')}
           >
             <Camera color="#10b981" size={32} />
             <View style={{ marginLeft: 16 }}>
-              <Text style={styles.reportTitle}>Отправить фотоотчет</Text>
-              <Text style={styles.reportSub}>Зафиксируйте текущий прогресс</Text>
+              <Text style={[styles.reportTitle, { color: '#10b981' }]}>Отправить фотоотчет</Text>
+              <Text style={[styles.reportSub, { color: colors.muted }]}>Зафиксируйте текущий прогресс</Text>
             </View>
           </ScaleButton>
         )}
@@ -267,11 +269,11 @@ export default function DashboardScreen() {
           onPress={() => router.push('/calendar')}
         >
           <View style={{ width: 32, height: 32, backgroundColor: '#3b82f6', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: '#fff', fontFamily: 'Inter_700Bold' }}>{new Date().getDate()}</Text>
+            <CalendarClock color="#fff" size={20} />
           </View>
           <View style={{ marginLeft: 16 }}>
             <Text style={[styles.reportTitle, { color: '#3b82f6' }]}>Мои смены</Text>
-            <Text style={styles.reportSub}>График и история работы</Text>
+            <Text style={[styles.reportSub, { color: colors.muted }]}>График и история работы</Text>
           </View>
         </ScaleButton>
 
@@ -281,11 +283,11 @@ export default function DashboardScreen() {
             onPress={() => router.push('/(admin)')}
           >
             <View style={{ width: 32, height: 32, backgroundColor: '#8b5cf6', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: '#fff', fontFamily: 'Inter_700Bold' }}>A</Text>
+              <Shield color="#fff" size={20} />
             </View>
             <View style={{ marginLeft: 16 }}>
               <Text style={[styles.reportTitle, { color: '#8b5cf6' }]}>Админ-панель</Text>
-              <Text style={styles.reportSub}>Управление и мониторинг</Text>
+              <Text style={[styles.reportSub, { color: colors.muted }]}>Управление и мониторинг</Text>
             </View>
           </ScaleButton>
         )}
@@ -296,46 +298,19 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, backgroundColor: '#0f172a', justifyContent: 'center', alignItems: 'center' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1 },
   scroll: { padding: 24, paddingBottom: 64 },
-  glassCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  cardLabel: { fontFamily: 'Inter_400Regular', color: '#94a3b8', marginBottom: 4, fontSize: 14 },
-  cardValue: { fontFamily: 'Inter_600SemiBold', color: '#ffffff', fontSize: 16 },
-  timerTitle: { fontFamily: 'Inter_500Medium', color: '#cbd5e1', fontSize: 18, marginBottom: 8 },
-  timer: { fontFamily: 'Inter_700Bold', color: '#ffffff', fontSize: 48, fontVariant: ['tabular-nums'] },
-  timerActive: { color: '#10b981' },
-  timerWarning: { color: '#f59e0b' },
-  lunchTimer: { fontFamily: 'Inter_400Regular', color: '#94a3b8', fontSize: 16, marginTop: 4 },
+  glassCard: { borderRadius: 24, padding: 24, borderWidth: 1 },
+  cardLabel: { fontFamily: 'Inter_400Regular', marginBottom: 4, fontSize: 14 },
+  cardValue: { fontFamily: 'Inter_600SemiBold', fontSize: 16 },
+  timerTitle: { fontFamily: 'Inter_500Medium', fontSize: 18, marginBottom: 8 },
+  timer: { fontFamily: 'Inter_700Bold', fontSize: 48, fontVariant: ['tabular-nums'] },
+  lunchTimer: { fontFamily: 'Inter_400Regular', fontSize: 16, marginTop: 4 },
   buttonRow: { flexDirection: 'row', gap: 12, marginTop: 32, width: '100%', justifyContent: 'center' },
-  actionButton: { 
-    flex: 1, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    padding: 16, 
-    borderRadius: 16,
-    gap: 8,
-  },
-  startBtn: { backgroundColor: '#10b981' },
-  pauseBtn: { backgroundColor: '#f59e0b' },
-  resumeBtn: { backgroundColor: '#3b82f6' },
-  endBtn: { backgroundColor: 'rgba(239, 68, 68, 0.8)' },
-  actionText: { fontFamily: 'Inter_600SemiBold', color: '#ffffff', fontSize: 16 },
-  reportCard: { 
-    marginTop: 16, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 20,
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    borderColor: 'rgba(16, 185, 129, 0.2)'
-  },
-  reportTitle: { fontFamily: 'Inter_600SemiBold', color: '#10b981', fontSize: 18 },
-  reportSub: { fontFamily: 'Inter_400Regular', color: '#94a3b8', fontSize: 14, marginTop: 2 }
+  actionButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 16, borderRadius: 16, gap: 8 },
+  actionText: { fontFamily: 'Inter_600SemiBold', fontSize: 16 },
+  reportCard: { marginTop: 16, flexDirection: 'row', alignItems: 'center', padding: 20 },
+  reportTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18 },
+  reportSub: { fontFamily: 'Inter_400Regular', fontSize: 14, marginTop: 2 }
 });

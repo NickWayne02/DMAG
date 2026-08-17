@@ -4,8 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/context/AuthContext';
+import { useTheme } from '../../src/context/ThemeContext';
 import { useRouter } from 'expo-router';
-import { MessageSquare, Users, Hash } from 'lucide-react-native';
+import { Users, Hash } from 'lucide-react-native';
 
 type ChatChannel = {
   id: string;
@@ -16,6 +17,7 @@ type ChatChannel = {
 
 export default function ChatScreen() {
   const { user } = useAuth();
+  const { colors, settings, accent } = useTheme();
   const router = useRouter();
   const [channels, setChannels] = useState<ChatChannel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,10 +27,9 @@ export default function ChatScreen() {
       if (!user) return;
 
       const newChannels: ChatChannel[] = [
-        { id: 'general_chat', type: 'general', name: 'Общий чат', channelId: 'general' }
+        { id: 'general_chat', type: 'general', name: 'Общий чат команды', channelId: 'general' }
       ];
 
-      // Fetch DMs
       const { data: messages } = await supabase
         .from('chat_messages')
         .select('channel_id')
@@ -38,7 +39,6 @@ export default function ChatScreen() {
       if (messages && messages.length > 0) {
         const uniqueIds = Array.from(new Set(messages.map((m: any) => m.channel_id)));
         
-        // Fetch profiles for the DMs
         const { data: profiles } = await supabase.from('profiles').select('id, name, email');
         
         uniqueIds.forEach((cid) => {
@@ -63,28 +63,33 @@ export default function ChatScreen() {
 
   const renderChannel = ({ item }: { item: ChatChannel }) => (
     <Pressable 
-      style={styles.channelCard}
+      style={[styles.channelCard, { backgroundColor: colors.card, borderColor: colors.border }]}
       onPress={() => router.push({ pathname: '/chat-view', params: { channelType: item.type, channelId: item.channelId, channelName: item.name } })}
     >
-      <View style={[styles.iconContainer, item.type === 'general' ? { backgroundColor: '#3b82f6' } : { backgroundColor: '#10b981' }]}>
-        {item.type === 'general' ? <Hash color="#fff" size={24} /> : <Users color="#fff" size={24} />}
-      </View>
+      <LinearGradient 
+        colors={item.type === 'general' ? [colors.primary, accent.cyan] : ['#10b981', '#059669']} 
+        style={styles.iconContainer}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        {item.type === 'general' ? <Hash color={colors.primaryForeground} size={24} /> : <Users color="#fff" size={24} />}
+      </LinearGradient>
       <View style={styles.textContainer}>
-        <Text style={styles.channelName}>{item.name}</Text>
-        <Text style={styles.channelType}>{item.type === 'general' ? 'Компания' : 'Личное сообщение'}</Text>
+        <Text style={[styles.channelName, { color: colors.cardForeground }]}>{item.name}</Text>
+        <Text style={[styles.channelType, { color: colors.muted }]}>{item.type === 'general' ? 'Компания' : 'Личное сообщение'}</Text>
       </View>
     </Pressable>
   );
 
   return (
-    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Сообщения</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Сообщения</Text>
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
         ) : (
           <FlatList
             data={channels}
@@ -102,20 +107,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
   header: { padding: 24, paddingBottom: 16 },
-  headerTitle: { fontFamily: 'Inter_700Bold', color: '#fff', fontSize: 28 },
+  headerTitle: { fontFamily: 'Inter_700Bold', fontSize: 28 },
   list: { padding: 16 },
   channelCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)'
   },
   iconContainer: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   textContainer: { marginLeft: 16, flex: 1 },
-  channelName: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 18, marginBottom: 4 },
-  channelType: { fontFamily: 'Inter_400Regular', color: '#94a3b8', fontSize: 14 }
+  channelName: { fontFamily: 'Inter_600SemiBold', fontSize: 18, marginBottom: 4 },
+  channelType: { fontFamily: 'Inter_400Regular', fontSize: 14 }
 });

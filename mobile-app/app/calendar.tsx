@@ -6,6 +6,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { X, Clock, MapPin } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useTheme } from '../src/context/ThemeContext';
 import { supabase } from '../src/lib/supabase';
 import { format, parseISO } from 'date-fns';
 
@@ -31,6 +32,7 @@ type ShiftEvent = {
 export default function CalendarScreen() {
   const router = useRouter();
   const { session } = useAuth();
+  const { colors, settings } = useTheme();
   
   const [loading, setLoading] = useState(true);
   const [shifts, setShifts] = useState<ShiftEvent[]>([]);
@@ -67,34 +69,33 @@ export default function CalendarScreen() {
   const markedDates = shifts.reduce((acc: any, shift) => {
     acc[shift.date] = { 
       marked: true, 
-      dotColor: shift.status === 'working' ? '#10b981' : (shift.status === 'lunch' ? '#f59e0b' : '#3b82f6') 
+      dotColor: shift.status === 'working' ? '#10b981' : (shift.status === 'lunch' ? '#f59e0b' : colors.primary) 
     };
     return acc;
   }, {});
   
-  // Highlight selected date
   markedDates[selectedDate] = { 
     ...markedDates[selectedDate], 
     selected: true, 
-    selectedColor: 'rgba(255,255,255,0.2)' 
+    selectedColor: colors.primary 
   };
 
   const selectedShifts = shifts.filter(s => s.date === selectedDate);
 
   return (
-    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <Pressable onPress={() => router.back()} style={styles.closeBtn}>
-            <X color="#fff" size={24} />
+            <X color={colors.foreground} size={24} />
           </Pressable>
-          <Text style={styles.headerTitle}>Мои смены</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Мои смены</Text>
           <View style={{ width: 40 }} />
         </View>
 
         {loading ? (
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <ActivityIndicator size="large" color="#3b82f6" />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : (
           <>
@@ -104,16 +105,16 @@ export default function CalendarScreen() {
               markedDates={markedDates}
               theme={{
                 calendarBackground: 'transparent',
-                textSectionTitleColor: '#94a3b8',
-                selectedDayBackgroundColor: '#3b82f6',
-                selectedDayTextColor: '#ffffff',
+                textSectionTitleColor: colors.muted,
+                selectedDayBackgroundColor: colors.primary,
+                selectedDayTextColor: colors.primaryForeground,
                 todayTextColor: '#10b981',
-                dayTextColor: '#e2e8f0',
-                textDisabledColor: '#475569',
-                dotColor: '#3b82f6',
-                selectedDotColor: '#ffffff',
-                arrowColor: '#fff',
-                monthTextColor: '#fff',
+                dayTextColor: colors.foreground,
+                textDisabledColor: 'rgba(255,255,255,0.2)',
+                dotColor: colors.primary,
+                selectedDotColor: colors.primaryForeground,
+                arrowColor: colors.foreground,
+                monthTextColor: colors.foreground,
                 textDayFontFamily: 'Inter_400Regular',
                 textMonthFontFamily: 'Inter_600SemiBold',
                 textDayHeaderFontFamily: 'Inter_500Medium',
@@ -121,22 +122,22 @@ export default function CalendarScreen() {
             />
 
             <View style={styles.listContainer}>
-              <Text style={styles.listTitle}>
+              <Text style={[styles.listTitle, { color: colors.foreground }]}>
                 {format(parseISO(selectedDate), 'dd.MM.yyyy')}
               </Text>
               
               {selectedShifts.length === 0 ? (
-                <Text style={styles.emptyText}>Нет смен в этот день</Text>
+                <Text style={[styles.emptyText, { color: colors.muted }]}>Нет смен в этот день</Text>
               ) : (
                 <FlatList
                   data={selectedShifts}
                   keyExtractor={item => item.id}
                   renderItem={({ item }) => (
-                    <View style={styles.shiftCard}>
+                    <View style={[styles.shiftCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                       <View style={styles.shiftHeader}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                          <MapPin color="#3b82f6" size={16} />
-                          <Text style={styles.siteName}>{item.siteName}</Text>
+                          <MapPin color={colors.primary} size={16} />
+                          <Text style={[styles.siteName, { color: colors.foreground }]}>{item.siteName}</Text>
                         </View>
                         <View style={[styles.statusBadge, item.status === 'working' ? styles.statusActive : (item.status === 'lunch' ? styles.statusWarning : styles.statusFinished)]}>
                           <Text style={styles.statusText}>
@@ -146,8 +147,8 @@ export default function CalendarScreen() {
                       </View>
                       
                       <View style={styles.shiftTime}>
-                        <Clock color="#94a3b8" size={16} />
-                        <Text style={styles.timeText}>{item.start} — {item.end}</Text>
+                        <Clock color={colors.muted} size={16} />
+                        <Text style={[styles.timeText, { color: colors.muted }]}>{item.start} — {item.end}</Text>
                       </View>
                     </View>
                   )}
@@ -165,20 +166,20 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
   closeBtn: { padding: 8 },
-  headerTitle: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 18 },
+  headerTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18 },
   listContainer: { flex: 1, padding: 24 },
-  listTitle: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 18, marginBottom: 16 },
-  emptyText: { fontFamily: 'Inter_400Regular', color: '#64748b', fontSize: 14 },
-  shiftCard: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  listTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18, marginBottom: 16 },
+  emptyText: { fontFamily: 'Inter_400Regular', fontSize: 14 },
+  shiftCard: { borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1 },
   shiftHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  siteName: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 16 },
+  siteName: { fontFamily: 'Inter_600SemiBold', fontSize: 16 },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   statusActive: { backgroundColor: 'rgba(16,185,129,0.2)' },
   statusWarning: { backgroundColor: 'rgba(245,158,11,0.2)' },
   statusFinished: { backgroundColor: 'rgba(148,163,184,0.2)' },
   statusText: { fontFamily: 'Inter_500Medium', color: '#fff', fontSize: 12 },
   shiftTime: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  timeText: { fontFamily: 'Inter_400Regular', color: '#94a3b8', fontSize: 14 }
+  timeText: { fontFamily: 'Inter_400Regular', fontSize: 14 }
 });

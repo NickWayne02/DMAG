@@ -1,16 +1,19 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useTheme } from '../../src/context/ThemeContext';
 
 export default function AdminLayout() {
+  const { colors, settings } = useTheme();
+
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style={settings.mode === 'light' ? 'dark' : 'light'} />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#0f172a' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.card },
+          headerTintColor: colors.foreground,
           headerTitleStyle: { fontFamily: 'Inter_600SemiBold' },
-          contentStyle: { backgroundColor: '#0f172a' }
+          contentStyle: { backgroundColor: colors.background }
         }}
       >
         <Stack.Screen name="index" options={{ title: 'Админ-панель' }} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '../../src/lib/supabase';
+import { useTheme } from '../../src/context/ThemeContext';
 import { User as UserIcon, Clock, MessageSquare } from 'lucide-react-native';
 
 type PhotoReport = {
@@ -17,6 +18,7 @@ type PhotoReport = {
 export default function ReportsScreen() {
   const [reports, setReports] = useState<PhotoReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const { colors } = useTheme();
 
   useEffect(() => {
     async function loadReports() {
@@ -59,13 +61,13 @@ export default function ReportsScreen() {
   }, []);
 
   const renderItem = ({ item }: { item: PhotoReport }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <UserIcon color="#10b981" size={20} />
-          <Text style={styles.authorName}>{item.author_name}</Text>
+          <UserIcon color={colors.primary} size={20} />
+          <Text style={[styles.authorName, { color: colors.foreground }]}>{item.author_name}</Text>
         </View>
-        <Text style={styles.timeText}>
+        <Text style={[styles.timeText, { color: colors.muted }]}>
           {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </View>
@@ -76,20 +78,20 @@ export default function ReportsScreen() {
       
       {item.description ? (
         <View style={styles.descRow}>
-          <MessageSquare color="#94a3b8" size={16} />
-          <Text style={styles.descText}>{item.description}</Text>
+          <MessageSquare color={colors.muted} size={16} />
+          <Text style={[styles.descText, { color: colors.foreground }]}>{item.description}</Text>
         </View>
       ) : null}
     </View>
   );
 
   return (
-    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#10b981" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
       ) : reports.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>Нет фотоотчетов.</Text>
+          <Text style={[styles.emptyText, { color: colors.muted }]}>Нет фотоотчетов.</Text>
         </View>
       ) : (
         <FlatList
@@ -107,19 +109,17 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   list: { padding: 16 },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: 24,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)'
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  authorName: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 16 },
-  timeText: { fontFamily: 'Inter_400Regular', color: '#64748b', fontSize: 14 },
+  authorName: { fontFamily: 'Inter_600SemiBold', fontSize: 16 },
+  timeText: { fontFamily: 'Inter_400Regular', fontSize: 14 },
   photo: { width: '100%', height: 300, borderRadius: 16, marginBottom: 12, backgroundColor: 'rgba(0,0,0,0.2)' },
   descRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingHorizontal: 4 },
-  descText: { fontFamily: 'Inter_400Regular', color: '#e2e8f0', fontSize: 14, flex: 1 },
+  descText: { fontFamily: 'Inter_400Regular', fontSize: 14, flex: 1 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { fontFamily: 'Inter_400Regular', color: '#64748b', fontSize: 16 }
+  emptyText: { fontFamily: 'Inter_400Regular', fontSize: 16 }
 });

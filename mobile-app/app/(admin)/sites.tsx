@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, TextInput, Alert, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '../../src/lib/supabase';
+import { useTheme } from '../../src/context/ThemeContext';
 import { Building2, Plus, MapPin, X } from 'lucide-react-native';
 
 type Site = {
@@ -15,6 +16,7 @@ export default function SitesScreen() {
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const { colors } = useTheme();
   
   // Form state
   const [siteName, setSiteName] = useState('');
@@ -60,32 +62,32 @@ export default function SitesScreen() {
   }
 
   const renderItem = ({ item }: { item: Site }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-        <Building2 color="#f59e0b" size={24} />
-        <Text style={styles.name}>{item.name}</Text>
+        <Building2 color={colors.primary} size={24} />
+        <Text style={[styles.name, { color: colors.foreground }]}>{item.name}</Text>
       </View>
       
       {item.address && (
         <View style={styles.detailRow}>
-          <MapPin color="#64748b" size={16} />
-          <Text style={styles.detailText}>{item.address}</Text>
+          <MapPin color={colors.muted} size={16} />
+          <Text style={[styles.detailText, { color: colors.muted }]}>{item.address}</Text>
         </View>
       )}
       
       {item.customer && (
         <View style={styles.detailRow}>
-          <Text style={styles.customerLabel}>Заказчик:</Text>
-          <Text style={styles.detailText}>{item.customer}</Text>
+          <Text style={[styles.customerLabel, { color: colors.muted }]}>Заказчик:</Text>
+          <Text style={[styles.detailText, { color: colors.muted }]}>{item.customer}</Text>
         </View>
       )}
     </View>
   );
 
   return (
-    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#f59e0b" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={sites}
@@ -96,50 +98,50 @@ export default function SitesScreen() {
       )}
 
       <Pressable 
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
         onPress={() => setModalVisible(true)}
       >
-        <Plus color="#fff" size={24} />
+        <Plus color={colors.primaryForeground} size={24} />
       </Pressable>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Новый объект</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>Новый объект</Text>
               <Pressable onPress={() => setModalVisible(false)}>
-                <X color="#94a3b8" size={24} />
+                <X color={colors.muted} size={24} />
               </Pressable>
             </View>
 
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, color: colors.foreground, borderColor: colors.border, borderWidth: 1 }]}
               placeholder="Название объекта *"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.muted}
               value={siteName}
               onChangeText={setSiteName}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, color: colors.foreground, borderColor: colors.border, borderWidth: 1 }]}
               placeholder="Адрес (необязательно)"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.muted}
               value={siteAddress}
               onChangeText={setSiteAddress}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, color: colors.foreground, borderColor: colors.border, borderWidth: 1 }]}
               placeholder="Заказчик (необязательно)"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.muted}
               value={siteCustomer}
               onChangeText={setSiteCustomer}
             />
 
             <Pressable 
-              style={[styles.submitBtn, creating && { opacity: 0.5 }]} 
+              style={[styles.submitBtn, { backgroundColor: colors.primary }, creating && { opacity: 0.5 }]} 
               onPress={handleCreateSite}
               disabled={creating}
             >
-              {creating ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>Создать</Text>}
+              {creating ? <ActivityIndicator color={colors.primaryForeground} /> : <Text style={[styles.submitText, { color: colors.primaryForeground }]}>Создать</Text>}
             </Pressable>
           </View>
         </View>
@@ -152,17 +154,15 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   list: { padding: 16, paddingBottom: 100 },
   card: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)'
   },
-  name: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 18 },
+  name: { fontFamily: 'Inter_600SemiBold', fontSize: 18 },
   detailRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  detailText: { fontFamily: 'Inter_400Regular', color: '#94a3b8', fontSize: 14 },
-  customerLabel: { fontFamily: 'Inter_500Medium', color: '#64748b', fontSize: 14 },
+  detailText: { fontFamily: 'Inter_400Regular', fontSize: 14 },
+  customerLabel: { fontFamily: 'Inter_500Medium', fontSize: 14 },
   fab: {
     position: 'absolute',
     bottom: 24,
@@ -170,20 +170,18 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#f59e0b',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#f59e0b',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5
   },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#1e293b', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+  modalContent: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-  modalTitle: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 20 },
-  input: { backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', borderRadius: 12, padding: 16, fontSize: 16, marginBottom: 16, fontFamily: 'Inter_400Regular' },
-  submitBtn: { backgroundColor: '#f59e0b', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
-  submitText: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 16 }
+  modalTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 20 },
+  input: { borderRadius: 12, padding: 16, fontSize: 16, marginBottom: 16, fontFamily: 'Inter_400Regular' },
+  submitBtn: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+  submitText: { fontFamily: 'Inter_600SemiBold', fontSize: 16 }
 });

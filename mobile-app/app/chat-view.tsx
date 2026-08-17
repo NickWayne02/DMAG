@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/context/AuthContext';
+import { useTheme } from '../src/context/ThemeContext';
 import { ArrowLeft, Send } from 'lucide-react-native';
 
 type DbMessage = {
@@ -18,6 +19,7 @@ type DbMessage = {
 export default function ChatViewScreen() {
   const { channelType, channelId, channelName } = useLocalSearchParams();
   const { user } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
   
   const [messages, setMessages] = useState<DbMessage[]>([]);
@@ -29,7 +31,6 @@ export default function ChatViewScreen() {
   useEffect(() => {
     if (!user || !channelId) return;
 
-    // Load initial messages
     async function loadMessages() {
       const { data } = await supabase
         .from('chat_messages')
@@ -39,25 +40,17 @@ export default function ChatViewScreen() {
         .order('created_at', { ascending: true })
         .limit(100);
 
-      if (data) {
-        setMessages(data as DbMessage[]);
-      }
+      if (data) setMessages(data as DbMessage[]);
       setLoading(false);
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: false }), 100);
     }
     loadMessages();
 
-    // Subscribe to realtime updates
     const subscription = supabase
       .channel(`room_${channelId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `channel_id=eq.${channelId}`
-        },
+        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `channel_id=eq.${channelId}` },
         (payload) => {
           setMessages((prev) => [...prev, payload.new as DbMessage]);
           setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
@@ -65,9 +58,7 @@ export default function ChatViewScreen() {
       )
       .subscribe();
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => { subscription.unsubscribe(); };
   }, [user, channelId]);
 
   async function sendMessage() {
@@ -83,50 +74,42 @@ export default function ChatViewScreen() {
       author_id: user.id,
       author_name: authorName,
       content: inputText.trim(),
-      source_lang: 'ru' // Hardcoded for MVP, ideally should be dynamic
+      source_lang: 'ru'
     });
 
-    if (!error) {
-      setInputText('');
-    }
+    if (!error) setInputText('');
     setSending(false);
   }
 
   const renderMessage = ({ item }: { item: DbMessage }) => {
     const isMe = item.author_id === user?.id;
-    
-    // Parse photo reports if any
     const isPhotoReport = item.content.startsWith('[PHOTO_REPORT]');
     let reportData = null;
     if (isPhotoReport) {
       const parts = item.content.replace('[PHOTO_REPORT] ', '').split(' | ');
-      reportData = {
-        path: parts[0],
-        crit: parts[1],
-        desc: parts.slice(2).join(' | ')
-      };
+      reportData = { path: parts[0], crit: parts[1], desc: parts.slice(2).join(' | ') };
     }
 
     return (
       <View style={[styles.messageRow, isMe ? styles.messageRowMe : styles.messageRowThem]}>
         {!isMe && (
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{item.author_name?.charAt(0).toUpperCase() || '?'}</Text>
+          <View style={[styles.avatar, { backgroundColor: colors.muted }]}>
+            <Text style={[styles.avatarText, { color: colors.foreground }]}>{item.author_name?.charAt(0).toUpperCase() || '?'}</Text>
           </View>
         )}
-        <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleThem]}>
-          {!isMe && <Text style={styles.authorName}>{item.author_name}</Text>}
+        <View style={[styles.bubble, isMe ? [styles.bubbleMe, { backgroundColor: colors.primary }] : [styles.bubbleThem, { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }]]}>
+          {!isMe && <Text style={[styles.authorName, { color: colors.muted }]}>{item.author_name}</Text>}
           
           {isPhotoReport && reportData ? (
-            <View style={styles.reportContainer}>
-              <Text style={styles.reportTag}>📸 Фотоотчет ({reportData.crit})</Text>
-              {reportData.desc ? <Text style={styles.messageText}>{reportData.desc}</Text> : null}
+            <View style={[styles.reportContainer, { backgroundColor: 'rgba(0,0,0,0.1)' }]}>
+              <Text style={[styles.reportTag, { color: isMe ? colors.primaryForeground : colors.primary }]}>📸 Фотоотчет ({reportData.crit})</Text>
+              {reportData.desc ? <Text style={[styles.messageText, { color: isMe ? colors.primaryForeground : colors.cardForeground }]}>{reportData.desc}</Text> : null}
             </View>
           ) : (
-            <Text style={styles.messageText}>{item.content}</Text>
+            <Text style={[styles.messageText, { color: isMe ? colors.primaryForeground : colors.cardForeground }]}>{item.content}</Text>
           )}
           
-          <Text style={styles.timeText}>
+          <Text style={[styles.timeText, { color: isMe ? 'rgba(255,255,255,0.7)' : colors.muted }]}>
             {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
         </View>
@@ -135,13 +118,13 @@ export default function ChatViewScreen() {
   };
 
   return (
-    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ArrowLeft color="#fff" size={24} />
+            <ArrowLeft color={colors.foreground} size={24} />
           </Pressable>
-          <Text style={styles.headerTitle}>{channelName}</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>{channelName}</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -151,7 +134,7 @@ export default function ChatViewScreen() {
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
           {loading ? (
-            <ActivityIndicator size="large" color="#3b82f6" style={{ flex: 1, justifyContent: 'center' }} />
+            <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1, justifyContent: 'center' }} />
           ) : (
             <FlatList
               ref={flatListRef}
@@ -162,21 +145,21 @@ export default function ChatViewScreen() {
             />
           )}
 
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, { backgroundColor: colors.card, borderTopColor: colors.border, paddingBottom: Platform.OS === 'ios' ? 32 : 16 }]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.background, color: colors.foreground, borderColor: colors.border }]}
               placeholder="Сообщение..."
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.muted}
               value={inputText}
               onChangeText={setInputText}
               multiline
             />
             <Pressable 
-              style={[styles.sendBtn, (!inputText.trim() || sending) && styles.sendBtnDisabled]} 
+              style={[styles.sendBtn, { backgroundColor: colors.primary }, (!inputText.trim() || sending) && styles.sendBtnDisabled]} 
               onPress={sendMessage}
               disabled={!inputText.trim() || sending}
             >
-              <Send color="#fff" size={20} />
+              <Send color={colors.primaryForeground} size={20} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>
@@ -188,26 +171,26 @@ export default function ChatViewScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, backgroundColor: 'rgba(15,23,42,0.8)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
   backBtn: { padding: 8 },
-  headerTitle: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 18 },
+  headerTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18 },
   keyboardView: { flex: 1 },
   list: { padding: 16, paddingBottom: 24 },
   messageRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'flex-end' },
   messageRowMe: { justifyContent: 'flex-end' },
   messageRowThem: { justifyContent: 'flex-start' },
-  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#3b82f6', alignItems: 'center', justifyContent: 'center', marginRight: 8 },
-  avatarText: { color: '#fff', fontFamily: 'Inter_700Bold', fontSize: 14 },
+  avatar: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginRight: 8 },
+  avatarText: { fontFamily: 'Inter_700Bold', fontSize: 14 },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 20 },
-  bubbleMe: { backgroundColor: '#3b82f6', borderBottomRightRadius: 4 },
-  bubbleThem: { backgroundColor: 'rgba(255,255,255,0.1)', borderBottomLeftRadius: 4 },
-  authorName: { fontFamily: 'Inter_600SemiBold', color: '#94a3b8', fontSize: 12, marginBottom: 4 },
-  messageText: { fontFamily: 'Inter_400Regular', color: '#fff', fontSize: 16, lineHeight: 22 },
-  timeText: { fontFamily: 'Inter_400Regular', color: 'rgba(255,255,255,0.5)', fontSize: 10, alignSelf: 'flex-end', marginTop: 4 },
-  reportContainer: { backgroundColor: 'rgba(0,0,0,0.2)', padding: 8, borderRadius: 8, marginTop: 4 },
-  reportTag: { fontFamily: 'Inter_600SemiBold', color: '#10b981', fontSize: 14, marginBottom: 4 },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: 'rgba(15,23,42,0.9)', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingBottom: Platform.OS === 'ios' ? 32 : 16 },
-  input: { flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 20, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12, color: '#fff', fontSize: 16, maxHeight: 100, minHeight: 40, fontFamily: 'Inter_400Regular' },
-  sendBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#3b82f6', alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
+  bubbleMe: { borderBottomRightRadius: 4 },
+  bubbleThem: { borderBottomLeftRadius: 4 },
+  authorName: { fontFamily: 'Inter_600SemiBold', fontSize: 12, marginBottom: 4 },
+  messageText: { fontFamily: 'Inter_400Regular', fontSize: 16, lineHeight: 22 },
+  timeText: { fontFamily: 'Inter_400Regular', fontSize: 10, alignSelf: 'flex-end', marginTop: 4 },
+  reportContainer: { padding: 8, borderRadius: 8, marginTop: 4 },
+  reportTag: { fontFamily: 'Inter_600SemiBold', fontSize: 14, marginBottom: 4 },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', padding: 16, borderTopWidth: 1 },
+  input: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12, fontSize: 16, maxHeight: 100, minHeight: 40, fontFamily: 'Inter_400Regular', borderWidth: 1 },
+  sendBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
   sendBtnDisabled: { opacity: 0.5 }
 });

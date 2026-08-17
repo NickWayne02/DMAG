@@ -50,12 +50,16 @@ function InitialLayout() {
   );
 }
 
+import { ThemeProvider } from '../src/context/ThemeContext';
+
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <StatusBar style="light" />
-      <InitialLayout />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <StatusBar style="light" />
+        <InitialLayout />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

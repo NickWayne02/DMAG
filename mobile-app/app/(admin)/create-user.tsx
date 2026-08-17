@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, TextInput, Pressable, ActivityIndicator, Alert,
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabaseAdmin } from '../../src/lib/supabaseAdmin';
+import { useTheme } from '../../src/context/ThemeContext';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, UserPlus } from 'lucide-react-native';
 
 export default function CreateUserScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -23,7 +25,6 @@ export default function CreateUserScreen() {
     
     setLoading(true);
     try {
-      // 1. Create user in Supabase Auth
       const { data, error } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
@@ -34,7 +35,6 @@ export default function CreateUserScreen() {
       if (error) throw error;
       if (!data.user) throw new Error('Пользователь не создан');
 
-      // 2. Set Role
       await supabaseAdmin.from('user_roles').delete().eq('user_id', data.user.id);
       const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
         user_id: data.user.id,
@@ -54,62 +54,62 @@ export default function CreateUserScreen() {
   }
 
   return (
-    <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.container}>
+    <LinearGradient colors={[colors.background, colors.muted]} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ArrowLeft color="#fff" size={24} />
+            <ArrowLeft color={colors.foreground} size={24} />
           </Pressable>
-          <Text style={styles.headerTitle}>Новый сотрудник</Text>
+          <Text style={[styles.headerTitle, { color: colors.foreground }]}>Новый сотрудник</Text>
           <View style={{ width: 40 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.warningBox}>
+          <View style={[styles.warningBox, { backgroundColor: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.2)' }]}>
             <Text style={styles.warningText}>
               Внимание: Данная функция использует сервисный ключ. В production-версии это должно работать через защищенный бэкенд.
             </Text>
           </View>
 
-          <Text style={styles.label}>ФИО</Text>
+          <Text style={[styles.label, { color: colors.foreground }]}>ФИО</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.foreground, borderColor: colors.border, borderWidth: 1 }]}
             placeholder="Иванов Иван Иванович"
-            placeholderTextColor="#64748b"
+            placeholderTextColor={colors.muted}
             value={name}
             onChangeText={setName}
           />
 
-          <Text style={styles.label}>Email (Логин)</Text>
+          <Text style={[styles.label, { color: colors.foreground }]}>Email (Логин)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.foreground, borderColor: colors.border, borderWidth: 1 }]}
             placeholder="ivan@example.com"
-            placeholderTextColor="#64748b"
+            placeholderTextColor={colors.muted}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Пароль</Text>
+          <Text style={[styles.label, { color: colors.foreground }]}>Пароль</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.card, color: colors.foreground, borderColor: colors.border, borderWidth: 1 }]}
             placeholder="Минимум 6 символов"
-            placeholderTextColor="#64748b"
+            placeholderTextColor={colors.muted}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
           />
 
-          <Text style={styles.label}>Роль</Text>
+          <Text style={[styles.label, { color: colors.foreground }]}>Роль</Text>
           <View style={styles.roleContainer}>
             {['employee', 'brigadier', 'admin'].map(r => (
               <Pressable 
                 key={r}
-                style={[styles.roleBtn, role === r && styles.roleBtnActive]}
+                style={[styles.roleBtn, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }, role === r && { backgroundColor: `${colors.primary}33`, borderColor: colors.primary }]}
                 onPress={() => setRole(r)}
               >
-                <Text style={[styles.roleText, role === r && styles.roleTextActive]}>
+                <Text style={[styles.roleText, { color: colors.muted }, role === r && { color: colors.primary }]}>
                   {r === 'employee' ? 'Сотрудник' : r === 'brigadier' ? 'Бригадир' : 'Админ'}
                 </Text>
               </Pressable>
@@ -117,14 +117,14 @@ export default function CreateUserScreen() {
           </View>
 
           <Pressable 
-            style={[styles.submitBtn, loading && styles.submitDisabled]} 
+            style={[styles.submitBtn, { backgroundColor: colors.primary }, loading && styles.submitDisabled]} 
             onPress={handleCreateUser}
             disabled={loading}
           >
-            {loading ? <ActivityIndicator color="#fff" /> : (
+            {loading ? <ActivityIndicator color={colors.primaryForeground} /> : (
               <>
-                <UserPlus color="#fff" size={20} />
-                <Text style={styles.submitText}>Создать аккаунт</Text>
+                <UserPlus color={colors.primaryForeground} size={20} />
+                <Text style={[styles.submitText, { color: colors.primaryForeground }]}>Создать аккаунт</Text>
               </>
             )}
           </Pressable>
@@ -137,20 +137,18 @@ export default function CreateUserScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safeArea: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1 },
   backBtn: { padding: 8 },
-  headerTitle: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 18 },
+  headerTitle: { fontFamily: 'Inter_600SemiBold', fontSize: 18 },
   content: { padding: 24 },
-  warningBox: { backgroundColor: 'rgba(239,68,68,0.1)', padding: 16, borderRadius: 12, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)' },
+  warningBox: { padding: 16, borderRadius: 12, marginBottom: 24, borderWidth: 1 },
   warningText: { color: '#f87171', fontFamily: 'Inter_400Regular', fontSize: 12, lineHeight: 18 },
-  label: { fontFamily: 'Inter_500Medium', color: '#cbd5e1', marginBottom: 8, fontSize: 14 },
-  input: { backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', borderRadius: 12, padding: 16, fontSize: 16, marginBottom: 20, fontFamily: 'Inter_400Regular' },
+  label: { fontFamily: 'Inter_500Medium', marginBottom: 8, fontSize: 14 },
+  input: { borderRadius: 12, padding: 16, fontSize: 16, marginBottom: 20, fontFamily: 'Inter_400Regular' },
   roleContainer: { flexDirection: 'row', gap: 8, marginBottom: 32 },
-  roleBtn: { flex: 1, padding: 12, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center' },
-  roleBtnActive: { backgroundColor: 'rgba(139,92,246,0.2)', borderWidth: 1, borderColor: '#8b5cf6' },
-  roleText: { fontFamily: 'Inter_500Medium', color: '#94a3b8', fontSize: 14 },
-  roleTextActive: { color: '#8b5cf6' },
-  submitBtn: { backgroundColor: '#8b5cf6', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 16, borderRadius: 12, gap: 8 },
+  roleBtn: { flex: 1, padding: 12, borderRadius: 12, alignItems: 'center' },
+  roleText: { fontFamily: 'Inter_500Medium', fontSize: 14 },
+  submitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 16, borderRadius: 12, gap: 8 },
   submitDisabled: { opacity: 0.5 },
-  submitText: { fontFamily: 'Inter_600SemiBold', color: '#fff', fontSize: 16 }
+  submitText: { fontFamily: 'Inter_600SemiBold', fontSize: 16 }
 });

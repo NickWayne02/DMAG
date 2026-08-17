@@ -55,7 +55,7 @@ export default function AdminHub() {
             subtitle="Управление" 
             color="#f59e0b" 
             icon={<Building2 color="#fff" size={24} />} 
-            onPress={() => {}}
+            onPress={() => router.push('/(admin)/sites')}
           />
 
           <MenuButton 
@@ -63,7 +63,7 @@ export default function AdminHub() {
             subtitle="Управление" 
             color="#8b5cf6" 
             icon={<Users color="#fff" size={24} />} 
-            onPress={() => {}}
+            onPress={() => router.push('/(admin)/users')}
           />
         </View>
 

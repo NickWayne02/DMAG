@@ -16,6 +16,9 @@ export default function AdminLayout() {
         <Stack.Screen name="index" options={{ title: 'Админ-панель' }} />
         <Stack.Screen name="monitoring" options={{ title: 'Мониторинг смен' }} />
         <Stack.Screen name="reports" options={{ title: 'Лента отчетов' }} />
+        <Stack.Screen name="users" options={{ title: 'Сотрудники' }} />
+        <Stack.Screen name="create-user" options={{ title: 'Новый сотрудник', presentation: 'modal' }} />
+        <Stack.Screen name="sites" options={{ title: 'Объекты' }} />
       </Stack>
     </>
   );

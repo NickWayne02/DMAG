@@ -41,6 +41,7 @@ jobs:
 
       - name: Build Android APK
         run: |
+          export GRADLE_OPTS="-Dorg.gradle.jvmargs='-Xmx4096m -XX:MaxMetaspaceSize=1024m'"
           cd mobile-app/android
           keytool -genkey -v -keystore release.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US"
           chmod +x ./gradlew

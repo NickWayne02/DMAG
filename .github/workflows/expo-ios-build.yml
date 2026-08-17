@@ -14,10 +14,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v3
         with:
           node-version: 22
           cache: 'npm'
@@ -50,7 +50,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Upload iOS App
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: DMAG-Native-iOS-App
           path: mobile-app/ios/build/Build/Products/Debug-iphonesimulator/mobileapp.app

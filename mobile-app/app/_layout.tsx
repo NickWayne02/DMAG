@@ -1,4 +1,4 @@
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
@@ -38,7 +38,14 @@ function InitialLayout() {
     );
   }
 
-  return <Slot />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)/login" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="photo-report" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="calendar" options={{ presentation: 'modal' }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {

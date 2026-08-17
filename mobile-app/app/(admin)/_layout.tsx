@@ -10,7 +10,6 @@ export default function AdminLayout() {
           headerStyle: { backgroundColor: '#0f172a' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontFamily: 'Inter_600SemiBold' },
-          headerBackTitleVisible: false,
           contentStyle: { backgroundColor: '#0f172a' }
         }}
       >

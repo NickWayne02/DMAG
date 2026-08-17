@@ -47,7 +47,7 @@ export default function ReportsScreen() {
             description: r.description,
             photo_url: r.photo_url,
             created_at: r.created_at,
-            signedUrl
+            signedUrl: signedUrl || null
           };
         }));
         setReports(enriched);
@@ -119,5 +119,7 @@ const styles = StyleSheet.create({
   timeText: { fontFamily: 'Inter_400Regular', color: '#64748b', fontSize: 14 },
   photo: { width: '100%', height: 300, borderRadius: 16, marginBottom: 12, backgroundColor: 'rgba(0,0,0,0.2)' },
   descRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingHorizontal: 4 },
-  descText: { fontFamily: 'Inter_400Regular', color: '#e2e8f0', fontSize: 14, flex: 1 }
+  descText: { fontFamily: 'Inter_400Regular', color: '#e2e8f0', fontSize: 14, flex: 1 },
+  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { fontFamily: 'Inter_400Regular', color: '#64748b', fontSize: 16 }
 });

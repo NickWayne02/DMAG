@@ -42,8 +42,10 @@ function InitialLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)/login" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(admin)" />
       <Stack.Screen name="photo-report" options={{ presentation: 'modal' }} />
       <Stack.Screen name="calendar" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="chat-view" />
     </Stack>
   );
 }

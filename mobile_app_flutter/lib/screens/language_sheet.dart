@@ -19,26 +19,30 @@ class LanguageSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.appColors;
+    final localeProvider = context.watch<LocaleProvider>();
+
     final languages = [
-      {'code': 'RU', 'name': 'Русский'},
-      {'code': 'GB', 'name': 'English'},
-      {'code': 'DE', 'name': 'Deutsch'},
-      {'code': 'RO', 'name': 'Română'},
-      {'code': 'BG', 'name': 'Български'},
-      {'code': 'PL', 'name': 'Polski'},
-      {'code': 'UA', 'name': 'Українська'},
-      {'code': 'UZ', 'name': 'O\'zbekcha'},
-      {'code': 'TJ', 'name': 'Тоҷикӣ'},
+      {'code': 'RU', 'name': 'Русский', 'flag': '🇷🇺'},
+      {'code': 'GB', 'name': 'English', 'flag': '🇬🇧'},
+      {'code': 'DE', 'name': 'Deutsch', 'flag': '🇩🇪'},
+      {'code': 'RO', 'name': 'Română', 'flag': '🇷🇴'},
+      {'code': 'BG', 'name': 'Български', 'flag': '🇧🇬'},
+      {'code': 'PL', 'name': 'Polski', 'flag': '🇵🇱'},
+      {'code': 'UA', 'name': 'Українська', 'flag': '🇺🇦'},
+      {'code': 'UZ', 'name': 'O\'zbekcha', 'flag': '🇺🇿'},
+      {'code': 'TJ', 'name': 'Тоҷикӣ', 'flag': '🇹🇯'},
     ];
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0F0F0F),
+        color: colors.card,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: colors.border),
       ),
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -51,7 +55,7 @@ class LanguageSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: colors.foreground.withOpacity(0.24),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -62,11 +66,11 @@ class LanguageSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  context.read<LocaleProvider>().t('header.language'),
+                  localeProvider.t('header.language') ?? 'Язык',
                   style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: colors.foreground,
                   ),
                 ),
               ],
@@ -81,10 +85,10 @@ class LanguageSheet extends StatelessWidget {
               itemCount: languages.length,
               itemBuilder: (context, index) {
                 final lang = languages[index];
-                final isActive = lang['code']!.toLowerCase() == context.watch<LocaleProvider>().currentLang;
+                final isActive = lang['code']!.toLowerCase() == localeProvider.currentLang;
                 return InkWell(
                   onTap: () {
-                    context.read<LocaleProvider>().setLanguage(lang['code']!.toLowerCase());
+                    localeProvider.setLanguage(lang['code']!.toLowerCase());
                     Navigator.pop(context);
                   },
                   child: Padding(
@@ -94,11 +98,11 @@ class LanguageSheet extends StatelessWidget {
                         SizedBox(
                           width: 32,
                           child: Text(
-                            lang['code']!,
+                            lang['flag']!,
                             style: GoogleFonts.inter(
-                              color: Colors.white,
+                              color: colors.foreground,
                               fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -106,20 +110,20 @@ class LanguageSheet extends StatelessWidget {
                           child: Text(
                             lang['name']!,
                             style: GoogleFonts.inter(
-                              color: Colors.white,
+                              color: colors.foreground,
                               fontSize: 16,
                             ),
                           ),
                         ),
                         if (isActive)
-                          const Icon(LucideIcons.check, color: Colors.white38, size: 20),
+                          Icon(LucideIcons.check, color: colors.primary, size: 20),
                       ],
                     ),
                   ),
                 );
               },
             ),
-          )
+          ),
         ],
       ),
     );

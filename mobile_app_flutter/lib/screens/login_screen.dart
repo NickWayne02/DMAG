@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
+import '../providers/locale_provider.dart';
 import '../services/auth_service.dart';
 import 'dashboard_screen.dart';
 import 'language_sheet.dart';
@@ -31,14 +33,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (email.isEmpty || password.isEmpty || (!_isLoginMode && (_nameController.text.isEmpty || _confirmPasswordController.text.isEmpty))) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пожалуйста, заполните все поля')),
+        SnackBar(content: Text(context.read<LocaleProvider>().t('auth.errors.fill_fields') ?? 'Пожалуйста, заполните все поля')),
       );
       return;
     }
     
     if (!_isLoginMode && password != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пароли не совпадают')),
+        SnackBar(content: Text(context.read<LocaleProvider>().t('auth.errors.passwords_not_match') ?? 'Пароли не совпадают')),
       );
       return;
     }
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка авторизации')),
+          SnackBar(content: Text(context.read<LocaleProvider>().t('auth.errors.default') ?? 'Ошибка авторизации')),
         );
       }
     } finally {
@@ -82,12 +84,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color inputBg = Color(0xFF0F0F0F);
-    const Color buttonBg = Color(0xFF334155);
-    const Color tabBg = Color(0xFF1E1E1E);
+    final theme = Theme.of(context);
+    final appColors = theme.appColors;
+    final localeProvider = context.watch<LocaleProvider>();
+    final t = localeProvider.t;
+
+    final Color inputBg = appColors.card;
+    final Color buttonBg = appColors.primary;
+    final Color tabBg = appColors.card;
+    final Color textColor = appColors.foreground;
+    final Color mutedTextColor = appColors.foreground.withOpacity(0.7);
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -109,11 +118,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(LucideIcons.globe, color: Colors.white, size: 16),
+                            Icon(LucideIcons.globe, color: textColor, size: 16),
                             const SizedBox(width: 6),
                             Text(
-                              '🇷🇺 RU',
-                              style: GoogleFonts.inter(color: Colors.white, fontSize: 12),
+                              localeProvider.currentLocale.flag,
+                              style: GoogleFonts.inter(color: textColor, fontSize: 12),
                             ),
                           ],
                         ),
@@ -128,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: tabBg,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(LucideIcons.settings, color: Colors.white, size: 16),
+                        child: Icon(LucideIcons.settings, color: textColor, size: 16),
                       ),
                     ),
                   ],
@@ -154,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'Maschinen und Anlagenbau',
                       style: GoogleFonts.inter(
-                        color: Colors.white70,
+                        color: mutedTextColor,
                         fontSize: 14,
                       ),
                     ),
@@ -180,14 +189,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () => setState(() => _isLoginMode = true),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: _isLoginMode ? Colors.black : Colors.transparent,
+                              color: _isLoginMode ? appColors.background : Colors.transparent,
                               borderRadius: BorderRadius.circular(22),
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Вход',
+                              t('auth.login') ?? 'Вход',
                               style: GoogleFonts.inter(
-                                color: _isLoginMode ? Colors.white : Colors.white54,
+                                color: _isLoginMode ? textColor : mutedTextColor,
                                 fontWeight: _isLoginMode ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
@@ -199,14 +208,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () => setState(() => _isLoginMode = false),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: !_isLoginMode ? Colors.black : Colors.transparent,
+                              color: !_isLoginMode ? appColors.background : Colors.transparent,
                               borderRadius: BorderRadius.circular(22),
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              'Регистрация',
+                              t('auth.register') ?? 'Регистрация',
                               style: GoogleFonts.inter(
-                                color: !_isLoginMode ? Colors.white : Colors.white54,
+                                color: !_isLoginMode ? textColor : mutedTextColor,
                                 fontWeight: !_isLoginMode ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
@@ -229,9 +238,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Fields for Registration only
                     if (!_isLoginMode) ...[
                       Text(
-                        'ФИО',
+                        t('auth.fullname') ?? 'ФИО',
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color: textColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -239,24 +248,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8),
                       TextField(
                         controller: _nameController,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: textColor),
                         decoration: InputDecoration(
                           hintText: 'Иван Иванов',
-                          hintStyle: const TextStyle(color: Colors.white38),
+                          hintStyle: TextStyle(color: mutedTextColor),
                           filled: true,
                           fillColor: inputBg,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white12),
+                            borderSide: BorderSide(color: appColors.border),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white12),
+                            borderSide: BorderSide(color: appColors.border),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: buttonBg),
+                            borderSide: BorderSide(color: appColors.primary),
                           ),
                         ),
                       ),
@@ -264,9 +273,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
 
                     Text(
-                      'Логин',
+                      t('auth.login') ?? 'Логин',
                       style: GoogleFonts.inter(
-                        color: Colors.white,
+                        color: textColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -275,24 +284,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         hintText: 'ivanov',
-                        hintStyle: const TextStyle(color: Colors.white38),
+                        hintStyle: TextStyle(color: mutedTextColor),
                         filled: true,
                         fillColor: inputBg,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.white12),
+                          borderSide: BorderSide(color: appColors.border),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.white12),
+                          borderSide: BorderSide(color: appColors.border),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: buttonBg),
+                          borderSide: BorderSide(color: appColors.primary),
                         ),
                       ),
                     ),
@@ -300,9 +309,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     Text(
-                      'Пароль',
+                      t('auth.password') ?? 'Пароль',
                       style: GoogleFonts.inter(
-                        color: Colors.white,
+                        color: textColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -311,27 +320,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: inputBg,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.white12),
+                          borderSide: BorderSide(color: appColors.border),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.white12),
+                          borderSide: BorderSide(color: appColors.border),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: buttonBg),
+                          borderSide: BorderSide(color: appColors.primary),
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword ? LucideIcons.eye : LucideIcons.eye_off,
-                            color: Colors.white54,
+                            color: mutedTextColor,
                           ),
                           onPressed: () {
                             setState(() => _obscurePassword = !_obscurePassword);
@@ -343,9 +352,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (!_isLoginMode) ...[
                       const SizedBox(height: 24),
                       Text(
-                        'Подтверждение пароля',
+                        t('auth.confirm_password') ?? 'Подтверждение пароля',
                         style: GoogleFonts.inter(
-                          color: Colors.white,
+                          color: textColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -354,27 +363,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextField(
                         controller: _confirmPasswordController,
                         obscureText: _obscureConfirmPassword,
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: textColor),
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: inputBg,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white12),
+                            borderSide: BorderSide(color: appColors.border),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white12),
+                            borderSide: BorderSide(color: appColors.border),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: buttonBg),
+                            borderSide: BorderSide(color: appColors.primary),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscureConfirmPassword ? LucideIcons.eye : LucideIcons.eye_off,
-                              color: Colors.white54,
+                              color: mutedTextColor,
                             ),
                             onPressed: () {
                               setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
@@ -398,15 +407,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         alignment: Alignment.center,
                         child: _isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 24,
                                 width: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(color: appColors.primaryForeground, strokeWidth: 2),
                               )
                             : Text(
-                                _isLoginMode ? 'Войти' : 'Создать учётную запись',
+                                _isLoginMode ? (t('auth.login') ?? 'Войти') : (t('auth.register') ?? 'Создать учётную запись'),
                                 style: GoogleFonts.inter(
-                                  color: Colors.white,
+                                  color: appColors.primaryForeground,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -424,11 +433,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             SnackBar(
                               content: Row(
                                 children: [
-                                  const Icon(LucideIcons.info, color: Color(0xFF0284c7)),
-                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      'Восстановление пароля производится через Администратора или Супер-админа.',
+                                      t('auth.forgot_password_info') ?? 'Восстановление пароля производится через Администратора или Супер-админа.',
                                       style: GoogleFonts.inter(
                                         color: const Color(0xFF0284c7),
                                         fontWeight: FontWeight.w500,
@@ -446,9 +453,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: Text(
-                          'Забыли пароль?',
+                          t('auth.forgot_password') ?? 'Забыли пароль?',
                           style: GoogleFonts.inter(
-                            color: const Color(0xFF60a5fa),
+                            color: appColors.primary,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),

@@ -86,10 +86,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final shift = context.watch<ShiftProvider>();
     
     if (shift.isProfileLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(
-          child: CircularProgressIndicator(color: Colors.white),
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: const Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }
@@ -126,7 +126,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background glows matching React
@@ -377,7 +377,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                         if (shift.selectedSite != null) ...[
                           const SizedBox(height: 12),
-                          _buildMapCard(shift),
+                          _buildMapCard(context, shift),
                         ],
 
                         if (shift.status == ShiftStatus.finished) ...[
@@ -399,9 +399,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const Icon(LucideIcons.message_square, color: Colors.white70, size: 20),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Text('Чат', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                  child: Text('Чат', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                 ),
-                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
+                                Icon(LucideIcons.chevron_right, color: colors.foreground.withOpacity(0.3), size: 20),
                               ],
                             ),
                           ),
@@ -415,28 +415,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                            style: GoogleFonts.inter(color: Colors.white30, fontSize: 12),
-                            children: const [
-                              TextSpan(text: 'DMAG', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                              TextSpan(text: ' © 2026 Все права защищены'),
+                            style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.3), fontSize: 12),
+                            children: [
+                              TextSpan(text: 'DMAG', style: TextStyle(fontWeight: FontWeight.bold, color: colors.foreground)),
+                              const TextSpan(text: ' © 2026 Все права защищены'),
                             ],
                           ),
                         ),
                         const SizedBox(height: 12),
                         BounceButton(
                           onTap: () => FooterSheets.showPrivacyPolicy(context),
-                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Политика конфиденциальности', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12))),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Политика конфиденциальности', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
                         ),
                         BounceButton(
                           onTap: () => FooterSheets.showTermsOfService(context),
-                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Условия использования', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12))),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Условия использования', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
                         ),
                         BounceButton(
                           onTap: () => FooterSheets.showSupport(context),
-                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Служба поддержки', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12))),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Служба поддержки', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
                         ),
                         const SizedBox(height: 16),
-                        Text('Версия 2.0.1', style: GoogleFonts.inter(color: Colors.white24, fontSize: 10)),
+                        Text('Версия 2.0.1', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.24), fontSize: 10)),
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -462,6 +462,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final provider = context.watch<ThemeProvider>();
     final radius = provider.borderRadius;
+    final colors = Theme.of(context).appColors;
     
     return Container(
       padding: const EdgeInsets.only(bottom: 24, left: 20, right: 20, top: 16),
@@ -495,16 +496,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () => LanguageSheet.show(context),
                 child: Row(
                   children: [
-                    const Icon(LucideIcons.globe, color: Colors.white54, size: 14),
+                    Icon(LucideIcons.globe, color: colors.foreground.withOpacity(0.54), size: 14),
                     const SizedBox(width: 4),
-                    Text('RU', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('RU', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
               const SizedBox(width: 16),
               BounceButton(
                 onTap: () => SettingsSheet.show(context),
-                child: const Icon(LucideIcons.settings, color: Colors.white54, size: 16),
+                child: Icon(LucideIcons.settings, color: colors.foreground.withOpacity(0.54), size: 16),
               ),
               const SizedBox(width: 16),
               BounceButton(
@@ -512,13 +513,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (c) => const Center(child: CircularProgressIndicator(color: Colors.white)),
+                    builder: (c) => Center(child: CircularProgressIndicator(color: colors.primaryForeground)),
                   );
                   context.read<ShiftProvider>().resetShift();
                   await AuthService.signOut();
                   if (context.mounted) Navigator.pop(context);
                 },
-                child: const Icon(LucideIcons.log_out, color: Colors.white54, size: 18),
+                child: Icon(LucideIcons.log_out, color: colors.foreground.withOpacity(0.54), size: 18),
               ),
             ],
           ),
@@ -532,8 +533,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   height: 56,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white12,
-                    border: Border.all(color: Colors.white30),
+                    color: colors.foreground.withOpacity(0.12),
+                    border: Border.all(color: colors.foreground.withOpacity(0.3)),
                     image: context.read<ShiftProvider>().userProfile?['avatar_url'] != null
                         ? DecorationImage(
                             image: NetworkImage(context.read<ShiftProvider>().userProfile!['avatar_url']),
@@ -545,7 +546,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ? Center(
                           child: Text(
                             name.substring(0, 1).toUpperCase(),
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.inter(color: colors.foreground, fontSize: 20, fontWeight: FontWeight.bold),
                           ),
                         )
                       : null,
@@ -561,7 +562,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white54,
+                        color: colors.foreground.withOpacity(0.54),
                         letterSpacing: 2.0,
                       ),
                     ),
@@ -571,7 +572,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: colors.foreground,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -586,7 +587,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       FadePageRoute(page: const AdminDashboardScreen()),
                     );
                   },
-                  child: const Icon(LucideIcons.shield_check, color: Colors.white70, size: 20),
+                  child: Icon(LucideIcons.shield_check, color: colors.foreground.withOpacity(0.7), size: 20),
                 ),
                 const SizedBox(width: 16),
               ],
@@ -720,18 +721,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               minimumSize: Size.zero,
             ),
             onPressed: () => shift.resetShift(),
-            child: Text('Новая', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text('Новая', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMapCard(ShiftProvider shift) {
+  Widget _buildMapCard(BuildContext context, ShiftProvider shift) {
+    final colors = Theme.of(context).appColors;
     final site = shift.selectedSite!;
     final address = site['address'] as String? ?? site['name'] as String;
     
-    // Attempt to extract City/Address string without coordinates
     String displayName = address;
     if (displayName.startsWith('GPS: ')) {
       displayName = shift.userProfile?['start_city'] ?? site['name'] as String;
@@ -750,11 +751,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Местоположение', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('Местоположение', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(
                       displayName,
-                      style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -770,16 +771,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white10,
+                color: colors.foreground.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white24),
+                border: Border.all(color: colors.border),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(LucideIcons.map, color: Colors.white, size: 18),
+                  Icon(LucideIcons.map, color: colors.foreground, size: 18),
                   const SizedBox(width: 8),
-                  Text('Открыть в Google Картах', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text('Открыть в Google Картах', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -789,17 +790,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMapIconButton(IconData icon, VoidCallback onTap) {
+  Widget _buildMapIconButton(BuildContext context, IconData icon, VoidCallback onTap) {
+    final colors = Theme.of(context).appColors;
     return BounceButton(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.black54,
+          color: colors.card,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white24),
+          border: Border.all(color: colors.border),
         ),
-        child: Icon(icon, color: Colors.white, size: 16),
+        child: Icon(icon, color: colors.foreground, size: 16),
       ),
     );
   }

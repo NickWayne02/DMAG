@@ -84,6 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final shift = context.watch<ShiftProvider>();
+    final colors = Theme.of(context).appColors;
     
     if (shift.isProfileLoading) {
       return Scaffold(

@@ -121,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Icon(LucideIcons.globe, color: textColor, size: 16),
                             const SizedBox(width: 6),
                             Text(
-                              localeProvider.currentLocale.flag,
+                              localeProvider.currentLang.toUpperCase(),
                               style: GoogleFonts.inter(color: textColor, fontSize: 12),
                             ),
                           ],
@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () => SettingsSheet.show(context),
                       child: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: tabBg,
                           shape: BoxShape.circle,
                         ),

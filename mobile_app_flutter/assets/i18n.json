@@ -3000,5 +3000,96 @@
     "uk": "Гаряча лінія (24/7)",
     "uz": "Ishonch telefoni (24/7)",
     "tg": "Телефони боварӣ (24/7)"
+  },
+  "auth.forgot_password": {
+    "ru": "Забыли пароль?",
+    "en": "Forgot password?",
+    "de": "Passwort vergessen?",
+    "ro": "Ați uitat parola?",
+    "bg": "Забравена парола?",
+    "pl": "Zapomniałeś hasła?",
+    "uk": "Забули пароль?",
+    "uz": "Parolni unutdingizmi?",
+    "tg": "Паролро фаромӯш кардед?"
+  },
+  "dashboard.status": {
+    "ru": "ТЕКУЩИЙ СТАТУС",
+    "en": "CURRENT STATUS",
+    "de": "AKTUELLER STATUS"
+  },
+  "dashboard.startWork": {
+    "ru": "НАЧАТЬ РАБОТУ",
+    "en": "START WORK",
+    "de": "ARBEIT BEGINNEN"
+  },
+  "dashboard.startPause": {
+    "ru": "НАЧАТЬ ПАУЗУ",
+    "en": "START PAUSE",
+    "de": "PAUSE BEGINNEN"
+  },
+  "dashboard.endPause": {
+    "ru": "ЗАКОНЧИТЬ ПАУЗУ",
+    "en": "END PAUSE",
+    "de": "PAUSE BEENDEN"
+  },
+  "dashboard.endShift": {
+    "ru": "ЗАКОНЧИТЬ СМЕНУ",
+    "en": "END SHIFT",
+    "de": "SCHICHT BEENDEN"
+  },
+  "dashboard.site": {
+    "ru": "Объект",
+    "en": "Site",
+    "de": "Objekt"
+  },
+  "dashboard.chat": {
+    "ru": "Чат",
+    "en": "Chat",
+    "de": "Chat"
+  },
+  "dashboard.shiftFinished": {
+    "ru": "Смена завершена",
+    "en": "Shift finished",
+    "de": "Schicht beendet"
+  },
+  "dashboard.shiftStart": {
+    "ru": "НАЧАЛО СМЕНЫ",
+    "en": "SHIFT START",
+    "de": "SCHICHTBEGINN"
+  },
+  "dashboard.worked": {
+    "ru": "ОТРАБОТАНО",
+    "en": "WORKED",
+    "de": "GEARBEITET"
+  },
+  "dashboard.work": {
+    "ru": "Работа",
+    "en": "Work",
+    "de": "Arbeit"
+  },
+  "dashboard.lunch": {
+    "ru": "Обед",
+    "en": "Lunch",
+    "de": "Mittagessen"
+  },
+  "dashboard.total": {
+    "ru": "Итого",
+    "en": "Total",
+    "de": "Gesamt"
+  },
+  "dashboard.shiftNotStarted": {
+    "ru": "Смена не начата",
+    "en": "Shift not started",
+    "de": "Schicht nicht begonnen"
+  },
+  "dashboard.onPause": {
+    "ru": "На паузе",
+    "en": "On pause",
+    "de": "Pausiert"
+  },
+  "dashboard.inProgress": {
+    "ru": "В работе",
+    "en": "In progress",
+    "de": "In Arbeit"
   }
 }

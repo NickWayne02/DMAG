@@ -194,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              t('auth.login') ?? 'Вход',
+                              t('auth.tabLogin') ?? 'Вход',
                               style: GoogleFonts.inter(
                                 color: _isLoginMode ? textColor : mutedTextColor,
                                 fontWeight: _isLoginMode ? FontWeight.bold : FontWeight.normal,
@@ -213,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              t('auth.register') ?? 'Регистрация',
+                              t('auth.tabSignup') ?? 'Регистрация',
                               style: GoogleFonts.inter(
                                 color: !_isLoginMode ? textColor : mutedTextColor,
                                 fontWeight: !_isLoginMode ? FontWeight.bold : FontWeight.normal,
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Fields for Registration only
                     if (!_isLoginMode) ...[
                       Text(
-                        t('auth.fullname') ?? 'ФИО',
+                        t('auth.fullName') ?? 'ФИО',
                         style: GoogleFonts.inter(
                           color: textColor,
                           fontSize: 14,
@@ -413,7 +413,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: CircularProgressIndicator(color: appColors.primaryForeground, strokeWidth: 2),
                               )
                             : Text(
-                                _isLoginMode ? (t('auth.login') ?? 'Войти') : (t('auth.register') ?? 'Создать учётную запись'),
+                                _isLoginMode ? (t('auth.signin') ?? 'Войти') : (t('auth.signup') ?? 'Создать учётную запись'),
                                 style: GoogleFonts.inter(
                                   color: appColors.primaryForeground,
                                   fontSize: 16,
@@ -435,7 +435,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      t('auth.forgot_password_info') ?? 'Восстановление пароля производится через Администратора или Супер-админа.',
+                                      t('auth.recover') ?? 'Восстановление пароля производится через Администратора или Супер-админа.',
                                       style: GoogleFonts.inter(
                                         color: const Color(0xFF0284c7),
                                         fontWeight: FontWeight.w500,

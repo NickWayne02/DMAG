@@ -23,6 +23,7 @@ import 'shift_history_sheet.dart';
 import 'photo_report_sheet.dart';
 import 'footer_sheets.dart';
 import 'admin/admin_dashboard_screen.dart';
+import '../providers/locale_provider.dart';
 import 'admin/admin_editable_calendar_dialog.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -85,6 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final shift = context.watch<ShiftProvider>();
     final colors = Theme.of(context).appColors;
+    final t = context.watch<LocaleProvider>().t;
     
     if (shift.isProfileLoading) {
       return Scaffold(
@@ -110,7 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (shift.status) {
       case ShiftStatus.idle:
         statusColor = Colors.white54;
-        statusLabel = 'Смена не начата';
+        statusLabel = t('dashboard.shiftNotStarted') ?? 'Смена не начата';
         break;
       case ShiftStatus.finished:
         statusColor = Colors.white;
@@ -205,11 +207,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'ТЕКУЩИЙ СТАТУС',
+                                    t('dashboard.status') ?? 'ТЕКУЩИЙ СТАТУС',
                                     style: GoogleFonts.inter(
                                       fontSize: 10,
                                       letterSpacing: 1.5,
-                                      color: Colors.white54,
+                                      color: colors.foreground.withOpacity(0.54),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   )
@@ -221,7 +223,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: colors.foreground,
                                   shadows: [Shadow(color: statusColor.withOpacity(0.5), blurRadius: 8)],
                                 ),
                               ),
@@ -235,17 +237,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('НАЧАЛО СМЕНЫ', style: GoogleFonts.inter(fontSize: 10, color: Colors.white54, letterSpacing: 1.5)),
-                                        Text(_formatClock(shift.shiftStart!), style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                                        Text(t('dashboard.shiftStart') ?? 'НАЧАЛО СМЕНЫ', style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withOpacity(0.54), letterSpacing: 1.5)),
+                                        Text(_formatClock(shift.shiftStart!), style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: colors.foreground)),
                                       ],
                                     ),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        Text('ОТРАБОТАНО', style: GoogleFonts.inter(fontSize: 10, color: Colors.white54, letterSpacing: 1.5)),
+                                        Text(t('dashboard.worked') ?? 'ОТРАБОТАНО', style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withOpacity(0.54), letterSpacing: 1.5)),
                                         Text(
                                           _formatHMS(shift.workMs),
-                                          style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: statusColor.withOpacity(0.5), blurRadius: 8)]),
+                                          style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w900, color: colors.foreground, shadows: [Shadow(color: statusColor.withOpacity(0.5), blurRadius: 8)]),
                                         ),
                                       ],
                                     ),
@@ -254,11 +256,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const SizedBox(height: 16),
                                 Row(
                                   children: [
-                                    Expanded(child: MetricWidget(label: 'Работа', value: _formatHM(shift.workMs), color: const Color(0xFF84cc16))), // Lime
+                                    Expanded(child: MetricWidget(label: t('dashboard.work') ?? 'Работа', value: _formatHM(shift.workMs), color: const Color(0xFF84cc16))), // Lime
                                     const SizedBox(width: 8),
-                                    Expanded(child: MetricWidget(label: 'Обед', value: _formatHM(shift.lunchMs), color: const Color(0xFFf59e0b))), // Amber
+                                    Expanded(child: MetricWidget(label: t('dashboard.lunch') ?? 'Обед', value: _formatHM(shift.lunchMs), color: const Color(0xFFf59e0b))), // Amber
                                     const SizedBox(width: 8),
-                                    Expanded(child: MetricWidget(label: 'Итого', value: _formatHM(shift.totalMs), color: const Color(0xFF06b6d4))), // Cyan
+                                    Expanded(child: MetricWidget(label: t('dashboard.total') ?? 'Итого', value: _formatHM(shift.totalMs), color: const Color(0xFF06b6d4))), // Cyan
                                   ],
                                 )
                               ]
@@ -275,7 +277,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: _buildStatusButton(
                                 context: context,
                                 tone: 'lime',
-                                title: 'НАЧАТЬ РАБОТУ',
+                                title: t('dashboard.startWork') ?? 'НАЧАТЬ РАБОТУ',
                                 icon: LucideIcons.rocket,
                                 isActive: shift.status == ShiftStatus.idle || shift.status == ShiftStatus.finished,
                                 isSolid: shift.status == ShiftStatus.idle || shift.status == ShiftStatus.finished,
@@ -294,7 +296,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: _buildStatusButton(
                                 context: context,
                                 tone: 'amber',
-                                title: 'НАЧАТЬ ПАУЗУ',
+                                title: t('dashboard.startPause') ?? 'НАЧАТЬ ПАУЗУ',
                                 icon: LucideIcons.pause,
                                 isActive: shift.status == ShiftStatus.working,
                                 isSolid: shift.status == ShiftStatus.working,
@@ -313,7 +315,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: _buildStatusButton(
                                 context: context,
                                 tone: 'cyan',
-                                title: 'ЗАКОНЧИТЬ ПАУЗУ',
+                                title: t('dashboard.endPause') ?? 'ЗАКОНЧИТЬ ПАУЗУ',
                                 icon: LucideIcons.play,
                                 isActive: shift.status == ShiftStatus.lunch,
                                 isSolid: shift.status == ShiftStatus.lunch,
@@ -328,14 +330,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: _buildStatusButton(
                                 context: context,
                                 tone: 'red',
-                                title: 'ЗАКОНЧИТЬ СМЕНУ',
+                                title: t('dashboard.endShift') ?? 'ЗАКОНЧИТЬ СМЕНУ',
                                 icon: LucideIcons.power,
                                 isActive: shift.status == ShiftStatus.working || shift.status == ShiftStatus.lunch,
                                 isSolid: shift.status == ShiftStatus.working || shift.status == ShiftStatus.lunch,
                                 onTap: () async {
                                   await _handleEndShift(context, shift);
                                   if (mounted && shift.status == ShiftStatus.finished) {
-                                    AppToast.showInfo(context, 'Смена завершена');
+                                    AppToast.showInfo(context, t('dashboard.shiftFinished') ?? 'Смена завершена');
                                   }
                                 },
                               ),
@@ -352,18 +354,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                             child: Row(
                               children: [
-                                const Icon(LucideIcons.navigation, color: Colors.white70, size: 20),
+                                const Icon(LucideIcons.navigation, color: colors.foreground.withOpacity(0.7), size: 20),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Объект', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                      Text(t('dashboard.site') ?? 'Объект', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                       Text(
                                         shift.selectedSite != null 
                                             ? (shift.selectedSite!['address'] ?? shift.selectedSite!['name'])
                                             : 'Не выбран — нажмите, чтобы выбрать',
-                                        style: GoogleFonts.inter(color: Colors.white54, fontSize: 11),
+                                        style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 11),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -397,10 +399,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                             child: Row(
                               children: [
-                                const Icon(LucideIcons.message_square, color: Colors.white70, size: 20),
+                                const Icon(LucideIcons.message_square, color: colors.foreground.withOpacity(0.7), size: 20),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: Text('Чат', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
+                                  child: Text(t('dashboard.chat') ?? 'Чат', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                 ),
                                 Icon(LucideIcons.chevron_right, color: colors.foreground.withOpacity(0.3), size: 20),
                               ],
@@ -604,7 +606,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ShiftHistorySheet.show(context);
                   }
                 },
-                child: const Icon(LucideIcons.calendar, color: Colors.white70, size: 20),
+                child: const Icon(LucideIcons.calendar, color: colors.foreground.withOpacity(0.7), size: 20),
               ),
             ],
           ),
@@ -654,9 +656,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         duration: const Duration(milliseconds: 200),
         height: 100,
         decoration: BoxDecoration(
-          color: actualIsSolid ? color : const Color(0xFF09090b),
+          color: actualIsSolid ? color : Theme.of(context).appColors.card,
           borderRadius: BorderRadius.circular(radius),
-          border: actualIsSolid ? null : Border.all(color: isActive ? color : const Color(0xFF27272a)),
+          border: actualIsSolid ? null : Border.all(color: isActive ? color : Theme.of(context).appColors.border),
           boxShadow: actualIsSolid ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, spreadRadius: 1)] : [],
         ),
         padding: const EdgeInsets.all(12),
@@ -664,11 +666,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(icon, color: actualIsSolid ? Colors.black : (isActive ? color : Colors.white24), size: 20),
+            Icon(icon, color: actualIsSolid ? Theme.of(context).appColors.background : (isActive ? color : Theme.of(context).appColors.foreground.withOpacity(0.24)), size: 20),
             Text(
               title,
               style: GoogleFonts.inter(
-                color: actualIsSolid ? Colors.black : (isActive ? color : Colors.white24),
+                color: actualIsSolid ? Theme.of(context).appColors.background : (isActive ? color : Theme.of(context).appColors.foreground.withOpacity(0.24)),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
@@ -696,7 +698,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Смена завершена',
+                  t('dashboard.shiftFinished') ?? 'Смена завершена',
                   style: GoogleFonts.inter(
                     color: Theme.of(context).appColors.foreground,
                     fontSize: 14,
@@ -746,7 +748,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              const Icon(LucideIcons.map_pin, color: Colors.white70, size: 24),
+              const Icon(LucideIcons.map_pin, color: colors.foreground.withOpacity(0.7), size: 24),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -881,7 +883,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('Разрешить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text('Разрешить', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -977,7 +979,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: Text('Удержать', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text('Удержать', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

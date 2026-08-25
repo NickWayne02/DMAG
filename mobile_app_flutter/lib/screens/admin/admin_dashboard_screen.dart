@@ -14,6 +14,8 @@ import '../dashboard_screen.dart';
 import '../settings_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../providers/shift_provider.dart';
+import '../../providers/locale_provider.dart';
+import '../../theme/app_theme.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);
@@ -41,16 +43,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     const ChatTab(),
   ];
 
-  final List<String> _tabTitles = [
-    'Дашборд',
-    'Календарь',
-    'Персонал',
-    'Объекты',
-    'Фотоотчёты',
-    'Активные сеансы',
-    'Управление пользователями',
-    'Чат',
-  ];
+  String _getTabTitle(BuildContext context, int index) {
+    final t = context.watch<LocaleProvider>().t;
+    switch (index) {
+      case 0: return t('admin.tab.dashboard');
+      case 1: return t('admin.tab.calendar');
+      case 2: return t('admin.tab.personnel');
+      case 3: return t('admin.tab.sites');
+      case 4: return t('admin.tab.reports');
+      case 5: return t('admin.tab.security');
+      case 6: return t('admin.tab.users');
+      case 7: return t('admin.tab.chat') ?? 'Чат';
+      default: return '';
+    }
+  }
 
   void _onMenuTap(int index) {
     setState(() {
@@ -61,18 +67,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.appColors;
+    
     return Scaffold(
-      backgroundColor: Colors.black, // True black matching React layout
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.black, // Dark appbar matching react layout
+        backgroundColor: colors.card,
         elevation: 0,
         title: Text(
-          _tabTitles[_currentIndex],
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          _getTabTitle(context, _currentIndex),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: colors.foreground),
         ),
         actions: [
           IconButton(
-            icon: const Icon(LucideIcons.arrow_left, color: Colors.white54, size: 20),
+            icon: Icon(LucideIcons.arrow_left, color: colors.foreground.withOpacity(0.54), size: 20),
             tooltip: 'Вернуться в режим сотрудника',
             onPressed: () {
               Navigator.of(context).pushReplacement(
@@ -81,18 +90,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(LucideIcons.settings, color: Colors.white54, size: 20),
+            icon: Icon(LucideIcons.settings, color: colors.foreground.withOpacity(0.54), size: 20),
             onPressed: () {
               SettingsSheet.show(context);
             },
           ),
           IconButton(
-            icon: const Icon(LucideIcons.log_out, color: Colors.white54, size: 20),
+            icon: Icon(LucideIcons.log_out, color: colors.foreground.withOpacity(0.54), size: 20),
             onPressed: () async {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (c) => const Center(child: CircularProgressIndicator(color: Colors.white)),
+                builder: (c) => Center(child: CircularProgressIndicator(color: colors.primaryForeground)),
               );
               context.read<ShiftProvider>().resetShift();
               await AuthService.signOut();
@@ -101,10 +110,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           const SizedBox(width: 8),
         ],
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colors.foreground),
       ),
       drawer: Drawer(
-        backgroundColor: const Color(0xFF2E3846), // DMAG Sidebar Slate background
+        backgroundColor: colors.card,
         child: Column(
           children: [
             // Drawer Header
@@ -118,47 +127,41 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(color: colors.border),
                     ),
-                    child: const Center(
-                      child: Text('D', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    child: Center(
+                      child: Text('D', style: TextStyle(color: colors.foreground, fontSize: 20, fontWeight: FontWeight.bold)),
                     ), // Using placeholder for DMAG logo
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('DMAG', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text('Admin Console', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
+                      Text('DMAG', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text('Admin Console', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12)),
                     ],
                   ),
                 ],
               ),
             ),
-            const Divider(color: Colors.white12, height: 1),
+            Divider(color: colors.border, height: 1),
             const SizedBox(height: 16),
             // Drawer Items
             Expanded(
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _buildDrawerItem(0, LucideIcons.activity, 'Дашборд'),
-                  _buildDrawerItem(1, LucideIcons.calendar, 'Календарь'),
-                  _buildDrawerItem(2, LucideIcons.users, 'Персонал'),
-                  _buildDrawerItem(3, LucideIcons.building_2, 'Объекты'),
-                  _buildDrawerItem(4, LucideIcons.camera, 'Фотоотчёты'),
-                  _buildDrawerItem(5, LucideIcons.shield_check, 'Активные сеансы'),
-                  _buildDrawerItem(6, LucideIcons.users, 'Управление пользователями'),
-                  _buildDrawerItem(7, LucideIcons.message_circle, 'Чат'),
+                  _buildDrawerItem(context, 0, LucideIcons.activity, _getTabTitle(context, 0), colors),
+                  _buildDrawerItem(context, 1, LucideIcons.calendar, _getTabTitle(context, 1), colors),
+                  _buildDrawerItem(context, 2, LucideIcons.users, _getTabTitle(context, 2), colors),
+                  _buildDrawerItem(context, 3, LucideIcons.building_2, _getTabTitle(context, 3), colors),
+                  _buildDrawerItem(context, 4, LucideIcons.camera, _getTabTitle(context, 4), colors),
+                  _buildDrawerItem(context, 5, LucideIcons.shield_check, _getTabTitle(context, 5), colors),
+                  _buildDrawerItem(context, 6, LucideIcons.user_cog, _getTabTitle(context, 6), colors),
+                  _buildDrawerItem(context, 7, LucideIcons.message_square, _getTabTitle(context, 7), colors),
                 ],
               ),
             ),
-            const Divider(color: Colors.white12, height: 1),
-            Container(
-              padding: const EdgeInsets.all(24),
-              alignment: Alignment.centerLeft,
-              child: Text('DMAG · MVP v1.0', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
-            )
           ],
         ),
       ),

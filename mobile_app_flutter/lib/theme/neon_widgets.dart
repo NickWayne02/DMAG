@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import 'app_theme.dart';
 
 class NeonCard extends StatelessWidget {
   final Widget child;
@@ -17,12 +18,13 @@ class NeonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = glowColor ?? const Color(0xFF27272a);
+    final colors = Theme.of(context).appColors;
+    final borderColor = glowColor ?? colors.border;
     final radius = context.watch<ThemeProvider>().borderRadius;
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: const Color(0xFF09090b), // Subtle dark background, almost black
+        color: colors.card,
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(color: borderColor),
         boxShadow: glowColor != null

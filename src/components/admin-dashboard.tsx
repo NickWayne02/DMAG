@@ -964,26 +964,38 @@ export function AdminDashboard({
   }
 
   async function openEditShift(emp: EmployeeRow) {
-    // Load latest shift for this user
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
     const { data } = await supabase
       .from("shifts")
       .select("id, site_id, site_name, started_at, ended_at, lunch_total_ms, start_city, end_city")
       .eq("user_id", emp.id)
-      .order("started_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    setShiftEdit({
-      id: data?.id,
-      user_id: emp.id,
-      user_name: emp.name,
-      site_id: data?.site_id ?? null,
-      site_name: data?.site_name ?? null,
-      started_at: toLocalInput(data?.started_at ?? null) || toLocalInput(new Date().toISOString()),
-      ended_at: toLocalInput(data?.ended_at ?? null),
-      lunch_minutes: data?.lunch_total_ms ? Math.round(Number(data.lunch_total_ms) / 60000) : 0,
-      start_city: (data as any)?.start_city ?? "",
-      end_city: (data as any)?.end_city ?? "",
-    });
+      .gte("started_at", startOfMonth)
+      .lte("started_at", endOfMonth)
+      .order("started_at", { ascending: false });
+
+    if (data && data.length > 0) {
+      setShiftEditList(data as any[]);
+      setShiftEditIndex(0);
+      loadShiftIntoEdit(data[0] as any, emp);
+    } else {
+      setShiftEditList([]);
+      setShiftEditIndex(0);
+      setShiftEdit({
+        id: undefined,
+        user_id: emp.id,
+        user_name: emp.name,
+        site_id: null,
+        site_name: null,
+        started_at: toLocalInput(new Date().toISOString()),
+        ended_at: "",
+        lunch_minutes: 0,
+        start_city: "",
+        end_city: "",
+      });
+    }
   }
 
   function openAddShift() {

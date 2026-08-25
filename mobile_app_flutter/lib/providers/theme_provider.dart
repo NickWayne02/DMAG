@@ -74,7 +74,7 @@ class ThemeProvider extends ChangeNotifier {
     ),
   ];
 
-  ThemeModeType _mode = ThemeModeType.neon; // Default to Neon to match current
+  ThemeModeType _mode = ThemeModeType.light; // Default to Light
   String _accentId = 'dmag';
   Color? _customAccent;
   ButtonStyleType _buttonStyle = ButtonStyleType.filled;
@@ -101,8 +101,8 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> _loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final modeStr = prefs.getString('theme_mode') ?? 'neon';
-      _mode = ThemeModeType.values.firstWhere((e) => e.name == modeStr, orElse: () => ThemeModeType.neon);
+      final modeStr = prefs.getString('theme_mode') ?? 'light';
+      _mode = ThemeModeType.values.firstWhere((e) => e.name == modeStr, orElse: () => ThemeModeType.light);
       _accentId = prefs.getString('theme_accent_id') ?? 'dmag';
       
       final customHex = prefs.getInt('theme_custom_accent');

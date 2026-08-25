@@ -4,6 +4,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
+import 'admin/dialogs/add_site_dialog.dart';
 
 class SiteSelectorSheet extends StatefulWidget {
   final String? initialSiteId;
@@ -107,11 +108,20 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                     color: Colors.white,
                   ),
                 ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(LucideIcons.x, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pop(),
-                )
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(LucideIcons.plus, color: Colors.white),
+                    onPressed: () async {
+                      final result = await AddSiteDialog.show(context);
+                      if (result == true) {
+                        _loadSites();
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(LucideIcons.x, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )
               ],
             ),
           ),

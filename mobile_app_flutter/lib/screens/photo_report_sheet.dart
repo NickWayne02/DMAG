@@ -9,6 +9,7 @@ import '../theme/app_theme.dart';
 import '../widgets/bounce_button.dart';
 import '../utils/app_toast.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../providers/shift_provider.dart';
 
 class PhotoReportSheet extends StatefulWidget {
   final Map<String, dynamic>? site;
@@ -99,6 +100,9 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) throw Exception('Пользователь не авторизован');
+      
+      final shift = context.read<ShiftProvider>();
+      final authorName = shift.userProfile?['full_name'] ?? user.email ?? 'Сотрудник';
 
       String? photoUrl;
 
@@ -121,6 +125,18 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
         'criticality': _criticality,
         'photo_url': photoUrl,
       });
+
+      if (photoUrl != null) {
+        final desc = _descController.text.trim().isEmpty ? '' : _descController.text.trim();
+        await Supabase.instance.client.from('chat_messages').insert({
+          'channel_type': 'site',
+          'channel_id': widget.site!['id'],
+          'author_id': user.id,
+          'author_name': authorName,
+          'content': '[ФОТО_ОТЧЕТ] $photoUrl | $desc',
+          'source_lang': 'ru',
+        });
+      }
 
       if (mounted) {
         AppToast.showSuccess(context, 'Фотоотчет отправлен');

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:provider/provider.dart';
+import '../providers/locale_provider.dart';
 import '../theme/app_theme.dart';
 
 class LanguageSheet extends StatelessWidget {
@@ -60,7 +62,7 @@ class LanguageSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Язык интерфейса',
+                  context.read<LocaleProvider>().t('header.language'),
                   style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -79,9 +81,10 @@ class LanguageSheet extends StatelessWidget {
               itemCount: languages.length,
               itemBuilder: (context, index) {
                 final lang = languages[index];
-                final isActive = lang['code'] == 'RU';
+                final isActive = lang['code']!.toLowerCase() == context.watch<LocaleProvider>().currentLang;
                 return InkWell(
                   onTap: () {
+                    context.read<LocaleProvider>().setLanguage(lang['code']!.toLowerCase());
                     Navigator.pop(context);
                   },
                   child: Padding(

@@ -11,7 +11,7 @@ import '../providers/shift_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/storage_service.dart';
-import '../widgets/map_iframe_export.dart';
+import '../widgets/map_iframe_export.dart'; // Keep for now to avoid breaking other files if any
 import 'chat_screen.dart';
 import 'site_selector_sheet.dart';
 import 'language_sheet.dart';
@@ -407,27 +407,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 12),
 
-                        // Photo Report Tile
-                        BounceButton(
-                          onTap: () {
-                            PhotoReportSheet.show(context, shift.selectedSite);
-                          },
-                          child: NeonCard(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            child: Row(
-                              children: [
-                                const Icon(LucideIcons.camera, color: Colors.white70, size: 20),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text('Фотоотчет', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                                ),
-                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
-                              ],
-                            ),
-                          ),
-                        ),
 
                         const SizedBox(height: 48),
                         
@@ -750,46 +730,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildMapCard(ShiftProvider shift) {
     final site = shift.selectedSite!;
     final address = site['address'] as String? ?? site['name'] as String;
-
-    final mapType = _isMapSatellite ? 'k' : 'm';
-    final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
-    final url = 'https://maps.google.com/maps?q=$query&t=$mapType&z=15&ie=UTF8&iwloc=&output=embed';
+    
+    // Attempt to extract City/Address string without coordinates
+    String displayName = address;
+    if (displayName.startsWith('GPS: ')) {
+      displayName = shift.userProfile?['start_city'] ?? site['name'] as String;
+    }
 
     return NeonCard(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Interactive Map View
-          Container(
-            height: 160,
-            decoration: const BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: buildMapIframe(url, _isMapSatellite),
+          Row(
+            children: [
+              const Icon(LucideIcons.map_pin, color: Colors.white70, size: 24),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Местоположение', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(
+                      displayName,
+                      style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Column(
-                    children: [
-                      _buildMapIconButton(LucideIcons.map, () => setState(() => _isMapSatellite = !_isMapSatellite)),
-                      const SizedBox(height: 8),
-                      _buildMapIconButton(LucideIcons.refresh_cw, () {}),
-                      const SizedBox(height: 8),
-                      _buildMapIconButton(LucideIcons.navigation, () {
-                        final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
-                        launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query'), mode: LaunchMode.externalApplication);
-                      }),
-                    ],
-                  ),
-                )
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          BounceButton(
+            onTap: () {
+              final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
+              launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query'), mode: LaunchMode.externalApplication);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(LucideIcons.map, color: Colors.white, size: 18),
+                  const SizedBox(width: 8),
+                  Text('Открыть в Google Картах', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
           ),
         ],

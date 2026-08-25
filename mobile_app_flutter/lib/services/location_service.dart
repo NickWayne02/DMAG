@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:app_settings/app_settings.dart';
 
 class LocationService {
   /// Request permissions and get current position
@@ -24,7 +25,13 @@ class LocationService {
       }
 
       if (permission == LocationPermission.deniedForever) {
+        AppSettings.openAppSettings(type: AppSettingsType.location);
         return null;
+      }
+
+      final accuracy = await Geolocator.getLocationAccuracy();
+      if (accuracy == LocationAccuracyStatus.reduced) {
+        AppSettings.openAppSettings(type: AppSettingsType.location);
       }
 
       return await Geolocator.getCurrentPosition(

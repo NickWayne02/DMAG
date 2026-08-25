@@ -6,6 +6,7 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'providers/shift_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/locale_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ShiftProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
       child: const DMAGApp(),
     ),

@@ -354,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                             child: Row(
                               children: [
-                                const Icon(LucideIcons.navigation, color: colors.foreground.withOpacity(0.7), size: 20),
+                                Icon(LucideIcons.navigation, color: colors.foreground.withOpacity(0.7), size: 20),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
@@ -399,7 +399,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                             child: Row(
                               children: [
-                                const Icon(LucideIcons.message_square, color: colors.foreground.withOpacity(0.7), size: 20),
+                                Icon(LucideIcons.message_square, color: colors.foreground.withOpacity(0.7), size: 20),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(t('dashboard.chat') ?? 'Чат', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
@@ -606,7 +606,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ShiftHistorySheet.show(context);
                   }
                 },
-                child: const Icon(LucideIcons.calendar, color: colors.foreground.withOpacity(0.7), size: 20),
+                child: Icon(LucideIcons.calendar, color: colors.foreground.withOpacity(0.7), size: 20),
               ),
             ],
           ),
@@ -683,6 +683,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildFinishedShiftCard(BuildContext context, ShiftProvider shift) {
+    final t = context.watch<LocaleProvider>().t;
     final provider = context.watch<ThemeProvider>();
     final cyan = provider.activeAccent.cyan;
     
@@ -748,7 +749,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              const Icon(LucideIcons.map_pin, color: colors.foreground.withOpacity(0.7), size: 24),
+              Icon(LucideIcons.map_pin, color: colors.foreground.withOpacity(0.7), size: 24),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

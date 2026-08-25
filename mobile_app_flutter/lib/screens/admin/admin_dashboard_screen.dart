@@ -189,23 +189,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildDrawerItem(int index, IconData icon, String title) {
+  Widget _buildDrawerItem(BuildContext context, int index, IconData icon, String title, AppColors colors) {
     final isSelected = _currentIndex == index;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
+        color: isSelected ? colors.primary.withOpacity(0.15) : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
         hoverColor: Colors.transparent,
         focusColor: Colors.transparent,
         splashColor: Colors.transparent,
-        leading: Icon(icon, color: isSelected ? Colors.white : Colors.white54, size: 20),
+        leading: Icon(icon, color: isSelected ? colors.primary : colors.foreground.withOpacity(0.7), size: 20),
         title: Text(
           title,
           style: GoogleFonts.inter(
-            color: isSelected ? Colors.white : Colors.white70,
+            color: isSelected ? colors.primary : colors.foreground,
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),

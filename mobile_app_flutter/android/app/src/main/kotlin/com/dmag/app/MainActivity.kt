@@ -1,4 +1,4 @@
-package org.dmag.app
+package com.dmag.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -13,6 +13,11 @@ export default defineConfig({
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
   ],
+  server: {
+    watch: {
+      ignored: ["**/mobile_app_flutter/**", "**/ios/**", "**/android/**", "**/.git/**"],
+    },
+  },
   resolve: {
     alias: {
       "@": `${process.cwd()}/src`,

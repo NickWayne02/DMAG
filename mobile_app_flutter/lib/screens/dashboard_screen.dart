@@ -1,0 +1,1006 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:image_picker/image_picker.dart';
+import '../theme/app_theme.dart';
+import '../theme/neon_widgets.dart';
+import '../providers/shift_provider.dart';
+import '../providers/theme_provider.dart';
+import '../services/auth_service.dart';
+import '../services/storage_service.dart';
+import '../widgets/map_iframe_export.dart';
+import 'chat_screen.dart';
+import 'site_selector_sheet.dart';
+import 'language_sheet.dart';
+import 'settings_sheet.dart';
+import '../utils/app_toast.dart';
+import '../utils/fade_page_route.dart';
+import '../widgets/bounce_button.dart';
+import 'shift_history_sheet.dart';
+import 'photo_report_sheet.dart';
+import 'footer_sheets.dart';
+import 'admin/admin_dashboard_screen.dart';
+import 'admin/admin_editable_calendar_dialog.dart';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  bool _isShiftLoading = false;
+  bool _isMapSatellite = false;
+
+  void _openSiteSelector(BuildContext context, ShiftProvider shift) {
+    SiteSelectorSheet.show(
+      context,
+      initialSiteId: shift.selectedSite?['id'],
+      onSelect: (site) => shift.setSelectedSite(site),
+    );
+  }
+
+  Future<void> _pickAvatar(ShiftProvider shift) async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile == null) return;
+
+    setState(() => _isShiftLoading = true);
+    final file = File(pickedFile.path);
+    final publicUrl = await StorageService.uploadAvatar(file, user.id);
+    if (publicUrl != null) {
+      await AuthService.updateAvatar(user.id, publicUrl);
+      await shift.reloadProfile();
+    }
+    if (mounted) setState(() => _isShiftLoading = false);
+  }
+
+  String _formatHM(int ms) {
+    final totalMin = (ms / 60000).floor();
+    final h = (totalMin / 60).floor();
+    final m = totalMin % 60;
+    return '${h}ч ${m.toString().padLeft(2, '0')}м';
+  }
+
+  String _formatHMS(int ms) {
+    final total = (ms / 1000).floor();
+    final h = (total / 3600).floor();
+    final m = ((total % 3600) / 60).floor();
+    final s = total % 60;
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  String _formatClock(DateTime ts) {
+    return '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final shift = context.watch<ShiftProvider>();
+    
+    if (shift.isProfileLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
+    
+    final profile = shift.userProfile;
+    final email = AuthService.currentUser?.email ?? 'user@dmag.com';
+    final name = profile != null ? (profile['full_name'] ?? email) : email;
+    final role = profile != null ? (profile['role'] ?? 'employee') : 'employee';
+    
+    // Check if user is admin
+    final bool canSwitchToAdmin = (role == 'admin' || role == 'super_admin');
+
+    // Status mappings
+    Color statusColor;
+    String statusLabel;
+    
+    switch (shift.status) {
+      case ShiftStatus.idle:
+        statusColor = Colors.white54;
+        statusLabel = 'Смена не начата';
+        break;
+      case ShiftStatus.finished:
+        statusColor = Colors.white;
+        statusLabel = '✓ Смена завершена';
+        break;
+      case ShiftStatus.working:
+        statusColor = const Color(0xFF22c55e); // Success green
+        statusLabel = '🟢 Работа идет';
+        break;
+      case ShiftStatus.lunch:
+        statusColor = const Color(0xFFf59e0b); // Warning amber
+        statusLabel = '🟡 Обед';
+        break;
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Background glows matching React
+          Positioned(
+            top: -100,
+            left: -100,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                gradient: RadialGradient(
+                  center: const Alignment(-0.8, -0.8),
+                  radius: 1.5,
+                  colors: [
+                    context.watch<ThemeProvider>().activeAccent.cyan.withOpacity(0.18),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.6],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            right: -100,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                gradient: RadialGradient(
+                  center: const Alignment(0.8, -0.8),
+                  radius: 1.5,
+                  colors: [
+                    context.watch<ThemeProvider>().activeAccent.primary.withOpacity(0.15),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.55],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(context, name, role, canSwitchToAdmin),
+                  
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: Column(
+                      children: [
+                        // Status Panel
+                        NeonCard(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          glowColor: null, // No outer glow for subtle web look
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: statusColor,
+                                      boxShadow: [
+                                        BoxShadow(color: statusColor.withOpacity(0.5), blurRadius: 4)
+                                      ]
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'ТЕКУЩИЙ СТАТУС',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      letterSpacing: 1.5,
+                                      color: Colors.white54,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                statusLabel,
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  shadows: [Shadow(color: statusColor.withOpacity(0.5), blurRadius: 8)],
+                                ),
+                              ),
+                              
+                              if (shift.shiftStart != null) ...[
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('НАЧАЛО СМЕНЫ', style: GoogleFonts.inter(fontSize: 10, color: Colors.white54, letterSpacing: 1.5)),
+                                        Text(_formatClock(shift.shiftStart!), style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text('ОТРАБОТАНО', style: GoogleFonts.inter(fontSize: 10, color: Colors.white54, letterSpacing: 1.5)),
+                                        Text(
+                                          _formatHMS(shift.workMs),
+                                          style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white, shadows: [Shadow(color: statusColor.withOpacity(0.5), blurRadius: 8)]),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(child: MetricWidget(label: 'Работа', value: _formatHM(shift.workMs), color: const Color(0xFF84cc16))), // Lime
+                                    const SizedBox(width: 8),
+                                    Expanded(child: MetricWidget(label: 'Обед', value: _formatHM(shift.lunchMs), color: const Color(0xFFf59e0b))), // Amber
+                                    const SizedBox(width: 8),
+                                    Expanded(child: MetricWidget(label: 'Итого', value: _formatHM(shift.totalMs), color: const Color(0xFF06b6d4))), // Cyan
+                                  ],
+                                )
+                              ]
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Action Buttons Grid
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatusButton(
+                                context: context,
+                                tone: 'lime',
+                                title: 'НАЧАТЬ РАБОТУ',
+                                icon: LucideIcons.rocket,
+                                isActive: shift.status == ShiftStatus.idle || shift.status == ShiftStatus.finished,
+                                isSolid: shift.status == ShiftStatus.idle || shift.status == ShiftStatus.finished,
+                                onTap: () async {
+                                  final allowed = await _showGpsDialog(context);
+                                  if (allowed) {
+                                    // TODO: Actually fetch GPS coords
+                                  }
+                                  await shift.startShift();
+                                  if (mounted) AppToast.showSuccess(context, 'Смена начата');
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatusButton(
+                                context: context,
+                                tone: 'amber',
+                                title: 'НАЧАТЬ ПАУЗУ',
+                                icon: LucideIcons.pause,
+                                isActive: shift.status == ShiftStatus.working,
+                                isSolid: shift.status == ShiftStatus.working,
+                                onTap: () async {
+                                  await shift.startLunch();
+                                  if (mounted) AppToast.showWarning(context, 'Перерыв начат');
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildStatusButton(
+                                context: context,
+                                tone: 'cyan',
+                                title: 'ЗАКОНЧИТЬ ПАУЗУ',
+                                icon: LucideIcons.play,
+                                isActive: shift.status == ShiftStatus.lunch,
+                                isSolid: shift.status == ShiftStatus.lunch,
+                                onTap: () async {
+                                  await shift.endLunch();
+                                  if (mounted) AppToast.showSuccess(context, 'Перерыв завершен');
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildStatusButton(
+                                context: context,
+                                tone: 'red',
+                                title: 'ЗАКОНЧИТЬ СМЕНУ',
+                                icon: LucideIcons.power,
+                                isActive: shift.status == ShiftStatus.working || shift.status == ShiftStatus.lunch,
+                                isSolid: shift.status == ShiftStatus.working || shift.status == ShiftStatus.lunch,
+                                onTap: () async {
+                                  await _handleEndShift(context, shift);
+                                  if (mounted && shift.status == ShiftStatus.finished) {
+                                    AppToast.showInfo(context, 'Смена завершена');
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Site Selector
+                        BounceButton(
+                          onTap: () => _openSiteSelector(context, shift),
+                          child: NeonCard(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            child: Row(
+                              children: [
+                                const Icon(LucideIcons.navigation, color: Colors.white70, size: 20),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Объект', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                      Text(
+                                        shift.selectedSite != null 
+                                            ? (shift.selectedSite!['address'] ?? shift.selectedSite!['name'])
+                                            : 'Не выбран — нажмите, чтобы выбрать',
+                                        style: GoogleFonts.inter(color: Colors.white54, fontSize: 11),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        if (shift.selectedSite != null) ...[
+                          const SizedBox(height: 12),
+                          _buildMapCard(shift),
+                        ],
+
+                        if (shift.status == ShiftStatus.finished) ...[
+                          const SizedBox(height: 12),
+                          _buildFinishedShiftCard(context, shift),
+                        ],
+
+                        const SizedBox(height: 12),
+
+                        // Chat Tile
+                        BounceButton(
+                          onTap: () {
+                            Navigator.of(context).push(FadePageRoute(page: const ChatScreen()));
+                          },
+                          child: NeonCard(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            child: Row(
+                              children: [
+                                const Icon(LucideIcons.message_square, color: Colors.white70, size: 20),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text('Чат', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                ),
+                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Photo Report Tile
+                        BounceButton(
+                          onTap: () {
+                            PhotoReportSheet.show(context, shift.selectedSite);
+                          },
+                          child: NeonCard(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            child: Row(
+                              children: [
+                                const Icon(LucideIcons.camera, color: Colors.white70, size: 20),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text('Фотоотчет', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                                ),
+                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 48),
+                        
+                        // Footer
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: GoogleFonts.inter(color: Colors.white30, fontSize: 12),
+                            children: const [
+                              TextSpan(text: 'DMAG', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                              TextSpan(text: ' © 2026 Все права защищены'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        BounceButton(
+                          onTap: () => FooterSheets.showPrivacyPolicy(context),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Политика конфиденциальности', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12))),
+                        ),
+                        BounceButton(
+                          onTap: () => FooterSheets.showTermsOfService(context),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Условия использования', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12))),
+                        ),
+                        BounceButton(
+                          onTap: () => FooterSheets.showSupport(context),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Служба поддержки', style: GoogleFonts.inter(color: Colors.white70, fontSize: 12))),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Версия 2.0.1', style: GoogleFonts.inter(color: Colors.white24, fontSize: 10)),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, String name, String role, bool canSwitchToAdmin) {
+    String getRoleLabel() {
+      switch(role) {
+        case 'super_admin': return 'Супер-админ';
+        case 'admin': return 'Администратор';
+        case 'brigadier': return 'Бригадир';
+        default: return 'Сотрудник';
+      }
+    }
+
+    final provider = context.watch<ThemeProvider>();
+    final radius = provider.borderRadius;
+    
+    return Container(
+      padding: const EdgeInsets.only(bottom: 24, left: 20, right: 20, top: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            provider.activeAccent.violet,
+            provider.activeAccent.primary,
+            provider.activeAccent.cyan,
+          ],
+          stops: const [0.0, 0.55, 1.0],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: provider.activeAccent.violet.withOpacity(0.55),
+            blurRadius: 30,
+            spreadRadius: -10,
+            offset: const Offset(0, 20),
+          )
+        ],
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(radius * 2), bottomRight: Radius.circular(radius * 2)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              BounceButton(
+                onTap: () => LanguageSheet.show(context),
+                child: Row(
+                  children: [
+                    const Icon(LucideIcons.globe, color: Colors.white54, size: 14),
+                    const SizedBox(width: 4),
+                    Text('RU', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              BounceButton(
+                onTap: () => SettingsSheet.show(context),
+                child: const Icon(LucideIcons.settings, color: Colors.white54, size: 16),
+              ),
+              const SizedBox(width: 16),
+              BounceButton(
+                onTap: () async {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (c) => const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  );
+                  context.read<ShiftProvider>().resetShift();
+                  await AuthService.signOut();
+                  if (context.mounted) Navigator.pop(context);
+                },
+                child: const Icon(LucideIcons.log_out, color: Colors.white54, size: 18),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              BounceButton(
+                onTap: () => _pickAvatar(context.read<ShiftProvider>()),
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white12,
+                    border: Border.all(color: Colors.white30),
+                    image: context.read<ShiftProvider>().userProfile?['avatar_url'] != null
+                        ? DecorationImage(
+                            image: NetworkImage(context.read<ShiftProvider>().userProfile!['avatar_url']),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: context.read<ShiftProvider>().userProfile?['avatar_url'] == null
+                      ? Center(
+                          child: Text(
+                            name.substring(0, 1).toUpperCase(),
+                            style: GoogleFonts.inter(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getRoleLabel().toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white54,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      name,
+                      style: GoogleFonts.inter(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (canSwitchToAdmin) ...[
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(
+                      FadePageRoute(page: const AdminDashboardScreen()),
+                    );
+                  },
+                  child: const Icon(LucideIcons.shield_check, color: Colors.white70, size: 20),
+                ),
+                const SizedBox(width: 16),
+              ],
+              GestureDetector(
+                onTap: () {
+                  if (canSwitchToAdmin && AuthService.currentUser != null) {
+                    AdminEditableCalendarDialog.show(
+                      context,
+                      employeeId: AuthService.currentUser!.id,
+                      employeeName: name,
+                    );
+                  } else {
+                    ShiftHistorySheet.show(context);
+                  }
+                },
+                child: const Icon(LucideIcons.calendar, color: Colors.white70, size: 20),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getToneColor(String tone, ThemeProvider provider) {
+    switch (tone) {
+      case 'lime':
+        return const Color(0xFF22c55e);
+      case 'amber':
+        return const Color(0xFFf59e0b);
+      case 'cyan':
+        return provider.customAccent ?? provider.activeAccent.cyan;
+      case 'red':
+        return const Color(0xFFef4444);
+      default:
+        return Colors.white;
+    }
+  }
+
+  Widget _buildStatusButton({
+    required BuildContext context,
+    required String tone,
+    required IconData icon,
+    required String title,
+    required bool isActive,
+    required bool isSolid,
+    required Future<void> Function() onTap,
+  }) {
+    final provider = context.watch<ThemeProvider>();
+    final color = _getToneColor(tone, provider);
+    final style = provider.buttonStyle;
+    final actualIsSolid = isSolid && style == ButtonStyleType.filled;
+    final radius = provider.borderRadius;
+
+    return BounceButton(
+      onTap: () async {
+        if (!isActive || _isShiftLoading) return;
+        setState(() => _isShiftLoading = true);
+        await onTap();
+        if (mounted) setState(() => _isShiftLoading = false);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        height: 100,
+        decoration: BoxDecoration(
+          color: actualIsSolid ? color : const Color(0xFF09090b),
+          borderRadius: BorderRadius.circular(radius),
+          border: actualIsSolid ? null : Border.all(color: isActive ? color : const Color(0xFF27272a)),
+          boxShadow: actualIsSolid ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, spreadRadius: 1)] : [],
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, color: actualIsSolid ? Colors.black : (isActive ? color : Colors.white24), size: 20),
+            Text(
+              title,
+              style: GoogleFonts.inter(
+                color: actualIsSolid ? Colors.black : (isActive ? color : Colors.white24),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFinishedShiftCard(BuildContext context, ShiftProvider shift) {
+    final provider = context.watch<ThemeProvider>();
+    final cyan = provider.activeAccent.cyan;
+    
+    return NeonCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      glowColor: cyan,
+      child: Row(
+        children: [
+          Icon(LucideIcons.check, color: cyan, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Смена завершена',
+                  style: GoogleFonts.inter(
+                    color: Theme.of(context).appColors.foreground,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Коммерческие часы: ${_formatHM(shift.workMs)}',
+                  style: GoogleFonts.inter(
+                    color: Theme.of(context).appColors.muted,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: cyan.withOpacity(0.15),
+              side: BorderSide(color: cyan),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              minimumSize: Size.zero,
+            ),
+            onPressed: () => shift.resetShift(),
+            child: Text('Новая', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMapCard(ShiftProvider shift) {
+    final site = shift.selectedSite!;
+    final address = site['address'] as String? ?? site['name'] as String;
+
+    final mapType = _isMapSatellite ? 'k' : 'm';
+    final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
+    final url = 'https://maps.google.com/maps?q=$query&t=$mapType&z=15&ie=UTF8&iwloc=&output=embed';
+
+    return NeonCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Interactive Map View
+          Container(
+            height: 160,
+            decoration: const BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: buildMapIframe(url, _isMapSatellite),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Column(
+                    children: [
+                      _buildMapIconButton(LucideIcons.map, () => setState(() => _isMapSatellite = !_isMapSatellite)),
+                      const SizedBox(height: 8),
+                      _buildMapIconButton(LucideIcons.refresh_cw, () {}),
+                      const SizedBox(height: 8),
+                      _buildMapIconButton(LucideIcons.navigation, () {
+                        final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
+                        launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query'), mode: LaunchMode.externalApplication);
+                      }),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMapIconButton(IconData icon, VoidCallback onTap) {
+    return BounceButton(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Icon(icon, color: Colors.white, size: 16),
+      ),
+    );
+  }
+
+  Future<bool> _showGpsDialog(BuildContext context) async {
+    final provider = context.read<ThemeProvider>();
+    final primary = Theme.of(context).primaryColor;
+    final colors = Theme.of(context).appColors;
+    
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(provider.borderRadius),
+          side: BorderSide(color: colors.border),
+        ),
+        titlePadding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        actionsPadding: const EdgeInsets.all(24),
+        title: Column(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(LucideIcons.navigation, color: primary),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Зафиксировать GPS-координаты?',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                color: colors.foreground,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Геопозиция запрашивается только в момент действия. Передача добровольна — постоянный трекинг не ведётся.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            color: colors.foreground.withOpacity(0.7),
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(provider.borderRadius),
+                      side: BorderSide(color: colors.border),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('Пропустить', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(provider.borderRadius),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text('Разрешить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    ) ?? false;
+  }
+
+  Future<void> _handleEndShift(BuildContext context, ShiftProvider shift) async {
+    final allowed = await _showGpsDialog(context);
+    if (allowed) {
+      // TODO: Actually fetch GPS coords
+    }
+
+    const eightHoursMs = 8 * 60 * 60 * 1000;
+    
+    if (shift.status == ShiftStatus.working && 
+        shift.lunchMs == 0 && 
+        shift.totalMs > eightHoursMs && 
+        !shift.autoLunchApplied) {
+      
+      final provider = context.read<ThemeProvider>();
+      final colors = Theme.of(context).appColors;
+      final warningColor = const Color(0xFFf59e0b);
+
+      final shouldApply = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(provider.borderRadius),
+            side: BorderSide(color: colors.border),
+          ),
+          titlePadding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          actionsPadding: const EdgeInsets.all(24),
+          title: Column(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: warningColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(LucideIcons.pause, color: warningColor),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Смена больше 8 часов',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  color: colors.foreground,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Удержать 30 минут за обед?',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              color: colors.foreground.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(provider.borderRadius),
+                        side: BorderSide(color: colors.border),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text('Нет', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: warningColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(provider.borderRadius),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text('Удержать', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      );
+      
+      if (shouldApply == null) return;
+      
+      if (shouldApply) {
+        shift.applyAutoLunch();
+      } else {
+        shift.keepNoLunch();
+      }
+    }
+    
+    await shift.endShift();
+  }
+}
+

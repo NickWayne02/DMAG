@@ -9,6 +9,13 @@ class AddSiteDialog extends StatefulWidget {
 
   const AddSiteDialog({Key? key, this.site}) : super(key: key);
 
+  static Future<bool?> show(BuildContext context, [Map<String, dynamic>? site]) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AddSiteDialog(site: site),
+    );
+  }
+
   @override
   State<AddSiteDialog> createState() => _AddSiteDialogState();
 }

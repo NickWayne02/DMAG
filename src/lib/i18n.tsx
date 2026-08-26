@@ -112,7 +112,7 @@ const DICT: Dict = {
     pl: "Kalendarz",
     uk: "Календар",
     uz: "Taqvim",
-    tg: "Тақвим"
+    tg: "Тақвим",
   },
 
   "admin.reports.searchDesc": {
@@ -340,7 +340,7 @@ const DICT: Dict = {
     pl: "m",
     uk: "хв",
     uz: "d",
-    tg: "д"
+    tg: "д",
   },
 
   // Auth page
@@ -408,7 +408,7 @@ const DICT: Dict = {
     pl: "Login",
     uk: "Логін",
     uz: "Логин",
-    tg: "Логин"
+    tg: "Логин",
   },
   "auth.password": {
     ru: "Пароль",
@@ -531,7 +531,7 @@ const DICT: Dict = {
     pl: "Super admin",
     uk: "Супер-адмін",
     uz: "Супер-админ",
-    tg: "Супер админ"
+    tg: "Супер админ",
   },
   "role.admin": {
     ru: "Администратор",
@@ -542,7 +542,7 @@ const DICT: Dict = {
     pl: "Administrator",
     uk: "Адміністратор",
     uz: "Администратор",
-    tg: "Администратор"
+    tg: "Администратор",
   },
   "role.brigadier": {
     ru: "Бригадир",
@@ -838,7 +838,7 @@ const DICT: Dict = {
     pl: "Ostatnia aktywność",
     uk: "Остання активність",
     uz: "Последняя активность",
-    tg: "Последняя активность"
+    tg: "Последняя активность",
   },
   "admin.activity.shiftEnd": {
     ru: "Окончание смены",
@@ -849,7 +849,7 @@ const DICT: Dict = {
     pl: "Koniec zmiany",
     uk: "Закінчення зміни",
     uz: "Окончание смены",
-    tg: "Окончание смены"
+    tg: "Окончание смены",
   },
   "admin.activity.shiftStart": {
     ru: "Начало смены",
@@ -860,7 +860,7 @@ const DICT: Dict = {
     pl: "Początek zmiany",
     uk: "Початок зміни",
     uz: "Начало смены",
-    tg: "Начало смены"
+    tg: "Начало смены",
   },
   "admin.activity.shiftStarted": {
     ru: "{name} начал смену на объекте {site}",
@@ -871,7 +871,7 @@ const DICT: Dict = {
     pl: "{name} rozpoczął zmianę na obiekcie {site}",
     uk: "{name} розпочав зміну на об'єкті {site}",
     uz: "{name} {site} obyektida smenani boshladi",
-    tg: "{name} сменаро дар иншооти {site} оғоз кард"
+    tg: "{name} сменаро дар иншооти {site} оғоз кард",
   },
   "admin.activity.shiftEnded": {
     ru: "{name} завершил смену на объекте {site}",
@@ -882,7 +882,7 @@ const DICT: Dict = {
     pl: "{name} zakończył zmianę na obiekcie {site}",
     uk: "{name} завершив зміну на об'єкті {site}",
     uz: "{name} {site} obyektida smenani yakunladi",
-    tg: "{name} сменаро дар иншооти {site} ба анҷом расонид"
+    tg: "{name} сменаро дар иншооти {site} ба анҷом расонид",
   },
   "admin.activity.lunchStarted": {
     ru: "{name} ушел на перерыв",
@@ -893,7 +893,7 @@ const DICT: Dict = {
     pl: "{name} poszedł na przerwę",
     uk: "{name} пішов на перерву",
     uz: "{name} tanaffusga chiqdi",
-    tg: "{name} ба танаффус рафт"
+    tg: "{name} ба танаффус рафт",
   },
   "admin.activity.lunchEnded": {
     ru: "{name} вернулся к работе",
@@ -904,7 +904,7 @@ const DICT: Dict = {
     pl: "{name} wrócił do pracy",
     uk: "{name} повернувся до роботи",
     uz: "{name} ishga qaytdi",
-    tg: "{name} ба кор баргашт"
+    tg: "{name} ба кор баргашт",
   },
   "admin.activity.unknownSite": {
     ru: "Неизвестный объект",
@@ -915,7 +915,7 @@ const DICT: Dict = {
     pl: "Nieznany obiekt",
     uk: "Невідомий об'єкт",
     uz: "Noma'lum obyekt",
-    tg: "Иншооти номаълум"
+    tg: "Иншооти номаълум",
   },
   "admin.activity.pauseStart": {
     ru: "Уход на перерыв",
@@ -926,7 +926,7 @@ const DICT: Dict = {
     pl: "Początek przerwy",
     uk: "Початок перерви",
     uz: "Уход на перерыв",
-    tg: "Уход на перерыв"
+    tg: "Уход на перерыв",
   },
   "admin.activity.pauseEnd": {
     ru: "Возврат с перерыва",
@@ -937,7 +937,7 @@ const DICT: Dict = {
     pl: "Кoniec przerwy",
     uk: "Кінець перерви",
     uz: "Возврат с перерыва",
-    tg: "Возврат с перерыва"
+    tg: "Возврат с перерыва",
   },
   "admin.calendar.desc": {
     ru: "Просмотр и редактирование смен сотрудников",
@@ -948,7 +948,7 @@ const DICT: Dict = {
     pl: "Przeglądanie i edycja zmian pracowników",
     uk: "Перегляд та редагування змін співробітників",
     uz: "Просмотр и редактирование смен сотрудников",
-    tg: "Просмотр и редактирование смен сотрудников"
+    tg: "Просмотр и редактирование смен сотрудников",
   },
   "admin.calendar.selectEmp": {
     ru: "-- Выберите сотрудника --",
@@ -959,7 +959,7 @@ const DICT: Dict = {
     pl: "-- Wybierz pracownika --",
     uk: "-- Оберіть співробітника --",
     uz: "-- Выберите сотрудника --",
-    tg: "-- Выберите сотрудника --"
+    tg: "-- Выберите сотрудника --",
   },
   "admin.calendar.editShift": {
     ru: "Редактировать смену",
@@ -970,7 +970,7 @@ const DICT: Dict = {
     pl: "Edytuj zmianę",
     uk: "Редагувати зміну",
     uz: "Редактировать смену",
-    tg: "Редактировать смену"
+    tg: "Редактировать смену",
   },
   "admin.calendar.addShift": {
     ru: "Добавить смену",
@@ -981,7 +981,7 @@ const DICT: Dict = {
     pl: "Dodaj zmianę",
     uk: "Додати зміну",
     uz: "Добавить смену",
-    tg: "Добавить смену"
+    tg: "Добавить смену",
   },
   "admin.calendar.fillTime": {
     ru: "Выберите сотрудника и заполните время",
@@ -992,7 +992,7 @@ const DICT: Dict = {
     pl: "Wybierz pracownika i wypełnij czas",
     uk: "Виберіть співробітника та заповніть час",
     uz: "Выберите сотрудника и заполните время",
-    tg: "Выберите сотрудника и заполните время"
+    tg: "Выберите сотрудника и заполните время",
   },
   "admin.calendar.site": {
     ru: "Объект",
@@ -1003,7 +1003,7 @@ const DICT: Dict = {
     pl: "Obiekt",
     uk: "Об'єкт",
     uz: "Объект",
-    tg: "Объект"
+    tg: "Объект",
   },
   "admin.calendar.start": {
     ru: "Начало",
@@ -1014,7 +1014,7 @@ const DICT: Dict = {
     pl: "Początek",
     uk: "Початок",
     uz: "Начало",
-    tg: "Начало"
+    tg: "Начало",
   },
   "admin.calendar.end": {
     ru: "Конец",
@@ -1025,7 +1025,7 @@ const DICT: Dict = {
     pl: "Koniec",
     uk: "Кінець",
     uz: "Конец",
-    tg: "Конец"
+    tg: "Конец",
   },
   "admin.calendar.pause": {
     ru: "Пауза (минут)",
@@ -1036,7 +1036,7 @@ const DICT: Dict = {
     pl: "Pauza (minuty)",
     uk: "Пауза (хвилин)",
     uz: "Пауза (минут)",
-    tg: "Пауза (минут)"
+    tg: "Пауза (минут)",
   },
   "admin.calendar.gpsStart": {
     ru: "GPS город (старт)",
@@ -1047,7 +1047,7 @@ const DICT: Dict = {
     pl: "Miasto GPS (start)",
     uk: "GPS місто (старт)",
     uz: "GPS город (старт)",
-    tg: "GPS город (старт)"
+    tg: "GPS город (старт)",
   },
   "admin.calendar.gpsEnd": {
     ru: "GPS город (конец)",
@@ -1058,7 +1058,7 @@ const DICT: Dict = {
     pl: "Miasto GPS (koniec)",
     uk: "GPS місто (кінець)",
     uz: "GPS город (конец)",
-    tg: "GPS город (конец)"
+    tg: "GPS город (конец)",
   },
   "admin.calendar.cancel": {
     ru: "Отмена",
@@ -1069,7 +1069,7 @@ const DICT: Dict = {
     pl: "Anuluj",
     uk: "Скасувати",
     uz: "Отмена",
-    tg: "Отмена"
+    tg: "Отмена",
   },
   "admin.calendar.save": {
     ru: "Сохранить",
@@ -1080,7 +1080,7 @@ const DICT: Dict = {
     pl: "Zapisz",
     uk: "Зберегти",
     uz: "Сохранить",
-    tg: "Сохранить"
+    tg: "Сохранить",
   },
   "admin.calendar.delete": {
     ru: "Удалить",
@@ -1091,7 +1091,7 @@ const DICT: Dict = {
     pl: "Usuń",
     uk: "Видалити",
     uz: "Удалить",
-    tg: "Удалить"
+    tg: "Удалить",
   },
   "admin.calendar.select": {
     ru: "Выберите...",
@@ -1102,7 +1102,7 @@ const DICT: Dict = {
     pl: "Wybierz...",
     uk: "Виберіть...",
     uz: "Выберите...",
-    tg: "Выберите..."
+    tg: "Выберите...",
   },
   "admin.calendar.noSite": {
     ru: "— Без объекта —",
@@ -1113,7 +1113,7 @@ const DICT: Dict = {
     pl: "--- Bez obiektu ---",
     uk: "— Без об'єкта —",
     uz: "— Без объекта —",
-    tg: "— Без объекта —"
+    tg: "— Без объекта —",
   },
   "admin.personnel.search": {
     ru: "Поиск по имени...",
@@ -1124,7 +1124,7 @@ const DICT: Dict = {
     pl: "Szukaj po nazwisku...",
     uk: "Пошук за іменем...",
     uz: "Поиск по имени...",
-    tg: "Поиск по имени..."
+    tg: "Поиск по имени...",
   },
   "admin.personnel.allRoles": {
     ru: "Все роли",
@@ -1135,7 +1135,7 @@ const DICT: Dict = {
     pl: "Wszystkie role",
     uk: "Всі ролі",
     uz: "Все роли",
-    tg: "Ҳама нақшҳо"
+    tg: "Ҳама нақшҳо",
   },
   "admin.personnel.allStatuses": {
     ru: "Все статусы",
@@ -1146,7 +1146,7 @@ const DICT: Dict = {
     pl: "Wszystkie statusy",
     uk: "Всі статуси",
     uz: "Barcha holatlar",
-    tg: "Ҳама статусҳо"
+    tg: "Ҳама статусҳо",
   },
   "admin.personnel.onShift": {
     ru: "На смене",
@@ -1157,7 +1157,7 @@ const DICT: Dict = {
     pl: "Na zmianie",
     uk: "На зміні",
     uz: "Smenada",
-    tg: "Дар смена"
+    tg: "Дар смена",
   },
   "admin.personnel.onPause": {
     ru: "На паузе",
@@ -1168,7 +1168,7 @@ const DICT: Dict = {
     pl: "Na pauzie",
     uk: "На паузі",
     uz: "Pauzada",
-    tg: "Дар таваққуф"
+    tg: "Дар таваққуф",
   },
   "admin.personnel.shiftEnded": {
     ru: "Смена завершена",
@@ -1179,7 +1179,7 @@ const DICT: Dict = {
     pl: "Zmiana zakończona",
     uk: "Зміну завершено",
     uz: "Shift tugallandi",
-    tg: "Смена анҷом ёфт"
+    tg: "Смена анҷом ёфт",
   },
   "admin.personnel.offline": {
     ru: "Офлайн",
@@ -1190,7 +1190,7 @@ const DICT: Dict = {
     pl: "Offline",
     uk: "Офлайн",
     uz: "Oflayn",
-    tg: "Офлайн"
+    tg: "Офлайн",
   },
 
   "admin.personnel.employee": {
@@ -1202,7 +1202,7 @@ const DICT: Dict = {
     ro: "Angajat",
     bg: "Служител",
     uz: "Xodim",
-    tg: "Корманд"
+    tg: "Корманд",
   },
   "admin.personnel.brigadier": {
     ru: "Бригадир",
@@ -1213,10 +1213,8 @@ const DICT: Dict = {
     pl: "Brygadzista",
     uk: "Бригадир",
     uz: "Brigadir",
-    tg: "Бригадир"
+    tg: "Бригадир",
   },
-
-
 
   "admin.users.createTitle": {
     ru: "Создать пользователя",
@@ -1260,7 +1258,7 @@ const DICT: Dict = {
     pl: "E-mail (login)",
     uk: "Email (логін)",
     uz: "Elektron pochta (login)",
-    tg: "Почтаи электронӣ (логин)"
+    tg: "Почтаи электронӣ (логин)",
   },
   "admin.users.password": {
     ru: "Пароль",
@@ -1372,7 +1370,7 @@ const DICT: Dict = {
     pl: "Eksport",
     uk: "Експорт",
     uz: "Eksport",
-    tg: "Содирот"
+    tg: "Содирот",
   },
 
   "admin.sites.title": {
@@ -1793,7 +1791,7 @@ const DICT: Dict = {
     pl: "Ważne",
     uk: "Важливо",
     uz: "Muhim",
-    tg: "Муҳим"
+    tg: "Муҳим",
   },
   "admin.reports.critUrgent": {
     ru: "Срочно",
@@ -1804,7 +1802,7 @@ const DICT: Dict = {
     pl: "Pilne",
     uk: "Терміново",
     uz: "Shoshilinch",
-    tg: "Оҷилӣ"
+    tg: "Оҷилӣ",
   },
   "admin.security.logLogin": {
     ru: "Вход в систему",
@@ -1859,7 +1857,7 @@ const DICT: Dict = {
     pl: "Administrator",
     uk: "Адміністратор",
     uz: "Администратор",
-    tg: "Администратор"
+    tg: "Администратор",
   },
   "admin.security.logEditHours": {
     ru: "Корректировка рабочих часов",
@@ -1959,7 +1957,7 @@ const DICT: Dict = {
     pl: "Status",
     uk: "Статус",
     uz: "Статус",
-    tg: "Статус"
+    tg: "Статус",
   },
   "admin.personnel.colSite": {
     ru: "Объект",
@@ -2069,7 +2067,7 @@ const DICT: Dict = {
     pl: "godz.",
     uk: "год",
     uz: "soat",
-    tg: "соат"
+    tg: "соат",
   },
   "time.minutes.short": {
     ru: "м",
@@ -2080,7 +2078,7 @@ const DICT: Dict = {
     pl: "min",
     uk: "хв",
     uz: "daq",
-    tg: "дақ"
+    tg: "дақ",
   },
   "admin.personnel.editTooltip": {
     ru: "Редактировать смену",
@@ -2216,7 +2214,7 @@ const DICT: Dict = {
     pl: "Razem",
     uk: "Разом",
     uz: "Jami",
-    tg: "Ҷамъ"
+    tg: "Ҷамъ",
   },
 
   // Shift live timer
@@ -2229,7 +2227,7 @@ const DICT: Dict = {
     pl: "Start",
     uk: "Старт",
     uz: "Boshlash",
-    tg: "Оғоз"
+    tg: "Оғоз",
   },
   "shift.worked": {
     ru: "Отработано времени",
@@ -2411,7 +2409,7 @@ const DICT: Dict = {
     pl: "min",
     uk: "хв",
     uz: "daq",
-    tg: "дақ"
+    tg: "дақ",
   },
   "travel.placeholder": {
     ru: "например, 45",
@@ -2560,7 +2558,7 @@ const DICT: Dict = {
     pl: "Ważne",
     uk: "Важливо",
     uz: "Muhim",
-    tg: "Муҳим"
+    tg: "Муҳим",
   },
   "crit.urgent": {
     ru: "Срочно",
@@ -2571,7 +2569,7 @@ const DICT: Dict = {
     pl: "Pilne",
     uk: "Терміново",
     uz: "Shoshilinch",
-    tg: "Таъҷилӣ"
+    tg: "Таъҷилӣ",
   },
 
   // Tiles
@@ -2584,7 +2582,7 @@ const DICT: Dict = {
     pl: "Czat",
     uk: "Чат",
     uz: "Чат",
-    tg: "Чат"
+    tg: "Чат",
   },
   "tile.events": {
     ru: "События",
@@ -2665,7 +2663,7 @@ const DICT: Dict = {
     pl: "Ogólny",
     uk: "Загальний",
     uz: "Umumiy",
-    tg: "Умумӣ"
+    tg: "Умумӣ",
   },
   "chat.tabDirect": {
     ru: "Личные",
@@ -2881,7 +2879,7 @@ const DICT: Dict = {
   "chat.media.deleteConfirm": {
     ru: "Удалить {{count}} фото? Это удалит и соответствующие сообщения из чата.",
     en: "Delete {{count}} photos? This will also remove the corresponding messages from the chat.",
-    de: "{{count}} Fotos löschen? Dadurch werden auch die entsprechenden Nachrichten aus dem Chat entfernt."
+    de: "{{count}} Fotos löschen? Dadurch werden auch die entsprechenden Nachrichten aus dem Chat entfernt.",
   },
   "chat.sidebar.noUsers": {
     ru: "Нет пользователей",
@@ -3216,7 +3214,7 @@ const DICT: Dict = {
     pl: "Sp. z o.o. „Klient”",
     uk: "ТОВ «Замовник»",
     uz: "ООО «Заказчик»",
-    tg: "ООО «Заказчик»"
+    tg: "ООО «Заказчик»",
   },
   "siteDlg.phComment": {
     ru: "Дополнительная информация",
@@ -3328,7 +3326,7 @@ const DICT: Dict = {
     pl: "godz",
     uk: "год",
     uz: "soat",
-    tg: "соат"
+    tg: "соат",
   },
   "unit.m": {
     ru: "м",
@@ -3339,7 +3337,7 @@ const DICT: Dict = {
     pl: "min",
     uk: "хв",
     uz: "daq",
-    tg: "дақ"
+    tg: "дақ",
   },
 
   // Toasts (timer / shift)
@@ -3644,7 +3642,7 @@ const DICT: Dict = {
     pl: "Kompaktowa",
     uk: "Компактна",
     uz: "Ixcham",
-    tg: "Ҷамъ"
+    tg: "Ҷамъ",
   },
   "settings.density.cozy": {
     ru: "Средне",
@@ -3762,7 +3760,7 @@ const DICT: Dict = {
     ro: "Fundalul paginii",
     bg: "Фон на страницата",
     uz: "Sahifa foni",
-    tg: "Заминаи саҳифа"
+    tg: "Заминаи саҳифа",
   },
   "settings.panel.foreground": {
     ru: "Основной текст",
@@ -3770,7 +3768,7 @@ const DICT: Dict = {
     ro: "Textul principal",
     bg: "Основен текст",
     uz: "Asosiy matn",
-    tg: "Матни асосӣ"
+    tg: "Матни асосӣ",
   },
   "settings.panel.card": {
     ru: "Карточки",
@@ -3778,7 +3776,7 @@ const DICT: Dict = {
     ro: "Carduri",
     bg: "Карти",
     uz: "Kartalar",
-    tg: "Кортҳо"
+    tg: "Кортҳо",
   },
   "settings.panel.cardForeground": {
     ru: "Текст на карточках",
@@ -3786,7 +3784,7 @@ const DICT: Dict = {
     ro: "Text pe carduri",
     bg: "Текст върху карти",
     uz: "Kartalardagi matn",
-    tg: "Матн дар кортҳои"
+    tg: "Матн дар кортҳои",
   },
   "settings.panel.primary": {
     ru: "Акцент",
@@ -3794,7 +3792,7 @@ const DICT: Dict = {
     ro: "Акцент",
     bg: "Акцент",
     uz: "Urg'u",
-    tg: "Аксент"
+    tg: "Аксент",
   },
   "settings.panel.primaryForeground": {
     ru: "Текст на акценте",
@@ -3802,7 +3800,7 @@ const DICT: Dict = {
     ro: "Text cu accent",
     bg: "Текст с ударение",
     uz: "Urg'udagi matn",
-    tg: "Матн бо акцент"
+    tg: "Матн бо акцент",
   },
   "settings.panel.muted": {
     ru: "Второстепенные",
@@ -3810,7 +3808,7 @@ const DICT: Dict = {
     ro: "Minor",
     bg: "второстепенен",
     uz: "Kichik",
-    tg: "Ноболиғ"
+    tg: "Ноболиғ",
   },
   "settings.panel.border": {
     ru: "Границы",
@@ -3818,7 +3816,7 @@ const DICT: Dict = {
     ro: "Frontiere",
     bg: "Граници",
     uz: "Chegaralar",
-    tg: "Сарҳадҳо"
+    tg: "Сарҳадҳо",
   },
 
   // Modals

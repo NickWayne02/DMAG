@@ -1,8 +1,8 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const targetPath = path.join(__dirname, 'src', 'lib', 'i18n.tsx');
-let content = fs.readFileSync(targetPath, 'utf8');
+const targetPath = path.join(__dirname, "src", "lib", "i18n.tsx");
+let content = fs.readFileSync(targetPath, "utf8");
 
 const keysToAdd = {
   "chat.notifications.disabled": { ru: "Уведомления отключены", en: "Notifications disabled" },
@@ -15,7 +15,10 @@ const keysToAdd = {
   "chat.menu.clearHistory": { ru: "Очистить историю", en: "Clear history" },
   "chat.info.name": { ru: "Название", en: "Name" },
   "chat.info.type": { ru: "Тип чата", en: "Chat type" },
-  "chat.type.general": { ru: "Общий канал (для всей команды)", en: "General channel (for whole team)" },
+  "chat.type.general": {
+    ru: "Общий канал (для всей команды)",
+    en: "General channel (for whole team)",
+  },
   "chat.type.direct": { ru: "Личные сообщения (приватный)", en: "Direct messages (private)" },
   "chat.type.site": { ru: "Чат объекта", en: "Site chat" },
   "chat.info.notifications": { ru: "Уведомления", en: "Notifications" },
@@ -25,14 +28,17 @@ const keysToAdd = {
   "chat.media.select": { ru: "Выбрать", en: "Select" },
   "chat.media.cancel": { ru: "Отмена", en: "Cancel" },
   "chat.media.delete": { ru: "Удалить", en: "Delete" },
-  "chat.media.deleteConfirm": { ru: "Удалить {{count}} фото? Это удалит и соответствующие сообщения из чата.", en: "Delete {{count}} photos? This will also remove the corresponding messages from the chat." },
+  "chat.media.deleteConfirm": {
+    ru: "Удалить {{count}} фото? Это удалит и соответствующие сообщения из чата.",
+    en: "Delete {{count}} photos? This will also remove the corresponding messages from the chat.",
+  },
   "chat.sidebar.noUsers": { ru: "Нет пользователей", en: "No users" },
   "chat.sidebar.noActiveChats": { ru: "Нет активных чатов", en: "No active chats" },
   "chat.sidebar.loading": { ru: "Загрузка...", en: "Loading..." },
   "chat.sidebar.sites": { ru: "Объекты", en: "Sites" },
 };
 
-let toInsert = '';
+let toInsert = "";
 for (const [key, value] of Object.entries(keysToAdd)) {
   toInsert += `  "${key}": {\n    ru: "${value.ru}",\n    en: "${value.en}"\n  },\n`;
 }
@@ -45,7 +51,7 @@ if (markerIndex === -1) {
   process.exit(1);
 }
 
-const endOfBlock = content.indexOf('},', markerIndex);
+const endOfBlock = content.indexOf("},", markerIndex);
 if (endOfBlock === -1) {
   console.log("End of block not found!");
   process.exit(1);
@@ -54,5 +60,5 @@ if (endOfBlock === -1) {
 const insertPos = endOfBlock + 3; // after `},\n`
 const newContent = content.slice(0, insertPos) + toInsert + content.slice(insertPos);
 
-fs.writeFileSync(targetPath, newContent, 'utf8');
+fs.writeFileSync(targetPath, newContent, "utf8");
 console.log("Inserted keys into i18n.tsx");

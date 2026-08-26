@@ -1,1 +1,14 @@
-{"file_system":[{"path":"c:\\users\\eugene\\desktop\\dmag\\mobile_app_flutter\\.dart_tool\\package_config.json","hash":7054283689473840120},{"path":"C:\\Users\\Eugene\\Desktop\\DMAG\\mobile_app_flutter\\.dart_tool\\package_config.json","hash":7054283689473840120},{"path":"C:\\flutter\\bin\\cache\\dart-sdk\\version","hash":3184493728483382547}],"environment":[]}
+{
+  "file_system": [
+    {
+      "path": "c:\\users\\eugene\\desktop\\dmag\\mobile_app_flutter\\.dart_tool\\package_config.json",
+      "hash": 7054283689473840120
+    },
+    {
+      "path": "C:\\Users\\Eugene\\Desktop\\DMAG\\mobile_app_flutter\\.dart_tool\\package_config.json",
+      "hash": 7054283689473840120
+    },
+    { "path": "C:\\flutter\\bin\\cache\\dart-sdk\\version", "hash": 3184493728483382547 }
+  ],
+  "environment": []
+}

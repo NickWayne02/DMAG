@@ -306,9 +306,13 @@ export function AdminEditableCalendarDialog({
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="max-w-3xl h-[85vh] sm:h-auto overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t("admin.shift.management", { defaultValue: "Управление сменами" })} · {employeeName}</DialogTitle>
+            <DialogTitle>
+              {t("admin.shift.management", { defaultValue: "Управление сменами" })} · {employeeName}
+            </DialogTitle>
             <DialogDescription>
-              {t("admin.shift.instruction", { defaultValue: "Нажмите на любой день, чтобы добавить или отредактировать смену." })}
+              {t("admin.shift.instruction", {
+                defaultValue: "Нажмите на любой день, чтобы добавить или отредактировать смену.",
+              })}
             </DialogDescription>
           </DialogHeader>
 
@@ -417,7 +421,9 @@ export function AdminEditableCalendarDialog({
         <DialogContent className="sm:max-w-md z-100">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle>{shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}</DialogTitle>
+              <DialogTitle>
+                {shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}
+              </DialogTitle>
               {shiftEditList.length > 1 && (
                 <div className="flex items-center space-x-2 mr-6 text-sm">
                   <Button
@@ -534,7 +540,9 @@ export function AdminEditableCalendarDialog({
           <DialogFooter className="gap-2 sm:gap-2">
             {shiftEdit?.id && (
               <Button variant="destructive" onClick={deleteShift} disabled={shiftSaving}>
-                {shiftDeleteConfirm === shiftEdit.id ? t("admin.calendar.confirmDelete") : t("admin.calendar.delete")}
+                {shiftDeleteConfirm === shiftEdit.id
+                  ? t("admin.calendar.confirmDelete")
+                  : t("admin.calendar.delete")}
               </Button>
             )}
             <div className="flex-1" />

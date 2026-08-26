@@ -109,7 +109,9 @@ export function FullChatApp({
       newMuted.push(cid);
     }
     setMutedChannels(newMuted);
-    toast.success(newMuted.includes(cid) ? t("chat.notifications.disabled") : t("chat.notifications.enabled"));
+    toast.success(
+      newMuted.includes(cid) ? t("chat.notifications.disabled") : t("chat.notifications.enabled"),
+    );
   }
 
   async function handleClearHistory() {
@@ -137,10 +139,10 @@ export function FullChatApp({
 
   async function handleDeleteChat(chatId: string) {
     if (!user) return;
-    
+
     // Optimistic update
     setDmMessages((prev) => prev.filter((m) => m.channel_id !== chatId));
-    
+
     if (activeChannelType === "direct" && activeChannelId === chatId) {
       setActiveChannelType("general");
       setActiveChannelId("general");
@@ -167,7 +169,9 @@ export function FullChatApp({
   }) {
     if (!user) return;
     const authorName =
-      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? t("admin.users.employee", { defaultValue: "Сотрудник" });
+      (user.user_metadata?.full_name as string | undefined) ??
+      user.email ??
+      t("admin.users.employee", { defaultValue: "Сотрудник" });
     const text = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;
     const { error } = await supabase.from("chat_messages").insert({
       channel_type: activeChannelType,
@@ -345,11 +349,15 @@ export function FullChatApp({
                       className="w-full flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg hover:bg-muted text-foreground transition-colors"
                     >
                       <User className="h-3.5 w-3.5 opacity-50" />
-                      <span className="truncate flex-1 text-left">{tName(p.full_name || "Unknown")}</span>
+                      <span className="truncate flex-1 text-left">
+                        {tName(p.full_name || "Unknown")}
+                      </span>
                     </button>
                   ))}
                   {availableUsers.length === 0 && (
-                    <div className="text-xs text-muted-foreground px-3 py-2">{t("chat.sidebar.noUsers")}</div>
+                    <div className="text-xs text-muted-foreground px-3 py-2">
+                      {t("chat.sidebar.noUsers")}
+                    </div>
                   )}
                 </div>
               )}
@@ -513,17 +521,23 @@ export function FullChatApp({
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.name")}</p>
+              <p className="text-sm text-muted-foreground font-medium mb-1">
+                {t("chat.info.name")}
+              </p>
               <p className="font-semibold text-lg">{activeChannelTitle}</p>
             </div>
             {activeChannelSubtitle && (
               <div>
-                <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.additional")}</p>
+                <p className="text-sm text-muted-foreground font-medium mb-1">
+                  {t("chat.info.additional")}
+                </p>
                 <p className="text-sm">{activeChannelSubtitle}</p>
               </div>
             )}
             <div>
-              <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.type")}</p>
+              <p className="text-sm text-muted-foreground font-medium mb-1">
+                {t("chat.info.type")}
+              </p>
               <p className="text-sm">
                 {activeChannelType === "general"
                   ? t("chat.type.general")
@@ -533,9 +547,13 @@ export function FullChatApp({
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.notifications")}</p>
+              <p className="text-sm text-muted-foreground font-medium mb-1">
+                {t("chat.info.notifications")}
+              </p>
               <p className="text-sm">
-                {mutedChannels.includes(activeChannelId) ? t("chat.info.notif.disabled") : t("chat.info.notif.enabled")}
+                {mutedChannels.includes(activeChannelId)
+                  ? t("chat.info.notif.disabled")
+                  : t("chat.info.notif.enabled")}
               </p>
             </div>
           </div>
@@ -574,7 +592,7 @@ function ChannelButton({
           active
             ? "bg-primary text-primary-foreground font-medium shadow-sm"
             : "hover:bg-muted text-foreground",
-          onDelete ? "pr-10" : ""
+          onDelete ? "pr-10" : "",
         )}
       >
         <div className={cn("shrink-0 opacity-80", active && "opacity-100")}>{icon}</div>
@@ -736,7 +754,9 @@ function ChannelContent({
     }
 
     const authorName =
-      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? t("admin.users.employee", { defaultValue: "Сотрудник" });
+      (user.user_metadata?.full_name as string | undefined) ??
+      user.email ??
+      t("admin.users.employee", { defaultValue: "Сотрудник" });
     const { error } = await supabase.from("chat_messages").insert({
       channel_type: channelType,
       channel_id: channelId,
@@ -938,7 +958,11 @@ function MessageBubble({
       {!isMine && (
         <Avatar className="h-8 w-8 mt-auto shrink-0">
           <AvatarImage src={avatarUrl || ""} />
-          <AvatarFallback>{tName(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {tName(m.author_name || "")
+              .substring(0, 2)
+              .toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       )}
       <div className={cn("flex flex-col gap-1 w-full", isMine ? "items-end" : "items-start")}>
@@ -951,7 +975,9 @@ function MessageBubble({
           )}
         >
           {!isMine && (
-            <div className="text-[11px] font-semibold opacity-70 mb-0.5">{tName(m.author_name || "")}</div>
+            <div className="text-[11px] font-semibold opacity-70 mb-0.5">
+              {tName(m.author_name || "")}
+            </div>
           )}
 
           {isPhotoReport && photoPath && (
@@ -969,7 +995,7 @@ function MessageBubble({
                 />
               </div>
               <Dialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
-                <DialogContent 
+                <DialogContent
                   className="max-w-4xl bg-transparent border-none shadow-none p-0 flex justify-center cursor-pointer"
                   onClick={() => setImagePreviewOpen(false)}
                 >
@@ -1051,7 +1077,11 @@ function MessageBubble({
       {isMine && (
         <Avatar className="h-8 w-8 mt-auto shrink-0">
           <AvatarImage src={avatarUrl || ""} />
-          <AvatarFallback>{tName(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {tName(m.author_name || "")
+              .substring(0, 2)
+              .toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       )}
     </div>
@@ -1114,7 +1144,8 @@ function ChatMediaDialog({
 
   const handleDelete = async () => {
     if (selected.length === 0) return;
-    if (!confirm(t("chat.media.deleteConfirm").replace("{{count}}", selected.length.toString()))) return;
+    if (!confirm(t("chat.media.deleteConfirm").replace("{{count}}", selected.length.toString())))
+      return;
 
     const pathsToDelete = photos.filter((p) => selected.includes(p.id)).map((p) => p.path);
     if (pathsToDelete.length > 0) {
@@ -1142,15 +1173,32 @@ function ChatMediaDialog({
             <div className="flex items-center gap-2 mr-8">
               {selectionMode ? (
                 <>
-                  <Button variant="ghost" size="sm" onClick={() => { setSelectionMode(false); setSelected([]); }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectionMode(false);
+                      setSelected([]);
+                    }}
+                  >
                     {t("chat.media.cancel")}
                   </Button>
-                  <Button variant="destructive" size="sm" disabled={selected.length === 0} onClick={handleDelete}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={selected.length === 0}
+                    onClick={handleDelete}
+                  >
                     {t("chat.media.delete")} ({selected.length})
                   </Button>
                 </>
               ) : (
-                <Button variant="outline" size="sm" onClick={() => setSelectionMode(true)} disabled={photos.length === 0}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectionMode(true)}
+                  disabled={photos.length === 0}
+                >
                   {t("chat.media.select")}
                 </Button>
               )}
@@ -1182,19 +1230,25 @@ function ChatMediaDialog({
                       }}
                       className={cn(
                         "relative aspect-square rounded-xl overflow-hidden border bg-muted group",
-                        selectionMode && isSelected && "ring-2 ring-primary"
+                        selectionMode && isSelected && "ring-2 ring-primary",
                       )}
                     >
                       <img
                         src={photo.url}
                         alt="media"
-                        className={cn("w-full h-full object-cover transition-all", selectionMode && isSelected && "scale-90 rounded-lg")}
+                        className={cn(
+                          "w-full h-full object-cover transition-all",
+                          selectionMode && isSelected && "scale-90 rounded-lg",
+                        )}
                         loading="lazy"
                       />
                       {selectionMode && (
                         <div className="absolute top-1.5 right-1.5 z-10">
                           <CheckCircle2
-                            className={cn("h-5 w-5", isSelected ? "text-primary fill-background" : "text-white/70")}
+                            className={cn(
+                              "h-5 w-5",
+                              isSelected ? "text-primary fill-background" : "text-white/70",
+                            )}
                           />
                         </div>
                       )}
@@ -1207,13 +1261,22 @@ function ChatMediaDialog({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!previewUrl} onOpenChange={(o) => { if (!o) setPreviewUrl(null); }}>
-        <DialogContent 
+      <Dialog
+        open={!!previewUrl}
+        onOpenChange={(o) => {
+          if (!o) setPreviewUrl(null);
+        }}
+      >
+        <DialogContent
           className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh] cursor-pointer"
           onClick={() => setPreviewUrl(null)}
         >
           {previewUrl && (
-            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] object-contain pointer-events-none" />
+            <img
+              src={previewUrl}
+              alt="preview"
+              className="max-w-full max-h-[90vh] object-contain pointer-events-none"
+            />
           )}
         </DialogContent>
       </Dialog>

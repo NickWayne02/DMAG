@@ -59,7 +59,11 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== "undefined") {
           if ((window as any).Capacitor?.isNativePlatform?.()) {
             deviceType = "app";
-          } else if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          } else if (
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              navigator.userAgent,
+            )
+          ) {
             deviceType = "mobile_web";
           }
         }

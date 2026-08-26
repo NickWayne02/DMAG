@@ -297,7 +297,9 @@ function applySettings(s: Settings, accent: AccentPreset, animate: boolean = fal
     );
     root.style.setProperty(
       "--neon-border",
-      isAccentColor ? panels.border : `color-mix(in oklab, ${panels.primary} 30%, ${panels.border})`,
+      isAccentColor
+        ? panels.border
+        : `color-mix(in oklab, ${panels.primary} 30%, ${panels.border})`,
     );
     root.style.setProperty(
       "--neon-grid-line",

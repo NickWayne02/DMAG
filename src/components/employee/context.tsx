@@ -205,7 +205,8 @@ export function EmployeeProvider({
   });
   const setReportOpen = (val: boolean) => {
     setReportOpenRaw(val);
-    if (typeof window !== "undefined") window.sessionStorage.setItem("dmag_report_open", String(val));
+    if (typeof window !== "undefined")
+      window.sessionStorage.setItem("dmag_report_open", String(val));
   };
 
   const [chatOpen, setChatOpenRaw] = useState(() => {
@@ -531,7 +532,14 @@ export function EmployeeProvider({
       );
       if (!r.ok) return null;
       const j = await r.json();
-      return j.address?.city || j.address?.town || j.address?.village || j.address?.hamlet || j.name || null;
+      return (
+        j.address?.city ||
+        j.address?.town ||
+        j.address?.village ||
+        j.address?.hamlet ||
+        j.name ||
+        null
+      );
     } catch {
       return null;
     }

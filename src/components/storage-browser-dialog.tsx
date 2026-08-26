@@ -59,7 +59,7 @@ export function StorageBrowserDialog({
       if (error) throw error;
       setFiles(
         (data as { id: string | null; name: string }[])?.filter(
-          (f) => f.name !== ".emptyFolderPlaceholder" && f.id !== null
+          (f) => f.name !== ".emptyFolderPlaceholder" && f.id !== null,
         ) || [],
       );
     } catch (e) {
@@ -148,9 +148,10 @@ export function StorageBrowserDialog({
 
   async function handleFileDelete(e: React.MouseEvent, file: { id: string | null; name: string }) {
     e.stopPropagation();
-    
+
     const isFolder = !file.id;
-    if (!confirm(isFolder ? `Удалить папку "${file.name}" и все файлы внутри?` : "Удалить файл?")) return;
+    if (!confirm(isFolder ? `Удалить папку "${file.name}" и все файлы внутри?` : "Удалить файл?"))
+      return;
 
     const folderPath = currentPath.join("/");
     const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
@@ -161,14 +162,18 @@ export function StorageBrowserDialog({
     try {
       if (isFolder) {
         // List files in the folder (up to 100 for simplicity)
-        const { data, error: listError } = await supabase.storage.from(bucketName).list(fullPath, { limit: 100 });
+        const { data, error: listError } = await supabase.storage
+          .from(bucketName)
+          .list(fullPath, { limit: 100 });
         if (listError) throw listError;
-        
-        const filesToRemove = data?.map(f => `${fullPath}/${f.name}`) || [];
+
+        const filesToRemove = data?.map((f) => `${fullPath}/${f.name}`) || [];
         filesToRemove.push(`${fullPath}/.emptyFolderPlaceholder`); // Just in case
-        
+
         if (filesToRemove.length > 0) {
-          const { error: removeError } = await supabase.storage.from(bucketName).remove(filesToRemove);
+          const { error: removeError } = await supabase.storage
+            .from(bucketName)
+            .remove(filesToRemove);
           if (removeError) throw removeError;
         }
         toast.success("Папка удалена");

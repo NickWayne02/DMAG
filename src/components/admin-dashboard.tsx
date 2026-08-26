@@ -163,7 +163,10 @@ type SecurityLog = {
   level: "info" | "warn" | "alert";
 };
 
-function useSessionState<T>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+function useSessionState<T>(
+  key: string,
+  defaultValue: T,
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [state, setState] = useState<T>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -265,9 +268,16 @@ export function AdminDashboard({
   const [employees, setEmployees] = useSessionState<EmployeeRow[]>("dmag_admin_cached_emps", []);
   const [sites, setSites] = useSessionState<SiteRow[]>("dmag_admin_cached_sites", []);
   const [reports, setReports] = useSessionState<ReportRow[]>("dmag_admin_cached_reports", []);
-  const [reportsHasMore, setReportsHasMore] = useSessionState("dmag_admin_cached_reportsHasMore", false);
+  const [reportsHasMore, setReportsHasMore] = useSessionState(
+    "dmag_admin_cached_reportsHasMore",
+    false,
+  );
   const [reportsLoadingMore, setReportsLoadingMore] = useState(false);
-  const [editingReport, setEditingReport] = useState<{ id: string; description: string; criticality: Crit } | null>(null);
+  const [editingReport, setEditingReport] = useState<{
+    id: string;
+    description: string;
+    criticality: Crit;
+  } | null>(null);
 
   // Pagination states
   const [personnelPage, setPersonnelPage] = useState(0);
@@ -278,7 +288,10 @@ export function AdminDashboard({
   // Filter states
   const [personnelSearch, setPersonnelSearch] = useSessionState("dmag_admin_personnelSearch", "");
   const [personnelRole, setPersonnelRole] = useSessionState("dmag_admin_personnelRole", "all");
-  const [personnelStatus, setPersonnelStatus] = useSessionState("dmag_admin_personnelStatus", "all");
+  const [personnelStatus, setPersonnelStatus] = useSessionState(
+    "dmag_admin_personnelStatus",
+    "all",
+  );
 
   const [sitesSearch, setSitesSearch] = useSessionState("dmag_admin_sitesSearch", "");
   const [adminSearch, setAdminSearch] = useSessionState("dmag_admin_adminSearch", "");
@@ -379,7 +392,10 @@ export function AdminDashboard({
     setLogs(simLogs);
   }, [employees, t, logs.length, onlineUsers, presenceMap, user?.id]);
   const [loading, setLoading] = useState(true);
-  const [shiftHistory, setShiftHistory] = useSessionState<ShiftDetail[]>("dmag_admin_cached_shiftHist", []);
+  const [shiftHistory, setShiftHistory] = useSessionState<ShiftDetail[]>(
+    "dmag_admin_cached_shiftHist",
+    [],
+  );
   const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
 
   const [calCursor, setCalCursor] = useState(() => {
@@ -544,19 +560,22 @@ export function AdminDashboard({
         .from("sites")
         .select("id, name, address, customer, created_at")
         .order("created_at", { ascending: false }),
-      (function() {
+      (function () {
         let q = supabase
           .from("photo_reports")
           .select("id, description, criticality, photo_url, created_at, site_id, author_id")
           .order("created_at", { ascending: false });
         if (reportsSite !== "all") q = q.eq("site_id", reportsSite);
-        if (reportsCrit !== "all") q = q.eq("criticality", reportsCrit as "info" | "important" | "urgent");
+        if (reportsCrit !== "all")
+          q = q.eq("criticality", reportsCrit as "info" | "important" | "urgent");
         if (reportsSearch) q = q.ilike("description", `%${reportsSearch}%`);
         if (reportsPeriod === "today") {
-          const d = new Date(); d.setHours(0, 0, 0, 0);
+          const d = new Date();
+          d.setHours(0, 0, 0, 0);
           q = q.gte("created_at", d.toISOString());
         } else if (reportsPeriod === "week") {
-          const d = new Date(); d.setDate(d.getDate() - 7);
+          const d = new Date();
+          d.setDate(d.getDate() - 7);
           q = q.gte("created_at", d.toISOString());
         }
         return q.limit(20);
@@ -816,16 +835,16 @@ export function AdminDashboard({
 
   async function savePhotoReportEdit() {
     if (!editingReport) return;
-    
+
     // Optimistic update
-    setReports((prev) => 
-      prev.map((r) => 
-        r.id === editingReport.id 
+    setReports((prev) =>
+      prev.map((r) =>
+        r.id === editingReport.id
           ? { ...r, description: editingReport.description, criticality: editingReport.criticality }
-          : r
-      )
+          : r,
+      ),
     );
-    
+
     const reportId = editingReport.id;
     const newDesc = editingReport.description;
     const newCrit = editingReport.criticality;
@@ -836,7 +855,7 @@ export function AdminDashboard({
       .from("photo_reports")
       .update({
         description: newDesc,
-        criticality: newCrit
+        criticality: newCrit,
       })
       .eq("id", reportId);
 
@@ -1262,7 +1281,7 @@ export function AdminDashboard({
     setUserBusy(true);
     try {
       const filename = `dmag-reports-${new Date().toISOString().slice(0, 10)}`;
-      
+
       if (reports.length === 0) {
         toast.info("Нет данных для экспорта");
         return;
@@ -1270,8 +1289,10 @@ export function AdminDashboard({
 
       if (fmt === "pdf") {
         toast.info("Подготовка PDF, скачивание оригиналов...");
-        
-        async function fetchImageData(url: string): Promise<{ base64: string, w: number, h: number } | null> {
+
+        async function fetchImageData(
+          url: string,
+        ): Promise<{ base64: string; w: number; h: number } | null> {
           try {
             const res = await fetch(url);
             const blob = await res.blob();
@@ -1295,21 +1316,21 @@ export function AdminDashboard({
 
         // Fetch original photos for better quality
         const imagesData = await Promise.all(
-          reports.map(r => r.thumb ? fetchImageData(r.thumb) : Promise.resolve(null))
+          reports.map((r) => (r.thumb ? fetchImageData(r.thumb) : Promise.resolve(null))),
         );
 
         const { jsPDF } = await import("jspdf");
         const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
         const pageWidth = 595.28;
         const pageHeight = 841.89;
-        
+
         doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
         doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
         doc.setFont("Roboto");
 
         reports.forEach((r, i) => {
           if (i > 0) doc.addPage();
-          
+
           // Fill background
           doc.setFillColor(20, 20, 20);
           doc.rect(0, 0, pageWidth, pageHeight, "F");
@@ -1332,7 +1353,7 @@ export function AdminDashboard({
 
             try {
               doc.addImage(imgData.base64, x, y, drawW, drawH);
-            } catch(e) {
+            } catch (e) {
               console.error("Failed to add image", e);
             }
           } else {
@@ -1344,23 +1365,25 @@ export function AdminDashboard({
           // Draw text block at the bottom 15%
           const textYStart = pageHeight * 0.85 + 25;
           doc.setTextColor(255, 255, 255);
-          
+
           doc.setFontSize(16);
           doc.text(r.site_name, 30, textYStart);
-          
+
           doc.setFontSize(11);
           doc.setTextColor(180, 180, 180);
           const dateStr = new Date(r.created_at).toLocaleString("ru-RU");
           doc.text(dateStr, 30, textYStart + 20);
-          
+
           doc.setTextColor(220, 220, 220);
-          doc.text(r.description || "Без описания", 30, textYStart + 45, { maxWidth: pageWidth - 60 });
+          doc.text(r.description || "Без описания", 30, textYStart + 45, {
+            maxWidth: pageWidth - 60,
+          });
         });
-        
+
         const blob = doc.output("blob");
         triggerDownload(blob, `${filename}.pdf`);
       }
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       toast.error("Ошибка при экспорте");
     } finally {
@@ -1414,13 +1437,21 @@ export function AdminDashboard({
   const activities = useMemo(() => {
     const list: any[] = [];
     shiftHistory.slice(0, 50).forEach((s) => {
-      const emp = employees.find((e) => e.id === s.user_id) || { name: t("admin.users.unknownEmployee", { defaultValue: "Неизвестный сотрудник" }) };
+      const emp = employees.find((e) => e.id === s.user_id) || {
+        name: t("admin.users.unknownEmployee", { defaultValue: "Неизвестный сотрудник" }),
+      };
       list.push({
         id: `shift-start-${s.id}`,
         ts: s.started_at,
         type: "shift_start",
         title: t("admin.activity.shiftStart"),
-        desc: t("admin.activity.shiftStarted", { name: tName(emp.name), site: s.site_name ? tName(s.site_name) : (tName(s.start_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" })) }),
+        desc: t("admin.activity.shiftStarted", {
+          name: tName(emp.name),
+          site: s.site_name
+            ? tName(s.site_name)
+            : tName(s.start_city || "") ||
+              t("admin.activity.unknownSite", { defaultValue: "Unknown" }),
+        }),
         icon: <Users className="h-4 w-4" />,
         color: "text-green-600 bg-green-500/10",
       });
@@ -1430,7 +1461,13 @@ export function AdminDashboard({
           ts: s.ended_at,
           type: "shift_end",
           title: t("admin.activity.shiftEnd"),
-          desc: t("admin.activity.shiftEnded", { name: tName(emp.name), site: s.site_name ? tName(s.site_name) : (tName(s.end_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" })) }),
+          desc: t("admin.activity.shiftEnded", {
+            name: tName(emp.name),
+            site: s.site_name
+              ? tName(s.site_name)
+              : tName(s.end_city || "") ||
+                t("admin.activity.unknownSite", { defaultValue: "Unknown" }),
+          }),
           icon: <Activity className="h-4 w-4" />,
           color: "text-blue-600 bg-blue-500/10",
         });
@@ -1645,7 +1682,8 @@ export function AdminDashboard({
 
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
-                  <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.loading", { defaultValue: "Loading data..." })}…
+                  <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                  {t("admin.loading", { defaultValue: "Loading data..." })}…
                 </div>
               ) : activities.length === 0 ? (
                 <div className="flex-1 mt-6 flex flex-col items-center justify-center py-20 px-6 text-center border-2 border-dashed rounded-2xl border-muted bg-card/30">
@@ -1656,7 +1694,10 @@ export function AdminDashboard({
                     {t("admin.activity.emptyTitle", { defaultValue: "Активности пока нет" })}
                   </h4>
                   <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                    {t("admin.activity.emptyDesc", { defaultValue: "События, новые смены и инциденты будут появляться здесь в реальном времени." })}
+                    {t("admin.activity.emptyDesc", {
+                      defaultValue:
+                        "События, новые смены и инциденты будут появляться здесь в реальном времени.",
+                    })}
                   </p>
                 </div>
               ) : (
@@ -1762,7 +1803,9 @@ export function AdminDashboard({
                     <SelectContent className="rounded-xl">
                       <SelectItem value="all">{t("admin.personnel.allRoles")}</SelectItem>
                       <SelectItem value="employee">{t("admin.personnel.employee")}</SelectItem>
-                      <SelectItem value="brigadier">{t("role.brigadier", { defaultValue: "Бригадир" })}</SelectItem>
+                      <SelectItem value="brigadier">
+                        {t("role.brigadier", { defaultValue: "Бригадир" })}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <Select
@@ -1773,7 +1816,9 @@ export function AdminDashboard({
                     }}
                   >
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
-                      <SelectValue placeholder={t("admin.filter.status", { defaultValue: "Статус" })} />
+                      <SelectValue
+                        placeholder={t("admin.filter.status", { defaultValue: "Статус" })}
+                      />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
                       <SelectItem value="all">{t("admin.personnel.allStatuses")}</SelectItem>
@@ -2053,7 +2098,9 @@ export function AdminDashboard({
                             <TableHead>{t("admin.sites.colName")}</TableHead>
                             <TableHead>{t("admin.sites.colAddress")}</TableHead>
                             <TableHead>{t("admin.sites.colCustomer")}</TableHead>
-                            <TableHead className="text-right">{t("admin.dashboard.employees")}</TableHead>
+                            <TableHead className="text-right">
+                              {t("admin.dashboard.employees")}
+                            </TableHead>
                             <TableHead className="text-right">
                               {t("admin.sites.colCreated")}
                             </TableHead>
@@ -2177,7 +2224,9 @@ export function AdminDashboard({
                                 )}
                               </div>
                               <div className="flex justify-between items-center mt-2 pt-3 border-t">
-                                <span className="text-xs text-muted-foreground">{t("admin.dashboard.employees")}:</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {t("admin.dashboard.employees")}:
+                                </span>
                                 <Badge variant="secondary" className="font-mono">
                                   {empCount}
                                 </Badge>
@@ -2271,7 +2320,12 @@ export function AdminDashboard({
                     <h3 className="font-semibold">{t("admin.reports.title")}</h3>
                     <p className="text-sm text-muted-foreground">{t("admin.reports.desc")}</p>
                   </div>
-                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => exportReports("pdf")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl"
+                    onClick={() => exportReports("pdf")}
+                  >
                     <Download className="h-3.5 w-3.5 mr-1.5" />
                     {t("admin.header.export")}
                   </Button>
@@ -2345,12 +2399,15 @@ export function AdminDashboard({
                                 {r.description || t("admin.reports.noDesc")}
                               </p>
                               <p className="text-[10px] text-muted-foreground mt-1">
-                                {new Date(r.created_at).toLocaleString(lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang, {
-                                  day: "numeric",
-                                  month: "short",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {new Date(r.created_at).toLocaleString(
+                                  lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang,
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )}
                               </p>
                             </div>
                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -2358,11 +2415,13 @@ export function AdminDashboard({
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                                onClick={() => setEditingReport({
-                                  id: r.id,
-                                  description: r.description || "",
-                                  criticality: r.criticality
-                                })}
+                                onClick={() =>
+                                  setEditingReport({
+                                    id: r.id,
+                                    description: r.description || "",
+                                    criticality: r.criticality,
+                                  })
+                                }
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -2423,7 +2482,8 @@ export function AdminDashboard({
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold truncate">{logs[0].action}</p>
                             <span className="text-[11px] font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>{t("admin.sessions.online", { defaultValue: "В сети" })}
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                              {t("admin.sessions.online", { defaultValue: "В сети" })}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 truncate">
@@ -2475,7 +2535,8 @@ export function AdminDashboard({
                                 <p className="text-xs text-muted-foreground truncate">{l.meta}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-[11px] font-medium text-green-500 flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>{t("admin.sessions.online", { defaultValue: "В сети" })}
+                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>
+                                    {t("admin.sessions.online", { defaultValue: "В сети" })}
                                   </span>
                                   <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
                                   <p className="text-[11px] font-medium truncate">{l.user}</p>
@@ -2564,12 +2625,15 @@ export function AdminDashboard({
                           const lastLogin = isOnline
                             ? t("admin.users.online")
                             : e.updated_at
-                              ? new Date(e.updated_at).toLocaleString(lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang, {
-                                  day: "numeric",
-                                  month: "short",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
+                              ? new Date(e.updated_at).toLocaleString(
+                                  lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang,
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )
                               : t("admin.users.noData");
                           return (
                             <TableRow key={`mgr-${e.id}`}>
@@ -2753,12 +2817,15 @@ export function AdminDashboard({
                               {onlineUsers.includes(e.id)
                                 ? t("admin.users.online")
                                 : e.updated_at
-                                  ? new Date(e.updated_at).toLocaleString(lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang, {
-                                      day: "numeric",
-                                      month: "short",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
+                                  ? new Date(e.updated_at).toLocaleString(
+                                      lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang,
+                                      {
+                                        day: "numeric",
+                                        month: "short",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      },
+                                    )
                                   : t("admin.users.noData")}
                             </span>
                           </div>
@@ -2782,7 +2849,9 @@ export function AdminDashboard({
                                 }
                               }}
                             >
-                              {e.role === "admin" ? t("admin.users.makeSuper", { defaultValue: "Сделать Супер" }) : t("admin.users.makeAdmin", { defaultValue: "Сделать Админ" })}
+                              {e.role === "admin"
+                                ? t("admin.users.makeSuper", { defaultValue: "Сделать Супер" })
+                                : t("admin.users.makeAdmin", { defaultValue: "Сделать Админ" })}
                             </Button>
                             {!e.is_active && (
                               <Button
@@ -2874,9 +2943,7 @@ export function AdminDashboard({
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold tracking-tight">{t("admin.tab.calendar")}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t("admin.calendar.desc")}
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">{t("admin.calendar.desc")}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Select value={calEmpId} onValueChange={setCalEmpId}>
@@ -2905,7 +2972,8 @@ export function AdminDashboard({
                         setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))
                       }
                     >
-                      <ChevronLeft className="h-4 w-4 mr-1" /> {t("admin.pagination.prev", { defaultValue: "Пред." })}
+                      <ChevronLeft className="h-4 w-4 mr-1" />{" "}
+                      {t("admin.pagination.prev", { defaultValue: "Пред." })}
                     </Button>
                     <div className="text-lg font-semibold">
                       {calMonthName} {calCursor.getFullYear()}
@@ -2917,13 +2985,15 @@ export function AdminDashboard({
                         setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))
                       }
                     >
-                      {t("admin.pagination.next", { defaultValue: "След." })} <ChevronRight className="h-4 w-4 ml-1" />
+                      {t("admin.pagination.next", { defaultValue: "След." })}{" "}
+                      <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
 
                   {calLoading ? (
                     <div className="py-20 flex items-center justify-center text-muted-foreground">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" /> {t("admin.loading", { defaultValue: "Загрузка..." })}
+                      <Loader2 className="h-6 w-6 animate-spin mr-2" />{" "}
+                      {t("admin.loading", { defaultValue: "Загрузка..." })}
                     </div>
                   ) : (
                     <>
@@ -3014,7 +3084,9 @@ export function AdminDashboard({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle>{shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}</DialogTitle>
+              <DialogTitle>
+                {shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}
+              </DialogTitle>
               {shiftEditList.length > 1 && (
                 <div className="flex items-center space-x-2 mr-6 text-sm">
                   <Button
@@ -3167,13 +3239,16 @@ export function AdminDashboard({
           <DialogFooter className="gap-2 sm:gap-2">
             {shiftEdit?.id && (
               <Button variant="destructive" onClick={deleteShift} disabled={shiftSaving}>
-                <Trash2 className="h-4 w-4 mr-1" />{t("admin.calendar.delete")}
+                <Trash2 className="h-4 w-4 mr-1" />
+                {t("admin.calendar.delete")}
               </Button>
             )}
-            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>{t("admin.calendar.cancel")}
+            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>
+              {t("admin.calendar.cancel")}
             </Button>
             <Button onClick={saveShift} disabled={shiftSaving}>
-              {shiftSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}{t("admin.calendar.save")}
+              {shiftSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              {t("admin.calendar.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3311,7 +3386,9 @@ export function AdminDashboard({
                 <textarea
                   className="flex min-h-20 w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   value={editingReport.description}
-                  onChange={(e) => setEditingReport({ ...editingReport, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditingReport({ ...editingReport, description: e.target.value })
+                  }
                   autoFocus
                   onFocus={(e) => {
                     const len = e.target.value.length;
@@ -3322,9 +3399,15 @@ export function AdminDashboard({
             </div>
           )}
           <DialogFooter className="mt-2">
-            <Button variant="outline" className="rounded-xl w-full sm:w-auto" onClick={() => setEditingReport(null)}>{t("admin.calendar.cancel")}
+            <Button
+              variant="outline"
+              className="rounded-xl w-full sm:w-auto"
+              onClick={() => setEditingReport(null)}
+            >
+              {t("admin.calendar.cancel")}
             </Button>
-            <Button className="rounded-xl w-full sm:w-auto" onClick={savePhotoReportEdit}>{t("admin.calendar.save")}
+            <Button className="rounded-xl w-full sm:w-auto" onClick={savePhotoReportEdit}>
+              {t("admin.calendar.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -107,8 +107,9 @@ export function PhotoReportDialog({
   }
 
   async function takePhoto(source: "CAMERA" | "PHOTOS") {
-    const isNative = typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
-    
+    const isNative =
+      typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.();
+
     if (isNative) {
       try {
         const { Camera } = await import("@capacitor/camera");
@@ -197,152 +198,170 @@ export function PhotoReportDialog({
           onOpenChange(o);
         }}
       >
-      <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader className={previewUrl ? "border-b pb-3 mb-2" : ""}>
-          <DialogTitle>{previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
-          {!previewUrl && (
-            <DialogDescription>
-              {site ? (
-                <>
-                  Объект: <span className="font-medium">{tName(site.name)}</span>
-                </>
-              ) : skipDbInsert ? (
-                t("chat.photo.willBeSent", { defaultValue: "Фото будет отправлено в текущий чат" })
-              ) : (
-                <span className="text-xs text-amber-500 font-medium">
-                  {t("chat.photo.chooseSiteFirst", { defaultValue: "Сначала выберите объект на главном экране" })}
-                </span>
-              )}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+        <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader className={previewUrl ? "border-b pb-3 mb-2" : ""}>
+            <DialogTitle>{previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
+            {!previewUrl && (
+              <DialogDescription>
+                {site ? (
+                  <>
+                    Объект: <span className="font-medium">{tName(site.name)}</span>
+                  </>
+                ) : skipDbInsert ? (
+                  t("chat.photo.willBeSent", {
+                    defaultValue: "Фото будет отправлено в текущий чат",
+                  })
+                ) : (
+                  <span className="text-xs text-amber-500 font-medium">
+                    {t("chat.photo.chooseSiteFirst", {
+                      defaultValue: "Сначала выберите объект на главном экране",
+                    })}
+                  </span>
+                )}
+              </DialogDescription>
+            )}
+          </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Photo upload */}
-          {!previewUrl ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>{t("chat.photo.label", { defaultValue: "Фото" })}</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  <div
-                    role="button"
-                    className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
-                    onClick={() => takePhoto("CAMERA")}
-                  >
-                    <LucideCamera className="h-6 w-6" />
-                    <span className="text-[10px] font-medium">{t("chat.photo.camera", { defaultValue: "Снимок" })}</span>
-                  </div>
-                  <div
-                    role="button"
-                    className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
-                    onClick={() => takePhoto("PHOTOS")}
-                  >
-                    <ImagePlus className="h-6 w-6" />
-                    <span className="text-[10px] font-medium">{t("chat.photo.gallery", { defaultValue: "Галерея" })}</span>
-                  </div>
-                  <div
-                    role="button"
-                    className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
-                    onClick={() => setBrowserOpen(true)}
-                  >
-                    <FolderSearch className="h-6 w-6" />
-                    <span className="text-[10px] font-medium">{t("chat.photo.storage", { defaultValue: "Хранилище" })}</span>
+          <div className="space-y-4">
+            {/* Photo upload */}
+            {!previewUrl ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>{t("chat.photo.label", { defaultValue: "Фото" })}</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div
+                      role="button"
+                      className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                      onClick={() => takePhoto("CAMERA")}
+                    >
+                      <LucideCamera className="h-6 w-6" />
+                      <span className="text-[10px] font-medium">
+                        {t("chat.photo.camera", { defaultValue: "Снимок" })}
+                      </span>
+                    </div>
+                    <div
+                      role="button"
+                      className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                      onClick={() => takePhoto("PHOTOS")}
+                    >
+                      <ImagePlus className="h-6 w-6" />
+                      <span className="text-[10px] font-medium">
+                        {t("chat.photo.gallery", { defaultValue: "Галерея" })}
+                      </span>
+                    </div>
+                    <div
+                      role="button"
+                      className="h-24 rounded-2xl flex flex-col items-center justify-center gap-1 border border-input bg-background shadow-sm cursor-pointer select-none [-webkit-tap-highlight-color:transparent] text-foreground"
+                      onClick={() => setBrowserOpen(true)}
+                    >
+                      <FolderSearch className="h-6 w-6" />
+                      <span className="text-[10px] font-medium">
+                        {t("chat.photo.storage", { defaultValue: "Хранилище" })}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Description */}
-              <div className="space-y-1.5">
-                <Label htmlFor="report-desc">{t("chat.photo.descLabel", { defaultValue: "Описание" })}</Label>
-                <Textarea
-                  id="report-desc"
-                  placeholder={t("chat.photo.descPlaceholder", { defaultValue: "Скрытые работы, дефект, замечание..." })}
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="rounded-xl"
-                />
+                {/* Description */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="report-desc">
+                    {t("chat.photo.descLabel", { defaultValue: "Описание" })}
+                  </Label>
+                  <Textarea
+                    id="report-desc"
+                    placeholder={t("chat.photo.descPlaceholder", {
+                      defaultValue: "Скрытые работы, дефект, замечание...",
+                    })}
+                    rows={4}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="rounded-xl"
+                  />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-4 flex flex-col">
+                <div className="relative rounded-lg overflow-hidden bg-black/10 flex items-center justify-center">
+                  <img
+                    src={previewUrl}
+                    alt="preview"
+                    className="w-full max-h-[60vh] object-contain cursor-pointer"
+                    onClick={() => setFullScreenPreview(true)}
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
+                    onPointerDown={(e) => e.preventDefault()}
+                    onClick={() => handleFile(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="relative">
+                  <Input
+                    placeholder={t("chat.photo.captionPlaceholder", { defaultValue: "Подпись..." })}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="border-0 border-b border-input rounded-none px-1 shadow-none focus-visible:ring-0 focus-visible:border-primary text-base"
+                  />
+                </div>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+
+          {!previewUrl ? (
+            <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2 mt-4">
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl"
+                onClick={() => onOpenChange(false)}
+                disabled={busy}
+              >
+                {t("chat.photo.cancel", { defaultValue: "Отмена" })}
+              </Button>
+              <Button
+                className="h-11 rounded-xl"
+                onClick={submit}
+                disabled={busy || (!site && !skipDbInsert)}
+              >
+                {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {t("chat.photo.send", { defaultValue: "Отправить" })}
+              </Button>
+            </DialogFooter>
           ) : (
-            <div className="space-y-4 flex flex-col">
-              <div className="relative rounded-lg overflow-hidden bg-black/10 flex items-center justify-center">
-                <img 
-                  src={previewUrl} 
-                  alt="preview" 
-                  className="w-full max-h-[60vh] object-contain cursor-pointer" 
-                  onClick={() => setFullScreenPreview(true)}
-                />
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="destructive"
-                  className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
-                  onPointerDown={(e) => e.preventDefault()}
-                  onClick={() => handleFile(null)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="relative">
-                <Input
-                  placeholder={t("chat.photo.captionPlaceholder", { defaultValue: "Подпись..." })}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="border-0 border-b border-input rounded-none px-1 shadow-none focus-visible:ring-0 focus-visible:border-primary text-base"
-                />
-              </div>
-            </div>
+            <DialogFooter className="flex flex-row justify-between items-center sm:justify-between mt-4">
+              <Button
+                variant="ghost"
+                className="h-10 text-muted-foreground hover:text-foreground font-normal px-2"
+                onClick={() => onOpenChange(false)}
+                disabled={busy}
+              >
+                {t("chat.photo.cancel", { defaultValue: "Отмена" })}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-10 text-primary hover:text-primary/90 font-medium px-2"
+                onClick={submit}
+                disabled={busy || (!site && !skipDbInsert)}
+              >
+                {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {t("chat.photo.send", { defaultValue: "Отправить" })}
+              </Button>
+            </DialogFooter>
           )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-          />
-        </div>
-
-        {!previewUrl ? (
-          <DialogFooter className="grid grid-cols-2 gap-2 sm:grid-cols-2 mt-4">
-            <Button
-              variant="outline"
-              className="h-11 rounded-xl"
-              onClick={() => onOpenChange(false)}
-              disabled={busy}
-            >
-              {t("chat.photo.cancel", { defaultValue: "Отмена" })}
-            </Button>
-            <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || (!site && !skipDbInsert)}>
-              {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {t("chat.photo.send", { defaultValue: "Отправить" })}
-            </Button>
-          </DialogFooter>
-        ) : (
-          <DialogFooter className="flex flex-row justify-between items-center sm:justify-between mt-4">
-            <Button
-              variant="ghost"
-              className="h-10 text-muted-foreground hover:text-foreground font-normal px-2"
-              onClick={() => onOpenChange(false)}
-              disabled={busy}
-            >
-              {t("chat.photo.cancel", { defaultValue: "Отмена" })}
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="h-10 text-primary hover:text-primary/90 font-medium px-2" 
-              onClick={submit} 
-              disabled={busy || (!site && !skipDbInsert)}
-            >
-              {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {t("chat.photo.send", { defaultValue: "Отправить" })}
-            </Button>
-          </DialogFooter>
-        )}
-      </DialogContent>
+        </DialogContent>
       </Dialog>
 
       <StorageBrowserDialog
@@ -358,12 +377,16 @@ export function PhotoReportDialog({
       />
 
       <Dialog open={fullScreenPreview} onOpenChange={setFullScreenPreview}>
-        <DialogContent 
+        <DialogContent
           className="max-w-4xl p-0 overflow-hidden bg-black/90 border-none flex items-center justify-center h-[90vh] sm:h-screen sm:max-h-screen rounded-none sm:rounded-none cursor-pointer"
           onClick={() => setFullScreenPreview(false)}
         >
           {previewUrl && (
-            <img src={previewUrl} alt="preview" className="max-w-full max-h-[90vh] sm:max-h-screen object-contain pointer-events-none" />
+            <img
+              src={previewUrl}
+              alt="preview"
+              className="max-w-full max-h-[90vh] sm:max-h-screen object-contain pointer-events-none"
+            />
           )}
         </DialogContent>
       </Dialog>

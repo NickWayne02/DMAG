@@ -555,7 +555,11 @@ export function EmployeeDesktopView() {
                         onClick={() => setMapType(mapType === "m" ? "k" : "m")}
                         title="Переключить вид (Схема/Спутник)"
                       >
-                        {mapType === "m" ? <MapIcon className="w-5 h-5 text-white" /> : <MapPin className="w-5 h-5 text-white" />}
+                        {mapType === "m" ? (
+                          <MapIcon className="w-5 h-5 text-white" />
+                        ) : (
+                          <MapPin className="w-5 h-5 text-white" />
+                        )}
                       </Button>
 
                       <Button
@@ -567,7 +571,7 @@ export function EmployeeDesktopView() {
                       >
                         <RefreshCw className="w-5 h-5 text-white" />
                       </Button>
-                      
+
                       <Button
                         size="icon"
                         variant="secondary"
@@ -576,9 +580,15 @@ export function EmployeeDesktopView() {
                           const lat = myCoords?.latitude || 0;
                           const lon = myCoords?.longitude || 0;
                           if (lat && lon) {
-                            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
+                            window.open(
+                              `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`,
+                              "_blank",
+                            );
                           } else {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                            window.open(
+                              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`,
+                              "_blank",
+                            );
                           }
                         }}
                         title="Проложить маршрут"
@@ -592,9 +602,15 @@ export function EmployeeDesktopView() {
                         className="bg-black/50 backdrop-blur-md border border-(--neon-border) hover:bg-black/70 w-10 h-10 rounded-full"
                         onClick={() => {
                           if (myCoords) {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`, "_blank");
+                            window.open(
+                              `https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`,
+                              "_blank",
+                            );
                           } else {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                            window.open(
+                              `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`,
+                              "_blank",
+                            );
                           }
                         }}
                         title="Открыть в Google Maps"
@@ -608,7 +624,10 @@ export function EmployeeDesktopView() {
                       height="100%"
                       style={{
                         border: 0,
-                        filter: mapType === "m" ? "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)" : "none",
+                        filter:
+                          mapType === "m"
+                            ? "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)"
+                            : "none",
                       }}
                       loading="lazy"
                       allowFullScreen

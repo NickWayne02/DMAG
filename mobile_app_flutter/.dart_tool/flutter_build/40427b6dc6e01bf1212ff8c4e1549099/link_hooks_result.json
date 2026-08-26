@@ -1,1 +1,12 @@
-{"build_start":"2026-08-26T12:34:33.011609","build_end":"2026-08-26T12:34:33.074578","dependencies":["file:///C:/Users/Eugene/Desktop/DMAG/mobile_app_flutter/.dart_tool/package_config.json","file:///C:/Users/Eugene/Desktop/DMAG/mobile_app_flutter/pubspec.yaml","file:///C:/flutter/bin/cache/dart-sdk/version","file:///c:/users/eugene/desktop/dmag/mobile_app_flutter/.dart_tool/package_config.json"],"code_assets":[],"data_assets":[]}
+{
+  "build_start": "2026-08-26T12:34:33.011609",
+  "build_end": "2026-08-26T12:34:33.074578",
+  "dependencies": [
+    "file:///C:/Users/Eugene/Desktop/DMAG/mobile_app_flutter/.dart_tool/package_config.json",
+    "file:///C:/Users/Eugene/Desktop/DMAG/mobile_app_flutter/pubspec.yaml",
+    "file:///C:/flutter/bin/cache/dart-sdk/version",
+    "file:///c:/users/eugene/desktop/dmag/mobile_app_flutter/.dart_tool/package_config.json"
+  ],
+  "code_assets": [],
+  "data_assets": []
+}

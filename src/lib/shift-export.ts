@@ -130,7 +130,7 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  
+
   doc.addFileToVFS("Roboto-Regular.ttf", ROBOTO_BASE64);
   doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
   doc.setFont("Roboto");
@@ -143,20 +143,26 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
     head: [HEADERS],
     body: rows.map(rowToArray),
     startY: 74,
-    styles: { font: "Roboto", fontStyle: "normal", fontSize: 9, cellPadding: 6, textColor: [50, 50, 50] },
-    headStyles: { 
-      fontStyle: "normal", 
-      fillColor: [13, 71, 161], 
-      textColor: [255, 255, 255], 
+    styles: {
+      font: "Roboto",
+      fontStyle: "normal",
+      fontSize: 9,
+      cellPadding: 6,
+      textColor: [50, 50, 50],
+    },
+    headStyles: {
+      fontStyle: "normal",
+      fillColor: [13, 71, 161],
+      textColor: [255, 255, 255],
       fontSize: 10,
-      halign: "center"
+      halign: "center",
     },
     bodyStyles: {
-      halign: "center"
+      halign: "center",
     },
     columnStyles: {
       1: { halign: "left" },
-      2: { halign: "left" }
+      2: { halign: "left" },
     },
     alternateRowStyles: { fillColor: [245, 247, 250] },
   });

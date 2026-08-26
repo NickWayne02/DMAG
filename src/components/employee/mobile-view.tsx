@@ -266,9 +266,7 @@ export function EmployeeMobileView() {
         color: "var(--neon-text)",
       }}
     >
-      <div
-        className="w-full max-w-md md:max-w-2xl lg:max-w-5xl min-h-screen flex flex-col relative overflow-hidden mx-auto"
-      >
+      <div className="w-full max-w-md md:max-w-2xl lg:max-w-5xl min-h-screen flex flex-col relative overflow-hidden mx-auto">
         {/* Neon header */}
         <header
           className="relative px-5 pt-6 pb-8 rounded-b-4xl border-b"
@@ -330,9 +328,7 @@ export function EmployeeMobileView() {
                   >
                     {tr(`role.${role}`)}
                   </p>
-                  <h1 className="text-lg font-bold truncate leading-tight mt-0.5">
-                    {name}
-                  </h1>
+                  <h1 className="text-lg font-bold truncate leading-tight mt-0.5">{name}</h1>
                 </div>
               </div>
 
@@ -520,7 +516,11 @@ export function EmployeeMobileView() {
                       onClick={() => setMapType(mapType === "m" ? "k" : "m")}
                       title="Переключить вид (Схема/Спутник)"
                     >
-                      {mapType === "m" ? <MapIcon className="w-4 h-4 text-white" /> : <MapPin className="w-4 h-4 text-white" />}
+                      {mapType === "m" ? (
+                        <MapIcon className="w-4 h-4 text-white" />
+                      ) : (
+                        <MapPin className="w-4 h-4 text-white" />
+                      )}
                     </Button>
 
                     <Button
@@ -532,7 +532,7 @@ export function EmployeeMobileView() {
                     >
                       <RefreshCw className="w-4 h-4 text-white" />
                     </Button>
-                    
+
                     <Button
                       size="icon"
                       variant="secondary"
@@ -541,9 +541,15 @@ export function EmployeeMobileView() {
                         const lat = myCoords?.latitude || 0;
                         const lon = myCoords?.longitude || 0;
                         if (lat && lon) {
-                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
+                          window.open(
+                            `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`,
+                            "_blank",
+                          );
                         } else {
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                          window.open(
+                            `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`,
+                            "_blank",
+                          );
                         }
                       }}
                       title="Проложить маршрут"
@@ -557,9 +563,15 @@ export function EmployeeMobileView() {
                       className="bg-black/50 backdrop-blur-md border border-(--neon-border) w-8 h-8 rounded-full"
                       onClick={() => {
                         if (myCoords) {
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`, "_blank");
+                          window.open(
+                            `https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`,
+                            "_blank",
+                          );
                         } else {
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                          window.open(
+                            `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`,
+                            "_blank",
+                          );
                         }
                       }}
                       title="Открыть в Google Maps"
@@ -573,7 +585,10 @@ export function EmployeeMobileView() {
                     height="100%"
                     style={{
                       border: 0,
-                      filter: mapType === "m" ? "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)" : "none",
+                      filter:
+                        mapType === "m"
+                          ? "invert(100%) hue-rotate(180deg) brightness(80%) contrast(120%)"
+                          : "none",
                     }}
                     loading="lazy"
                     allowFullScreen

@@ -8,7 +8,14 @@ export async function reverseGeocodeCity(
     );
     if (!r.ok) return null;
     const j = await r.json();
-    return j.address?.city || j.address?.town || j.address?.village || j.address?.hamlet || j.name || null;
+    return (
+      j.address?.city ||
+      j.address?.town ||
+      j.address?.village ||
+      j.address?.hamlet ||
+      j.name ||
+      null
+    );
   } catch {
     return null;
   }

@@ -60,7 +60,7 @@ export function SiteSelectorDialog({
       return;
     }
     const city = await reverseGeocodeCity(coords);
-    
+
     const name = city || "Новый объект";
     const address = `GPS: ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`;
 
@@ -75,7 +75,7 @@ export function SiteSelectorDialog({
       })
       .select("id,name,address,customer,comment")
       .single();
-    
+
     setBusy(false);
     setGpsBusy(false);
 

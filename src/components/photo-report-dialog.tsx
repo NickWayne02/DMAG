@@ -56,7 +56,7 @@ export function PhotoReportDialog({
   skipDbInsert?: boolean;
 }) {
   const { user } = useAuth();
-  const { tName } = useLanguage();
+  const { t, tName } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);

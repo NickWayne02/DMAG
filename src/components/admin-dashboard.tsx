@@ -1015,7 +1015,7 @@ export function AdminDashboard({
   async function saveShift() {
     if (!shiftEdit) return;
     if (!shiftEdit.user_id) {
-      toast.error("Выберите сотрудника");
+      toast.error(t("admin.calendar.selectEmp"));
       return;
     }
     const started = fromLocalInput(shiftEdit.started_at);
@@ -2882,7 +2882,7 @@ export function AdminDashboard({
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Select value={calEmpId} onValueChange={setCalEmpId}>
                     <SelectTrigger className="w-full sm:w-62.5 bg-background">
-                      <SelectValue placeholder="Выберите сотрудника" />
+                      <SelectValue placeholder={t("admin.calendar.selectEmp")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__none__">{t("admin.calendar.selectEmp")}</SelectItem>
@@ -3078,7 +3078,7 @@ export function AdminDashboard({
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Выберите…" />
+                      <SelectValue placeholder={t("admin.calendar.select")} />
                     </SelectTrigger>
                     <SelectContent>
                       {employees.map((emp) => (
@@ -3168,16 +3168,13 @@ export function AdminDashboard({
           <DialogFooter className="gap-2 sm:gap-2">
             {shiftEdit?.id && (
               <Button variant="destructive" onClick={deleteShift} disabled={shiftSaving}>
-                <Trash2 className="h-4 w-4 mr-1" />
-                Удалить
+                <Trash2 className="h-4 w-4 mr-1" />{t("admin.calendar.delete")}
               </Button>
             )}
-            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>
-              Отмена
+            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>{t("admin.calendar.cancel")}
             </Button>
             <Button onClick={saveShift} disabled={shiftSaving}>
-              {shiftSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              Сохранить
+              {shiftSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}{t("admin.calendar.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -3326,11 +3323,9 @@ export function AdminDashboard({
             </div>
           )}
           <DialogFooter className="mt-2">
-            <Button variant="outline" className="rounded-xl w-full sm:w-auto" onClick={() => setEditingReport(null)}>
-              Отмена
+            <Button variant="outline" className="rounded-xl w-full sm:w-auto" onClick={() => setEditingReport(null)}>{t("admin.calendar.cancel")}
             </Button>
-            <Button className="rounded-xl w-full sm:w-auto" onClick={savePhotoReportEdit}>
-              Сохранить
+            <Button className="rounded-xl w-full sm:w-auto" onClick={savePhotoReportEdit}>{t("admin.calendar.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

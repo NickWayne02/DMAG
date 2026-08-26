@@ -910,6 +910,30 @@ const DICT: Dict = {
     tg: "Offline",
   },
 
+  "admin.personnel.employee": {
+    ru: "Сотрудник",
+    en: "Employee",
+    de: "Mitarbeiter",
+    pl: "Pracownik",
+    uk: "Співробітник",
+    ro: "Angajat",
+    bg: "Служител",
+    uz: "Xodim",
+    tg: "Корманд"
+  },
+  "admin.personnel.brigadier": {
+    ru: "Бригадир",
+    en: "Brigadier",
+    de: "Vorarbeiter",
+    pl: "Brygadzista",
+    uk: "Бригадир",
+    ro: "Brigadier",
+    bg: "Бригадир",
+    uz: "Brigadir",
+    tg: "Бригадир"
+  },
+
+
 
   "admin.users.createTitle": {
     ru: "Создать пользователя",

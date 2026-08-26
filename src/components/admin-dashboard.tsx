@@ -1761,7 +1761,7 @@ export function AdminDashboard({
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
                       <SelectItem value="all">{t("admin.personnel.allRoles")}</SelectItem>
-                      <SelectItem value="employee">Сотрудник</SelectItem>
+                      <SelectItem value="employee">{t("admin.personnel.employee")}</SelectItem>
                       <SelectItem value="brigadier">Бригадир</SelectItem>
                     </SelectContent>
                   </Select>
@@ -3015,7 +3015,7 @@ export function AdminDashboard({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle>{shiftEdit?.id ? "Редактировать смену" : "Добавить смену"}</DialogTitle>
+              <DialogTitle>{shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}</DialogTitle>
               {shiftEditList.length > 1 && (
                 <div className="flex items-center space-x-2 mr-6 text-sm">
                   <Button
@@ -3057,15 +3057,15 @@ export function AdminDashboard({
             </div>
             <DialogDescription>
               {shiftEdit?.user_name
-                ? `Сотрудник: ${tName(shiftEdit.user_name || "")}`
-                : "Выберите сотрудника и заполните время"}
+                ? `${t("admin.personnel.employee")}: ${tName(shiftEdit.user_name || "")}`
+                : t("admin.calendar.fillTime")}
             </DialogDescription>
           </DialogHeader>
           {shiftEdit && (
             <div className="space-y-3">
               {!shiftEdit.id && (
                 <div>
-                  <Label>Сотрудник</Label>
+                  <Label>{t("admin.personnel.employee")}</Label>
                   <Select
                     value={shiftEdit.user_id}
                     onValueChange={(v) => {
@@ -3091,7 +3091,7 @@ export function AdminDashboard({
                 </div>
               )}
               <div>
-                <Label>Объект</Label>
+                <Label>{t("admin.calendar.site")}</Label>
                 <Select
                   value={shiftEdit.site_id ?? "__none__"}
                   onValueChange={(v) => {
@@ -3107,7 +3107,7 @@ export function AdminDashboard({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__none__">— Без объекта —</SelectItem>
+                    <SelectItem value="__none__">{t("admin.calendar.noSite")}</SelectItem>
                     {sites.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
                         {s.name}
@@ -3118,7 +3118,7 @@ export function AdminDashboard({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Начало</Label>
+                  <Label>{t("admin.calendar.start")}</Label>
                   <Input
                     type="datetime-local"
                     value={shiftEdit.started_at}
@@ -3126,7 +3126,7 @@ export function AdminDashboard({
                   />
                 </div>
                 <div>
-                  <Label>Конец</Label>
+                  <Label>{t("admin.calendar.end")}</Label>
                   <Input
                     type="datetime-local"
                     value={shiftEdit.ended_at}
@@ -3135,7 +3135,7 @@ export function AdminDashboard({
                 </div>
               </div>
               <div>
-                <Label>Пауза (минут)</Label>
+                <Label>{t("admin.calendar.pause")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -3147,7 +3147,7 @@ export function AdminDashboard({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>GPS город (старт)</Label>
+                  <Label>{t("admin.calendar.gpsStart")}</Label>
                   <Input
                     value={shiftEdit.start_city}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, start_city: ev.target.value })}
@@ -3155,7 +3155,7 @@ export function AdminDashboard({
                   />
                 </div>
                 <div>
-                  <Label>GPS город (конец)</Label>
+                  <Label>{t("admin.calendar.gpsEnd")}</Label>
                   <Input
                     value={shiftEdit.end_city}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, end_city: ev.target.value })}

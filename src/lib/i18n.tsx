@@ -849,6 +849,26 @@ const DICT: Dict = {
     uz: "Начало смены",
     tg: "Начало смены"
   },
+  "admin.activity.shiftStarted": {
+    ru: "{{name}} начал смену на объекте {{site}}",
+    en: "{{name}} started a shift at {{site}}",
+  },
+  "admin.activity.shiftEnded": {
+    ru: "{{name}} завершил смену на объекте {{site}}",
+    en: "{{name}} ended a shift at {{site}}",
+  },
+  "admin.activity.lunchStarted": {
+    ru: "{{name}} ушел на перерыв",
+    en: "{{name}} went on lunch break",
+  },
+  "admin.activity.lunchEnded": {
+    ru: "{{name}} вернулся к работе",
+    en: "{{name}} returned to work",
+  },
+  "admin.activity.unknownSite": {
+    ru: "Неизвестный объект",
+    en: "Unknown site",
+  },
   "admin.activity.pauseStart": {
     ru: "Уход на перерыв",
     en: "Pause start",

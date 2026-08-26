@@ -788,22 +788,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(lat, lon),
-                    zoom: 14.0,
-                  ),
-                  markers: {
-                    Marker(
-                      markerId: const MarkerId('current_location'),
-                      position: LatLng(lat, lon),
-                      infoWindow: InfoWindow(title: displayName),
+                child: Container(
+                  color: colors.muted,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.map, color: colors.foreground.withOpacity(0.5), size: 48),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Карта временно отключена\n(Требуется Google Maps API Key)",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.5), fontSize: 12),
+                        ),
+                      ],
                     ),
-                  },
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  mapToolbarEnabled: false,
+                  ),
                 ),
               ),
             ),

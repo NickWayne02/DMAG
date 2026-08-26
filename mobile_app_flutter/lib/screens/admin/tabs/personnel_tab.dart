@@ -142,6 +142,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
           lunchMs: lunchMs,
           startedAt: startedAt,
           shiftData: sh,
+          avatarUrl: p['avatar_url'],
         ));
       }
 

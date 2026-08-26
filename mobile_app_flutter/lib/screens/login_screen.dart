@@ -121,8 +121,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             Icon(LucideIcons.globe, color: textColor, size: 16),
                             const SizedBox(width: 6),
                             Text(
+                              localeProvider.currentLanguage['flag'] ?? '',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
                               localeProvider.currentLang.toUpperCase(),
-                              style: GoogleFonts.inter(color: textColor, fontSize: 12),
+                              style: GoogleFonts.inter(color: textColor, fontSize: 12, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -250,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _nameController,
                         style: TextStyle(color: textColor),
                         decoration: InputDecoration(
-                          hintText: 'Иван Иванов',
+                          hintText: context.watch<LocaleProvider>().t('auth.fullName_hint') ?? 'Иван Иванов',
                           hintStyle: TextStyle(color: mutedTextColor),
                           filled: true,
                           fillColor: inputBg,

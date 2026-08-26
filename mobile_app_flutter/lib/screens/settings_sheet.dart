@@ -169,6 +169,11 @@ class _SettingsSheetState extends State<SettingsSheet> {
                             Icon(LucideIcons.globe, color: colors.foreground, size: 16),
                             const SizedBox(width: 8),
                             Text(
+                              context.watch<LocaleProvider>().currentLanguage['flag'] ?? '',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
                               context.watch<LocaleProvider>().currentLang.toUpperCase(),
                               style: GoogleFonts.inter(
                                 color: colors.foreground,
@@ -281,18 +286,18 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     children: [
                       Icon(LucideIcons.type, color: colors.foreground, size: 18),
                       const SizedBox(width: 8),
-                      Text('Стиль кнопок', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(context.watch<LocaleProvider>().t('settings.button_style') ?? 'Стиль кнопок', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
-                        child: _buildButtonStyleOption(context, themeProvider, ButtonStyleType.filled, 'Цветной фон'),
+                        child: _buildButtonStyleOption(context, themeProvider, ButtonStyleType.filled, context.watch<LocaleProvider>().t('settings.colored_bg') ?? 'Цветной фон'),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildButtonStyleOption(context, themeProvider, ButtonStyleType.outlined, 'Цветной текст'),
+                        child: _buildButtonStyleOption(context, themeProvider, ButtonStyleType.outlined, context.watch<LocaleProvider>().t('settings.colored_text') ?? 'Цветной текст'),
                       ),
                     ],
                   ),
@@ -506,7 +511,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
           children: [
             Row(
               children: [
-                Icon(label.contains('Размер') ? LucideIcons.type : LucideIcons.ruler, color: colors.foreground, size: 18),
+                Icon(label.contains(context.read<LocaleProvider>().t('settings.size_match') ?? 'Размер') ? LucideIcons.type : LucideIcons.ruler, color: colors.foreground, size: 18),
                 const SizedBox(width: 8),
                 Text(label, style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
               ],

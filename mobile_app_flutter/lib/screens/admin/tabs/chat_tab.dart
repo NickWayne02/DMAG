@@ -1,3 +1,6 @@
+import 'package:mobile_app_flutter/utils/transliteration.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -115,7 +118,7 @@ class _ChatTabState extends State<ChatTab> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Text('Новый диалог', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('chat.new_dialog') ?? 'Новый диалог', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -126,9 +129,9 @@ class _ChatTabState extends State<ChatTab> {
                       leading: CircleAvatar(
                         backgroundColor: Colors.white24,
                         backgroundImage: p['avatar_url'] != null ? NetworkImage(p['avatar_url']) : null,
-                        child: p['avatar_url'] == null ? Text(p['full_name']?.substring(0, 1) ?? 'U', style: const TextStyle(color: Colors.white)) : null,
+                        child: p['avatar_url'] == null ? Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang)?.substring(0, 1) ?? 'U', style: const TextStyle(color: Colors.white)) : null,
                       ),
-                      title: Text(p['full_name'] ?? 'Без имени', style: GoogleFonts.inter(color: Colors.white)),
+                      title: Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang) ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', style: GoogleFonts.inter(color: Colors.white)),
                       onTap: () {
                         Navigator.of(context).pop();
                         final ids = [user.id, p['id']]..sort();
@@ -139,7 +142,7 @@ class _ChatTabState extends State<ChatTab> {
                             _dmChannelsMap[cid] = p;
                           });
                         }
-                        _openChat('direct', cid, p['full_name'] ?? 'Личный чат');
+                        _openChat('direct', cid, TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang) ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат');
                       },
                     );
                   },
@@ -157,11 +160,11 @@ class _ChatTabState extends State<ChatTab> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('Удалить чат?', style: TextStyle(color: Colors.white)),
-        content: const Text('Вы уверены, что хотите удалить этот диалог? История будет удалена.', style: TextStyle(color: Colors.white70)),
+        title: Text(context.watch<LocaleProvider>().t('chat.delete_title') ?? 'Удалить чат?', style: TextStyle(color: Colors.white)),
+        content: Text(context.watch<LocaleProvider>().t('chat.delete_msg') ?? 'Вы уверены, что хотите удалить этот диалог? История будет удалена.', style: TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Отмена', style: TextStyle(color: Colors.white))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Удалить', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: TextStyle(color: Colors.red))),
         ],
       )
     );
@@ -273,24 +276,24 @@ class _ChatTabState extends State<ChatTab> {
                 : ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _buildSectionTitle('ОСНОВНЫЕ'),
+                  _buildSectionTitle(context.watch<LocaleProvider>().t('chat.main') ?? 'ОСНОВНЫЕ'),
                   _buildChatItem(
                     icon: LucideIcons.hash,
-                    title: 'Общий чат команды',
+                    title: context.watch<LocaleProvider>().t('chat.general') ?? 'Общий чат команды',
                     isActive: false,
-                    onTap: () => _openChat('general', 'general', 'Общий чат команды'),
+                    onTap: () => _openChat('general', 'general', context.watch<LocaleProvider>().t('chat.general') ?? 'Общий чат команды'),
                   ),
                   const SizedBox(height: 12),
                   
-                  _buildSectionTitle('ЛИЧНЫЕ СООБЩЕНИЯ', hasAddButton: true, onAddTap: _startNewDm),
+                  _buildSectionTitle(context.watch<LocaleProvider>().t('chat.dms') ?? 'ЛИЧНЫЕ СООБЩЕНИЯ', hasAddButton: true, onAddTap: _startNewDm),
                   if (_dmChannelIds.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Text('Нет личных сообщений', style: GoogleFonts.inter(color: Colors.white38, fontSize: 13)),
+                      child: Text(context.watch<LocaleProvider>().t('chat.no_dms') ?? 'Нет личных сообщений', style: GoogleFonts.inter(color: Colors.white38, fontSize: 13)),
                     ),
                   ..._dmChannelIds.map((cid) {
                     final profile = _dmChannelsMap[cid];
-                    final name = profile?['full_name'] ?? 'Личный чат';
+                    final name = TransliterationService.transliterateIfNeeded(profile?['full_name'] ?? '', context.read<LocaleProvider>().currentLang) ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат';
                     return _buildChatItem(
                       icon: LucideIcons.user,
                       title: name,
@@ -301,11 +304,11 @@ class _ChatTabState extends State<ChatTab> {
                   }).toList(),
                   const SizedBox(height: 12),
                   
-                  _buildSectionTitle('ОБЪЕКТЫ (${_sites.length})'),
+                  _buildSectionTitle('''${context.watch<LocaleProvider>().t('chat.sites') ?? 'ОБЪЕКТЫ'} (${_sites.length})'''),
                   if (_sites.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Text('Нет объектов', style: GoogleFonts.inter(color: Colors.white38, fontSize: 13)),
+                      child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Colors.white38, fontSize: 13)),
                     ),
                   ..._sites.map((site) {
                     return _buildChatItem(

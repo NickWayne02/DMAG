@@ -1,3 +1,7 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../../../../providers/locale_provider.dart';
+import '../../../../utils/transliteration.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -96,12 +100,12 @@ class _CalendarTabState extends State<CalendarTab> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Календарь',
+            context.watch<LocaleProvider>().t('calendar.title') ?? 'Календарь',
             style: GoogleFonts.inter(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
-            'Просмотр и редактирование смен сотрудников',
+            context.watch<LocaleProvider>().t('calendar.subtitle') ?? 'Просмотр и редактирование смен сотрудников',
             style: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
           ),
           const SizedBox(height: 20),
@@ -143,7 +147,7 @@ class _CalendarTabState extends State<CalendarTab> {
             items: [
               DropdownMenuItem<String>(
                 value: null,
-                child: Text('-- Выберите сотрудника --', style: GoogleFonts.inter(color: Colors.white)),
+                child: Text(context.watch<LocaleProvider>().t('calendar.select_employee') ?? '-- Выберите сотрудника --', style: GoogleFonts.inter(color: Colors.white)),
               ),
               ..._employees.map((e) {
                 bool isSelected = _selectedEmployeeId == e['id'];
@@ -172,7 +176,8 @@ class _CalendarTabState extends State<CalendarTab> {
   }
 
   Widget _buildCalendar() {
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    final monthsStr = context.watch<LocaleProvider>().t('calendar.months') ?? 'Январь,Февраль,Март,Апрель,Май,Июнь,Июль,Август,Сентябрь,Октябрь,Ноябрь,Декабрь';
+    final months = monthsStr.split(',');
     final monthStr = '${months[_currentDate.month - 1]} ${_currentDate.year}';
 
     int daysInMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0).day;
@@ -186,18 +191,18 @@ class _CalendarTabState extends State<CalendarTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildMonthNavButton('Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
+              _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.prev') ?? 'Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
               Text(
                 monthStr,
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              _buildMonthNavButton('След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
+              _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.next') ?? 'След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
             ],
           ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) {
+            children: (context.watch<LocaleProvider>().t('calendar.days') ?? 'Пн,Вт,Ср,Чт,Пт,Сб,Вс').split(',').map((day) {
               return SizedBox(
                 width: 32,
                 child: Center(
@@ -237,7 +242,7 @@ class _CalendarTabState extends State<CalendarTab> {
               String durationText = '';
               if (primaryShift != null) {
                 if (primaryShift['ended_at'] == null) {
-                  durationText = 'Активна';
+                  durationText = context.read<LocaleProvider>().t('calendar.active') ?? 'Активна';
                 } else {
                   final start = DateTime.parse(primaryShift['started_at']);
                   final end = DateTime.parse(primaryShift['ended_at']);
@@ -247,7 +252,7 @@ class _CalendarTabState extends State<CalendarTab> {
                   
                   final hours = workMs ~/ 3600000;
                   final mins = (workMs % 3600000) ~/ 60000;
-                  durationText = '${hours}ч\n${mins}м';
+                  durationText = '${hours}${context.read<LocaleProvider>().t('calendar.h') ?? 'ч'}\n${mins}${context.read<LocaleProvider>().t('calendar.m') ?? 'м'}';
                 }
               }
               
@@ -310,14 +315,14 @@ class _CalendarTabState extends State<CalendarTab> {
   }
 
   void _showEditShiftModal(BuildContext context, Map<String, dynamic> shift) {
-    final employee = _employees.firstWhere((e) => e['id'] == shift['user_id'], orElse: () => {'full_name': 'Неизвестно'});
+    final employee = _employees.firstWhere((e) => e['id'] == shift['user_id'], orElse: () => {'full_name': context.watch<LocaleProvider>().t('personnel.no_name') ?? 'Неизвестно'});
     
     showDialog(
       context: context,
       builder: (context) {
         return EditShiftDialog(
           shift: shift,
-          employeeName: employee['full_name'] ?? 'Неизвестно',
+          employeeName: TransliterationService.transliterateIfNeeded(employee['full_name'] ?? (context.read<LocaleProvider>().t('calendar.unknown') ?? context.watch<LocaleProvider>().t('personnel.no_name') ?? 'Неизвестно'), context.read<LocaleProvider>().currentLang),
           sites: _sites,
           onSaved: _fetchShifts,
         );
@@ -431,7 +436,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
       widget.onSaved();
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка сохранения: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<LocaleProvider>().t('admin.shift.error_save') ?? 'Ошибка сохранения:'} $e')));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -442,11 +447,11 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B),
-        title: const Text('Удаление', style: TextStyle(color: Colors.white)),
-        content: const Text('Вы уверены, что хотите удалить эту смену?', style: TextStyle(color: Colors.white70)),
+        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: TextStyle(color: Colors.white)),
+        content: Text(context.read<LocaleProvider>().t('admin.shift.delete_msg') ?? 'Вы уверены, что хотите удалить эту смену?', style: TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Отмена', style: TextStyle(color: Colors.white70))),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Удалить', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.read<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: TextStyle(color: Colors.white70))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -459,7 +464,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
       widget.onSaved();
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка удаления: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<LocaleProvider>().t('chat.media_delete_error') ?? 'Ошибка удаления:'} $e')));
       setState(() => _isSaving = false);
     }
   }
@@ -489,7 +494,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Редактировать смену', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(context.watch<LocaleProvider>().t('admin.shift.edit_title') ?? 'Редактировать смену', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: const Icon(LucideIcons.x, color: Colors.white54, size: 20),
@@ -497,10 +502,10 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                 ],
               ),
               const SizedBox(height: 4),
-              Text('Сотрудник: ${widget.employeeName}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 14)),
+              Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 14)),
               const SizedBox(height: 24),
               
-              _buildInputLabel('Объект'),
+              _buildInputLabel(context.watch<LocaleProvider>().t('export.site') ?? 'Объект'),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
@@ -511,13 +516,13 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedSiteId,
-                    hint: Text('— Без объекта —', style: GoogleFonts.inter(color: Colors.white)),
+                    hint: Text(context.watch<LocaleProvider>().t('admin.shift.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white)),
                     isExpanded: true,
                     dropdownColor: const Color(0xFF1E293B),
                     icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                     style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                     items: [
-                      const DropdownMenuItem<String>(value: null, child: Text('— Без объекта —')),
+                      DropdownMenuItem<String>(value: null, child: Text(context.watch<LocaleProvider>().t('admin.shift.no_site') ?? '— Без объекта —')),
                       ...widget.sites.map((s) => DropdownMenuItem<String>(value: s['id'], child: Text(s['name']))).toList(),
                     ],
                     onChanged: (val) => setState(() => _selectedSiteId = val),
@@ -532,7 +537,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInputLabel('Начало'),
+                        _buildInputLabel(context.watch<LocaleProvider>().t('personnel.start') ?? 'Начало'),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, true),
                           child: _buildTextInput(formatDate(_startedAt)),
@@ -545,7 +550,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInputLabel('Конец'),
+                        _buildInputLabel(context.watch<LocaleProvider>().t('export.work_end') ?? 'Конец'),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, false),
                           child: _buildTextInput(_endedAt != null ? formatDate(_endedAt!) : 'Активна'),
@@ -557,7 +562,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
               ),
               
               const SizedBox(height: 16),
-              _buildInputLabel('Пауза (минут)'),
+              _buildInputLabel(context.watch<LocaleProvider>().t('shift.pause_mins') ?? 'Пауза (минут)'),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.black,
@@ -582,7 +587,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInputLabel('GPS город (старт)'),
+                        _buildInputLabel(context.watch<LocaleProvider>().t('shift.gps_start') ?? 'GPS город (старт)'),
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.black,
@@ -606,7 +611,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInputLabel('GPS город (конец)'),
+                        _buildInputLabel(context.watch<LocaleProvider>().t('shift.gps_end') ?? 'GPS город (конец)'),
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.black,
@@ -643,7 +648,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: _save,
-                    child: Text('Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                    child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -656,7 +661,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                    child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -669,7 +674,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     icon: const Icon(LucideIcons.trash_2, color: Colors.white, size: 16),
-                    label: Text('Удалить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                    label: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
                     onPressed: _delete,
                   ),
                 ),

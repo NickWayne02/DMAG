@@ -1,3 +1,6 @@
+import 'package:mobile_app_flutter/utils/transliteration.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -78,7 +81,7 @@ class _UsersTabState extends State<UsersTab> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            'Активен',
+                            context.watch<LocaleProvider>().t('users.active') ?? 'Активен',
                             style: GoogleFonts.inter(
                               color: const Color(0xFF10b981),
                               fontSize: 11,
@@ -102,7 +105,7 @@ class _UsersTabState extends State<UsersTab> {
           Row(
             children: [
               Text(
-                'Последний вход: ',
+                context.watch<LocaleProvider>().t('users.last_login') ?? 'Последний вход: ',
                 style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
               ),
               Text(
@@ -119,7 +122,7 @@ class _UsersTabState extends State<UsersTab> {
           const SizedBox(height: 16),
           
           // Action Buttons
-          if (role != 'Супер-админ' || isSelf) // If it's super-admin but not self, maybe show it? In the screenshot it's shown for Evgeny Kostin (dimmed) and Ruslan (normal). Wait, for Ruslan (Супер-админ) the buttons are normal! For Evgeny Kostin (Супер-админ) they are dimmed. So they are shown for all, but dimmed if isSelf.
+          if (role != (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ') || isSelf) // If it's super-admin but not self, maybe show it? In the screenshot it's shown for Evgeny Kostin (dimmed) and Ruslan (normal). Wait, for Ruslan (Супер-админ) the buttons are normal! For Evgeny Kostin (Супер-админ) they are dimmed. So they are shown for all, but dimmed if isSelf.
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -130,7 +133,7 @@ class _UsersTabState extends State<UsersTab> {
                   foregroundColor: isSelf ? Colors.white30 : Colors.white,
                 ),
                 onPressed: isSelf ? null : () {},
-                child: Text('Сделать Админ', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
+                child: Text(context.watch<LocaleProvider>().t('users.make_admin') ?? 'Сделать Админ', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
               ),
             ),
           const SizedBox(height: 8),
@@ -145,7 +148,7 @@ class _UsersTabState extends State<UsersTab> {
                     foregroundColor: isSelf ? Colors.white30 : Colors.white,
                   ),
                   icon: Icon(LucideIcons.key, size: 14),
-                  label: Text('Логин/пароль', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
+                  label: Text(context.watch<LocaleProvider>().t('users.login_pass') ?? 'Логин/пароль', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
                   onPressed: isSelf ? null : () {},
                 ),
               ),
@@ -187,7 +190,7 @@ class _UsersTabState extends State<UsersTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Список пользователей',
+                    context.watch<LocaleProvider>().t('users.title') ?? 'Список пользователей',
                     style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: 16,
@@ -196,7 +199,7 @@ class _UsersTabState extends State<UsersTab> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Создание, удаление, смена ролей и логина/пароля · только для супер-админа',
+                    context.watch<LocaleProvider>().t('users.subtitle') ?? 'Создание, удаление, смена ролей и логина/пароля · только для супер-админа',
                     style: GoogleFonts.inter(
                       color: const Color(0xFF64748b),
                       fontSize: 13,
@@ -214,7 +217,7 @@ class _UsersTabState extends State<UsersTab> {
                         elevation: 0,
                       ),
                       icon: const Icon(LucideIcons.plus, size: 16, color: Colors.black),
-                      label: Text('Создать', style: GoogleFonts.inter(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                      label: Text(context.watch<LocaleProvider>().t('users.create') ?? 'Создать', style: GoogleFonts.inter(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
                       onPressed: () {
                         CreateUserDialog.show(context);
                       },
@@ -225,7 +228,7 @@ class _UsersTabState extends State<UsersTab> {
                     onChanged: (val) => setState(() => _searchQuery = val),
                     style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Поиск пользователя...',
+                      hintText: context.watch<LocaleProvider>().t('users.search') ?? 'Поиск пользователя...',
                       hintStyle: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
                       filled: true,
                       fillColor: Colors.black,
@@ -248,37 +251,37 @@ class _UsersTabState extends State<UsersTab> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
                   _buildUserCard(
-                    name: 'Евгений Хань',
-                    role: 'Супер-админ',
+                    name: TransliterationService.transliterateIfNeeded('Евгений Хань', context.read<LocaleProvider>().currentLang),
+                    role: context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
                     initials: 'ЕВ', // Actually it's ЕХ, but in screenshot it's ЕВ maybe from Evgeny?
-                    lastLogin: '1 авг., 22:52',
+                    lastLogin: '01.08, 22:52',
                   ),
                   _buildUserCard(
-                    name: 'Оскар Ткаченко',
-                    role: 'Сотрудник',
+                    name: TransliterationService.transliterateIfNeeded('Оскар Ткаченко', context.read<LocaleProvider>().currentLang),
+                    role: context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник',
                     initials: 'ОС', // maybe OSkar?
-                    lastLogin: '7 авг., 21:34',
+                    lastLogin: '07.08, 21:34',
                   ),
                   _buildUserCard(
-                    name: 'Владислав',
-                    role: 'Сотрудник',
+                    name: TransliterationService.transliterateIfNeeded('Владислав', context.read<LocaleProvider>().currentLang),
+                    role: context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник',
                     initials: 'ВЛ',
                     avatarUrl: 'https://i.pravatar.cc/150?img=11', // Placeholder avatar
-                    lastLogin: '9 авг., 13:12',
+                    lastLogin: '09.08, 13:12',
                   ),
                   _buildUserCard(
-                    name: 'Руслан Ткаченко',
-                    role: 'Супер-админ',
+                    name: TransliterationService.transliterateIfNeeded('Руслан Ткаченко', context.read<LocaleProvider>().currentLang),
+                    role: context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
                     initials: 'РТ',
                     avatarUrl: 'https://i.pravatar.cc/150?img=12', // Placeholder avatar
-                    lastLogin: '22 авг., 13:26',
+                    lastLogin: '22.08, 13:26',
                   ),
                   _buildUserCard(
-                    name: 'Евгений Костин',
-                    role: 'Супер-админ',
+                    name: TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang),
+                    role: context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
                     initials: 'ЕК',
                     avatarUrl: 'https://i.pravatar.cc/150?img=13', // Placeholder avatar
-                    lastLogin: 'В сети',
+                    lastLogin: context.watch<LocaleProvider>().t('sessions.online') ?? 'В сети',
                     isOnline: true,
                     isSelf: true,
                   ),

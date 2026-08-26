@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -54,19 +56,19 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw Exception('Службы геолокации отключены.');
+        throw Exception(context.read<LocaleProvider>().t('location.error_disabled') ?? 'Службы геолокации отключены.');
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          throw Exception('Доступ к геолокации запрещен.');
+          throw Exception(context.read<LocaleProvider>().t('location.error_denied') ?? 'Доступ к геолокации запрещен.');
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        throw Exception('Доступ к геолокации запрещен навсегда.');
+        throw Exception(context.read<LocaleProvider>().t('location.error_denied_forever') ?? 'Доступ к геолокации запрещен навсегда.');
       }
 
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -74,7 +76,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
       setState(() {
         _addressCtrl.text = 'GPS: ${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
         if (_nameCtrl.text.isEmpty) {
-          _nameCtrl.text = 'Новый объект';
+          _nameCtrl.text = context.read<LocaleProvider>().t('add_site.new') ?? 'Новый объект';
         }
       });
     } catch (e) {
@@ -93,7 +95,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
     
     try {
       final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) throw Exception('Пользователь не авторизован');
+      if (user == null) throw Exception(context.read<LocaleProvider>().t('auth.error_unauthorized') ?? 'Пользователь не авторизован');
 
       final data = {
         'name': _nameCtrl.text.trim(),
@@ -166,7 +168,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                       child: Column(
                         children: [
                           Text(
-                            widget.site == null ? 'Новый объект' : 'Редактировать объект',
+                            widget.site == null ? context.read<LocaleProvider>().t('add_site.new') ?? 'Новый объект' : context.read<LocaleProvider>().t('add_site.edit') ?? 'Редактировать объект',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
                               color: Colors.white,
@@ -176,7 +178,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Заполните данные строительной площадки',
+                            context.watch<LocaleProvider>().t('add_site.subtitle') ?? 'Заполните данные строительной площадки',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
                               color: Colors.white70,
@@ -209,33 +211,33 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : const Icon(LucideIcons.map_pin, size: 18, color: Colors.white),
                     label: Text(
-                      'Определить по GPS',
+                      context.watch<LocaleProvider>().t('add_site.gps') ?? 'Определить по GPS',
                       style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     onPressed: _isGpsLoading ? null : _fillFromGps,
                   ),
                 ),
 
-                Text('Название *', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(context.watch<LocaleProvider>().t('add_site.name_lbl') ?? 'Название *', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameCtrl,
                   style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
-                  decoration: _inputDeco('Название объекта'),
-                  validator: (v) => v == null || v.isEmpty ? 'Обязательное поле' : null,
+                  decoration: _inputDeco(context.watch<LocaleProvider>().t('add_site.name_hint') ?? 'Название объекта'),
+                  validator: (v) => v == null || v.isEmpty ? context.read<LocaleProvider>().t('add_site.required') ?? 'Обязательное поле' : null,
                 ),
                 const SizedBox(height: 20),
 
-                Text('Адрес', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(context.watch<LocaleProvider>().t('add_site.address_lbl') ?? 'Адрес', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _addressCtrl,
                   style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
-                  decoration: _inputDeco('GPS: широта, долгота или адрес'),
+                  decoration: _inputDeco(context.watch<LocaleProvider>().t('add_site.address_hint') ?? 'GPS: широта, долгота или адрес'),
                 ),
                 const SizedBox(height: 20),
 
-                Text('Заказчик', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(context.watch<LocaleProvider>().t('add_site.client') ?? 'Заказчик', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _customerCtrl,
@@ -257,7 +259,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                       onPressed: _isLoading ? null : _save,
                       child: _isLoading
                           ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                          : Text('Сохранить', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
+                          : Text(context.watch<LocaleProvider>().t('calendar.save') ?? 'Сохранить', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
                     ),
                     const SizedBox(height: 12),
                     TextButton(
@@ -265,7 +267,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                         minimumSize: const Size.fromHeight(48),
                       ),
                       onPressed: () => Navigator.pop(context),
-                      child: Text('Отмена', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 )

@@ -1,3 +1,6 @@
+import 'package:mobile_app_flutter/utils/transliteration.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -58,7 +61,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
     final workMs = (totalMs - lunchMs).clamp(0, double.infinity).toInt();
     final h = workMs ~/ 3600000;
     final m = (workMs % 3600000) ~/ 60000;
-    return '${h}ч ${m.toString().padLeft(2, '0')}м';
+    return '${h}${context.read<LocaleProvider>().t('format.h') ?? 'ч'} ${m.toString().padLeft(2, '0')}${context.read<LocaleProvider>().t('format.m') ?? 'м'}';
   }
 
   String _formatDate(String isoString) {
@@ -87,7 +90,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Мои смены',
+            context.watch<LocaleProvider>().t('shift_history.title') ?? 'Мои смены',
             style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 18,
@@ -101,7 +104,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
                 : _shifts.isEmpty
                     ? Center(
                         child: Text(
-                          'Нет данных о сменах',
+                          context.watch<LocaleProvider>().t('shift_history.empty') ?? 'Нет данных о сменах',
                           style: GoogleFonts.inter(color: Colors.white54),
                         ),
                       )
@@ -112,7 +115,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
                         itemBuilder: (context, index) {
                           final shift = _shifts[index];
                           final status = shift['status'] as String;
-                          final siteName = shift['site_name'] as String? ?? 'Неизвестный объект';
+                          final siteName = TransliterationService.transliterateIfNeeded(shift['site_name'] as String? ?? '', context.read<LocaleProvider>().currentLang).isEmpty ? (context.watch<LocaleProvider>().t('shift_history.unknown_site') ?? 'Неизвестный объект') : TransliterationService.transliterateIfNeeded(shift['site_name'] as String? ?? '', context.read<LocaleProvider>().currentLang);
                           final startStr = shift['started_at'] as String?;
                           final endStr = shift['ended_at'] as String?;
                           final lunchMs = shift['lunch_total_ms'] as int? ?? 0;
@@ -136,12 +139,12 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
                                 const SizedBox(height: 4),
                                 if (startStr != null)
                                   Text(
-                                    'Начало: ${_formatDate(startStr)}',
+                                    '''${context.watch<LocaleProvider>().t('shift_history.start') ?? 'Начало'}: ${_formatDate(startStr)}''',
                                     style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
                                   ),
                                 if (endStr != null)
                                   Text(
-                                    'Конец: ${_formatDate(endStr)}',
+                                    '''${context.watch<LocaleProvider>().t('shift_history.end') ?? 'Конец'}: ${_formatDate(endStr)}''',
                                     style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
                                   ),
                               ],
@@ -157,7 +160,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    status == 'finished' ? 'Завершена' : 'Активна',
+                                    status == 'finished' ? (context.watch<LocaleProvider>().t('shift_history.finished') ?? 'Завершена') : (context.watch<LocaleProvider>().t('shift_history.active') ?? 'Активна'),
                                     style: GoogleFonts.inter(
                                       color: status == 'finished' ? Colors.blue : Colors.green,
                                       fontSize: 10,

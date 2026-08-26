@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app_settings/app_settings.dart';
@@ -49,12 +49,10 @@ class LocationService {
     
     try {
       final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&accept-language=ru');
-      final request = await HttpClient().getUrl(url);
-      request.headers.set('User-Agent', 'DMAG-App/2.0');
-      final response = await request.close();
+      final response = await http.get(url, headers: {'User-Agent': 'DMAG-App/2.0'});
       
       if (response.statusCode == 200) {
-        final stringData = await response.transform(utf8.decoder).join();
+        final stringData = utf8.decode(response.bodyBytes);
         final json = jsonDecode(stringData);
         final address = json['address'];
         if (address != null) {

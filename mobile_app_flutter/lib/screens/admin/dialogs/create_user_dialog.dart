@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -18,8 +20,8 @@ class CreateUserDialog extends StatefulWidget {
 }
 
 class _CreateUserDialogState extends State<CreateUserDialog> {
-  String _selectedRole = 'Сотрудник';
-  final List<String> _roles = ['Сотрудник', 'Бригадир', 'Администратор', 'Супер-админ'];
+  String _selectedRole = 'employee';
+  final List<String> _roles = ['employee', 'brigadier', 'admin', 'super_admin'];
 
   Widget _buildTextField(String label) {
     return Column(
@@ -79,7 +81,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                   const SizedBox(width: 24), // balance for close icon
                   Expanded(
                     child: Text(
-                      'Создать пользователя',
+                      context.watch<LocaleProvider>().t('create_user.title') ?? 'Создать пользователя',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         color: Colors.white,
@@ -96,21 +98,21 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Логин и пароль будут выданы новому сотруднику или администратору.',
+                context.watch<LocaleProvider>().t('create_user.subtitle') ?? 'Логин и пароль будут выданы новому сотруднику или администратору.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(color: Colors.white54, fontSize: 13),
               ),
               const SizedBox(height: 24),
               
-              _buildTextField('Полное имя'),
-              _buildTextField('Email (логин)'),
-              _buildTextField('Пароль'),
+              _buildTextField(context.watch<LocaleProvider>().t('create_user.name') ?? 'Полное имя'),
+              _buildTextField(context.watch<LocaleProvider>().t('create_user.email') ?? 'Email (логин)'),
+              _buildTextField(context.watch<LocaleProvider>().t('create_user.password') ?? 'Пароль'),
               
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Роль',
+                    context.watch<LocaleProvider>().t('create_user.role') ?? 'Роль',
                     style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: 14,
@@ -132,7 +134,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                         dropdownColor: const Color(0xFF18181b),
                         icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                         style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-                        items: _roles.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                        items: _roles.map((r) => DropdownMenuItem(value: r, child: Text(context.watch<LocaleProvider>().t('role.$r') ?? r))).toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _selectedRole = v);
                         },
@@ -157,7 +159,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('Создать', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
+                  child: Text(context.watch<LocaleProvider>().t('users.create') ?? 'Создать', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 8),
@@ -169,7 +171,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Отмена', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                  child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

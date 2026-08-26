@@ -12,6 +12,21 @@ class LocaleProvider extends ChangeNotifier {
   String get currentLang => _currentLang;
   bool get isLoaded => _isLoaded;
 
+    static const List<Map<String, String>> languages = [
+    {'code': 'ru', 'name': 'Русский', 'flag': '🇷🇺'},
+    {'code': 'en', 'name': 'English', 'flag': '🇬🇧'},
+    {'code': 'de', 'name': 'Deutsch', 'flag': '🇩🇪'},
+    {'code': 'ro', 'name': 'Română', 'flag': '🇷🇴'},
+    {'code': 'bg', 'name': 'Български', 'flag': '🇧🇬'},
+    {'code': 'pl', 'name': 'Polski', 'flag': '🇵🇱'},
+    {'code': 'uk', 'name': 'Українська', 'flag': '🇺🇦'},
+    {'code': 'uz', 'name': 'O\'zbekcha', 'flag': '🇺🇿'},
+    {'code': 'tg', 'name': 'Тоҷикӣ', 'flag': '🇹🇯'},
+  ];
+
+  Map<String, String> get currentLanguage => 
+      languages.firstWhere((lang) => lang['code'] == _currentLang, orElse: () => languages.first);
+
   LocaleProvider() {
     _init();
   }

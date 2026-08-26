@@ -1,3 +1,6 @@
+import '../../../utils/transliteration.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -64,16 +67,16 @@ class _SitesTabState extends State<SitesTab> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF09090b),
-        title: Text('Удаление', style: GoogleFonts.inter(color: Colors.white)),
-        content: Text('Вы уверены, что хотите удалить этот объект?', style: GoogleFonts.inter(color: Colors.white70)),
+        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: GoogleFonts.inter(color: Colors.white)),
+        content: Text(context.read<LocaleProvider>().t('sites.delete_msg') ?? 'Вы уверены, что хотите удалить этот объект?', style: GoogleFonts.inter(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Отмена', style: GoogleFonts.inter(color: Colors.white54)),
+            child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text('Удалить', style: GoogleFonts.inter(color: Colors.redAccent)),
+            child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -123,7 +126,7 @@ class _SitesTabState extends State<SitesTab> {
                         Row(
                           children: [
                             Text(
-                              'Объекты',
+                              context.watch<LocaleProvider>().t('sites.title') ?? 'Объекты',
                               style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 8),
@@ -142,7 +145,7 @@ class _SitesTabState extends State<SitesTab> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Строительные площадки из базы данных',
+                          context.watch<LocaleProvider>().t('sites.subtitle') ?? 'Строительные площадки из базы данных',
                           style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
                         ),
                       ],
@@ -156,7 +159,7 @@ class _SitesTabState extends State<SitesTab> {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     icon: const Icon(LucideIcons.plus, color: Colors.white, size: 14),
-                    label: Text('Добавить', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+                    label: Text(context.watch<LocaleProvider>().t('sites.add') ?? 'Добавить', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
                     onPressed: () => _showSiteDialog(),
                   ),
                 ],
@@ -171,7 +174,7 @@ class _SitesTabState extends State<SitesTab> {
                 },
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'Поиск объекта...',
+                  hintText: context.watch<LocaleProvider>().t('sites.search') ?? 'Поиск объекта...',
                   hintStyle: GoogleFonts.inter(color: Colors.white38),
                   prefixIcon: const Icon(LucideIcons.search, color: Colors.white38, size: 18),
                   filled: true,
@@ -196,7 +199,7 @@ class _SitesTabState extends State<SitesTab> {
               ? const Center(child: CircularProgressIndicator(color: Colors.white54))
               : _filteredSites.isEmpty
                   ? Center(
-                      child: Text('Нет объектов', style: GoogleFonts.inter(color: Colors.white54)),
+                      child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Colors.white54)),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -221,7 +224,7 @@ class _SitesTabState extends State<SitesTab> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      site['name'] ?? 'Без названия',
+                                      TransliterationService.transliterateIfNeeded(site['name'] ?? context.watch<LocaleProvider>().t('sites.no_name') ?? 'Без названия', context.read<LocaleProvider>().currentLang),
                                       style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -247,7 +250,7 @@ class _SitesTabState extends State<SitesTab> {
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
-                                        address,
+                                        TransliterationService.transliterateIfNeeded(address, context.read<LocaleProvider>().currentLang),
                                         style: GoogleFonts.inter(color: Colors.cyan[200], fontSize: 13),
                                       ),
                                     ),
@@ -276,7 +279,7 @@ class _SitesTabState extends State<SitesTab> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Сотрудников:',
+                                    context.watch<LocaleProvider>().t('sites.employees') ?? 'Сотрудников:',
                                     style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
                                   ),
                                   Container(

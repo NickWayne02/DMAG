@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -20,7 +22,7 @@ class SessionsTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Текущий сеанс',
+              context.watch<LocaleProvider>().t('sessions.current') ?? 'Текущая сессия',
               style: GoogleFonts.inter(
                 color: Colors.white,
                 fontSize: 16,
@@ -56,7 +58,7 @@ class SessionsTab extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                'Мобильное приложение',
+                                context.watch<LocaleProvider>().t('sessions.mobile') ?? 'Мобильное приложение',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -84,7 +86,7 @@ class SessionsTab extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'В сети',
+                                    context.watch<LocaleProvider>().t('sessions.online') ?? 'В сети',
                                     style: GoogleFonts.inter(
                                       color: const Color(0xFF10b981),
                                       fontSize: 12,
@@ -106,7 +108,7 @@ class SessionsTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Super-Admin',
+                          context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
                           style: GoogleFonts.inter(
                             color: const Color(0xFF64748b), // Slate color
                             fontSize: 14,
@@ -120,7 +122,7 @@ class SessionsTab extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             Text(
-              'Другие сеансы',
+              context.watch<LocaleProvider>().t('sessions.other') ?? 'Другие сессии',
               style: GoogleFonts.inter(
                 color: Colors.white,
                 fontSize: 16,
@@ -129,7 +131,7 @@ class SessionsTab extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Событий нет',
+              context.watch<LocaleProvider>().t('sessions.empty') ?? 'Нет событий',
               style: GoogleFonts.inter(
                 color: Colors.white54,
                 fontSize: 14,

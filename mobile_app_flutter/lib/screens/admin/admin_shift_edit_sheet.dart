@@ -1,3 +1,7 @@
+import '../../utils/transliteration.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../../providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -198,11 +202,11 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
       }
       
       if (mounted) {
-        AppToast.showSuccess(context, 'Смена сохранена');
+        AppToast.showSuccess(context, context.read<LocaleProvider>().t('toast.shift_saved') ?? (context.read<LocaleProvider>().t('toast.shift_saved') ?? 'Смена сохранена'));
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) AppToast.show(context, 'Ошибка сохранения: $e', color: Colors.red);
+      if (mounted) AppToast.show(context, '''${context.read<LocaleProvider>().t('admin.shift.error_save') ?? (context.read<LocaleProvider>().t('admin.shift.error_save') ?? 'Ошибка сохранения: ')}$e''', color: Colors.red);
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -215,11 +219,11 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
       context: context,
       builder: (c) => AlertDialog(
         backgroundColor: const Color(0xFF1E293B), // Match DMAG dark
-        title: Text('Удалить смену?', style: GoogleFonts.inter(color: Colors.white)),
-        content: Text('Это действие нельзя отменить.', style: GoogleFonts.inter(color: Colors.white70)),
+        title: Text(context.watch<LocaleProvider>().t('admin.shift.delete_title') ?? 'Удалить смену?', style: GoogleFonts.inter(color: Colors.white)),
+        content: Text(context.watch<LocaleProvider>().t('admin.shift.delete_msg') ?? 'Это действие нельзя отменить.', style: GoogleFonts.inter(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Отмена', style: TextStyle(color: Colors.white70))),
-          TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Удалить', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: TextStyle(color: Colors.white70))),
+          TextButton(onPressed: () => Navigator.pop(c, true), child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -230,11 +234,11 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
         final shiftId = widget.existingShifts[_currentIndex]['id'];
         await Supabase.instance.client.from('shifts').delete().eq('id', shiftId);
         if (mounted) {
-          AppToast.showSuccess(context, 'Смена удалена');
+          AppToast.showSuccess(context, context.read<LocaleProvider>().t('toast.shift_deleted') ?? (context.read<LocaleProvider>().t('toast.shift_deleted') ?? 'Смена удалена'));
           Navigator.pop(context);
         }
       } catch (e) {
-        if (mounted) AppToast.show(context, 'Ошибка удаления: $e', color: Colors.red);
+        if (mounted) AppToast.show(context, '''${context.read<LocaleProvider>().t('admin.shift.error_delete') ?? (context.read<LocaleProvider>().t('admin.shift.error_delete') ?? 'Ошибка удаления: ')}$e''', color: Colors.red);
       } finally {
         if (mounted) setState(() => _isSaving = false);
       }
@@ -272,12 +276,12 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.existingShifts.isNotEmpty ? 'Редактировать смену' : 'Новая смена',
+                      widget.existingShifts.isNotEmpty ? context.watch<LocaleProvider>().t('shift.edit_title') ?? 'Редактировать смену' : context.watch<LocaleProvider>().t('shift.new_title') ?? 'Новая смена',
                       style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Сотрудник: ${widget.employeeName}',
+                      '''${context.read<LocaleProvider>().t('admin.shift.employee') ?? (context.read<LocaleProvider>().t('admin.shift.employee') ?? 'Сотрудник: ')}${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
                       style: GoogleFonts.inter(fontSize: 13, color: Colors.white54),
                     ),
                   ],
@@ -346,7 +350,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
           const SizedBox(height: 24),
 
           // Object selection
-          Text('Объект', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+          Text(context.watch<LocaleProvider>().t('admin.shift.site') ?? 'Объект', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -360,10 +364,10 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                 value: _selectedSiteId,
                 isExpanded: true,
                 dropdownColor: const Color(0xFF1E293B),
-                hint: Text('— Без объекта —', style: GoogleFonts.inter(color: Colors.white54)),
+                hint: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white54)),
                 icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                 items: [
-                  DropdownMenuItem(value: null, child: Text('— Без объекта —', style: GoogleFonts.inter(color: Colors.white))),
+                  DropdownMenuItem(value: null, child: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white))),
                   ..._sites.map((s) => DropdownMenuItem(
                         value: s['id'] as String,
                         child: Text(s['name'] as String, style: GoogleFonts.inter(color: Colors.white)),
@@ -392,7 +396,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Начало', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(context.watch<LocaleProvider>().t('admin.shift.start') ?? 'Начало', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     BounceButton(
                       onTap: () => _selectDateTime(true),
@@ -414,7 +418,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Конец', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(context.watch<LocaleProvider>().t('admin.shift.end') ?? 'Конец', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     BounceButton(
                       onTap: () => _selectDateTime(false),
@@ -437,7 +441,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
           const SizedBox(height: 16),
 
           // Pause
-          Text('Пауза (минут)', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+          Text(context.watch<LocaleProvider>().t('admin.shift.pause') ?? 'Пауза (минут)', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Container(
             height: 44,
@@ -466,7 +470,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('GPS город (старт)', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(context.watch<LocaleProvider>().t('admin.shift.gps_start') ?? 'GPS город (старт)', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Container(
                       height: 44,
@@ -492,7 +496,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('GPS город (конец)', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(context.watch<LocaleProvider>().t('admin.shift.gps_end') ?? 'GPS город (конец)', style: GoogleFonts.inter(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Container(
                       height: 44,
@@ -537,7 +541,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                         children: [
                           const Icon(LucideIcons.trash_2, color: Colors.white, size: 16),
                           const SizedBox(width: 8),
-                          Text('Удалить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                         ],
                       ),
                     ),
@@ -556,7 +560,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
-                      child: Text('Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                      child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                     ),
                   ),
                 ),
@@ -575,7 +579,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                     child: Center(
                       child: _isSaving
                           ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : Text('Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 14)),
+                          : Text(context.watch<LocaleProvider>().t('calendar.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 14)),
                     ),
                   ),
                 ),

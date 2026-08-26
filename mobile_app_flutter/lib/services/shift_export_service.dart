@@ -31,17 +31,6 @@ class ExportRow {
 }
 
 class ShiftExportService {
-  static final List<String> _headers = [
-    'Дата',
-    'Сотрудник',
-    'Объект',
-    'Начало работы',
-    'Начало паузы',
-    'Конец паузы',
-    'Конец работы',
-    'Пауза (мин)',
-    'Отработано',
-  ];
 
   static String _pad(int n) => n.toString().padLeft(2, '0');
 
@@ -117,14 +106,27 @@ class ShiftExportService {
     }).toList();
   }
 
-  static Future<void> exportExcel(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename) async {
+  static Future<void> exportExcel(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, {required Map<String, String> t}) async {
     final rows = _toExportRows(shifts, employees, sites);
     final excel = Excel.createExcel();
-    final sheet = excel['Смены'];
-    excel.setDefaultSheet('Смены');
+    final sheetName = 'Смены' ?? 'Смены';
+    final sheet = excel[sheetName];
+    excel.setDefaultSheet(sheetName);
+    
+    final List<String> headers = [
+      t['date'] ?? 'Дата',
+      t['employee'] ?? 'Сотрудник',
+      t['site'] ?? 'Объект',
+      t['work_start'] ?? 'Начало работы',
+      t['pause_start'] ?? 'Начало паузы',
+      t['pause_end'] ?? 'Конец паузы',
+      t['work_end'] ?? 'Конец работы',
+      t['pause_mins'] ?? 'Пауза (мин)',
+      t['worked'] ?? 'Отработано',
+    ];
 
     // Headers
-    sheet.appendRow(_headers.map((h) => TextCellValue(h)).toList());
+    sheet.appendRow(headers.map((h) => TextCellValue(h)).toList());
 
     // Rows
     for (var r in rows) {
@@ -147,7 +149,7 @@ class ShiftExportService {
     }
   }
 
-  static Future<void> exportPdf(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, String title) async {
+  static Future<void> exportPdf(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, String title, {required Map<String, String> t}) async {
     final rows = _toExportRows(shifts, employees, sites);
     
     final pdf = pw.Document();
@@ -155,6 +157,18 @@ class ShiftExportService {
     // Load Roboto font from google fonts for Cyrillic support
     final font = await PdfGoogleFonts.robotoRegular();
     final boldFont = await PdfGoogleFonts.robotoBold();
+
+    final List<String> headers = [
+      t['date'] ?? 'Дата',
+      t['employee'] ?? 'Сотрудник',
+      t['site'] ?? 'Объект',
+      t['work_start'] ?? 'Начало работы',
+      t['pause_start'] ?? 'Начало паузы',
+      t['pause_end'] ?? 'Конец паузы',
+      t['work_end'] ?? 'Конец работы',
+      t['pause_mins'] ?? 'Пауза (мин)',
+      t['worked'] ?? 'Отработано',
+    ];
 
     pdf.addPage(
       pw.MultiPage(
@@ -164,10 +178,10 @@ class ShiftExportService {
           return [
             pw.Text(title, style: pw.TextStyle(font: boldFont, fontSize: 18)),
             pw.SizedBox(height: 8),
-            pw.Text('Сформировано: ${DateTime.now().toString()}', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
+            pw.Text('''${'Сформировано' ?? 'Сформировано'}: ${DateTime.now().toString()}''', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
             pw.SizedBox(height: 20),
             pw.TableHelper.fromTextArray(
-              headers: _headers,
+              headers: headers,
               data: rows.map((r) => [
                 r.date,
                 r.employee,

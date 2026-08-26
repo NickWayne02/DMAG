@@ -1,0 +1,116 @@
+mobile_app_flutter\lib\providers\locale_provider.dart:16: {'code': 'ru', 'name': 'Русский', 'flag': '🇷🇺'},
+mobile_app_flutter\lib\providers\locale_provider.dart:20: {'code': 'bg', 'name': 'Български', 'flag': '🇧🇬'},
+mobile_app_flutter\lib\providers\locale_provider.dart:22: {'code': 'uk', 'name': 'Українська', 'flag': '🇺🇦'},
+mobile_app_flutter\lib\providers\locale_provider.dart:24: {'code': 'tg', 'name': 'Тоҷикӣ', 'flag': '🇹🇯'},
+mobile_app_flutter\lib\screens\admin\admin_calendar_dialog.dart:148: 'Календарь — ${widget.employeeName}',
+mobile_app_flutter\lib\screens\admin\admin_calendar_dialog.dart:186: children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d) => Expanded(
+mobile_app_flutter\lib\screens\admin\admin_dashboard_screen.dart:86: tooltip: 'Вернуться в режим сотрудника',
+mobile_app_flutter\lib\screens\admin\admin_editable_calendar_dialog.dart:125: const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+mobile_app_flutter\lib\screens\admin\admin_editable_calendar_dialog.dart:171: _buildMonthNavButton('Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
+mobile_app_flutter\lib\screens\admin\admin_editable_calendar_dialog.dart:176: _buildMonthNavButton('След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
+mobile_app_flutter\lib\screens\admin\admin_editable_calendar_dialog.dart:182: children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) {
+mobile_app_flutter\lib\screens\admin\admin_shift_edit_sheet.dart:203: AppToast.showSuccess(context, 'Смена сохранена');
+mobile_app_flutter\lib\screens\admin\admin_shift_edit_sheet.dart:207: if (mounted) AppToast.show(context, 'Ошибка сохранения: $e', color: Colors.red);
+mobile_app_flutter\lib\screens\admin\admin_shift_edit_sheet.dart:235: AppToast.showSuccess(context, 'Смена удалена');
+mobile_app_flutter\lib\screens\admin\admin_shift_edit_sheet.dart:239: if (mounted) AppToast.show(context, 'Ошибка удаления: $e', color: Colors.red);
+mobile_app_flutter\lib\screens\admin\admin_shift_edit_sheet.dart:277: widget.existingShifts.isNotEmpty ? 'Редактировать смену' : 'Новая смена',
+mobile_app_flutter\lib\screens\admin\admin_shift_edit_sheet.dart:282: 'Сотрудник: ${widget.employeeName}',
+mobile_app_flutter\lib\screens\admin\dialogs\add_shift_dialog.dart:125: if (d == null) return 'ДД.ММ.ГГГГ --:--';
+mobile_app_flutter\lib\screens\admin\dialogs\add_site_dialog.dart:59: throw Exception('Службы геолокации отключены.');
+mobile_app_flutter\lib\screens\admin\dialogs\add_site_dialog.dart:66: throw Exception('Доступ к геолокации запрещен.');
+mobile_app_flutter\lib\screens\admin\dialogs\add_site_dialog.dart:71: throw Exception('Доступ к геолокации запрещен навсегда.');
+mobile_app_flutter\lib\screens\admin\dialogs\add_site_dialog.dart:98: if (user == null) throw Exception('Пользователь не авторизован');
+mobile_app_flutter\lib\screens\admin\dialogs\readonly_calendar_dialog.dart:85: const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+mobile_app_flutter\lib\screens\admin\dialogs\readonly_calendar_dialog.dart:116: 'Календарь смен - ${widget.employeeName}',
+mobile_app_flutter\lib\screens\admin\dialogs\readonly_calendar_dialog.dart:122: 'Отработано за месяц: ${_isLoading ? '...' : _formatHM(_totalWorkedMsMonth)}',
+mobile_app_flutter\lib\screens\admin\dialogs\readonly_calendar_dialog.dart:162: children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) {
+mobile_app_flutter\lib\screens\admin\dialogs\readonly_calendar_dialog.dart:214: timesText = '$startStr-\nАктивна';
+mobile_app_flutter\lib\screens\admin\dialogs\readonly_calendar_dialog.dart:227: durationText = '${hours}ч ${mins}м';
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:317: final employee = _employees.firstWhere((e) => e['id'] == shift['user_id'], orElse: () => {'full_name': 'Неизвестно'});
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:507: _buildInputLabel('Объект'),
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:539: _buildInputLabel('Начало'),
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:552: _buildInputLabel('Конец'),
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:564: _buildInputLabel('Пауза (минут)'),
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:589: _buildInputLabel('GPS город (старт)'),
+mobile_app_flutter\lib\screens\admin\tabs\calendar_tab.dart:613: _buildInputLabel('GPS город (конец)'),
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:51: 'Окончание смены',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:53: '22 авг., 19:58',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:59: 'Начало смены',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:61: '22 авг., 19:58',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:67: 'Окончание смены',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:69: '22 авг., 19:53',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:75: 'Начало смены',
+mobile_app_flutter\lib\screens\admin\tabs\dashboard_tab.dart:77: '22 авг., 19:52',
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:103: final name = p['full_name'] ?? p['email'] ?? p['phone'] ?? 'Без имени';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:186: case 'super_admin': return 'Супер-админ';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:187: case 'admin': return 'Админ';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:188: case 'brigadier': return 'Бригадир';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:189: default: return 'Сотрудник';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:204: case 'working': return 'На смене';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:205: case 'lunch': return 'На паузе';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:206: case 'finished': return 'Завершена';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:230: 'Мониторинг сотрудников',
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:235: 'Статус смены и время фиксации',
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:515: _buildStatItem('Начало', emp.startedAt),
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:516: _buildStatItem('Работа', _formatHM(emp.workedMs)),
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:517: _buildStatItem('Пауза', _formatHM(emp.lunchMs)),
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:699: final baseName = 'Отчёт_${now.day}_${now.month}_${now.year}';
+mobile_app_flutter\lib\screens\admin\tabs\personnel_tab.dart:704: await ShiftExportService.exportPdf(shifts, empsList, _sites, '$baseName.pdf', 'Отчёт по сменам (30 дней)');
+mobile_app_flutter\lib\screens\admin\tabs\reports_tab.dart:16: String _selectedSite = 'Все объекты';
+mobile_app_flutter\lib\screens\admin\tabs\reports_tab.dart:17: String _selectedTime = 'За всё время';
+mobile_app_flutter\lib\screens\admin\tabs\reports_tab.dart:19: final List<String> _sites = ['Все объекты', 'Bellershausen', 'Светловодск', 'Giengen', 'Freudenberg'];
+mobile_app_flutter\lib\screens\admin\tabs\reports_tab.dart:20: final List<String> _times = ['За всё время', 'За сегодня', 'За неделю', 'За месяц'];
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:214: foregroundColor: Colors.black, // Black text like other buttons, wait the screenshot shows white/dark text? Actually in screenshot text is dark (almost black) on Slate. No, wait. "Создать" has dark text in the screenshot. Let me check the screenshot carefully. The text is dark gray/black.
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:254: name: 'Евгений Хань',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:256: initials: 'ЕВ', // Actually it's ЕХ, but in screenshot it's ЕВ maybe from Evgeny?
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:257: lastLogin: '1 авг., 22:52',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:260: name: 'Оскар Ткаченко',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:262: initials: 'ОС', // maybe OSkar?
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:263: lastLogin: '7 авг., 21:34',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:266: name: 'Владислав',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:268: initials: 'ВЛ',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:270: lastLogin: '9 авг., 13:12',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:273: name: 'Руслан Ткаченко',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:275: initials: 'РТ',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:277: lastLogin: '22 авг., 13:26',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:280: name: 'Евгений Костин',
+mobile_app_flutter\lib\screens\admin\tabs\users_tab.dart:282: initials: 'ЕК',
+mobile_app_flutter\lib\screens\chat_screen.dart:25: String _activeChannelTitle = 'Общий чат команды';
+mobile_app_flutter\lib\screens\chat_screen.dart:349: .or('content.like.%[ФОТО_ОТЧЕТ]%,content.like.%[PHOTO_REPORT]%')
+mobile_app_flutter\lib\screens\chat_screen.dart:901: final isPhotoReport = content.startsWith('[ФОТО_ОТЧЕТ]') || content.startsWith('[PHOTO_REPORT]');
+mobile_app_flutter\lib\screens\dashboard_screen.dart:719: 'Коммерческие часы: ${_formatHM(shift.workMs)}',
+mobile_app_flutter\lib\screens\photo_report_sheet.dart:68: 'info': {'label': 'Информация', 'color': const Color(0xFF4CAF50), 'icon': LucideIcons.info},
+mobile_app_flutter\lib\screens\photo_report_sheet.dart:69: 'important': {'label': 'Важно', 'color': const Color(0xFFFFB300), 'icon': LucideIcons.triangle_alert},
+mobile_app_flutter\lib\screens\photo_report_sheet.dart:70: 'urgent': {'label': 'Срочно', 'color': const Color(0xFFF44336), 'icon': LucideIcons.circle_alert},
+mobile_app_flutter\lib\screens\photo_report_sheet.dart:138: 'content': '[ФОТО_ОТЧЕТ] $photoUrl | $desc',
+mobile_app_flutter\lib\screens\settings_sheet.dart:514: Icon(label.contains('Размер') ? LucideIcons.type : LucideIcons.ruler, color: colors.foreground, size: 18),
+mobile_app_flutter\lib\services\shift_export_service.dart:52: return '${(minutes / 60).floor()}ч ${_pad(minutes % 60)}м';
+mobile_app_flutter\lib\services\shift_export_service.dart:112: final sheetName = 'Смены' ?? 'Смены';
+mobile_app_flutter\lib\services\shift_export_service.dart:117: t['date'] ?? 'Дата',
+mobile_app_flutter\lib\services\shift_export_service.dart:118: t['employee'] ?? 'Сотрудник',
+mobile_app_flutter\lib\services\shift_export_service.dart:119: t['site'] ?? 'Объект',
+mobile_app_flutter\lib\services\shift_export_service.dart:120: t['work_start'] ?? 'Начало работы',
+mobile_app_flutter\lib\services\shift_export_service.dart:121: t['pause_start'] ?? 'Начало паузы',
+mobile_app_flutter\lib\services\shift_export_service.dart:122: t['pause_end'] ?? 'Конец паузы',
+mobile_app_flutter\lib\services\shift_export_service.dart:123: t['work_end'] ?? 'Конец работы',
+mobile_app_flutter\lib\services\shift_export_service.dart:124: t['pause_mins'] ?? 'Пауза (мин)',
+mobile_app_flutter\lib\services\shift_export_service.dart:125: t['worked'] ?? 'Отработано',
+mobile_app_flutter\lib\services\shift_export_service.dart:162: t['date'] ?? 'Дата',
+mobile_app_flutter\lib\services\shift_export_service.dart:163: t['employee'] ?? 'Сотрудник',
+mobile_app_flutter\lib\services\shift_export_service.dart:164: t['site'] ?? 'Объект',
+mobile_app_flutter\lib\services\shift_export_service.dart:165: t['work_start'] ?? 'Начало работы',
+mobile_app_flutter\lib\services\shift_export_service.dart:166: t['pause_start'] ?? 'Начало паузы',
+mobile_app_flutter\lib\services\shift_export_service.dart:167: t['pause_end'] ?? 'Конец паузы',
+mobile_app_flutter\lib\services\shift_export_service.dart:168: t['work_end'] ?? 'Конец работы',
+mobile_app_flutter\lib\services\shift_export_service.dart:169: t['pause_mins'] ?? 'Пауза (мин)',
+mobile_app_flutter\lib\services\shift_export_service.dart:170: t['worked'] ?? 'Отработано',
+mobile_app_flutter\lib\utils\transliteration.dart:2: 'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
+mobile_app_flutter\lib\utils\transliteration.dart:3: 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+mobile_app_flutter\lib\utils\transliteration.dart:4: 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+mobile_app_flutter\lib\utils\transliteration.dart:5: 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+mobile_app_flutter\lib\utils\transliteration.dart:6: 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+mobile_app_flutter\lib\utils\transliteration.dart:12: 'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'E',
+mobile_app_flutter\lib\utils\transliteration.dart:13: 'Ж': 'Zh', 'З': 'Z', 'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M',
+mobile_app_flutter\lib\utils\transliteration.dart:14: 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U',
+mobile_app_flutter\lib\utils\transliteration.dart:15: 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch',
+mobile_app_flutter\lib\utils\transliteration.dart:16: 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya',

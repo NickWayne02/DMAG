@@ -1,3 +1,5 @@
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -23,17 +25,7 @@ class LanguageSheet extends StatelessWidget {
     final colors = theme.appColors;
     final localeProvider = context.watch<LocaleProvider>();
 
-    final languages = [
-      {'code': 'RU', 'name': 'Русский', 'flag': '🇷🇺'},
-      {'code': 'GB', 'name': 'English', 'flag': '🇬🇧'},
-      {'code': 'DE', 'name': 'Deutsch', 'flag': '🇩🇪'},
-      {'code': 'RO', 'name': 'Română', 'flag': '🇷🇴'},
-      {'code': 'BG', 'name': 'Български', 'flag': '🇧🇬'},
-      {'code': 'PL', 'name': 'Polski', 'flag': '🇵🇱'},
-      {'code': 'UA', 'name': 'Українська', 'flag': '🇺🇦'},
-      {'code': 'UZ', 'name': 'O\'zbekcha', 'flag': '🇺🇿'},
-      {'code': 'TJ', 'name': 'Тоҷикӣ', 'flag': '🇹🇯'},
-    ];
+    final languages = LocaleProvider.languages;
 
     return Container(
       decoration: BoxDecoration(
@@ -66,7 +58,7 @@ class LanguageSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  localeProvider.t('header.language') ?? 'Язык',
+                  localeProvider.t('header.language') ?? localeProvider.t('header.language') ?? 'Язык',
                   style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -85,10 +77,10 @@ class LanguageSheet extends StatelessWidget {
               itemCount: languages.length,
               itemBuilder: (context, index) {
                 final lang = languages[index];
-                final isActive = lang['code']!.toLowerCase() == localeProvider.currentLang;
+                final isActive = lang['code'] == localeProvider.currentLang;
                 return InkWell(
                   onTap: () {
-                    localeProvider.setLanguage(lang['code']!.toLowerCase());
+                    localeProvider.setLanguage(lang['code']!);
                     Navigator.pop(context);
                   },
                   child: Padding(

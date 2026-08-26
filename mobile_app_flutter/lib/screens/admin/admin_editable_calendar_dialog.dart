@@ -1,4 +1,7 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
+import '../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -122,7 +125,8 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
 
   @override
   Widget build(BuildContext context) {
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    final monthsStr = context.watch<LocaleProvider>().t('calendar.months') ?? 'Январь,Февраль,Март,Апрель,Май,Июнь,Июль,Август,Сентябрь,Октябрь,Ноябрь,Декабрь';
+    final months = monthsStr.split(',');
     final monthStr = '${months[_currentDate.month - 1]} ${_currentDate.year}';
 
     int daysInMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0).day;
@@ -152,9 +156,9 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Управление сменами · ${widget.employeeName}', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('${context.watch<LocaleProvider>().t('calendar.manage_shifts') ?? 'Управление сменами'} · ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text('Нажмите на любой день, чтобы добавить или отредактировать смену.', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
+                      Text(context.watch<LocaleProvider>().t('calendar.click_to_edit') ?? 'Нажмите на любой день, чтобы добавить или отредактировать смену.', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -168,18 +172,18 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildMonthNavButton('Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
+                _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.prev') ?? 'Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
                 Text(
                   monthStr,
                   style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                _buildMonthNavButton('След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
+                _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.next') ?? 'След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
               ],
             ),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) {
+              children: (context.watch<LocaleProvider>().t('calendar.days_short') ?? 'Пн,Вт,Ср,Чт,Пт,Сб,Вс').split(',').map((day) {
                 return Expanded(
                   child: Center(
                     child: Text(day, style: GoogleFonts.inter(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold)),
@@ -228,7 +232,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
         if (hasShifts) {
           _showEditShiftModal(context, dayShifts.first);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('В этот день нет смен')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('calendar.no_shifts') ?? 'В этот день нет смен')));
         }
       },
       child: Container(
@@ -280,7 +284,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
         children: [
           Text(stStr, style: GoogleFonts.inter(color: Colors.white54, fontSize: 10)),
           const SizedBox(height: 2),
-          Text('${hours}ч\n${mins}м', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, height: 1.1)),
+          Text('${hours}${context.watch<LocaleProvider>().t('history.h') ?? 'ч'}\n${mins}${context.watch<LocaleProvider>().t('history.m') ?? 'м'}', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, height: 1.1)),
         ],
       ),
     );

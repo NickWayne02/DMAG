@@ -1,5 +1,7 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
@@ -364,7 +366,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       Text(
                                         shift.selectedSite != null 
                                             ? (shift.selectedSite!['address'] ?? shift.selectedSite!['name'])
-                                            : 'Не выбран — нажмите, чтобы выбрать',
+                                            : context.watch<LocaleProvider>().t('dashboard.site_not_selected') ?? 'Не выбран — нажмите, чтобы выбрать',
                                         style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 11),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -421,25 +423,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.3), fontSize: 12),
                             children: [
                               TextSpan(text: 'DMAG', style: TextStyle(fontWeight: FontWeight.bold, color: colors.foreground)),
-                              const TextSpan(text: ' © 2026 Все права защищены'),
+                              TextSpan(text: ' © 2026 ${context.watch<LocaleProvider>().t('footer.copyright') ?? 'Все права защищены'}'),
                             ],
                           ),
                         ),
                         const SizedBox(height: 12),
                         BounceButton(
                           onTap: () => FooterSheets.showPrivacyPolicy(context),
-                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Политика конфиденциальности', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text(context.watch<LocaleProvider>().t('footer.privacy') ?? 'Политика конфиденциальности', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
                         ),
                         BounceButton(
                           onTap: () => FooterSheets.showTermsOfService(context),
-                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Условия использования', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text(context.watch<LocaleProvider>().t('footer.terms') ?? 'Условия использования', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
                         ),
                         BounceButton(
                           onTap: () => FooterSheets.showSupport(context),
-                          child: Padding(padding: const EdgeInsets.all(4), child: Text('Служба поддержки', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
+                          child: Padding(padding: const EdgeInsets.all(4), child: Text(context.watch<LocaleProvider>().t('footer.support') ?? 'Служба поддержки', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12))),
                         ),
                         const SizedBox(height: 16),
-                        Text('Версия 2.0.1', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.24), fontSize: 10)),
+                        Text('${context.watch<LocaleProvider>().t('footer.version') ?? 'Версия '}2.0.1', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.24), fontSize: 10)),
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -456,10 +458,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildHeader(BuildContext context, String name, String role, bool canSwitchToAdmin) {
     String getRoleLabel() {
       switch(role) {
-        case 'super_admin': return 'Супер-админ';
-        case 'admin': return 'Администратор';
-        case 'brigadier': return 'Бригадир';
-        default: return 'Сотрудник';
+        case 'super_admin': return context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ';
+        case 'admin': return context.watch<LocaleProvider>().t('role.admin') ?? 'Администратор';
+        case 'brigadier': return context.watch<LocaleProvider>().t('role.brigadier') ?? 'Бригадир';
+        default: return context.watch<LocaleProvider>().t('role.employee') ?? 'Сотрудник';
       }
     }
 
@@ -501,7 +503,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     Icon(LucideIcons.globe, color: colors.foreground.withOpacity(0.54), size: 14),
                     const SizedBox(width: 4),
-                    Text('RU', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(context.watch<LocaleProvider>().currentLang.toUpperCase(), style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -571,7 +573,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      name,
+                      TransliterationService.transliterateIfNeeded(name, context.watch<LocaleProvider>().currentLang),
                       style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -707,7 +709,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 Text(
-                  'Коммерческие часы: ${_formatHM(shift.workMs)}',
+                  '\$\{context.watch<LocaleProvider>().t(\'dashboard.commercial_hours\') ?? \'Коммерческие часы: \'}${_formatHM(shift.workMs)}',
                   style: GoogleFonts.inter(
                     color: Theme.of(context).appColors.muted,
                     fontSize: 12,
@@ -742,6 +744,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       displayName = shift.userProfile?['start_city'] ?? site['name'] as String;
     }
 
+    double lat = 0.0;
+    double lon = 0.0;
+    if (address.startsWith('GPS: ')) {
+      final parts = address.replaceFirst('GPS: ', '').split(',');
+      if (parts.length >= 2) {
+        lat = double.tryParse(parts[0].trim()) ?? 0.0;
+        lon = double.tryParse(parts[1].trim()) ?? 0.0;
+      }
+    }
+
     return NeonCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Column(
@@ -755,7 +767,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Местоположение', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(context.watch<LocaleProvider>().t('dashboard.location') ?? 'Местоположение', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.54), fontSize: 12, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(
                       displayName,
@@ -767,6 +779,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           const SizedBox(height: 16),
+          if (lat != 0.0 && lon != 0.0)
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colors.border),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(lat, lon),
+                    zoom: 14.0,
+                  ),
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('current_location'),
+                      position: LatLng(lat, lon),
+                      infoWindow: InfoWindow(title: displayName),
+                    ),
+                  },
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                ),
+              ),
+            ),
+          if (lat != 0.0 && lon != 0.0)
+            const SizedBox(height: 16),
           BounceButton(
             onTap: () {
               final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
@@ -784,7 +826,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Icon(LucideIcons.map, color: colors.foreground, size: 18),
                   const SizedBox(width: 8),
-                  Text('Открыть в Google Картах', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                  Text(context.watch<LocaleProvider>().t('dashboard.open_maps') ?? 'Открыть в Google Картах', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),

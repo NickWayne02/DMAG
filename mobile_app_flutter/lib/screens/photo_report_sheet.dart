@@ -1,3 +1,5 @@
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -80,18 +82,18 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
         });
       }
     } catch (e) {
-      AppToast.show(context, 'Ошибка при выборе фото', color: Colors.red);
+      AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_photo') ?? 'Ошибка при выборе фото', color: Colors.red);
     }
   }
 
   Future<void> _submit() async {
     if (widget.site == null) {
-      AppToast.show(context, 'Сначала выберите объект на главном экране', color: Colors.red);
+      AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_site') ?? 'Сначала выберите объект на главном экране', color: Colors.red);
       return;
     }
     
     if (_selectedImage == null && _descController.text.trim().isEmpty) {
-      AppToast.show(context, 'Добавьте фото или описание', color: Colors.red);
+      AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_desc') ?? 'Добавьте фото или описание', color: Colors.red);
       return;
     }
 
@@ -99,10 +101,10 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) throw Exception('Пользователь не авторизован');
+      if (user == null) throw Exception(context.watch<LocaleProvider>().t('photo_report.error_auth') ?? 'Пользователь не авторизован');
       
       final shift = context.read<ShiftProvider>();
-      final authorName = shift.userProfile?['full_name'] ?? user.email ?? 'Сотрудник';
+      final authorName = shift.userProfile?['full_name'] ?? user.email ?? context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник';
 
       String? photoUrl;
 
@@ -139,12 +141,12 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
       }
 
       if (mounted) {
-        AppToast.showSuccess(context, 'Фотоотчет отправлен');
+        AppToast.showSuccess(context, context.watch<LocaleProvider>().t('photo_report.success') ?? 'Фотоотчет отправлен');
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        AppToast.show(context, 'Ошибка: ${e.toString()}', color: Colors.red);
+        AppToast.show(context, '''${context.watch<LocaleProvider>().t('photo_report.error_send') ?? 'Ошибка отправки'}: ${e.toString()}''', color: Colors.red);
       }
     } finally {
       if (mounted) {
@@ -209,6 +211,16 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, Map<String, dynamic>> _criticalityOptions = {
+      'info': {'label': 'Информация', 'color': const Color(0xFF4CAF50), 'icon': LucideIcons.info},
+      'important': {'label': 'Важно', 'color': const Color(0xFFFFB300), 'icon': LucideIcons.triangle_alert},
+      'urgent': {'label': 'Срочно', 'color': const Color(0xFFF44336), 'icon': LucideIcons.circle_alert},
+    };
+    final Map<String, dynamic> _types = {
+      'info': {'label': 'Информация', 'color': const Color(0xFF4CAF50), 'icon': LucideIcons.info},
+      'important': {'label': 'Важно', 'color': const Color(0xFFFFB300), 'icon': LucideIcons.triangle_alert},
+      'urgent': {'label': 'Срочно', 'color': const Color(0xFFF44336), 'icon': LucideIcons.circle_alert},
+    };
     final colors = Theme.of(context).appColors;
 
     return Container(
@@ -236,7 +248,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Новый фотоотчет',
+                        context.watch<LocaleProvider>().t('photo_report.title_new') ?? 'Новый фотоотчет',
                         style: GoogleFonts.inter(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -245,7 +257,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                       ),
                       if (widget.site != null)
                         Text(
-                          'Объект: ${widget.site!['name'] ?? widget.site!['address']}',
+                          '''${context.watch<LocaleProvider>().t('photo_report.site') ?? 'Объект'}: ${widget.site!['name'] ?? widget.site!['address']}''',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: colors.foreground.withOpacity(0.6),
@@ -255,7 +267,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                         )
                       else
                         Text(
-                          'Сначала выберите объект на главном экране',
+                          context.watch<LocaleProvider>().t('photo_report.error_site') ?? 'Сначала выберите объект на главном экране',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: Colors.redAccent,
@@ -299,7 +311,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                                 children: [
                                   Icon(LucideIcons.camera, color: colors.foreground, size: 28),
                                   const SizedBox(height: 8),
-                                  Text('Снимок', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
+                                  Text(context.watch<LocaleProvider>().t('photo_report.camera') ?? 'Снимок', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
                                 ],
                               ),
                             ),
@@ -321,7 +333,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                                 children: [
                                   Icon(LucideIcons.image_plus, color: colors.foreground, size: 28),
                                   const SizedBox(height: 8),
-                                  Text('Галерея', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
+                                  Text(context.watch<LocaleProvider>().t('photo_report.gallery') ?? 'Галерея', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
                                 ],
                               ),
                             ),
@@ -368,14 +380,14 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                   const SizedBox(height: 24),
                   
                   // Description
-                  Text('Описание', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w500, fontSize: 14)),
+                  Text(context.watch<LocaleProvider>().t('photo_report.desc_title') ?? 'Описание', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w500, fontSize: 14)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _descController,
                     maxLines: 4,
                     style: GoogleFonts.inter(color: colors.foreground, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Введите описание проблемы или отчета...',
+                      hintText: context.watch<LocaleProvider>().t('photo_report.desc_hint') ?? 'Введите описание проблемы или отчета...',
                       hintStyle: GoogleFonts.inter(color: colors.foreground.withOpacity(0.4), fontSize: 14),
                       filled: true,
                       fillColor: colors.background,
@@ -397,7 +409,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                   const SizedBox(height: 24),
                   
                   // Criticality
-                  Text('Важность', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w500, fontSize: 14)),
+                  Text(context.watch<LocaleProvider>().t('photo_report.importance') ?? 'Важность', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w500, fontSize: 14)),
                   const SizedBox(height: 8),
                   _buildCriticalitySelector(colors),
 
@@ -433,7 +445,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                           Icon(LucideIcons.send, color: colors.primaryForeground, size: 18),
                           const SizedBox(width: 8),
                           Text(
-                            'Отправить отчет',
+                            context.watch<LocaleProvider>().t('photo_report.btn_send') ?? 'Отправить отчет',
                             style: GoogleFonts.inter(
                               color: colors.primaryForeground,
                               fontWeight: FontWeight.bold,

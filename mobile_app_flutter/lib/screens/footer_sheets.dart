@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import '../providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -8,15 +10,15 @@ class FooterSheets {
   static Future<void> showPrivacyPolicy(BuildContext context) {
     return _showSheet(
       context,
-      'Политика конфиденциальности',
+      context.read<LocaleProvider>().t('footer.privacy') ?? 'Политика конфиденциальности',
       [
-        const TextSpan(text: 'Настоящая Политика конфиденциальности описывает, как DMAG собирает, использует и защищает вашу личную информацию при использовании нашей платформы.\n\n'),
-        const TextSpan(text: '1. Сбор данных\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const TextSpan(text: 'Мы собираем данные о вашем местоположении (GPS) исключительно в рабочее время для построения маршрутов и оптимизации логистики. Данные геопозиции не собираются во время перерывов на обед и после завершения смены.\n\n'),
-        const TextSpan(text: '2. Использование фотоотчётов\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const TextSpan(text: 'Фотографии, загруженные через систему фотоотчётов, привязываются к конкретным объектам и используются только в рамках рабочих процессов и контроля качества.\n\n'),
-        const TextSpan(text: '3. Безопасность\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        const TextSpan(text: 'Мы применяем современные стандарты шифрования для защиты вашей учётной записи и персональных данных.\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_desc') ?? 'Настоящая Политика конфиденциальности...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_1') ?? '1. Сбор данных'}''' + '\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_1_desc') ?? 'Мы собираем данные...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_2') ?? '2. Использование фотоотчётов'}''' + '\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_2_desc') ?? 'Фотографии, загруженные...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_3') ?? '3. Безопасность'}''' + '\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.privacy_3_desc') ?? 'Мы применяем...'}''' + '\n'),
       ]
     );
   }
@@ -24,13 +26,13 @@ class FooterSheets {
   static Future<void> showTermsOfService(BuildContext context) {
     return _showSheet(
       context,
-      'Условия использования',
+      context.read<LocaleProvider>().t('footer.terms') ?? 'Условия использования',
       [
-        const TextSpan(text: 'Используя корпоративный портал DMAG, вы соглашаетесь с внутренними правилами компании и настоящими условиями.\n\n'),
-        const TextSpan(text: '• Сотрудник обязан своевременно отмечать начало и конец смены.\n\n'),
-        const TextSpan(text: '• Отчёты по объектам должны загружаться непосредственно с места выполнения работ.\n\n'),
-        const TextSpan(text: '• Запрещается передача учётных данных третьим лицам.\n\n'),
-        const TextSpan(text: 'Нарушение данных условий может привести к дисциплинарным взысканиям в соответствии с корпоративной политикой.\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.terms_desc') ?? 'Используя корпоративный портал...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.terms_1') ?? '• Сотрудник обязан...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.terms_2') ?? '• Отчёты по объектам...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.terms_3') ?? '• Запрещается...'}''' + '\n\n'),
+        TextSpan(text: '''${context.watch<LocaleProvider>().t('footer.terms_concl') ?? 'Нарушение данных условий...'}''' + '\n'),
       ]
     );
   }
@@ -62,7 +64,7 @@ class FooterSheets {
                 ),
               ),
               const SizedBox(height: 8),
-              Text('Нужна помощь?', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: colors.foreground)),
+              Text(context.read<LocaleProvider>().t('support.title') ?? 'Нужна помощь?', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: colors.foreground)),
               const SizedBox(height: 24),
               Container(
                 width: 64,
@@ -75,10 +77,10 @@ class FooterSheets {
                 child: Icon(LucideIcons.phone, color: primary, size: 32),
               ),
               const SizedBox(height: 24),
-              Text('Нужна помощь?', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: colors.foreground)),
+              Text(context.read<LocaleProvider>().t('support.title') ?? 'Нужна помощь?', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: colors.foreground)),
               const SizedBox(height: 12),
               Text(
-                'Свяжитесь с диспетчерской или вашим куратором для решения технических проблем.',
+                context.watch<LocaleProvider>().t('support.desc') ?? 'Свяжитесь с диспетчерской или вашим куратором для решения технических проблем.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(fontSize: 14, color: colors.foreground.withOpacity(0.7)),
               ),
@@ -97,7 +99,7 @@ class FooterSheets {
                   ),
                   child: Column(
                     children: [
-                      Text('Горячая линия (24/7)', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground)),
+                      Text(context.watch<LocaleProvider>().t('support.hotline') ?? 'Горячая линия (24/7)', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground)),
                       const SizedBox(height: 8),
                       Text('+49 800 123 4567', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: colors.foreground)),
                     ],

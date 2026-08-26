@@ -1,4 +1,6 @@
+import '../../../utils/transliteration.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'tabs/dashboard_tab.dart';
@@ -13,6 +15,7 @@ import '../../services/auth_service.dart';
 import '../dashboard_screen.dart';
 import '../settings_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../providers/shift_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../theme/app_theme.dart';
@@ -82,7 +85,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         actions: [
           IconButton(
             icon: Icon(LucideIcons.arrow_left, color: colors.foreground.withOpacity(0.54), size: 20),
-            tooltip: 'Вернуться в режим сотрудника',
+            tooltip: context.watch<LocaleProvider>().t('dashboard.back_to_employee') ?? 'Вернуться в режим сотрудника',
             onPressed: () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const DashboardScreen()),

@@ -1,4 +1,7 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
+import '../../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -80,7 +83,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
 
   @override
   Widget build(BuildContext context) {
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    final months = (context.watch<LocaleProvider>().t('calendar.months') ?? 'Январь,Февраль,Март,Апрель,Май,Июнь,Июль,Август,Сентябрь,Октябрь,Ноябрь,Декабрь').split(',');
     final monthStr = '${months[_currentDate.month - 1]} ${_currentDate.year}';
 
     int daysInMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0).day;
@@ -111,7 +114,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Календарь смен - ${widget.employeeName}',
+                        '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${TransliterationService.transliterateIfNeeded(TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang), context.read<LocaleProvider>().currentLang)}''',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
@@ -157,7 +160,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) {
+              children: (context.watch<LocaleProvider>().t('calendar.days_short') ?? 'Пн,Вт,Ср,Чт,Пт,Сб,Вс').split(',').map((day) {
                 return SizedBox(
                   width: 36,
                   child: Center(
@@ -209,7 +212,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                     String endStr = '—';
                     
                     if (primaryShift['ended_at'] == null) {
-                      timesText = '$startStr-\nАктивна';
+                      timesText = '''$startStr-\n${context.read<LocaleProvider>().t('admin.calendar.active') ?? 'Активна'}''';
                       durationText = '...';
                     } else {
                       final end = DateTime.parse(primaryShift['ended_at']).toLocal();
@@ -222,7 +225,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                       
                       final hours = workMs ~/ 3600000;
                       final mins = (workMs % 3600000) ~/ 60000;
-                      durationText = '${hours}ч ${mins}м';
+                      durationText = '${hours}${context.watch<LocaleProvider>().t(\'history.h\') ?? \'ч\'} ${mins}${context.watch<LocaleProvider>().t(\'history.m\') ?? \'м\'}';
                     }
                   }
                   

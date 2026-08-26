@@ -1,3 +1,6 @@
+import '../../../utils/transliteration.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -82,7 +85,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
 
   Future<void> _save() async {
     if (_selectedEmployeeId == null || _startedAt == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Выберите сотрудника и время начала')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('admin.shift.error_empty') ?? 'Выберите сотрудника и время начала')));
       return;
     }
     
@@ -111,7 +114,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
       widget.onSaved();
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка создания: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<LocaleProvider>().t('admin.shift.error_create') ?? 'Ошибка создания:'} $e')));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -120,7 +123,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
   @override
   Widget build(BuildContext context) {
     String formatDate(DateTime? d) {
-      if (d == null) return 'ДД.ММ.ГГГГ --:--';
+      if (d == null) return context.watch<LocaleProvider>().t('dashboard.date_format_placeholder') ?? 'ДД.ММ.ГГГГ --:--';
       return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} '
              '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
     }
@@ -155,11 +158,11 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Добавить смену', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(context.watch<LocaleProvider>().t('add_shift.title') ?? context.watch<LocaleProvider>().t('add_shift.title') ?? 'Добавить смену', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                       if (selectedEmpName.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4.0),
-                          child: Text('Сотрудник: $selectedEmpName', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
+                          child: Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(selectedEmpName!, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
                         ),
                     ],
                   ),
@@ -171,7 +174,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
               ),
               const SizedBox(height: 24),
               
-              Text('Сотрудник', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('calendar.employee') ?? context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 height: 44,
@@ -189,7 +192,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                     style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                     items: widget.employees.map((e) {
-                      String role = e['role'] == 'super_admin' ? 'Супер-админ' : (e['role'] == 'admin' ? 'Админ' : (e['role'] == 'brigadier' ? 'Бригадир' : 'Сотрудник'));
+                      String role = e['role'] == 'super_admin' ? context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ' : (e['role'] == 'admin' ? 'Админ' : (e['role'] == 'brigadier' ? context.watch<LocaleProvider>().t('role.brigadier') ?? 'Бригадир' : context.watch<LocaleProvider>().t('calendar.employee') ?? context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник'));
                       return DropdownMenuItem<String>(
                         value: e['id'],
                         child: Text('${e['full_name']} · $role'),
@@ -201,7 +204,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
               ),
               
               const SizedBox(height: 16),
-              Text('Объект', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('calendar.site') ?? context.watch<LocaleProvider>().t('calendar.site') ?? 'Объект', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 height: 44,
@@ -214,13 +217,13 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedSiteId,
-                    hint: Text('— Без объекта —', style: GoogleFonts.inter(color: Colors.white)),
+                    hint: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white)),
                     isExpanded: true,
                     dropdownColor: const Color(0xFF1E293B),
                     icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                     style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                     items: [
-                      const DropdownMenuItem<String>(value: null, child: Text('— Без объекта —')),
+                      DropdownMenuItem<String>(value: null, child: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —')),
                       ...widget.sites.map((s) => DropdownMenuItem<String>(
                         value: s['id'],
                         child: Text(s['name']),
@@ -238,7 +241,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Начало', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.start') ?? context.watch<LocaleProvider>().t('calendar.start') ?? 'Начало', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, true),
@@ -261,7 +264,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Конец', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.end') ?? context.watch<LocaleProvider>().t('calendar.end') ?? 'Конец', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, false),
@@ -283,7 +286,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
               ),
               
               const SizedBox(height: 16),
-              Text('Пауза (минут)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('calendar.pause') ?? context.watch<LocaleProvider>().t('calendar.pause') ?? 'Пауза (минут)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               SizedBox(
                 height: 44,
@@ -306,7 +309,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('GPS город (старт)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.gps_start') ?? context.watch<LocaleProvider>().t('calendar.gps_start') ?? 'GPS город (старт)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         SizedBox(
                           height: 44,
@@ -330,7 +333,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('GPS город (конец)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.gps_end') ?? context.watch<LocaleProvider>().t('calendar.gps_end') ?? 'GPS город (конец)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         SizedBox(
                           height: 44,
@@ -367,7 +370,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
-                          child: Text('Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                         ),
                       ),
                     ),
@@ -386,7 +389,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                         child: Center(
                           child: _isSaving
                               ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : Text('Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 14)),
+                              : Text(context.watch<LocaleProvider>().t('calendar.save') ?? context.watch<LocaleProvider>().t('calendar.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 14)),
                         ),
                       ),
                     ),

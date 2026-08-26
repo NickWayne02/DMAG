@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../../../providers/locale_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/neon_widgets.dart';
+import '../../../utils/transliteration.dart';
 import '../../../services/shift_export_service.dart';
 import '../admin_calendar_dialog.dart';
 import '../admin_shift_edit_sheet.dart';
@@ -19,6 +23,7 @@ class EmployeeRow {
   final int lunchMs;
   final String startedAt;
   final Map<String, dynamic>? shiftData;
+  final String? avatarUrl;
 
   EmployeeRow({
     required this.id,
@@ -30,6 +35,7 @@ class EmployeeRow {
     required this.lunchMs,
     required this.startedAt,
     this.shiftData,
+    this.avatarUrl,
   });
 }
 
@@ -64,7 +70,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       // Parallel fetch
       final results = await Future.wait([
-        Supabase.instance.client.from('profiles').select('id, full_name, email, phone'),
+        Supabase.instance.client.from('profiles').select('id, full_name, email, phone, avatar_url'),
         Supabase.instance.client.from('user_roles').select('user_id, role'),
         Supabase.instance.client.from('shifts')
             .select('id, user_id, site_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city')
@@ -95,7 +101,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       for (var p in profiles) {
         final id = p['id'] as String;
-        final name = p['full_name'] ?? p['email'] ?? p['phone'] ?? 'Без имени';
+        final name = p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени';
         final role = roleMap[id] ?? 'employee';
         final sh = latestShiftByUser[id];
 
@@ -173,15 +179,15 @@ class _PersonnelTabState extends State<PersonnelTab> {
   String _formatHM(int ms) {
     int h = ms ~/ 3600000;
     int m = (ms % 3600000) ~/ 60000;
-    return '${h}ч ${m.toString().padLeft(2, '0')}м';
+    return '${h}${context.watch<LocaleProvider>().t('history.h') ?? 'ч'} ${m.toString().padLeft(2, '0')}${context.watch<LocaleProvider>().t('history.m') ?? 'м'}';
   }
 
   String _getRoleLabel(String role) {
     switch (role) {
-      case 'super_admin': return 'Супер-админ';
-      case 'admin': return 'Админ';
-      case 'brigadier': return 'Бригадир';
-      default: return 'Сотрудник';
+      case 'super_admin': return context.read<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ';
+      case 'admin': return context.read<LocaleProvider>().t('role.admin') ?? 'Админ';
+      case 'brigadier': return context.read<LocaleProvider>().t('role.brigadier') ?? 'Бригадир';
+      default: return context.read<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник';
     }
   }
 
@@ -196,10 +202,10 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
   String _getStatusLabel(String status) {
     switch (status) {
-      case 'working': return 'На смене';
-      case 'lunch': return 'На паузе';
-      case 'finished': return 'Завершена';
-      default: return 'Офлайн';
+      case 'working': return context.read<LocaleProvider>().t('personnel.status_working') ?? 'На смене';
+      case 'lunch': return context.read<LocaleProvider>().t('personnel.status_lunch') ?? 'На паузе';
+      case 'finished': return context.read<LocaleProvider>().t('personnel.status_finished') ?? 'Завершена';
+      default: return context.watch<LocaleProvider>().t('personnel.offline') ?? 'Офлайн';
     }
   }
 
@@ -222,12 +228,12 @@ class _PersonnelTabState extends State<PersonnelTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Мониторинг сотрудников',
+                          context.watch<LocaleProvider>().t('personnel.monitoring') ?? 'Мониторинг сотрудников',
                           style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Статус смены и время фиксации',
+                          context.watch<LocaleProvider>().t('personnel.status_and_time') ?? 'Статус смены и время фиксации',
                           style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
                         ),
                       ],
@@ -243,7 +249,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                         ),
                         icon: const Icon(LucideIcons.plus, color: Colors.white, size: 14),
-                        label: Text('Добавить', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+                        label: Text(context.watch<LocaleProvider>().t('personnel.add') ?? 'Добавить', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
                         onPressed: () => _showAddShiftModal(null),
                       ),
                       const SizedBox(width: 8),
@@ -295,7 +301,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                               children: [
                                 const Icon(LucideIcons.download, color: Colors.white, size: 14),
                                 const SizedBox(width: 8),
-                                Text('Экспорт', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
+                                Text(context.watch<LocaleProvider>().t('personnel.export') ?? 'Экспорт', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -327,7 +333,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                             child: TextField(
                               style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                               decoration: InputDecoration(
-                                hintText: 'Поиск...',
+                                hintText: context.watch<LocaleProvider>().t('personnel.search') ?? 'Поиск...',
                                 hintStyle: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
                                 border: InputBorder.none,
                               ),
@@ -359,10 +365,10 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           dropdownColor: const Color(0xFF1E293B),
                           icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                           style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-                          items: const [
-                            DropdownMenuItem(value: 'all', child: Text('Все роли')),
-                            DropdownMenuItem(value: 'employee', child: Text('Сотрудники')),
-                            DropdownMenuItem(value: 'brigadier', child: Text('Бригадиры')),
+                          items: [
+                            DropdownMenuItem(value: 'all', child: Text(context.watch<LocaleProvider>().t('personnel.all_roles') ?? 'Все роли')),
+                            DropdownMenuItem(value: 'employee', child: Text(context.watch<LocaleProvider>().t('admin.personnel.employees') ?? 'Сотрудники')),
+                            DropdownMenuItem(value: 'brigadier', child: Text(context.watch<LocaleProvider>().t('admin.personnel.brigadiers') ?? 'Бригадиры')),
                           ],
                           onChanged: (val) {
                             if (val != null) {
@@ -383,7 +389,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: Colors.cyan))
               : _filteredEmployees.isEmpty
-                  ? Center(child: Text('Нет данных', style: GoogleFonts.inter(color: Colors.white54)))
+                  ? Center(child: Text(context.watch<LocaleProvider>().t('shift_history.empty') ?? 'Нет данных', style: GoogleFonts.inter(color: Colors.white54)))
                   : ListView.builder(
                       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
                       itemCount: _filteredEmployees.length,
@@ -419,12 +425,17 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           color: Colors.white.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Center(
-                          child: Text(
-                            emp.name.substring(0, 1).toUpperCase(),
-                            style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ),
+                        child: emp.avatarUrl != null && emp.avatarUrl!.isNotEmpty 
+                            ? CircleAvatar(
+                                radius: 22,
+                                backgroundImage: NetworkImage(emp.avatarUrl!),
+                              )
+                            : Center(
+                                child: Text(
+                                  emp.name.isNotEmpty ? emp.name.substring(0, 1).toUpperCase() : '?',
+                                  style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                              ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -432,7 +443,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              emp.name,
+                              TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang),
                               style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -502,9 +513,9 @@ class _PersonnelTabState extends State<PersonnelTab> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildStatItem('Начало', emp.startedAt),
-                  _buildStatItem('Работа', _formatHM(emp.workedMs)),
-                  _buildStatItem('Пауза', _formatHM(emp.lunchMs)),
+                  _buildStatItem(context.watch<LocaleProvider>().t('personnel.start') ?? 'Начало', emp.startedAt),
+                  _buildStatItem(context.watch<LocaleProvider>().t('personnel.work') ?? 'Работа', _formatHM(emp.workedMs)),
+                  _buildStatItem(context.watch<LocaleProvider>().t('personnel.pause') ?? 'Пауза', _formatHM(emp.lunchMs)),
                 ],
               )
             ]
@@ -548,14 +559,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Редактировать роль', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(context.watch<LocaleProvider>().t('personnel.edit_role') ?? 'Редактировать роль', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                       GestureDetector(onTap: () => Navigator.pop(ctx), child: const Icon(LucideIcons.x, color: Colors.white54, size: 20)),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text('Сотрудник: ${emp.name}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 14)),
+                  Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 14)),
                   const SizedBox(height: 24),
-                  Text('Роль доступа', style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  Text(context.watch<LocaleProvider>().t('personnel.access_role') ?? 'Роль доступа', style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -571,10 +582,10 @@ class _PersonnelTabState extends State<PersonnelTab> {
                         dropdownColor: const Color(0xFF1E293B),
                         icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                         style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-                        items: const [
-                          DropdownMenuItem(value: 'employee', child: Text('Сотрудник')),
-                          DropdownMenuItem(value: 'brigadier', child: Text('Бригадир')),
-                          DropdownMenuItem(value: 'admin', child: Text('Администратор')),
+                        items: [
+                          DropdownMenuItem(value: 'employee', child: Text(context.watch<LocaleProvider>().t('role.employee') ?? 'Сотрудник')),
+                          DropdownMenuItem(value: 'brigadier', child: Text(context.watch<LocaleProvider>().t('role.brigadier') ?? context.read<LocaleProvider>().t('role.brigadier') ?? 'Бригадир')),
+                          DropdownMenuItem(value: 'admin', child: Text(context.watch<LocaleProvider>().t('role.admin') ?? 'Администратор')),
                         ],
                         onChanged: (val) {
                           if (val != null) setStateModal(() => selectedRole = val);
@@ -599,10 +610,10 @@ class _PersonnelTabState extends State<PersonnelTab> {
                             _fetchData(); // Reload list
                           }
                         } catch (e) {
-                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<LocaleProvider>().t('auth.errors.default') ?? 'Ошибка:'} $e')));
                         }
                       },
-                      child: Text('Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                      child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],
@@ -665,7 +676,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
   Future<void> _exportShifts(String format) async {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Генерация $format...')),
+      SnackBar(content: Text('${context.read<LocaleProvider>().t('admin.export.generating') ?? 'Генерация'} $format...')),
     );
 
     try {
@@ -686,17 +697,31 @@ class _PersonnelTabState extends State<PersonnelTab> {
         'role': e.role,
       }).toList();
 
-      final baseName = 'Отчёт_${now.day}_${now.month}_${now.year}';
+      final baseName = '''${context.read<LocaleProvider>().t('export.report') ?? 'Отчёт'}_${now.day}_${now.month}_${now.year}''';
+      final tMap = {
+        'sheet_name': context.read<LocaleProvider>().t('export.sheet_name') ?? 'Смены',
+        'date': context.read<LocaleProvider>().t('export.date') ?? 'Дата',
+        'employee': context.read<LocaleProvider>().t('export.employee') ?? 'Сотрудник',
+        'site': context.read<LocaleProvider>().t('export.site') ?? 'Объект',
+        'work_start': context.read<LocaleProvider>().t('export.work_start') ?? 'Начало работы',
+        'pause_start': context.read<LocaleProvider>().t('export.pause_start') ?? 'Начало паузы',
+        'pause_end': context.read<LocaleProvider>().t('export.pause_end') ?? 'Конец паузы',
+        'work_end': context.read<LocaleProvider>().t('export.work_end') ?? 'Конец работы',
+        'pause_mins': context.read<LocaleProvider>().t('export.pause_mins') ?? 'Пауза (мин)',
+        'worked': context.read<LocaleProvider>().t('export.worked') ?? 'Отработано',
+        'generated': context.read<LocaleProvider>().t('export.generated') ?? 'Сформировано',
+      };
 
-      if (format == 'Excel') {
-        await ShiftExportService.exportExcel(shifts, empsList, _sites, '$baseName.xlsx');
+
+            if (format == 'Excel') {
+        await ShiftExportService.exportExcel(shifts, empsList, _sites, '$baseName.xlsx', t: tMap);
       } else {
-        await ShiftExportService.exportPdf(shifts, empsList, _sites, '$baseName.pdf', 'Отчёт по сменам (30 дней)');
+        await ShiftExportService.exportPdf(shifts, empsList, _sites, '$baseName.pdf', context.read<LocaleProvider>().t('personnel.report_title') ?? 'Отчёт по сменам (30 дней)', t: tMap);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка экспорта: $e')),
+          SnackBar(content: Text('${context.read<LocaleProvider>().t('admin.export.error') ?? 'Ошибка экспорта:'} $e')),
         );
       }
     }

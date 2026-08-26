@@ -1,3 +1,5 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -11,11 +13,11 @@ class ReportsTab extends StatefulWidget {
 
 class _ReportsTabState extends State<ReportsTab> {
   String _searchQuery = '';
-  String _selectedSite = 'Все объекты';
-  String _selectedTime = 'За всё время';
+  String? _selectedSite;
+  String? _selectedTime;
 
-  final List<String> _sites = ['Все объекты', 'Bellershausen', 'Светловодск', 'Giengen', 'Freudenberg'];
-  final List<String> _times = ['За всё время', 'За сегодня', 'За неделю', 'За месяц'];
+  
+  
 
   InputDecoration _inputDeco(String hint) {
     return InputDecoration(
@@ -37,6 +39,9 @@ class _ReportsTabState extends State<ReportsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> _sites = [context.watch<LocaleProvider>().t('dashboard.all_sites') ?? 'Все объекты', 'Bellershausen', 'Светловодск', 'Giengen', 'Freudenberg'];
+    final List<String> _times = [context.watch<LocaleProvider>().t('dashboard.time_all') ?? 'За всё время', context.watch<LocaleProvider>().t('dashboard.time_today') ?? 'За сегодня', context.watch<LocaleProvider>().t('dashboard.time_week') ?? 'За неделю', context.watch<LocaleProvider>().t('dashboard.time_month') ?? 'За месяц'];
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -45,7 +50,7 @@ class _ReportsTabState extends State<ReportsTab> {
           Row(
             children: [
               Text(
-                'Фотоотчёты',
+                context.watch<LocaleProvider>().t('reports.title') ?? 'Фотоотчёты',
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ],
@@ -70,12 +75,12 @@ class _ReportsTabState extends State<ReportsTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Лента фотоотчётов',
+                              context.watch<LocaleProvider>().t('reports.feed_title') ?? 'Лента фотоотчётов',
                               style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Последние загрузки со всех объектов',
+                              context.watch<LocaleProvider>().t('reports.feed_subtitle') ?? 'Последние загрузки со всех объектов',
                               style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
                             ),
                           ],
@@ -89,7 +94,7 @@ class _ReportsTabState extends State<ReportsTab> {
                           foregroundColor: Colors.white,
                         ),
                         icon: const Icon(LucideIcons.download, size: 14),
-                        label: Text('Экспорт', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
+                        label: Text(context.watch<LocaleProvider>().t('reports.export') ?? 'Экспорт', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
                         onPressed: () {
                           // export logic
                         },
@@ -102,7 +107,7 @@ class _ReportsTabState extends State<ReportsTab> {
                   TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
                     style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
-                    decoration: _inputDeco('Поиск по описанию...'),
+                    decoration: _inputDeco(context.watch<LocaleProvider>().t('reports.search') ?? 'Поиск по описанию...'),
                   ),
                   const SizedBox(height: 12),
                   
@@ -117,7 +122,7 @@ class _ReportsTabState extends State<ReportsTab> {
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: _selectedSite,
+                        value: _sites.contains(_selectedSite) ? _selectedSite : _sites.first,
                         dropdownColor: const Color(0xFF18181b),
                         icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                         style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
@@ -141,7 +146,7 @@ class _ReportsTabState extends State<ReportsTab> {
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: _selectedTime,
+                        value: _times.contains(_selectedTime) ? _selectedTime : _times.first,
                         dropdownColor: const Color(0xFF18181b),
                         icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
                         style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
@@ -175,7 +180,7 @@ class _ReportsTabState extends State<ReportsTab> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Отчётов пока нет',
+                              context.watch<LocaleProvider>().t('reports.empty') ?? 'Отчётов пока нет',
                               style: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
                             ),
                           ],

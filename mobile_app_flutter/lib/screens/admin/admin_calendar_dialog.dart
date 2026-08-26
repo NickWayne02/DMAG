@@ -1,3 +1,7 @@
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../../providers/locale_provider.dart';
+import '../../utils/transliteration.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -115,7 +119,8 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
 
   @override
   Widget build(BuildContext context) {
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+    final monthsStr = context.watch<LocaleProvider>().t('calendar.months') ?? 'Январь,Февраль,Март,Апрель,Май,Июнь,Июль,Август,Сентябрь,Октябрь,Ноябрь,Декабрь';
+    final months = monthsStr.split(',');
     final monthStr = '${months[_currentDate.month - 1]} ${_currentDate.year}';
 
     int daysInMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0).day;
@@ -141,7 +146,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
             children: [
               Expanded(
                 child: Text(
-                  'Календарь — ${widget.employeeName}',
+                  '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
                   style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -179,7 +184,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
           
           // Weekday headers
           Row(
-            children: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d) => Expanded(
+            children: (context.watch<LocaleProvider>().t('calendar.days_short') ?? 'Пн,Вт,Ср,Чт,Пт,Сб,Вс').split(',').map((d) => Expanded(
               child: Text(d, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
             )).toList(),
           ),

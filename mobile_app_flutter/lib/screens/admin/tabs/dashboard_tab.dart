@@ -1,3 +1,7 @@
+import '../../../../utils/transliteration.dart';
+import 'package:provider/provider.dart';
+import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../../../../providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -22,10 +26,10 @@ class DashboardTab extends StatelessWidget {
             mainAxisSpacing: 16,
             childAspectRatio: 1.1,
             children: [
-              _buildStatCard('0', 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
-              _buildStatCard('0', 'На обеде\n', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
-              _buildStatCard('6', 'Активных объектов\n', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
-              _buildStatCard('0', 'Срочных отчётов\n', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
+              _buildStatCard('0', context.watch<LocaleProvider>().t('admin_dashboard.emp_on_shift') ?? 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
+              _buildStatCard('0', context.watch<LocaleProvider>().t('admin_dashboard.on_lunch') ?? 'На обеде', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
+              _buildStatCard('6', context.watch<LocaleProvider>().t('admin_dashboard.active_sites') ?? 'Активных объектов', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
+              _buildStatCard('0', context.watch<LocaleProvider>().t('admin_dashboard.urgent_reports') ?? 'Срочных отчётов', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
             ],
           ),
           const SizedBox(height: 24),
@@ -36,7 +40,7 @@ class DashboardTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Последняя активность',
+                  context.watch<LocaleProvider>().t('admin_dashboard.recent_activity') ?? 'Последняя активность',
                   style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 18,
@@ -45,32 +49,32 @@ class DashboardTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 _buildActivityItem(
-                  'Окончание смены',
-                  'Евгений Костин завершил смену на объекте Неизвестно',
+                  context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
+                  " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
                   '22 авг., 19:58',
                   LucideIcons.activity,
                   const Color(0xFF3b82f6), // Blue
                 ),
                 const SizedBox(height: 16),
                 _buildActivityItem(
-                  'Начало смены',
-                  'Евгений Костин начал смену на объекте Неизвестно',
+                  context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
+                  "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
                   '22 авг., 19:58',
                   LucideIcons.users,
                   const Color(0xFF22c55e), // Green
                 ),
                 const SizedBox(height: 16),
                 _buildActivityItem(
-                  'Окончание смены',
-                  'Евгений Костин завершил смену на объекте Неизвестно',
+                  context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
+                  " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
                   '22 авг., 19:53',
                   LucideIcons.activity,
                   const Color(0xFF3b82f6), // Blue
                 ),
                 const SizedBox(height: 16),
                 _buildActivityItem(
-                  'Начало смены',
-                  'Евгений Костин начал смену на объекте Неизвестно',
+                  context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
+                  "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
                   '22 авг., 19:52',
                   LucideIcons.users,
                   const Color(0xFF22c55e), // Green

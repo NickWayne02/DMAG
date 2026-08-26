@@ -1,0 +1,42 @@
+name: Flutter iOS Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: mobile_app_flutter
+
+      - name: Build iOS App
+        run: flutter build ios --release --no-codesign
+        working-directory: mobile_app_flutter
+
+      - name: Create IPA
+        run: |
+          cd mobile_app_flutter/build/ios/iphoneos
+          mkdir Payload
+          mv Runner.app Payload/
+          zip -qq -r app-release.ipa Payload
+        
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-ios
+          path: mobile_app_flutter/build/ios/iphoneos/app-release.ipa

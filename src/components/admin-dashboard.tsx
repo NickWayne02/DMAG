@@ -1420,7 +1420,7 @@ export function AdminDashboard({
         ts: s.started_at,
         type: "shift_start",
         title: t("admin.activity.shiftStart"),
-        desc: t("admin.activity.shiftStarted", { name: emp.name, site: s.site_name || tName(s.start_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" }) }),
+        desc: t("admin.activity.shiftStarted", { name: tName(emp.name), site: s.site_name ? tName(s.site_name) : (tName(s.start_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" })) }),
         icon: <Users className="h-4 w-4" />,
         color: "text-green-600 bg-green-500/10",
       });
@@ -1430,7 +1430,7 @@ export function AdminDashboard({
           ts: s.ended_at,
           type: "shift_end",
           title: t("admin.activity.shiftEnd"),
-          desc: t("admin.activity.shiftEnded", { name: emp.name, site: s.site_name || tName(s.end_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" }) }),
+          desc: t("admin.activity.shiftEnded", { name: tName(emp.name), site: s.site_name ? tName(s.site_name) : (tName(s.end_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" })) }),
           icon: <Activity className="h-4 w-4" />,
           color: "text-blue-600 bg-blue-500/10",
         });
@@ -1443,7 +1443,7 @@ export function AdminDashboard({
               ts: interval.start,
               type: "lunch_start",
               title: t("admin.activity.pauseStart"),
-              desc: t("admin.activity.lunchStarted", { name: emp.name }),
+              desc: t("admin.activity.lunchStarted", { name: tName(emp.name) }),
               icon: <Clock className="h-4 w-4" />,
               color: "text-amber-600 bg-amber-500/10",
             });
@@ -1460,7 +1460,7 @@ export function AdminDashboard({
                 ts: interval.end,
                 type: "lunch_end",
                 title: t("admin.activity.pauseEnd"),
-                desc: t("admin.activity.lunchEnded", { name: emp.name }),
+                desc: t("admin.activity.lunchEnded", { name: tName(emp.name) }),
                 icon: <Clock className="h-4 w-4" />,
                 color: "text-amber-600 bg-amber-500/10",
               });

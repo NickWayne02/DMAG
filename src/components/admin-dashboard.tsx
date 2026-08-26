@@ -1419,8 +1419,8 @@ export function AdminDashboard({
         id: `shift-start-${s.id}`,
         ts: s.started_at,
         type: "shift_start",
-        title: "Начало смены",
-        desc: `${emp.name} начал смену на объекте ${s.site_name || tName(s.start_city) || "Неизвестно"}`,
+        title: t("admin.activity.shiftStart"),
+        desc: `${emp.name} начал смену на объекте ${s.site_name || tName(s.start_city) || "Unknown"}`,
         icon: <Users className="h-4 w-4" />,
         color: "text-green-600 bg-green-500/10",
       });
@@ -1429,8 +1429,8 @@ export function AdminDashboard({
           id: `shift-end-${s.id}`,
           ts: s.ended_at,
           type: "shift_end",
-          title: "Окончание смены",
-          desc: `${emp.name} завершил смену на объекте ${s.site_name || tName(s.end_city) || "Неизвестно"}`,
+          title: t("admin.activity.shiftEnd"),
+          desc: `${emp.name} завершил смену на объекте ${s.site_name || tName(s.end_city) || "Unknown"}`,
           icon: <Activity className="h-4 w-4" />,
           color: "text-blue-600 bg-blue-500/10",
         });
@@ -1442,7 +1442,7 @@ export function AdminDashboard({
               id: `shift-lunch-start-${s.id}-${i}`,
               ts: interval.start,
               type: "lunch_start",
-              title: "Уход на перерыв",
+              title: t("admin.activity.pauseStart"),
               desc: `${emp.name} ушел на перерыв`,
               icon: <Clock className="h-4 w-4" />,
               color: "text-amber-600 bg-amber-500/10",
@@ -1459,7 +1459,7 @@ export function AdminDashboard({
                 id: `shift-lunch-end-${s.id}-${i}`,
                 ts: interval.end,
                 type: "lunch_end",
-                title: "Возврат с перерыва",
+                title: t("admin.activity.pauseEnd"),
                 desc: `${emp.name} вернулся к работе`,
                 icon: <Clock className="h-4 w-4" />,
                 color: "text-amber-600 bg-amber-500/10",
@@ -1475,7 +1475,7 @@ export function AdminDashboard({
           id: `shift-lunch-start-active-${s.id}`,
           ts: s.lunch_started_at,
           type: "lunch_start",
-          title: "Уход на перерыв",
+          title: t("admin.activity.pauseStart"),
           desc: `${emp.name} ушел на перерыв`,
           icon: <Clock className="h-4 w-4" />,
           color: "text-amber-600 bg-amber-500/10",
@@ -1661,7 +1661,7 @@ export function AdminDashboard({
                 </div>
               ) : (
                 <div className="mt-6 bg-card rounded-2xl p-6 border shadow-sm">
-                  <h3 className="font-semibold mb-4 text-lg">Последняя активность</h3>
+                  <h3 className="font-semibold mb-4 text-lg">{t("admin.activity.title")}</h3>
                   <div className="space-y-4">
                     {activities.map((act) => (
                       <div key={act.id} className="flex gap-4 items-start">
@@ -1741,7 +1741,7 @@ export function AdminDashboard({
                 {/* Filters */}
                 <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <Input
-                    placeholder="Поиск по имени..."
+                    placeholder={t("admin.personnel.search")}
                     value={personnelSearch}
                     onChange={(e) => {
                       setPersonnelSearch(e.target.value);
@@ -1760,7 +1760,7 @@ export function AdminDashboard({
                       <SelectValue placeholder="Роль" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="all">Все роли</SelectItem>
+                      <SelectItem value="all">{t("admin.personnel.allRoles")}</SelectItem>
                       <SelectItem value="employee">Сотрудник</SelectItem>
                       <SelectItem value="brigadier">Бригадир</SelectItem>
                     </SelectContent>
@@ -1776,11 +1776,11 @@ export function AdminDashboard({
                       <SelectValue placeholder="Статус" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="all">Все статусы</SelectItem>
-                      <SelectItem value="working">На смене</SelectItem>
-                      <SelectItem value="lunch">На паузе</SelectItem>
-                      <SelectItem value="finished">Смена завершена</SelectItem>
-                      <SelectItem value="offline">Офлайн</SelectItem>
+                      <SelectItem value="all">{t("admin.personnel.allStatuses")}</SelectItem>
+                      <SelectItem value="working">{t("admin.personnel.onShift")}</SelectItem>
+                      <SelectItem value="lunch">{t("admin.personnel.onPause")}</SelectItem>
+                      <SelectItem value="finished">{t("admin.personnel.shiftEnded")}</SelectItem>
+                      <SelectItem value="offline">{t("admin.personnel.offline")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -2876,7 +2876,7 @@ export function AdminDashboard({
                 <div>
                   <h3 className="text-xl font-bold tracking-tight">{t("admin.tab.calendar")}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Просмотр и редактирование смен сотрудников
+                    {t("admin.calendar.desc")}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -2885,7 +2885,7 @@ export function AdminDashboard({
                       <SelectValue placeholder="Выберите сотрудника" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__none__">-- Выберите сотрудника --</SelectItem>
+                      <SelectItem value="__none__">{t("admin.calendar.selectEmp")}</SelectItem>
                       {employees.map((e) => (
                         <SelectItem key={`cal-${e.id}`} value={e.id}>
                           {tName(e.name)}

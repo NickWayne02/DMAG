@@ -417,7 +417,7 @@ export function AdminEditableCalendarDialog({
         <DialogContent className="sm:max-w-md z-[100]">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle>{shiftEdit?.id ? "Редактировать смену" : "Добавить смену"}</DialogTitle>
+              <DialogTitle>{shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}</DialogTitle>
               {shiftEditList.length > 1 && (
                 <div className="flex items-center space-x-2 mr-6 text-sm">
                   <Button
@@ -456,7 +456,7 @@ export function AdminEditableCalendarDialog({
           {shiftEdit && (
             <div className="space-y-3">
               <div>
-                <Label>Объект</Label>
+                <Label>{t("admin.calendar.site")}</Label>
                 <Select
                   value={shiftEdit.site_name || "__none__"}
                   onValueChange={(v) => {
@@ -469,10 +469,10 @@ export function AdminEditableCalendarDialog({
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="— Без объекта —" />
+                    <SelectValue placeholder={t("admin.calendar.noSite")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__none__">— Без объекта —</SelectItem>
+                    <SelectItem value="__none__">{t("admin.calendar.noSite")}</SelectItem>
                     {sites.map((s) => (
                       <SelectItem key={s.id} value={s.name}>
                         {s.name}
@@ -483,7 +483,7 @@ export function AdminEditableCalendarDialog({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Начало</Label>
+                  <Label>{t("admin.calendar.start")}</Label>
                   <Input
                     type="datetime-local"
                     value={shiftEdit.started_at}
@@ -491,7 +491,7 @@ export function AdminEditableCalendarDialog({
                   />
                 </div>
                 <div>
-                  <Label>Конец</Label>
+                  <Label>{t("admin.calendar.end")}</Label>
                   <Input
                     type="datetime-local"
                     value={shiftEdit.ended_at}
@@ -500,7 +500,7 @@ export function AdminEditableCalendarDialog({
                 </div>
               </div>
               <div>
-                <Label>Пауза (минут)</Label>
+                <Label>{t("admin.calendar.pause")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -512,14 +512,14 @@ export function AdminEditableCalendarDialog({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>GPS город (старт)</Label>
+                  <Label>{t("admin.calendar.gpsStart")}</Label>
                   <Input
                     value={shiftEdit.start_city}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, start_city: ev.target.value })}
                   />
                 </div>
                 <div>
-                  <Label>GPS город (конец)</Label>
+                  <Label>{t("admin.calendar.gpsEnd")}</Label>
                   <Input
                     value={shiftEdit.end_city}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, end_city: ev.target.value })}
@@ -532,16 +532,16 @@ export function AdminEditableCalendarDialog({
           <DialogFooter className="gap-2 sm:gap-2">
             {shiftEdit?.id && (
               <Button variant="destructive" onClick={deleteShift} disabled={shiftSaving}>
-                {shiftDeleteConfirm === shiftEdit.id ? "Точно удалить?" : "Удалить"}
+                {shiftDeleteConfirm === shiftEdit.id ? "Точно удалить?" : t("admin.calendar.delete")}
               </Button>
             )}
             <div className="flex-1" />
             <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>
-              Отмена
+              {t("admin.calendar.cancel")}
             </Button>
             <Button onClick={saveShift} disabled={shiftSaving}>
               {shiftSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Сохранить
+              {t("admin.calendar.save")}
             </Button>
           </DialogFooter>
         </DialogContent>

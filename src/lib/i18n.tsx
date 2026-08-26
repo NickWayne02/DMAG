@@ -121,8 +121,8 @@ const DICT: Dict = {
     ro: "Cauta dupa descriere...",
     bg: "Търсене по описание...",
     uz: "Tavsif bo'yicha qidirish...",
-    tg: "Ҷустуҷӯ аз рӯи тавсиф..."
-      de: "Nach Beschreibung suchen...",
+    tg: "Ҷустуҷӯ аз рӯи тавсиф...",
+    de: "Nach Beschreibung suchen...",
   },
   "admin.reports.sitePlaceholder": {
     ru: "Объект",
@@ -130,8 +130,8 @@ const DICT: Dict = {
     ro: "Obiect",
     bg: "Обект",
     uz: "Ob'ekt",
-    tg: "Объект"
-      de: "Objekt",
+    tg: "Объект",
+    de: "Objekt",
   },
   "admin.reports.allSites": {
     ru: "Все объекты",
@@ -139,8 +139,8 @@ const DICT: Dict = {
     ro: "Toate obiectele",
     bg: "Всички обекти",
     uz: "Barcha ob'ektlar",
-    tg: "Ҳама объектҳо"
-      de: "Alle Objekte",
+    tg: "Ҳама объектҳо",
+    de: "Alle Objekte",
   },
   "admin.reports.periodPlaceholder": {
     ru: "Период",
@@ -148,8 +148,8 @@ const DICT: Dict = {
     ro: "Perioadă",
     bg: "Точка",
     uz: "Davr",
-    tg: "Давра"
-      de: "Zeitraum",
+    tg: "Давра",
+    de: "Zeitraum",
   },
   "admin.reports.allTime": {
     ru: "За всё время",
@@ -157,8 +157,8 @@ const DICT: Dict = {
     ro: "Pentru tot timpul",
     bg: "За всички времена",
     uz: "Hamma vaqt uchun",
-    tg: "Барои ҳама вақт"
-      de: "Gesamte Zeit",
+    tg: "Барои ҳама вақт",
+    de: "Gesamte Zeit",
   },
   "admin.reports.today": {
     ru: "За сегодня",
@@ -166,8 +166,8 @@ const DICT: Dict = {
     ro: "Pentru azi",
     bg: "За днес",
     uz: "Bugun uchun",
-    tg: "Барои имруз"
-      de: "Heute",
+    tg: "Барои имруз",
+    de: "Heute",
   },
   "admin.reports.week": {
     ru: "За 7 дней",
@@ -175,8 +175,8 @@ const DICT: Dict = {
     ro: "In 7 zile",
     bg: "След 7 дни",
     uz: "7 kun ichida",
-    tg: "Дар 7 руз"
-      de: "Letzte 7 Tage",
+    tg: "Дар 7 руз",
+    de: "Letzte 7 Tage",
   },
   "admin.users.search": {
     ru: "Поиск пользователя...",
@@ -184,8 +184,8 @@ const DICT: Dict = {
     ro: "Căutați utilizator...",
     bg: "Търсене на потребител...",
     uz: "Foydalanuvchini qidirish...",
-    tg: "Ҷустуҷӯи корбар..."
-      de: "Benutzer suchen...",
+    tg: "Ҷустуҷӯи корбар...",
+    de: "Benutzer suchen...",
   },
   "admin.users.colStatus": {
     ru: "Статус",
@@ -193,8 +193,8 @@ const DICT: Dict = {
     ro: "Stare",
     bg: "Статус",
     uz: "Статус",
-    tg: "Статус"
-      de: "Status",
+    tg: "Статус",
+    de: "Status",
   },
   "admin.users.colLastLogin": {
     ru: "Последний вход",
@@ -202,8 +202,8 @@ const DICT: Dict = {
     ro: "Ultima intrare",
     bg: "Последно влизане",
     uz: "Oxirgi kirish",
-    tg: "Вуруди охирин"
-      de: "Letzter Login",
+    tg: "Вуруди охирин",
+    de: "Letzter Login",
   },
   "admin.users.online": {
     ru: "В сети",
@@ -211,8 +211,8 @@ const DICT: Dict = {
     ro: "В сети",
     bg: "Онлайн",
     uz: "Onlayn",
-    tg: "Онлайн"
-      de: "Online",
+    tg: "Онлайн",
+    de: "Online",
   },
   "admin.users.noData": {
     ru: "Нет данных",
@@ -220,8 +220,8 @@ const DICT: Dict = {
     ro: "Fără date",
     bg: "Няма данни",
     uz: "Maʼlumot yoʻq",
-    tg: "Маълумот нест"
-      de: "Keine Daten",
+    tg: "Маълумот нест",
+    de: "Keine Daten",
   },
   "admin.users.moderation": {
     ru: "Модерация",
@@ -229,8 +229,8 @@ const DICT: Dict = {
     ro: "Moderare",
     bg: "Умереност",
     uz: "Moderatsiya",
-    tg: "Модератсия"
-      de: "Moderation",
+    tg: "Модератсия",
+    de: "Moderation",
   },
   "settings.buttonStyle": {
     ru: "Стиль кнопок",
@@ -2695,8 +2695,8 @@ const DICT: Dict = {
     ro: "Уведомления отключены",
     bg: "Уведомления отключены",
     uz: "Уведомления отключены",
-    tg: "Уведомления отключены"
-      de: "Benachrichtigungen deaktiviert",
+    tg: "Уведомления отключены",
+    de: "Benachrichtigungen deaktiviert",
   },
   "chat.notifications.enabled": {
     ru: "Уведомления включены",
@@ -2704,8 +2704,8 @@ const DICT: Dict = {
     ro: "Уведомления включены",
     bg: "Уведомления включены",
     uz: "Уведомления включены",
-    tg: "Уведомления включены"
-      de: "Benachrichtigungen aktiviert",
+    tg: "Уведомления включены",
+    de: "Benachrichtigungen aktiviert",
   },
   "chat.sidebar.main": {
     ru: "Основные",
@@ -2713,8 +2713,8 @@ const DICT: Dict = {
     ro: "Основные",
     bg: "Основные",
     uz: "Основные",
-    tg: "Основные"
-      de: "HAUPT",
+    tg: "Основные",
+    de: "HAUPT",
   },
   "chat.info.title": {
     ru: "Информация о чате",
@@ -2722,8 +2722,8 @@ const DICT: Dict = {
     ro: "Информация о чате",
     bg: "Информация о чате",
     uz: "Информация о чате",
-    tg: "Информация о чате"
-      de: "Chat-Info",
+    tg: "Информация о чате",
+    de: "Chat-Info",
   },
   "chat.media.noMedia": {
     ru: "Нет вложенных медиа",
@@ -2731,8 +2731,8 @@ const DICT: Dict = {
     ro: "Нет вложенных медиа",
     bg: "Нет вложенных медиа",
     uz: "Нет вложенных медиа",
-    tg: "Нет вложенных медиа"
-      de: "Keine angehängten Medien",
+    tg: "Нет вложенных медиа",
+    de: "Keine angehängten Medien",
   },
   "chat.media.title": {
     ru: "Вложенные медиа",
@@ -2740,8 +2740,8 @@ const DICT: Dict = {
     ro: "Вложенные медиа",
     bg: "Вложенные медиа",
     uz: "Вложенные медиа",
-    tg: "Вложенные медиа"
-      de: "Angehängte Medien",
+    tg: "Вложенные медиа",
+    de: "Angehängte Medien",
   },
   "chat.menu.enableNotif": {
     ru: "Включить уведомления",
@@ -2749,8 +2749,8 @@ const DICT: Dict = {
     ro: "Включить уведомления",
     bg: "Включить уведомления",
     uz: "Включить уведомления",
-    tg: "Включить уведомления"
-      de: "Benachrichtigungen aktivieren",
+    tg: "Включить уведомления",
+    de: "Benachrichtigungen aktivieren",
   },
   "chat.menu.disableNotif": {
     ru: "Отключить уведомления",
@@ -2758,8 +2758,8 @@ const DICT: Dict = {
     ro: "Отключить уведомления",
     bg: "Отключить уведомления",
     uz: "Отключить уведомления",
-    tg: "Отключить уведомления"
-      de: "Benachrichtigungen deaktivieren",
+    tg: "Отключить уведомления",
+    de: "Benachrichtigungen deaktivieren",
   },
   "chat.menu.clearHistory": {
     ru: "Очистить историю",
@@ -2767,8 +2767,8 @@ const DICT: Dict = {
     ro: "Очистить историю",
     bg: "Очистить историю",
     uz: "Очистить историю",
-    tg: "Очистить историю"
-      de: "Verlauf löschen",
+    tg: "Очистить историю",
+    de: "Verlauf löschen",
   },
   "chat.info.name": {
     ru: "Название",
@@ -2776,8 +2776,8 @@ const DICT: Dict = {
     ro: "Название",
     bg: "Название",
     uz: "Название",
-    tg: "Название"
-      de: "Name",
+    tg: "Название",
+    de: "Name",
   },
   "chat.info.type": {
     ru: "Тип чата",
@@ -2785,8 +2785,8 @@ const DICT: Dict = {
     ro: "Тип чата",
     bg: "Тип чата",
     uz: "Тип чата",
-    tg: "Тип чата"
-      de: "Chat-Typ",
+    tg: "Тип чата",
+    de: "Chat-Typ",
   },
   "chat.type.general": {
     ru: "Общий канал (для всей команды)",
@@ -2794,8 +2794,8 @@ const DICT: Dict = {
     ro: "Общий канал (для всей команды)",
     bg: "Общий канал (для всей команды)",
     uz: "Общий канал (для всей команды)",
-    tg: "Общий канал (для всей команды)"
-      de: "Allgemeiner Kanal (für das gesamte Team)",
+    tg: "Общий канал (для всей команды)",
+    de: "Allgemeiner Kanal (für das gesamte Team)",
   },
   "chat.type.direct": {
     ru: "Личные сообщения (приватный)",
@@ -2803,8 +2803,8 @@ const DICT: Dict = {
     ro: "Личные сообщения (приватный)",
     bg: "Личные сообщения (приватный)",
     uz: "Личные сообщения (приватный)",
-    tg: "Личные сообщения (приватный)"
-      de: "Direktnachrichten (privat)",
+    tg: "Личные сообщения (приватный)",
+    de: "Direktnachrichten (privat)",
   },
   "chat.type.site": {
     ru: "Чат объекта",
@@ -2812,8 +2812,8 @@ const DICT: Dict = {
     ro: "Чат объекта",
     bg: "Чат объекта",
     uz: "Чат объекта",
-    tg: "Чат объекта"
-      de: "Objekt-Chat",
+    tg: "Чат объекта",
+    de: "Objekt-Chat",
   },
   "chat.info.notifications": {
     ru: "Уведомления",
@@ -2821,8 +2821,8 @@ const DICT: Dict = {
     ro: "Уведомления",
     bg: "Уведомления",
     uz: "Уведомления",
-    tg: "Уведомления"
-      de: "Benachrichtigungen",
+    tg: "Уведомления",
+    de: "Benachrichtigungen",
   },
   "chat.info.notif.disabled": {
     ru: "Отключены",
@@ -2830,8 +2830,8 @@ const DICT: Dict = {
     ro: "Отключены",
     bg: "Отключены",
     uz: "Отключены",
-    tg: "Отключены"
-      de: "Deaktiviert",
+    tg: "Отключены",
+    de: "Deaktiviert",
   },
   "chat.info.notif.enabled": {
     ru: "Включены",
@@ -2839,8 +2839,8 @@ const DICT: Dict = {
     ro: "Включены",
     bg: "Включены",
     uz: "Включены",
-    tg: "Включены"
-      de: "Aktiviert",
+    tg: "Включены",
+    de: "Aktiviert",
   },
   "chat.info.additional": {
     ru: "Дополнительно",
@@ -2848,8 +2848,8 @@ const DICT: Dict = {
     ro: "Дополнительно",
     bg: "Дополнительно",
     uz: "Дополнительно",
-    tg: "Дополнительно"
-      de: "Zusätzlich",
+    tg: "Дополнительно",
+    de: "Zusätzlich",
   },
   "chat.media.select": {
     ru: "Выбрать",
@@ -2857,8 +2857,8 @@ const DICT: Dict = {
     ro: "Выбрать",
     bg: "Выбрать",
     uz: "Выбрать",
-    tg: "Выбрать"
-      de: "Auswählen",
+    tg: "Выбрать",
+    de: "Auswählen",
   },
   "chat.media.cancel": {
     ru: "Отмена",
@@ -2866,8 +2866,8 @@ const DICT: Dict = {
     ro: "Отмена",
     bg: "Отмена",
     uz: "Отмена",
-    tg: "Отмена"
-      de: "Abbrechen",
+    tg: "Отмена",
+    de: "Abbrechen",
   },
   "chat.media.delete": {
     ru: "Удалить",
@@ -2875,8 +2875,8 @@ const DICT: Dict = {
     ro: "Удалить",
     bg: "Удалить",
     uz: "Удалить",
-    tg: "Удалить"
-      de: "Löschen",
+    tg: "Удалить",
+    de: "Löschen",
   },
   "chat.media.deleteConfirm": {
     ru: "Удалить {{count}} фото? Это удалит и соответствующие сообщения из чата.",
@@ -2889,8 +2889,8 @@ const DICT: Dict = {
     ro: "Нет пользователей",
     bg: "Нет пользователей",
     uz: "Нет пользователей",
-    tg: "Нет пользователей"
-      de: "Keine Benutzer",
+    tg: "Нет пользователей",
+    de: "Keine Benutzer",
   },
   "chat.sidebar.noActiveChats": {
     ru: "Нет активных чатов",
@@ -2898,8 +2898,8 @@ const DICT: Dict = {
     ro: "Нет активных чатов",
     bg: "Нет активных чатов",
     uz: "Нет активных чатов",
-    tg: "Нет активных чатов"
-      de: "Keine aktiven Chats",
+    tg: "Нет активных чатов",
+    de: "Keine aktiven Chats",
   },
   "chat.sidebar.loading": {
     ru: "Загрузка...",
@@ -2907,8 +2907,8 @@ const DICT: Dict = {
     ro: "Загрузка...",
     bg: "Загрузка...",
     uz: "Загрузка...",
-    tg: "Загрузка..."
-      de: "Wird geladen...",
+    tg: "Загрузка...",
+    de: "Wird geladen...",
   },
   "chat.sidebar.sites": {
     ru: "Объекты",
@@ -2916,8 +2916,8 @@ const DICT: Dict = {
     ro: "Объекты",
     bg: "Объекты",
     uz: "Объекты",
-    tg: "Объекты"
-      de: "OBJEKTE",
+    tg: "Объекты",
+    de: "OBJEKTE",
   },
   "chat.generalTitle": {
     ru: "Общий чат команды",

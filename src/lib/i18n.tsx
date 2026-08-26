@@ -852,22 +852,57 @@ const DICT: Dict = {
   "admin.activity.shiftStarted": {
     ru: "{name} начал смену на объекте {site}",
     en: "{name} started a shift at {site}",
+    de: "{name} hat die Schicht in {site} begonnen",
+    ro: "{name} a început tura la {site}",
+    bg: "{name} започна смяна на обект {site}",
+    pl: "{name} rozpoczął zmianę na obiekcie {site}",
+    uk: "{name} розпочав зміну на об'єкті {site}",
+    uz: "{name} {site} obyektida smenani boshladi",
+    tg: "{name} сменаро дар иншооти {site} оғоз кард"
   },
   "admin.activity.shiftEnded": {
     ru: "{name} завершил смену на объекте {site}",
     en: "{name} ended a shift at {site}",
+    de: "{name} hat die Schicht in {site} beendet",
+    ro: "{name} a terminat tura la {site}",
+    bg: "{name} завърши смяна на обект {site}",
+    pl: "{name} zakończył zmianę na obiekcie {site}",
+    uk: "{name} завершив зміну на об'єкті {site}",
+    uz: "{name} {site} obyektida smenani yakunladi",
+    tg: "{name} сменаро дар иншооти {site} ба анҷом расонид"
   },
   "admin.activity.lunchStarted": {
     ru: "{name} ушел на перерыв",
     en: "{name} went on lunch break",
+    de: "{name} hat eine Pause begonnen",
+    ro: "{name} a luat o pauză",
+    bg: "{name} излезе в почивка",
+    pl: "{name} poszedł na przerwę",
+    uk: "{name} пішов на перерву",
+    uz: "{name} tanaffusga chiqdi",
+    tg: "{name} ба танаффус рафт"
   },
   "admin.activity.lunchEnded": {
     ru: "{name} вернулся к работе",
     en: "{name} returned to work",
+    de: "{name} ist zur Arbeit zurückgekehrt",
+    ro: "{name} s-a întors la muncă",
+    bg: "{name} се върна на работа",
+    pl: "{name} wrócił do pracy",
+    uk: "{name} повернувся до роботи",
+    uz: "{name} ishga qaytdi",
+    tg: "{name} ба кор баргашт"
   },
   "admin.activity.unknownSite": {
     ru: "Неизвестный объект",
     en: "Unknown site",
+    de: "Unbekanntes Objekt",
+    ro: "Obiect necunoscut",
+    bg: "Неизвестен обект",
+    pl: "Nieznany obiekt",
+    uk: "Невідомий об'єкт",
+    uz: "Noma'lum obyekt",
+    tg: "Иншооти номаълум"
   },
   "admin.activity.pauseStart": {
     ru: "Уход на перерыв",

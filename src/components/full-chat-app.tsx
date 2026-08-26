@@ -63,7 +63,7 @@ export function FullChatApp({
 }: FullChatAppProps) {
   const { user, roles } = useAuth();
   const isSuperAdmin = roles.includes("super_admin");
-  const { lang } = useLanguage();
+  const { lang, tName } = useLanguage();
   const t = useT();
 
   const [activeChannelType, setActiveChannelType] = useState<ChannelType>(initialChannelType);
@@ -109,8 +109,7 @@ export function FullChatApp({
       newMuted.push(cid);
     }
     setMutedChannels(newMuted);
-    localStorage.setItem("muted_channels", JSON.stringify(newMuted));
-    toast.success(newMuted.includes(cid) ? "Уведомления отключены" : "Уведомления включены");
+    toast.success(newMuted.includes(cid) ? t("chat.notifications.disabled") : t("chat.notifications.enabled"));
   }
 
   async function handleClearHistory() {
@@ -168,7 +167,7 @@ export function FullChatApp({
   }) {
     if (!user) return;
     const authorName =
-      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
+      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? t("admin.users.employee", { defaultValue: "Сотрудник" });
     const text = `[PHOTO_REPORT] ${data.photoPath || ""} | ${data.criticality} | ${data.description}`;
     const { error } = await supabase.from("chat_messages").insert({
       channel_type: activeChannelType,
@@ -236,7 +235,7 @@ export function FullChatApp({
       return {
         id: cid,
         otherId,
-        name: otherProfile?.full_name || "Unknown",
+        name: tName(otherProfile?.full_name || "Unknown"),
         avatarUrl: otherProfile?.avatar_url || null,
       };
     });
@@ -260,11 +259,11 @@ export function FullChatApp({
     if (activeChannelType === "general") return t("chat.generalTitle");
     if (activeChannelType === "direct") {
       const dm = dmChannels.find((d) => d.id === activeChannelId);
-      return dm ? dm.name : t("chat.directTitle");
+      return dm ? tName(dm.name) : t("chat.directTitle");
     }
     if (activeChannelType === "site") {
       const s = sites.find((x) => x.id === activeChannelId);
-      return s ? t("chat.siteTitle", { name: s.name }) : t("chat.tabSite");
+      return s ? t("chat.siteTitle", { name: tName(s.name) }) : t("chat.tabSite");
     }
     return "";
   }, [activeChannelType, activeChannelId, sites, t, dmChannels]);
@@ -311,7 +310,7 @@ export function FullChatApp({
             {/* General & Direct */}
             <div>
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                Основные
+                {t("chat.sidebar.main")}
               </h3>
               <div className="space-y-1">
                 <ChannelButton
@@ -346,11 +345,11 @@ export function FullChatApp({
                       className="w-full flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg hover:bg-muted text-foreground transition-colors"
                     >
                       <User className="h-3.5 w-3.5 opacity-50" />
-                      <span className="truncate flex-1 text-left">{p.full_name || "Unknown"}</span>
+                      <span className="truncate flex-1 text-left">{tName(p.full_name || "Unknown")}</span>
                     </button>
                   ))}
                   {availableUsers.length === 0 && (
-                    <div className="text-xs text-muted-foreground px-3 py-2">Нет пользователей</div>
+                    <div className="text-xs text-muted-foreground px-3 py-2">{t("chat.sidebar.noUsers")}</div>
                   )}
                 </div>
               )}
@@ -358,12 +357,12 @@ export function FullChatApp({
               <div className="space-y-1">
                 {dmChannels.length === 0 && !showNewChat && !loadingChannels && (
                   <div className="text-xs text-muted-foreground px-3 py-2 italic opacity-60">
-                    Нет активных чатов
+                    {t("chat.sidebar.noActiveChats")}
                   </div>
                 )}
                 {dmChannels.length === 0 && loadingChannels && (
                   <div className="text-xs text-muted-foreground px-3 py-2 italic opacity-60 animate-pulse">
-                    Загрузка...
+                    {t("chat.sidebar.loading")}
                   </div>
                 )}
                 {dmChannels.map((dm) => (
@@ -371,7 +370,7 @@ export function FullChatApp({
                     key={dm.id}
                     active={activeChannelType === "direct" && activeChannelId === dm.id}
                     icon={<User className="h-4 w-4" />}
-                    title={dm.name}
+                    title={tName(dm.name)}
                     onClick={() => handleSelectChannel("direct", dm.id)}
                     onDelete={(e) => {
                       e.stopPropagation();
@@ -386,7 +385,7 @@ export function FullChatApp({
             {sites.length > 0 && (
               <div>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                  Объекты ({sites.length})
+                  {t("chat.sidebar.sites")} ({sites.length})
                 </h3>
                 <div className="space-y-1">
                   {sites.map((s) => (
@@ -394,7 +393,7 @@ export function FullChatApp({
                       key={s.id}
                       active={activeChannelType === "site" && activeChannelId === s.id}
                       icon={<Building2 className="h-4 w-4" />}
-                      title={s.name}
+                      title={tName(s.name)}
                       onClick={() => handleSelectChannel("site", s.id)}
                     />
                   ))}
@@ -432,22 +431,22 @@ export function FullChatApp({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setInfoDialogOpen(true)}>
-                Информация о чате
+                {t("chat.info.title")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setMediaDialogOpen(true)}>
-                Вложенные медиа
+                {t("chat.media.title")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleMute}>
                 {mutedChannels.includes(activeChannelId)
-                  ? "Включить уведомления"
-                  : "Отключить уведомления"}
+                  ? t("chat.menu.enableNotif")
+                  : t("chat.menu.disableNotif")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleClearHistory}
                 className="text-destructive"
                 disabled={activeChannelType !== "direct" && !isSuperAdmin}
               >
-                Очистить историю
+                {t("chat.menu.clearHistory")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -510,33 +509,33 @@ export function FullChatApp({
       <Dialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Информация о чате</DialogTitle>
+            <DialogTitle>{t("chat.info.title")}</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground font-medium mb-1">Название</p>
+              <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.name")}</p>
               <p className="font-semibold text-lg">{activeChannelTitle}</p>
             </div>
             {activeChannelSubtitle && (
               <div>
-                <p className="text-sm text-muted-foreground font-medium mb-1">Дополнительно</p>
+                <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.additional")}</p>
                 <p className="text-sm">{activeChannelSubtitle}</p>
               </div>
             )}
             <div>
-              <p className="text-sm text-muted-foreground font-medium mb-1">Тип чата</p>
+              <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.type")}</p>
               <p className="text-sm">
                 {activeChannelType === "general"
-                  ? "Общий канал (для всей команды)"
+                  ? t("chat.type.general")
                   : activeChannelType === "direct"
-                    ? "Личные сообщения (приватный)"
-                    : "Чат объекта"}
+                    ? t("chat.type.direct")
+                    : t("chat.type.site")}
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground font-medium mb-1">Уведомления</p>
+              <p className="text-sm text-muted-foreground font-medium mb-1">{t("chat.info.notifications")}</p>
               <p className="text-sm">
-                {mutedChannels.includes(activeChannelId) ? "Отключены" : "Включены"}
+                {mutedChannels.includes(activeChannelId) ? t("chat.info.notif.disabled") : t("chat.info.notif.enabled")}
               </p>
             </div>
           </div>
@@ -737,7 +736,7 @@ function ChannelContent({
     }
 
     const authorName =
-      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? "Сотрудник";
+      (user.user_metadata?.full_name as string | undefined) ?? user.email ?? t("admin.users.employee", { defaultValue: "Сотрудник" });
     const { error } = await supabase.from("chat_messages").insert({
       channel_type: channelType,
       channel_id: channelId,
@@ -881,7 +880,7 @@ function MessageBubble({
   avatarUrl: string | null;
 }) {
   const { user, roles } = useAuth();
-  const { lang } = useLanguage();
+  const { lang, tName } = useLanguage();
   const t = useT();
   const isMine = m.author_id === user?.id;
   const isSuperAdmin = roles.includes("super_admin");
@@ -939,7 +938,7 @@ function MessageBubble({
       {!isMine && (
         <Avatar className="h-8 w-8 mt-auto shrink-0">
           <AvatarImage src={avatarUrl || ""} />
-          <AvatarFallback>{(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{tName(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
       )}
       <div className={cn("flex flex-col gap-1 w-full", isMine ? "items-end" : "items-start")}>
@@ -952,7 +951,7 @@ function MessageBubble({
           )}
         >
           {!isMine && (
-            <div className="text-[11px] font-semibold opacity-70 mb-0.5">{m.author_name}</div>
+            <div className="text-[11px] font-semibold opacity-70 mb-0.5">{tName(m.author_name || "")}</div>
           )}
 
           {isPhotoReport && photoPath && (
@@ -1052,7 +1051,7 @@ function MessageBubble({
       {isMine && (
         <Avatar className="h-8 w-8 mt-auto shrink-0">
           <AvatarImage src={avatarUrl || ""} />
-          <AvatarFallback>{(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{tName(m.author_name || "").substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
       )}
     </div>
@@ -1070,6 +1069,7 @@ function ChatMediaDialog({
   channelType: "general" | "direct" | "site";
   channelId: string;
 }) {
+  const t = useT();
   const [photos, setPhotos] = useState<{ id: string; url: string; path: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
@@ -1114,7 +1114,7 @@ function ChatMediaDialog({
 
   const handleDelete = async () => {
     if (selected.length === 0) return;
-    if (!confirm(`Удалить ${selected.length} фото? Это удалит и соответствующие сообщения из чата.`)) return;
+    if (!confirm(t("chat.media.deleteConfirm").replace("{{count}}", selected.length.toString()))) return;
 
     const pathsToDelete = photos.filter((p) => selected.includes(p.id)).map((p) => p.path);
     if (pathsToDelete.length > 0) {
@@ -1138,20 +1138,20 @@ function ChatMediaDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 bg-background overflow-hidden">
           <div className="p-4 border-b flex flex-row items-center justify-between shadow-sm">
-            <DialogTitle className="text-lg">Вложенные медиа</DialogTitle>
+            <DialogTitle className="text-lg">{t("chat.media.title")}</DialogTitle>
             <div className="flex items-center gap-2 mr-8">
               {selectionMode ? (
                 <>
                   <Button variant="ghost" size="sm" onClick={() => { setSelectionMode(false); setSelected([]); }}>
-                    Отмена
+                    {t("chat.media.cancel")}
                   </Button>
                   <Button variant="destructive" size="sm" disabled={selected.length === 0} onClick={handleDelete}>
-                    Удалить ({selected.length})
+                    {t("chat.media.delete")} ({selected.length})
                   </Button>
                 </>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => setSelectionMode(true)} disabled={photos.length === 0}>
-                  Выбрать
+                  {t("chat.media.select")}
                 </Button>
               )}
             </div>
@@ -1164,7 +1164,7 @@ function ChatMediaDialog({
             ) : photos.length === 0 ? (
               <div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
                 <Camera className="h-12 w-12 mb-2 opacity-20" />
-                <p>Нет вложенных медиа</p>
+                <p>{t("chat.media.noMedia")}</p>
               </div>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 pb-4">

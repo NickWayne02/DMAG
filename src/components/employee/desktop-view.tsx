@@ -167,6 +167,7 @@ export function EmployeeDesktopView() {
 
   const { settings } = useSettings();
   const mode = settings.mode;
+  const { tName } = useLanguage();
 
   const {
     user,

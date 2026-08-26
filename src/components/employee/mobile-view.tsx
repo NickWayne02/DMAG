@@ -167,6 +167,7 @@ export function EmployeeMobileView() {
 
   const { settings } = useSettings();
   const mode = settings.mode;
+  const { tName } = useLanguage();
 
   const {
     user,

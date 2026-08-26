@@ -145,7 +145,7 @@ export function AdminEditableCalendarDialog({
         site: s.site_name || "Не указан",
         workStart: fmtTime(startD),
         workEnd: s.ended_at ? fmtTime(new Date(s.ended_at)) : "...",
-        workedHM: `${Math.floor(ms / 3600000)}ч ${String(Math.floor((ms % 3600000) / 60000)).padStart(2, "0")}м`,
+        workedHM: `${Math.floor(ms / 3600000)}${t("time.hoursShort")} ${String(Math.floor((ms % 3600000) / 60000)).padStart(2, "0")}${t("time.minutesShort")}`,
         row: s,
       });
       map.set(dateKey, arr);
@@ -318,7 +318,7 @@ export function AdminEditableCalendarDialog({
               size="sm"
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
             >
-              <ChevronLeft className="h-4 w-4 mr-1" /> Пред.
+              <ChevronLeft className="h-4 w-4 mr-1" /> {t("admin.calendar.prev")}
             </Button>
             <div className="font-semibold">
               {monthName} {cursor.getFullYear()}
@@ -328,7 +328,7 @@ export function AdminEditableCalendarDialog({
               size="sm"
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
             >
-              След. <ChevronRight className="h-4 w-4 ml-1" />
+              {t("admin.calendar.next")} <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
 
@@ -356,7 +356,7 @@ export function AdminEditableCalendarDialog({
                     <div
                       key={c.key}
                       onClick={() => c.day && onDayClick(c.day)}
-                      className={`min-h-[80px] rounded-xl p-1.5 text-xs border transition-all ${
+                      className={`min-h-20 rounded-xl p-1.5 text-xs border transition-all ${
                         c.day
                           ? entries
                             ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10"
@@ -392,7 +392,7 @@ export function AdminEditableCalendarDialog({
                                       .split(" ");
                                     return acc + (parseInt(h || "0") * 60 + parseInt(m || "0"));
                                   }, 0);
-                                  return `${Math.floor(totalMin / 60)}ч ${String(totalMin % 60).padStart(2, "0")}м`;
+                                  return `${Math.floor(totalMin / 60)}${t("time.hoursShort")} ${String(totalMin % 60).padStart(2, "0")}${t("time.minutesShort")}`;
                                 })()}
                               </div>
                             </div>
@@ -414,7 +414,7 @@ export function AdminEditableCalendarDialog({
       </Dialog>
 
       <Dialog open={!!shiftEdit} onOpenChange={(o) => !o && setShiftEdit(null)}>
-        <DialogContent className="sm:max-w-md z-[100]">
+        <DialogContent className="sm:max-w-md z-100">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle>{shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}</DialogTitle>
@@ -486,6 +486,7 @@ export function AdminEditableCalendarDialog({
                   <Label>{t("admin.calendar.start")}</Label>
                   <Input
                     type="datetime-local"
+                    lang={lang}
                     value={shiftEdit.started_at}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, started_at: ev.target.value })}
                   />
@@ -494,6 +495,7 @@ export function AdminEditableCalendarDialog({
                   <Label>{t("admin.calendar.end")}</Label>
                   <Input
                     type="datetime-local"
+                    lang={lang}
                     value={shiftEdit.ended_at}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, ended_at: ev.target.value })}
                   />
@@ -532,7 +534,7 @@ export function AdminEditableCalendarDialog({
           <DialogFooter className="gap-2 sm:gap-2">
             {shiftEdit?.id && (
               <Button variant="destructive" onClick={deleteShift} disabled={shiftSaving}>
-                {shiftDeleteConfirm === shiftEdit.id ? "Точно удалить?" : t("admin.calendar.delete")}
+                {shiftDeleteConfirm === shiftEdit.id ? t("admin.calendar.confirmDelete") : t("admin.calendar.delete")}
               </Button>
             )}
             <div className="flex-1" />

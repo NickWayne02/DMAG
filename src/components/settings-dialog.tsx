@@ -253,8 +253,8 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
           {/* Button Style cluster */}
           <section className="space-y-3">
             <Label className="text-sm font-semibold flex items-center gap-2">
-              <Type className="h-4 w-4" /> {/* Or another icon like Layout */}
-              Стиль кнопок
+              <Type className="h-4 w-4" />
+              {t("settings.buttonStyle")}
             </Label>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -266,7 +266,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                     : "border-border hover:bg-muted"
                 }`}
               >
-                Цветной фон
+                {t("settings.buttonStyle.solid")}
               </button>
               <button
                 type="button"
@@ -277,7 +277,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                     : "border-border hover:bg-muted"
                 }`}
               >
-                Цветной текст
+                {t("settings.buttonStyle.text")}
               </button>
             </div>
           </section>

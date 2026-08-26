@@ -188,11 +188,11 @@ function useSessionState<T>(key: string, defaultValue: T): [T, React.Dispatch<Re
   return [state, setState];
 }
 
-function formatHM(ms: number) {
+function formatHM(ms: number, t: (k: string) => string) {
   const totalMin = Math.max(0, Math.floor(ms / 60000));
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  return `${h}ч ${m.toString().padStart(2, "0")}м`;
+  return `${h}${t("time.hoursShort")} ${m.toString().padStart(2, "0")}${t("time.minutesShort")}`;
 }
 
 function TablePagination({
@@ -1420,7 +1420,7 @@ export function AdminDashboard({
         ts: s.started_at,
         type: "shift_start",
         title: t("admin.activity.shiftStart"),
-        desc: `${emp.name} начал смену на объекте ${s.site_name || tName(s.start_city) || "Unknown"}`,
+        desc: `${emp.name} начал смену на объекте ${s.site_name || tName(s.start_city || "") || "Unknown"}`,
         icon: <Users className="h-4 w-4" />,
         color: "text-green-600 bg-green-500/10",
       });
@@ -1430,7 +1430,7 @@ export function AdminDashboard({
           ts: s.ended_at,
           type: "shift_end",
           title: t("admin.activity.shiftEnd"),
-          desc: `${emp.name} завершил смену на объекте ${s.site_name || tName(s.end_city) || "Unknown"}`,
+          desc: `${emp.name} завершил смену на объекте ${s.site_name || tName(s.end_city || "") || "Unknown"}`,
           icon: <Activity className="h-4 w-4" />,
           color: "text-blue-600 bg-blue-500/10",
         });
@@ -1532,7 +1532,7 @@ export function AdminDashboard({
             { id: "reports", icon: Camera, label: t("admin.tab.reports"), super: false },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
             { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
-            { id: "chat", icon: MessageSquare, label: "Чат", super: false },
+            { id: "chat", icon: MessageSquare, label: t("tile.chat"), super: false },
           ]
             .filter((item) => !item.super || superMode)
             .map((item) => (
@@ -1577,7 +1577,7 @@ export function AdminDashboard({
                 {activeTab === "reports" && <span>{t("admin.tab.reports")}</span>}
                 {activeTab === "security" && <span>{t("admin.tab.security")}</span>}
                 {activeTab === "admin-management" && <span>{t("admin.tab.users")}</span>}
-                {activeTab === "chat" && <span>Чат</span>}
+                {activeTab === "chat" && <span>{t("tile.chat")}</span>}
               </h1>
               <p className="hidden md:block text-[10px] md:text-xs text-muted-foreground truncate">
                 {t(roleLabel[role])} · {tName(name)}
@@ -1851,10 +1851,10 @@ export function AdminDashboard({
                                     {e.since}
                                   </TableCell>
                                   <TableCell className="text-right tabular-nums text-sm">
-                                    {formatHM(e.workedMs)}
+                                    {formatHM(e.workedMs, t)}
                                   </TableCell>
                                   <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
-                                    {formatHM(e.lunchMs)}
+                                    {formatHM(e.lunchMs, t)}
                                   </TableCell>
                                   <TableCell className="text-right">
                                     <div className="flex justify-end gap-1">
@@ -1949,13 +1949,13 @@ export function AdminDashboard({
                                   <p className="text-muted-foreground text-[10px] mb-0.5">
                                     {t("admin.personnel.colWork")}
                                   </p>
-                                  <p className="font-medium">{formatHM(e.workedMs)}</p>
+                                  <p className="font-medium">{formatHM(e.workedMs, t)}</p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground text-[10px] mb-0.5">
                                     {t("admin.personnel.colPause")}
                                   </p>
-                                  <p className="font-medium">{formatHM(e.lunchMs)}</p>
+                                  <p className="font-medium">{formatHM(e.lunchMs, t)}</p>
                                 </div>
                               </div>
                             </div>
@@ -2032,7 +2032,7 @@ export function AdminDashboard({
 
                 <div className="flex flex-col sm:flex-row gap-3 mb-4">
                   <Input
-                    placeholder="Поиск объекта..."
+                    placeholder={t("admin.dashboard.searchSite")}
                     value={sitesSearch}
                     onChange={(e) => {
                       setSitesSearch(e.target.value);
@@ -2053,7 +2053,7 @@ export function AdminDashboard({
                             <TableHead>{t("admin.sites.colName")}</TableHead>
                             <TableHead>{t("admin.sites.colAddress")}</TableHead>
                             <TableHead>{t("admin.sites.colCustomer")}</TableHead>
-                            <TableHead className="text-right">Сотрудников</TableHead>
+                            <TableHead className="text-right">{t("admin.dashboard.employees")}</TableHead>
                             <TableHead className="text-right">
                               {t("admin.sites.colCreated")}
                             </TableHead>
@@ -2177,7 +2177,7 @@ export function AdminDashboard({
                                 )}
                               </div>
                               <div className="flex justify-between items-center mt-2 pt-3 border-t">
-                                <span className="text-xs text-muted-foreground">Сотрудников:</span>
+                                <span className="text-xs text-muted-foreground">{t("admin.dashboard.employees")}:</span>
                                 <Badge variant="secondary" className="font-mono">
                                   {empCount}
                                 </Badge>
@@ -2279,17 +2279,17 @@ export function AdminDashboard({
 
                 <div className="flex flex-col flex-wrap sm:flex-row gap-3 mb-6">
                   <Input
-                    placeholder="Поиск по описанию..."
+                    placeholder={t("admin.reports.searchDesc")}
                     value={reportsSearch}
                     onChange={(e) => setReportsSearch(e.target.value)}
                     className="w-full sm:w-50 rounded-xl bg-background"
                   />
                   <Select value={reportsSite} onValueChange={setReportsSite}>
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
-                      <SelectValue placeholder="Объект" />
+                      <SelectValue placeholder={t("admin.reports.sitePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl max-h-64">
-                      <SelectItem value="all">Все объекты</SelectItem>
+                      <SelectItem value="all">{t("admin.reports.allSites")}</SelectItem>
                       {sites.map((s) => (
                         <SelectItem key={`rs-${s.id}`} value={s.id}>
                           {s.name}
@@ -2300,12 +2300,12 @@ export function AdminDashboard({
 
                   <Select value={reportsPeriod} onValueChange={setReportsPeriod}>
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
-                      <SelectValue placeholder="Период" />
+                      <SelectValue placeholder={t("admin.reports.periodPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
-                      <SelectItem value="all">За всё время</SelectItem>
-                      <SelectItem value="today">За сегодня</SelectItem>
-                      <SelectItem value="week">За 7 дней</SelectItem>
+                      <SelectItem value="all">{t("admin.reports.allTime")}</SelectItem>
+                      <SelectItem value="today">{t("admin.reports.today")}</SelectItem>
+                      <SelectItem value="week">{t("admin.reports.week")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -2345,7 +2345,7 @@ export function AdminDashboard({
                                 {r.description || t("admin.reports.noDesc")}
                               </p>
                               <p className="text-[10px] text-muted-foreground mt-1">
-                                {new Date(r.created_at).toLocaleString("ru-RU", {
+                                {new Date(r.created_at).toLocaleString(lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang, {
                                   day: "numeric",
                                   month: "short",
                                   hour: "2-digit",
@@ -2525,7 +2525,7 @@ export function AdminDashboard({
 
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <Input
-                  placeholder="Поиск пользователя..."
+                  placeholder={t("admin.users.search")}
                   value={adminSearch}
                   onChange={(e) => {
                     setAdminSearch(e.target.value);
@@ -2541,8 +2541,8 @@ export function AdminDashboard({
                     <TableHeader>
                       <TableRow>
                         <TableHead>{t("admin.users.user")}</TableHead>
-                        <TableHead>Статус</TableHead>
-                        <TableHead>Последний вход</TableHead>
+                        <TableHead>{t("admin.users.colStatus")}</TableHead>
+                        <TableHead>{t("admin.users.colLastLogin")}</TableHead>
                         <TableHead>{t("admin.users.role")}</TableHead>
                         <TableHead className="text-right">{t("admin.users.actions")}</TableHead>
                       </TableRow>
@@ -2563,15 +2563,15 @@ export function AdminDashboard({
                         .map((e) => {
                           const isOnline = onlineUsers.includes(e.id);
                           const lastLogin = isOnline
-                            ? "В сети"
+                            ? t("admin.users.online")
                             : e.updated_at
-                              ? new Date(e.updated_at).toLocaleString("ru-RU", {
+                              ? new Date(e.updated_at).toLocaleString(lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang, {
                                   day: "numeric",
                                   month: "short",
                                   hour: "2-digit",
                                   minute: "2-digit",
                                 })
-                              : "Нет данных";
+                              : t("admin.users.noData");
                           return (
                             <TableRow key={`mgr-${e.id}`}>
                               <TableCell className="font-medium">
@@ -2588,14 +2588,14 @@ export function AdminDashboard({
                               <TableCell>
                                 {e.is_active ? (
                                   <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
-                                    Активен
+                                    {t("admin.users.active")}
                                   </Badge>
                                 ) : (
                                   <Badge
                                     variant="secondary"
                                     className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20"
                                   >
-                                    Модерация
+                                    {t("admin.users.moderation")}
                                   </Badge>
                                 )}
                               </TableCell>
@@ -2749,18 +2749,18 @@ export function AdminDashboard({
                           </div>
 
                           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <span className="font-medium">Последний вход:</span>
+                            <span className="font-medium">{t("admin.users.colLastLogin")}:</span>
                             <span>
                               {onlineUsers.includes(e.id)
-                                ? "В сети"
+                                ? t("admin.users.online")
                                 : e.updated_at
-                                  ? new Date(e.updated_at).toLocaleString("ru-RU", {
+                                  ? new Date(e.updated_at).toLocaleString(lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang, {
                                       day: "numeric",
                                       month: "short",
                                       hour: "2-digit",
                                       minute: "2-digit",
                                     })
-                                  : "Нет данных"}
+                                  : t("admin.users.noData")}
                             </span>
                           </div>
 

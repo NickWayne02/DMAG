@@ -1414,13 +1414,13 @@ export function AdminDashboard({
   const activities = useMemo(() => {
     const list: any[] = [];
     shiftHistory.slice(0, 50).forEach((s) => {
-      const emp = employees.find((e) => e.id === s.user_id) || { name: "Неизвестный сотрудник" };
+      const emp = employees.find((e) => e.id === s.user_id) || { name: t("admin.users.unknownEmployee", { defaultValue: "Неизвестный сотрудник" }) };
       list.push({
         id: `shift-start-${s.id}`,
         ts: s.started_at,
         type: "shift_start",
         title: t("admin.activity.shiftStart"),
-        desc: `${emp.name} начал смену на объекте ${s.site_name || tName(s.start_city || "") || "Unknown"}`,
+        desc: t("admin.activity.shiftStarted", { name: emp.name, site: s.site_name || tName(s.start_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" }) }),
         icon: <Users className="h-4 w-4" />,
         color: "text-green-600 bg-green-500/10",
       });
@@ -1430,7 +1430,7 @@ export function AdminDashboard({
           ts: s.ended_at,
           type: "shift_end",
           title: t("admin.activity.shiftEnd"),
-          desc: `${emp.name} завершил смену на объекте ${s.site_name || tName(s.end_city || "") || "Unknown"}`,
+          desc: t("admin.activity.shiftEnded", { name: emp.name, site: s.site_name || tName(s.end_city || "") || t("admin.activity.unknownSite", { defaultValue: "Unknown" }) }),
           icon: <Activity className="h-4 w-4" />,
           color: "text-blue-600 bg-blue-500/10",
         });
@@ -1443,7 +1443,7 @@ export function AdminDashboard({
               ts: interval.start,
               type: "lunch_start",
               title: t("admin.activity.pauseStart"),
-              desc: `${emp.name} ушел на перерыв`,
+              desc: t("admin.activity.lunchStarted", { name: emp.name }),
               icon: <Clock className="h-4 w-4" />,
               color: "text-amber-600 bg-amber-500/10",
             });
@@ -1460,7 +1460,7 @@ export function AdminDashboard({
                 ts: interval.end,
                 type: "lunch_end",
                 title: t("admin.activity.pauseEnd"),
-                desc: `${emp.name} вернулся к работе`,
+                desc: t("admin.activity.lunchEnded", { name: emp.name }),
                 icon: <Clock className="h-4 w-4" />,
                 color: "text-amber-600 bg-amber-500/10",
               });
@@ -1476,7 +1476,7 @@ export function AdminDashboard({
           ts: s.lunch_started_at,
           type: "lunch_start",
           title: t("admin.activity.pauseStart"),
-          desc: `${emp.name} ушел на перерыв`,
+          desc: t("admin.activity.lunchStarted", { name: emp.name }),
           icon: <Clock className="h-4 w-4" />,
           color: "text-amber-600 bg-amber-500/10",
         });
@@ -1487,8 +1487,8 @@ export function AdminDashboard({
         id: `report-${r.id}`,
         ts: r.created_at,
         type: "report",
-        title: "Новый фотоотчёт",
-        desc: r.description || "Без описания",
+        title: t("admin.activity.newPhotoReport", { defaultValue: "Новый фотоотчёт" }),
+        desc: r.description || t("admin.activity.noDescription", { defaultValue: "Без описания" }),
         icon: <Camera className="h-4 w-4" />,
         color: "text-orange-600 bg-orange-500/10",
       });
@@ -1645,7 +1645,7 @@ export function AdminDashboard({
 
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Загружаем данные…
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.loading", { defaultValue: "Loading data..." })}…
                 </div>
               ) : activities.length === 0 ? (
                 <div className="flex-1 mt-6 flex flex-col items-center justify-center py-20 px-6 text-center border-2 border-dashed rounded-2xl border-muted bg-card/30">
@@ -1653,10 +1653,10 @@ export function AdminDashboard({
                     <FolderSearch className="h-10 w-10 text-muted-foreground/40" />
                   </div>
                   <h4 className="text-lg font-semibold text-foreground mb-2">
-                    Активности пока нет
+                    {t("admin.activity.emptyTitle", { defaultValue: "Активности пока нет" })}
                   </h4>
                   <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                    События, новые смены и инциденты будут появляться здесь в реальном времени.
+                    {t("admin.activity.emptyDesc", { defaultValue: "События, новые смены и инциденты будут появляться здесь в реальном времени." })}
                   </p>
                 </div>
               ) : (
@@ -1757,12 +1757,12 @@ export function AdminDashboard({
                     }}
                   >
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
-                      <SelectValue placeholder="Роль" />
+                      <SelectValue placeholder={t("admin.filter.role", { defaultValue: "Роль" })} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
                       <SelectItem value="all">{t("admin.personnel.allRoles")}</SelectItem>
                       <SelectItem value="employee">{t("admin.personnel.employee")}</SelectItem>
-                      <SelectItem value="brigadier">Бригадир</SelectItem>
+                      <SelectItem value="brigadier">{t("role.brigadier", { defaultValue: "Бригадир" })}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select
@@ -1773,7 +1773,7 @@ export function AdminDashboard({
                     }}
                   >
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
-                      <SelectValue placeholder="Статус" />
+                      <SelectValue placeholder={t("admin.filter.status", { defaultValue: "Статус" })} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
                       <SelectItem value="all">{t("admin.personnel.allStatuses")}</SelectItem>
@@ -2390,7 +2390,7 @@ export function AdminDashboard({
                           {reportsLoadingMore ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                           ) : null}
-                          Загрузить ещё
+                          {t("admin.sessions.loadMore", { defaultValue: "Загрузить ещё" })}
                         </Button>
                       </div>
                     )}
@@ -2423,7 +2423,7 @@ export function AdminDashboard({
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold truncate">{logs[0].action}</p>
                             <span className="text-[11px] font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>В сети
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>{t("admin.sessions.online", { defaultValue: "В сети" })}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 truncate">
@@ -2475,8 +2475,7 @@ export function AdminDashboard({
                                 <p className="text-xs text-muted-foreground truncate">{l.meta}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-[11px] font-medium text-green-500 flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>В
-                                    сети
+                                    <span className="w-1 h-1 rounded-full bg-green-500"></span>{t("admin.sessions.online", { defaultValue: "В сети" })}
                                   </span>
                                   <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
                                   <p className="text-[11px] font-medium truncate">{l.user}</p>
@@ -2660,7 +2659,7 @@ export function AdminDashboard({
                                     }}
                                   >
                                     <ShieldCheck className="h-3.5 w-3.5 mr-1" />
-                                    Одобрить
+                                    {t("admin.users.approve", { defaultValue: "Одобрить" })}
                                   </Button>
                                 )}
                                 <Button
@@ -2783,7 +2782,7 @@ export function AdminDashboard({
                                 }
                               }}
                             >
-                              {e.role === "admin" ? "Сделать Супер" : "Сделать Админ"}
+                              {e.role === "admin" ? t("admin.users.makeSuper", { defaultValue: "Сделать Супер" }) : t("admin.users.makeAdmin", { defaultValue: "Сделать Админ" })}
                             </Button>
                             {!e.is_active && (
                               <Button
@@ -2809,7 +2808,7 @@ export function AdminDashboard({
                                   }
                                 }}
                               >
-                                Включить
+                                {t("admin.users.enable", { defaultValue: "Включить" })}
                               </Button>
                             )}
                             <div className="w-full flex gap-2">
@@ -2906,7 +2905,7 @@ export function AdminDashboard({
                         setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))
                       }
                     >
-                      <ChevronLeft className="h-4 w-4 mr-1" /> Пред.
+                      <ChevronLeft className="h-4 w-4 mr-1" /> {t("admin.pagination.prev", { defaultValue: "Пред." })}
                     </Button>
                     <div className="text-lg font-semibold">
                       {calMonthName} {calCursor.getFullYear()}
@@ -2918,13 +2917,13 @@ export function AdminDashboard({
                         setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))
                       }
                     >
-                      След. <ChevronRight className="h-4 w-4 ml-1" />
+                      {t("admin.pagination.next", { defaultValue: "След." })} <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
 
                   {calLoading ? (
                     <div className="py-20 flex items-center justify-center text-muted-foreground">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" /> Загрузка...
+                      <Loader2 className="h-6 w-6 animate-spin mr-2" /> {t("admin.loading", { defaultValue: "Загрузка..." })}
                     </div>
                   ) : (
                     <>
@@ -2992,7 +2991,7 @@ export function AdminDashboard({
                                   )}
                                   {!entries && (
                                     <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity text-center">
-                                      + Смена
+                                      {t("admin.personnel.addShift", { defaultValue: "+ Смена" })}
                                     </div>
                                   )}
                                 </div>

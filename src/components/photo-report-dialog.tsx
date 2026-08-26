@@ -207,9 +207,11 @@ export function PhotoReportDialog({
                   Объект: <span className="font-medium">{tName(site.name)}</span>
                 </>
               ) : skipDbInsert ? (
-                "Фото будет отправлено в текущий чат"
+                t("chat.photo.willBeSent", { defaultValue: "Фото будет отправлено в текущий чат" })
               ) : (
-                "Сначала выберите объект на главном экране"
+                <span className="text-xs text-amber-500 font-medium">
+                  {t("chat.photo.chooseSiteFirst", { defaultValue: "Сначала выберите объект на главном экране" })}
+                </span>
               )}
             </DialogDescription>
           )}
@@ -220,7 +222,7 @@ export function PhotoReportDialog({
           {!previewUrl ? (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Фото</Label>
+                <Label>{t("chat.photo.label", { defaultValue: "Фото" })}</Label>
                 <div className="grid grid-cols-3 gap-2">
                   <div
                     role="button"
@@ -228,7 +230,7 @@ export function PhotoReportDialog({
                     onClick={() => takePhoto("CAMERA")}
                   >
                     <LucideCamera className="h-6 w-6" />
-                    <span className="text-[10px] font-medium">Снимок</span>
+                    <span className="text-[10px] font-medium">{t("chat.photo.camera", { defaultValue: "Снимок" })}</span>
                   </div>
                   <div
                     role="button"
@@ -236,7 +238,7 @@ export function PhotoReportDialog({
                     onClick={() => takePhoto("PHOTOS")}
                   >
                     <ImagePlus className="h-6 w-6" />
-                    <span className="text-[10px] font-medium">Галерея</span>
+                    <span className="text-[10px] font-medium">{t("chat.photo.gallery", { defaultValue: "Галерея" })}</span>
                   </div>
                   <div
                     role="button"
@@ -244,17 +246,17 @@ export function PhotoReportDialog({
                     onClick={() => setBrowserOpen(true)}
                   >
                     <FolderSearch className="h-6 w-6" />
-                    <span className="text-[10px] font-medium">Хранилище</span>
+                    <span className="text-[10px] font-medium">{t("chat.photo.storage", { defaultValue: "Хранилище" })}</span>
                   </div>
                 </div>
               </div>
 
               {/* Description */}
               <div className="space-y-1.5">
-                <Label htmlFor="report-desc">Описание</Label>
+                <Label htmlFor="report-desc">{t("chat.photo.descLabel", { defaultValue: "Описание" })}</Label>
                 <Textarea
                   id="report-desc"
-                  placeholder="Скрытые работы, дефект, замечание..."
+                  placeholder={t("chat.photo.descPlaceholder", { defaultValue: "Скрытые работы, дефект, замечание..." })}
                   rows={4}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -285,7 +287,7 @@ export function PhotoReportDialog({
 
               <div className="relative">
                 <Input
-                  placeholder="Подпись..."
+                  placeholder={t("chat.photo.captionPlaceholder", { defaultValue: "Подпись..." })}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="border-0 border-b border-input rounded-none px-1 shadow-none focus-visible:ring-0 focus-visible:border-primary text-base"
@@ -312,11 +314,11 @@ export function PhotoReportDialog({
               onClick={() => onOpenChange(false)}
               disabled={busy}
             >
-              Отмена
+              {t("chat.photo.cancel", { defaultValue: "Отмена" })}
             </Button>
             <Button className="h-11 rounded-xl" onClick={submit} disabled={busy || (!site && !skipDbInsert)}>
               {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Отправить
+              {t("chat.photo.send", { defaultValue: "Отправить" })}
             </Button>
           </DialogFooter>
         ) : (
@@ -327,7 +329,7 @@ export function PhotoReportDialog({
               onClick={() => onOpenChange(false)}
               disabled={busy}
             >
-              Отмена
+              {t("chat.photo.cancel", { defaultValue: "Отмена" })}
             </Button>
             <Button 
               variant="ghost" 
@@ -336,7 +338,7 @@ export function PhotoReportDialog({
               disabled={busy || (!site && !skipDbInsert)}
             >
               {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Отправить
+              {t("chat.photo.send", { defaultValue: "Отправить" })}
             </Button>
           </DialogFooter>
         )}

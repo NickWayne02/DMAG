@@ -142,7 +142,7 @@ export function AdminEditableCalendarDialog({
         d.toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" });
 
       arr.push({
-        site: s.site_name || "Не указан",
+        site: s.site_name || t("admin.shift.noSite", { defaultValue: "Не указан" }),
         workStart: fmtTime(startD),
         workEnd: s.ended_at ? fmtTime(new Date(s.ended_at)) : "...",
         workedHM: `${Math.floor(ms / 3600000)}${t("time.hoursShort")} ${String(Math.floor((ms % 3600000) / 60000)).padStart(2, "0")}${t("time.minutesShort")}`,
@@ -306,9 +306,9 @@ export function AdminEditableCalendarDialog({
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="max-w-3xl h-[85vh] sm:h-auto overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Управление сменами · {employeeName}</DialogTitle>
+            <DialogTitle>{t("admin.shift.management", { defaultValue: "Управление сменами" })} · {employeeName}</DialogTitle>
             <DialogDescription>
-              Нажмите на любой день, чтобы добавить или отредактировать смену.
+              {t("admin.shift.instruction", { defaultValue: "Нажмите на любой день, чтобы добавить или отредактировать смену." })}
             </DialogDescription>
           </DialogHeader>
 
@@ -399,7 +399,7 @@ export function AdminEditableCalendarDialog({
                           )}
                           {!entries && (
                             <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 hover:opacity-100 text-center">
-                              + Смена
+                              {t("admin.personnel.addShift", { defaultValue: "+ Смена" })}
                             </div>
                           )}
                         </div>

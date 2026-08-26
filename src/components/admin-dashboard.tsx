@@ -95,7 +95,7 @@ import {
   adminToggleActive,
 } from "@/lib/admin-users.functions";
 import { getCurrentPosition, reverseGeocodeCity } from "@/lib/geocode";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, langToLocale } from "@/lib/i18n";
 
 const roleLabel: Record<AppRole, string> = {
   super_admin: "role.super_admin",
@@ -1371,7 +1371,7 @@ export function AdminDashboard({
 
           doc.setFontSize(11);
           doc.setTextColor(180, 180, 180);
-          const dateStr = new Date(r.created_at).toLocaleString("ru-RU");
+          const dateStr = new Date(r.created_at).toLocaleString(langToLocale(lang));
           doc.text(dateStr, 30, textYStart + 20);
 
           doc.setTextColor(220, 220, 220);
@@ -1403,7 +1403,7 @@ export function AdminDashboard({
     const stamp = new Date().toISOString().slice(0, 10);
     const base = `dmag-smeny-${stamp}`;
     if (fmt === "xlsx") exportShiftsXlsx(rows, `${base}.xlsx`);
-    else exportShiftsPdf(rows, `${base}.pdf`, "Отчёт по сменам (30 дней)");
+    else exportShiftsPdf(rows, `${base}.pdf`, "Отчёт по сменам (30 дней)", lang);
   }
 
   const filteredPersonnel = useMemo(() => {
@@ -1718,7 +1718,7 @@ export function AdminDashboard({
                           </p>
                         </div>
                         <div className="text-xs text-muted-foreground whitespace-nowrap pt-0.5 tabular-nums">
-                          {new Date(act.ts).toLocaleString("ru-RU", {
+                          {new Date(act.ts).toLocaleString(langToLocale(lang), {
                             day: "numeric",
                             month: "short",
                             hour: "2-digit",
@@ -2131,7 +2131,7 @@ export function AdminDashboard({
                                     </Badge>
                                   </TableCell>
                                   <TableCell className="text-right text-sm text-muted-foreground tabular-nums">
-                                    {new Date(s.created_at).toLocaleDateString("ru-RU")}
+                                    {new Date(s.created_at).toLocaleDateString(langToLocale(lang))}
                                   </TableCell>
                                   <TableCell className="text-right">
                                     <div className="flex justify-end gap-1">
@@ -2400,7 +2400,7 @@ export function AdminDashboard({
                               </p>
                               <p className="text-[10px] text-muted-foreground mt-1">
                                 {new Date(r.created_at).toLocaleString(
-                                  lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang,
+                                  langToLocale(lang),
                                   {
                                     day: "numeric",
                                     month: "short",
@@ -2626,7 +2626,7 @@ export function AdminDashboard({
                             ? t("admin.users.online")
                             : e.updated_at
                               ? new Date(e.updated_at).toLocaleString(
-                                  lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang,
+                                  langToLocale(lang),
                                   {
                                     day: "numeric",
                                     month: "short",
@@ -2818,7 +2818,7 @@ export function AdminDashboard({
                                 ? t("admin.users.online")
                                 : e.updated_at
                                   ? new Date(e.updated_at).toLocaleString(
-                                      lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : lang,
+                                      langToLocale(lang),
                                       {
                                         day: "numeric",
                                         month: "short",

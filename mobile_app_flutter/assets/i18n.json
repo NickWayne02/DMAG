@@ -2808,35 +2808,67 @@
   },
   "settings.panel.background": {
     "ru": "Фон страницы",
-    "en": "Page background"
+    "en": "Page background",
+    "ro": "Fundalul paginii",
+    "bg": "Фон на страницата",
+    "uz": "Sahifa foni",
+    "tg": "Заминаи саҳифа"
   },
   "settings.panel.foreground": {
     "ru": "Основной текст",
-    "en": "Text"
+    "en": "Text",
+    "ro": "Textul principal",
+    "bg": "Основен текст",
+    "uz": "Asosiy matn",
+    "tg": "Матни асосӣ"
   },
   "settings.panel.card": {
     "ru": "Карточки",
-    "en": "Cards"
+    "en": "Cards",
+    "ro": "Carduri",
+    "bg": "Карти",
+    "uz": "Kartalar",
+    "tg": "Кортҳо"
   },
   "settings.panel.cardForeground": {
     "ru": "Текст на карточках",
-    "en": "Card text"
+    "en": "Card text",
+    "ro": "Text pe carduri",
+    "bg": "Текст върху карти",
+    "uz": "Kartalardagi matn",
+    "tg": "Матн дар кортҳои"
   },
   "settings.panel.primary": {
     "ru": "Акцент",
-    "en": "Accent"
+    "en": "Accent",
+    "ro": "Акцент",
+    "bg": "Акцент",
+    "uz": "Urg'u",
+    "tg": "Аксент"
   },
   "settings.panel.primaryForeground": {
     "ru": "Текст на акценте",
-    "en": "On-accent text"
+    "en": "On-accent text",
+    "ro": "Text cu accent",
+    "bg": "Текст с ударение",
+    "uz": "Urg'udagi matn",
+    "tg": "Матн бо акцент"
   },
   "settings.panel.muted": {
     "ru": "Второстепенные",
-    "en": "Muted panels"
+    "en": "Muted panels",
+    "ro": "Minor",
+    "bg": "второстепенен",
+    "uz": "Kichik",
+    "tg": "Ноболиғ"
   },
   "settings.panel.border": {
     "ru": "Границы",
-    "en": "Borders"
+    "en": "Borders",
+    "ro": "Frontiere",
+    "bg": "Граници",
+    "uz": "Chegaralar",
+    "tg": "Сарҳадҳо"
   },
   "modal.privacy.p1": {
     "ru": "Настоящая Политика конфиденциальности описывает, как DMAG собирает, использует и защищает вашу личную информацию при использовании нашей платформы.",
@@ -5698,13 +5730,13 @@
   "export.work_start": {
     "ru": "Начало работы",
     "en": "Work start",
-    "de": "Work start",
-    "ro": "Work start",
-    "bg": "Начало работы",
-    "pl": "Work start",
+    "de": "Arbeitsbeginn",
+    "ro": "Începere lucru",
+    "bg": "Начало на работата",
+    "pl": "Rozpoczęcie pracy",
     "uk": "Початок роботи",
-    "uz": "Work start",
-    "tg": "Начало работы"
+    "uz": "Ish boshlanishi",
+    "tg": "Оғози кор"
   },
   "export.pause_start": {
     "ru": "Начало паузы",
@@ -5731,13 +5763,13 @@
   "export.work_end": {
     "ru": "Конец работы",
     "en": "Work end",
-    "de": "Work end",
-    "ro": "Work end",
-    "bg": "Конец работы",
-    "pl": "Work end",
+    "de": "Arbeitsende",
+    "ro": "Sfârșit lucru",
+    "bg": "Край на работата",
+    "pl": "Zakończenie pracy",
     "uk": "Кінець роботи",
-    "uz": "Work end",
-    "tg": "Конец работы"
+    "uz": "Ishning tugashi",
+    "tg": "Анҷоми кор"
   },
   "export.pause_mins": {
     "ru": "Пауза (мин)",
@@ -6807,5 +6839,880 @@
     "uz": "Rol",
     "tg": "Нақш",
     "es": "Rol"
+  },
+  "admin.reports.searchDesc": {
+    "ru": "Поиск по описанию...",
+    "en": "Search by description...",
+    "ro": "Cauta dupa descriere...",
+    "bg": "Търсене по описание...",
+    "uz": "Tavsif bo'yicha qidirish...",
+    "tg": "Ҷустуҷӯ аз рӯи тавсиф...",
+    "de": "Nach Beschreibung suchen..."
+  },
+  "admin.reports.sitePlaceholder": {
+    "ru": "Объект",
+    "en": "Site",
+    "ro": "Obiect",
+    "bg": "Обект",
+    "uz": "Ob'ekt",
+    "tg": "Объект",
+    "de": "Objekt"
+  },
+  "admin.reports.allSites": {
+    "ru": "Все объекты",
+    "en": "All sites",
+    "ro": "Toate obiectele",
+    "bg": "Всички обекти",
+    "uz": "Barcha ob'ektlar",
+    "tg": "Ҳама объектҳо",
+    "de": "Alle Objekte"
+  },
+  "admin.reports.periodPlaceholder": {
+    "ru": "Период",
+    "en": "Period",
+    "ro": "Perioadă",
+    "bg": "Точка",
+    "uz": "Davr",
+    "tg": "Давра",
+    "de": "Zeitraum"
+  },
+  "admin.reports.allTime": {
+    "ru": "За всё время",
+    "en": "All time",
+    "ro": "Pentru tot timpul",
+    "bg": "За всички времена",
+    "uz": "Hamma vaqt uchun",
+    "tg": "Барои ҳама вақт",
+    "de": "Gesamte Zeit"
+  },
+  "admin.reports.today": {
+    "ru": "За сегодня",
+    "en": "Today",
+    "ro": "Pentru azi",
+    "bg": "За днес",
+    "uz": "Bugun uchun",
+    "tg": "Барои имруз",
+    "de": "Heute"
+  },
+  "admin.reports.week": {
+    "ru": "За 7 дней",
+    "en": "Last 7 days",
+    "ro": "In 7 zile",
+    "bg": "След 7 дни",
+    "uz": "7 kun ichida",
+    "tg": "Дар 7 руз",
+    "de": "Letzte 7 Tage"
+  },
+  "admin.users.search": {
+    "ru": "Поиск пользователя...",
+    "en": "Search user...",
+    "ro": "Căutați utilizator...",
+    "bg": "Търсене на потребител...",
+    "uz": "Foydalanuvchini qidirish...",
+    "tg": "Ҷустуҷӯи корбар...",
+    "de": "Benutzer suchen..."
+  },
+  "admin.users.colStatus": {
+    "ru": "Статус",
+    "en": "Status",
+    "ro": "Stare",
+    "bg": "Статус",
+    "uz": "Статус",
+    "tg": "Статус",
+    "de": "Status"
+  },
+  "admin.users.colLastLogin": {
+    "ru": "Последний вход",
+    "en": "Last login",
+    "ro": "Ultima intrare",
+    "bg": "Последно влизане",
+    "uz": "Oxirgi kirish",
+    "tg": "Вуруди охирин",
+    "de": "Letzter Login"
+  },
+  "admin.users.online": {
+    "ru": "В сети",
+    "en": "Online",
+    "ro": "В сети",
+    "bg": "Онлайн",
+    "uz": "Onlayn",
+    "tg": "Онлайн",
+    "de": "Online"
+  },
+  "admin.users.noData": {
+    "ru": "Нет данных",
+    "en": "No data",
+    "ro": "Fără date",
+    "bg": "Няма данни",
+    "uz": "Maʼlumot yoʻq",
+    "tg": "Маълумот нест",
+    "de": "Keine Daten"
+  },
+  "admin.users.moderation": {
+    "ru": "Модерация",
+    "en": "Moderation",
+    "ro": "Moderare",
+    "bg": "Умереност",
+    "uz": "Moderatsiya",
+    "tg": "Модератсия",
+    "de": "Moderation"
+  },
+  "settings.buttonStyle": {
+    "ru": "Стиль кнопок",
+    "en": "Button style",
+    "de": "Schaltflächenstil",
+    "ro": "Stil buton",
+    "bg": "Стил на бутоните",
+    "pl": "Styl przycisku",
+    "uk": "Стиль кнопок",
+    "uz": "Tugma uslubi",
+    "tg": "Услуби тугма"
+  },
+  "settings.buttonStyle.solid": {
+    "ru": "Цветной фон",
+    "en": "Solid",
+    "de": "Ausgefüllt",
+    "ro": "Fundal colorat",
+    "bg": "Плътен цвят",
+    "pl": "Pełny kolor",
+    "uk": "Кольорове тло",
+    "uz": "Rangli fon",
+    "tg": "Заминаи ранга"
+  },
+  "settings.buttonStyle.text": {
+    "ru": "Цветной текст",
+    "en": "Text color",
+    "de": "Textfarbe",
+    "ro": "Text colorat",
+    "bg": "Цветен текст",
+    "pl": "Kolorowy tekst",
+    "uk": "Кольоровий текст",
+    "uz": "Rangli matn",
+    "tg": "Матни ранга"
+  },
+  "admin.calendar.prev": {
+    "ru": "Пред.",
+    "en": "Prev.",
+    "de": "Zurück",
+    "ro": "Prec.",
+    "bg": "Предиш.",
+    "pl": "Poprz.",
+    "uk": "Попер.",
+    "uz": "Old.",
+    "tg": "Гузашт."
+  },
+  "admin.calendar.next": {
+    "ru": "След.",
+    "en": "Next",
+    "de": "Weiter",
+    "ro": "Următ.",
+    "bg": "Следв.",
+    "pl": "Nast.",
+    "uk": "Наст.",
+    "uz": "Keying.",
+    "tg": "Оянда"
+  },
+  "admin.calendar.confirmDelete": {
+    "ru": "Точно удалить?",
+    "en": "Are you sure?",
+    "de": "Sind Sie sicher?",
+    "ro": "Sigur ștergeți?",
+    "bg": "Сигурни ли сте?",
+    "pl": "Na pewno usunąć?",
+    "uk": "Точно видалити?",
+    "uz": "Aniq o'chirasizmi?",
+    "tg": "Дақиқ нест кунед?"
+  },
+  "admin.dashboard.searchSite": {
+    "ru": "Поиск объекта...",
+    "en": "Search site...",
+    "de": "Objekt suchen...",
+    "ro": "Căutare obiectiv...",
+    "bg": "Търсене на обект...",
+    "pl": "Szukaj obiektu...",
+    "uk": "Пошук об'єкта...",
+    "uz": "Obyektni qidirish...",
+    "tg": "Ҷустуҷӯи объект..."
+  },
+  "admin.dashboard.employees": {
+    "ru": "Сотрудников",
+    "en": "Employees",
+    "de": "Mitarbeiter",
+    "ro": "Angajați",
+    "bg": "Служители",
+    "pl": "Pracownicy",
+    "uk": "Співробітників",
+    "uz": "Xodimlar",
+    "tg": "Кормандон"
+  },
+  "time.hoursShort": {
+    "ru": "ч",
+    "en": "h",
+    "de": "Std",
+    "ro": "o",
+    "bg": "ч",
+    "pl": "g",
+    "uk": "год",
+    "uz": "s",
+    "tg": "с"
+  },
+  "time.minutesShort": {
+    "ru": "м",
+    "en": "m",
+    "de": "Min",
+    "ro": "м",
+    "bg": "м",
+    "pl": "m",
+    "uk": "хв",
+    "uz": "d",
+    "tg": "д"
+  },
+  "admin.users.active": {
+    "ru": "Активен",
+    "en": "Active",
+    "de": "Aktiv",
+    "ro": "Activ",
+    "bg": "Активен",
+    "pl": "Aktywny",
+    "uk": "Активний",
+    "uz": "Faol",
+    "tg": "Фаъол"
+  },
+  "admin.users.inactive": {
+    "ru": "Отключен",
+    "en": "Disabled",
+    "de": "Deaktiviert",
+    "ro": "Dezactivat",
+    "bg": "Изключен",
+    "pl": "Wyłączony",
+    "uk": "Вимкнений",
+    "uz": "Nofaol",
+    "tg": "Хомӯшшуда"
+  },
+  "admin.activity.title": {
+    "ru": "Последняя активность",
+    "en": "Recent activity",
+    "de": "Letzte Aktivität",
+    "ro": "Последняя активность",
+    "bg": "Последняя активность",
+    "pl": "Ostatnia aktywność",
+    "uk": "Остання активність",
+    "uz": "Последняя активность",
+    "tg": "Последняя активность"
+  },
+  "admin.activity.shiftEnd": {
+    "ru": "Окончание смены",
+    "en": "End of shift",
+    "de": "Schichtende",
+    "ro": "Окончание смены",
+    "bg": "Окончание смены",
+    "pl": "Koniec zmiany",
+    "uk": "Закінчення зміни",
+    "uz": "Окончание смены",
+    "tg": "Окончание смены"
+  },
+  "admin.activity.shiftStart": {
+    "ru": "Начало смены",
+    "en": "Start of shift",
+    "de": "Schichtbeginn",
+    "ro": "Начало смены",
+    "bg": "Начало смены",
+    "pl": "Początek zmiany",
+    "uk": "Початок зміни",
+    "uz": "Начало смены",
+    "tg": "Начало смены"
+  },
+  "admin.activity.shiftStarted": {
+    "ru": "{name} начал смену на объекте {site}",
+    "en": "{name} started a shift at {site}",
+    "de": "{name} hat die Schicht in {site} begonnen",
+    "ro": "{name} a început tura la {site}",
+    "bg": "{name} започна смяна на обект {site}",
+    "pl": "{name} rozpoczął zmianę na obiekcie {site}",
+    "uk": "{name} розпочав зміну на об'єкті {site}",
+    "uz": "{name} {site} obyektida smenani boshladi",
+    "tg": "{name} сменаро дар иншооти {site} оғоз кард"
+  },
+  "admin.activity.shiftEnded": {
+    "ru": "{name} завершил смену на объекте {site}",
+    "en": "{name} ended a shift at {site}",
+    "de": "{name} hat die Schicht in {site} beendet",
+    "ro": "{name} a terminat tura la {site}",
+    "bg": "{name} завърши смяна на обект {site}",
+    "pl": "{name} zakończył zmianę na obiekcie {site}",
+    "uk": "{name} завершив зміну на об'єкті {site}",
+    "uz": "{name} {site} obyektida smenani yakunladi",
+    "tg": "{name} сменаро дар иншооти {site} ба анҷом расонид"
+  },
+  "admin.activity.lunchStarted": {
+    "ru": "{name} ушел на перерыв",
+    "en": "{name} went on lunch break",
+    "de": "{name} hat eine Pause begonnen",
+    "ro": "{name} a luat o pauză",
+    "bg": "{name} излезе в почивка",
+    "pl": "{name} poszedł na przerwę",
+    "uk": "{name} пішов на перерву",
+    "uz": "{name} tanaffusga chiqdi",
+    "tg": "{name} ба танаффус рафт"
+  },
+  "admin.activity.lunchEnded": {
+    "ru": "{name} вернулся к работе",
+    "en": "{name} returned to work",
+    "de": "{name} ist zur Arbeit zurückgekehrt",
+    "ro": "{name} s-a întors la muncă",
+    "bg": "{name} се върна на работа",
+    "pl": "{name} wrócił do pracy",
+    "uk": "{name} повернувся до роботи",
+    "uz": "{name} ishga qaytdi",
+    "tg": "{name} ба кор баргашт"
+  },
+  "admin.activity.unknownSite": {
+    "ru": "Неизвестный объект",
+    "en": "Unknown site",
+    "de": "Unbekanntes Objekt",
+    "ro": "Obiect necunoscut",
+    "bg": "Неизвестен обект",
+    "pl": "Nieznany obiekt",
+    "uk": "Невідомий об'єкт",
+    "uz": "Noma'lum obyekt",
+    "tg": "Иншооти номаълум"
+  },
+  "admin.activity.pauseStart": {
+    "ru": "Уход на перерыв",
+    "en": "Pause start",
+    "de": "Pausenbeginn",
+    "ro": "Уход на перерыв",
+    "bg": "Уход на перерыв",
+    "pl": "Początek przerwy",
+    "uk": "Початок перерви",
+    "uz": "Уход на перерыв",
+    "tg": "Уход на перерыв"
+  },
+  "admin.activity.pauseEnd": {
+    "ru": "Возврат с перерыва",
+    "en": "Pause end",
+    "de": "Pausenende",
+    "ro": "Возврат с перерыва",
+    "bg": "Возврат с перерыва",
+    "pl": "Кoniec przerwy",
+    "uk": "Кінець перерви",
+    "uz": "Возврат с перерыва",
+    "tg": "Возврат с перерыва"
+  },
+  "admin.calendar.desc": {
+    "ru": "Просмотр и редактирование смен сотрудников",
+    "en": "View and edit employee shifts",
+    "de": "Mitarbeiterschichten anzeigen und bearbeiten",
+    "ro": "Просмотр и редактирование смен сотрудников",
+    "bg": "Просмотр и редактирование смен сотрудников",
+    "pl": "Przeglądanie i edycja zmian pracowników",
+    "uk": "Перегляд та редагування змін співробітників",
+    "uz": "Просмотр и редактирование смен сотрудников",
+    "tg": "Просмотр и редактирование смен сотрудников"
+  },
+  "admin.calendar.selectEmp": {
+    "ru": "-- Выберите сотрудника --",
+    "en": "-- Select employee --",
+    "de": "-- Mitarbeiter auswählen --",
+    "ro": "-- Выберите сотрудника --",
+    "bg": "-- Выберите сотрудника --",
+    "pl": "-- Wybierz pracownika --",
+    "uk": "-- Оберіть співробітника --",
+    "uz": "-- Выберите сотрудника --",
+    "tg": "-- Выберите сотрудника --"
+  },
+  "admin.calendar.editShift": {
+    "ru": "Редактировать смену",
+    "en": "Edit shift",
+    "de": "Schicht bearbeiten",
+    "ro": "Редактировать смену",
+    "bg": "Редактировать смену",
+    "pl": "Edytuj zmianę",
+    "uk": "Редагувати зміну",
+    "uz": "Редактировать смену",
+    "tg": "Редактировать смену"
+  },
+  "admin.calendar.addShift": {
+    "ru": "Добавить смену",
+    "en": "Add shift",
+    "de": "Schicht hinzufügen",
+    "ro": "Добавить смену",
+    "bg": "Добавить смену",
+    "pl": "Dodaj zmianę",
+    "uk": "Додати зміну",
+    "uz": "Добавить смену",
+    "tg": "Добавить смену"
+  },
+  "admin.calendar.fillTime": {
+    "ru": "Выберите сотрудника и заполните время",
+    "en": "Select employee and fill time",
+    "de": "Mitarbeiter auswählen und Zeit ausfüllen",
+    "ro": "Выберите сотрудника и заполните время",
+    "bg": "Выберите сотрудника и заполните время",
+    "pl": "Wybierz pracownika i wypełnij czas",
+    "uk": "Виберіть співробітника та заповніть час",
+    "uz": "Выберите сотрудника и заполните время",
+    "tg": "Выберите сотрудника и заполните время"
+  },
+  "admin.calendar.site": {
+    "ru": "Объект",
+    "en": "Site",
+    "de": "Objekt",
+    "ro": "Объект",
+    "bg": "Объект",
+    "pl": "Obiekt",
+    "uk": "Об'єкт",
+    "uz": "Объект",
+    "tg": "Объект"
+  },
+  "admin.calendar.start": {
+    "ru": "Начало",
+    "en": "Start",
+    "de": "Start",
+    "ro": "Начало",
+    "bg": "Начало",
+    "pl": "Początek",
+    "uk": "Початок",
+    "uz": "Начало",
+    "tg": "Начало"
+  },
+  "admin.calendar.end": {
+    "ru": "Конец",
+    "en": "End",
+    "de": "Ende",
+    "ro": "Конец",
+    "bg": "Конец",
+    "pl": "Koniec",
+    "uk": "Кінець",
+    "uz": "Конец",
+    "tg": "Конец"
+  },
+  "admin.calendar.pause": {
+    "ru": "Пауза (минут)",
+    "en": "Pause (minutes)",
+    "de": "Pause (Minuten)",
+    "ro": "Пауза (минут)",
+    "bg": "Пауза (минут)",
+    "pl": "Pauza (minuty)",
+    "uk": "Пауза (хвилин)",
+    "uz": "Пауза (минут)",
+    "tg": "Пауза (минут)"
+  },
+  "admin.calendar.gpsStart": {
+    "ru": "GPS город (старт)",
+    "en": "GPS city (start)",
+    "de": "GPS-Stadt (Start)",
+    "ro": "GPS город (старт)",
+    "bg": "GPS город (старт)",
+    "pl": "Miasto GPS (start)",
+    "uk": "GPS місто (старт)",
+    "uz": "GPS город (старт)",
+    "tg": "GPS город (старт)"
+  },
+  "admin.calendar.gpsEnd": {
+    "ru": "GPS город (конец)",
+    "en": "GPS city (end)",
+    "de": "GPS-Stadt (Ende)",
+    "ro": "GPS город (конец)",
+    "bg": "GPS город (конец)",
+    "pl": "Miasto GPS (koniec)",
+    "uk": "GPS місто (кінець)",
+    "uz": "GPS город (конец)",
+    "tg": "GPS город (конец)"
+  },
+  "admin.calendar.cancel": {
+    "ru": "Отмена",
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "ro": "Отмена",
+    "bg": "Отмена",
+    "pl": "Anuluj",
+    "uk": "Скасувати",
+    "uz": "Отмена",
+    "tg": "Отмена"
+  },
+  "admin.calendar.save": {
+    "ru": "Сохранить",
+    "en": "Save",
+    "de": "Speichern",
+    "ro": "Сохранить",
+    "bg": "Сохранить",
+    "pl": "Zapisz",
+    "uk": "Зберегти",
+    "uz": "Сохранить",
+    "tg": "Сохранить"
+  },
+  "admin.calendar.delete": {
+    "ru": "Удалить",
+    "en": "Delete",
+    "de": "Löschen",
+    "ro": "Удалить",
+    "bg": "Удалить",
+    "pl": "Usuń",
+    "uk": "Видалити",
+    "uz": "Удалить",
+    "tg": "Удалить"
+  },
+  "admin.calendar.select": {
+    "ru": "Выберите...",
+    "en": "Select...",
+    "de": "Auswählen...",
+    "ro": "Выберите...",
+    "bg": "Выберите...",
+    "pl": "Wybierz...",
+    "uk": "Виберіть...",
+    "uz": "Выберите...",
+    "tg": "Выберите..."
+  },
+  "admin.calendar.noSite": {
+    "ru": "— Без объекта —",
+    "en": "--- No site ---",
+    "de": "--- Kein Objekt ---",
+    "ro": "— Без объекта —",
+    "bg": "— Без объекта —",
+    "pl": "--- Bez obiektu ---",
+    "uk": "— Без об'єкта —",
+    "uz": "— Без объекта —",
+    "tg": "— Без объекта —"
+  },
+  "admin.personnel.search": {
+    "ru": "Поиск по имени...",
+    "en": "Search by name...",
+    "de": "Nach Name suchen...",
+    "ro": "Поиск по имени...",
+    "bg": "Поиск по имени...",
+    "pl": "Szukaj po nazwisku...",
+    "uk": "Пошук за іменем...",
+    "uz": "Поиск по имени...",
+    "tg": "Поиск по имени..."
+  },
+  "admin.personnel.allRoles": {
+    "ru": "Все роли",
+    "en": "All roles",
+    "de": "Alle Rollen",
+    "ro": "Все роли",
+    "bg": "Все роли",
+    "pl": "Wszystkie role",
+    "uk": "Всі ролі",
+    "uz": "Все роли",
+    "tg": "Ҳама нақшҳо"
+  },
+  "admin.personnel.allStatuses": {
+    "ru": "Все статусы",
+    "en": "All statuses",
+    "de": "Alle Status",
+    "ro": "Toate stările",
+    "bg": "Всички статуси",
+    "pl": "Wszystkie statusy",
+    "uk": "Всі статуси",
+    "uz": "Barcha holatlar",
+    "tg": "Ҳама статусҳо"
+  },
+  "admin.personnel.onShift": {
+    "ru": "На смене",
+    "en": "On shift",
+    "de": "Auf Schicht",
+    "ro": "În tură",
+    "bg": "На смяна",
+    "pl": "Na zmianie",
+    "uk": "На зміні",
+    "uz": "Smenada",
+    "tg": "Дар смена"
+  },
+  "admin.personnel.onPause": {
+    "ru": "На паузе",
+    "en": "On pause",
+    "de": "In Pause",
+    "ro": "În pauză",
+    "bg": "На пауза",
+    "pl": "Na pauzie",
+    "uk": "На паузі",
+    "uz": "Pauzada",
+    "tg": "Дар таваққуф"
+  },
+  "admin.personnel.shiftEnded": {
+    "ru": "Смена завершена",
+    "en": "Shift ended",
+    "de": "Schicht beendet",
+    "ro": "Schimb finalizat",
+    "bg": "Смяната е завършена",
+    "pl": "Zmiana zakończona",
+    "uk": "Зміну завершено",
+    "uz": "Shift tugallandi",
+    "tg": "Смена анҷом ёфт"
+  },
+  "admin.personnel.offline": {
+    "ru": "Офлайн",
+    "en": "Offline",
+    "de": "Offline",
+    "ro": "Офлайн",
+    "bg": "Офлайн",
+    "pl": "Offline",
+    "uk": "Офлайн",
+    "uz": "Oflayn",
+    "tg": "Офлайн"
+  },
+  "admin.personnel.employee": {
+    "ru": "Сотрудник",
+    "en": "Employee",
+    "de": "Mitarbeiter",
+    "pl": "Pracownik",
+    "uk": "Співробітник",
+    "ro": "Angajat",
+    "bg": "Служител",
+    "uz": "Xodim",
+    "tg": "Корманд"
+  },
+  "admin.personnel.brigadier": {
+    "ru": "Бригадир",
+    "en": "Brigadier",
+    "de": "Vorarbeiter",
+    "ro": "brigadier",
+    "bg": "Бригадир",
+    "pl": "Brygadzista",
+    "uk": "Бригадир",
+    "uz": "Brigadir",
+    "tg": "Бригадир"
+  },
+  "chat.notifications.disabled": {
+    "ru": "Уведомления отключены",
+    "en": "Notifications disabled",
+    "ro": "Уведомления отключены",
+    "bg": "Уведомления отключены",
+    "uz": "Уведомления отключены",
+    "tg": "Уведомления отключены",
+    "de": "Benachrichtigungen deaktiviert"
+  },
+  "chat.notifications.enabled": {
+    "ru": "Уведомления включены",
+    "en": "Notifications enabled",
+    "ro": "Уведомления включены",
+    "bg": "Уведомления включены",
+    "uz": "Уведомления включены",
+    "tg": "Уведомления включены",
+    "de": "Benachrichtigungen aktiviert"
+  },
+  "chat.sidebar.main": {
+    "ru": "Основные",
+    "en": "Main",
+    "ro": "Основные",
+    "bg": "Основные",
+    "uz": "Основные",
+    "tg": "Основные",
+    "de": "HAUPT"
+  },
+  "chat.info.title": {
+    "ru": "Информация о чате",
+    "en": "Chat info",
+    "ro": "Информация о чате",
+    "bg": "Информация о чате",
+    "uz": "Информация о чате",
+    "tg": "Информация о чате",
+    "de": "Chat-Info"
+  },
+  "chat.media.noMedia": {
+    "ru": "Нет вложенных медиа",
+    "en": "No attached media",
+    "ro": "Нет вложенных медиа",
+    "bg": "Нет вложенных медиа",
+    "uz": "Нет вложенных медиа",
+    "tg": "Нет вложенных медиа",
+    "de": "Keine angehängten Medien"
+  },
+  "chat.media.title": {
+    "ru": "Вложенные медиа",
+    "en": "Attached media",
+    "ro": "Вложенные медиа",
+    "bg": "Вложенные медиа",
+    "uz": "Вложенные медиа",
+    "tg": "Вложенные медиа",
+    "de": "Angehängte Medien"
+  },
+  "chat.menu.enableNotif": {
+    "ru": "Включить уведомления",
+    "en": "Enable notifications",
+    "ro": "Включить уведомления",
+    "bg": "Включить уведомления",
+    "uz": "Включить уведомления",
+    "tg": "Включить уведомления",
+    "de": "Benachrichtigungen aktivieren"
+  },
+  "chat.menu.disableNotif": {
+    "ru": "Отключить уведомления",
+    "en": "Disable notifications",
+    "ro": "Отключить уведомления",
+    "bg": "Отключить уведомления",
+    "uz": "Отключить уведомления",
+    "tg": "Отключить уведомления",
+    "de": "Benachrichtigungen deaktivieren"
+  },
+  "chat.menu.clearHistory": {
+    "ru": "Очистить историю",
+    "en": "Clear history",
+    "ro": "Очистить историю",
+    "bg": "Очистить историю",
+    "uz": "Очистить историю",
+    "tg": "Очистить историю",
+    "de": "Verlauf löschen"
+  },
+  "chat.info.name": {
+    "ru": "Название",
+    "en": "Name",
+    "ro": "Название",
+    "bg": "Название",
+    "uz": "Название",
+    "tg": "Название",
+    "de": "Name"
+  },
+  "chat.info.type": {
+    "ru": "Тип чата",
+    "en": "Chat type",
+    "ro": "Тип чата",
+    "bg": "Тип чата",
+    "uz": "Тип чата",
+    "tg": "Тип чата",
+    "de": "Chat-Typ"
+  },
+  "chat.type.general": {
+    "ru": "Общий канал (для всей команды)",
+    "en": "General channel (for whole team)",
+    "ro": "Общий канал (для всей команды)",
+    "bg": "Общий канал (для всей команды)",
+    "uz": "Общий канал (для всей команды)",
+    "tg": "Общий канал (для всей команды)",
+    "de": "Allgemeiner Kanal (für das gesamte Team)"
+  },
+  "chat.type.direct": {
+    "ru": "Личные сообщения (приватный)",
+    "en": "Direct messages (private)",
+    "ro": "Личные сообщения (приватный)",
+    "bg": "Личные сообщения (приватный)",
+    "uz": "Личные сообщения (приватный)",
+    "tg": "Личные сообщения (приватный)",
+    "de": "Direktnachrichten (privat)"
+  },
+  "chat.type.site": {
+    "ru": "Чат объекта",
+    "en": "Site chat",
+    "ro": "Чат объекта",
+    "bg": "Чат объекта",
+    "uz": "Чат объекта",
+    "tg": "Чат объекта",
+    "de": "Objekt-Chat"
+  },
+  "chat.info.notifications": {
+    "ru": "Уведомления",
+    "en": "Notifications",
+    "ro": "Уведомления",
+    "bg": "Уведомления",
+    "uz": "Уведомления",
+    "tg": "Уведомления",
+    "de": "Benachrichtigungen"
+  },
+  "chat.info.notif.disabled": {
+    "ru": "Отключены",
+    "en": "Disabled",
+    "ro": "Отключены",
+    "bg": "Отключены",
+    "uz": "Отключены",
+    "tg": "Отключены",
+    "de": "Deaktiviert"
+  },
+  "chat.info.notif.enabled": {
+    "ru": "Включены",
+    "en": "Enabled",
+    "ro": "Включены",
+    "bg": "Включены",
+    "uz": "Включены",
+    "tg": "Включены",
+    "de": "Aktiviert"
+  },
+  "chat.info.additional": {
+    "ru": "Дополнительно",
+    "en": "Additional",
+    "ro": "Дополнительно",
+    "bg": "Дополнительно",
+    "uz": "Дополнительно",
+    "tg": "Дополнительно",
+    "de": "Zusätzlich"
+  },
+  "chat.media.select": {
+    "ru": "Выбрать",
+    "en": "Select",
+    "ro": "Выбрать",
+    "bg": "Выбрать",
+    "uz": "Выбрать",
+    "tg": "Выбрать",
+    "de": "Auswählen"
+  },
+  "chat.media.cancel": {
+    "ru": "Отмена",
+    "en": "Cancel",
+    "ro": "Отмена",
+    "bg": "Отмена",
+    "uz": "Отмена",
+    "tg": "Отмена",
+    "de": "Abbrechen"
+  },
+  "chat.media.delete": {
+    "ru": "Удалить",
+    "en": "Delete",
+    "ro": "Удалить",
+    "bg": "Удалить",
+    "uz": "Удалить",
+    "tg": "Удалить",
+    "de": "Löschen"
+  },
+  "chat.media.deleteConfirm": {
+    "ru": "Удалить {{count}} фото? Это удалит и соответствующие сообщения из чата.",
+    "en": "Delete {{count}} photos? This will also remove the corresponding messages from the chat.",
+    "de": "{{count}} Fotos löschen? Dadurch werden auch die entsprechenden Nachrichten aus dem Chat entfernt."
+  },
+  "chat.sidebar.noUsers": {
+    "ru": "Нет пользователей",
+    "en": "No users",
+    "ro": "Нет пользователей",
+    "bg": "Нет пользователей",
+    "uz": "Нет пользователей",
+    "tg": "Нет пользователей",
+    "de": "Keine Benutzer"
+  },
+  "chat.sidebar.noActiveChats": {
+    "ru": "Нет активных чатов",
+    "en": "No active chats",
+    "ro": "Нет активных чатов",
+    "bg": "Нет активных чатов",
+    "uz": "Нет активных чатов",
+    "tg": "Нет активных чатов",
+    "de": "Keine aktiven Chats"
+  },
+  "chat.sidebar.loading": {
+    "ru": "Загрузка...",
+    "en": "Loading...",
+    "ro": "Загрузка...",
+    "bg": "Загрузка...",
+    "uz": "Загрузка...",
+    "tg": "Загрузка...",
+    "de": "Wird geladen..."
+  },
+  "chat.sidebar.sites": {
+    "ru": "Объекты",
+    "en": "Sites",
+    "ro": "Объекты",
+    "bg": "Объекты",
+    "uz": "Объекты",
+    "tg": "Объекты",
+    "de": "OBJEKTE"
+  },
+  "settings.save": {
+    "ru": "Сохранить",
+    "en": "Save",
+    "de": "Speichern",
+    "ro": "Salvați",
+    "bg": "Запази",
+    "pl": "Zapisz",
+    "uk": "Зберегти",
+    "uz": "Saqlash",
+    "tg": "Захира"
   }
 }

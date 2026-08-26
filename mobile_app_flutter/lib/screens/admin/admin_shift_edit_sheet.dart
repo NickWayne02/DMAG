@@ -100,8 +100,8 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
       _selectedSiteId = s['site_id'];
       _selectedSiteName = s['site_name'];
       _lunchController.text = ((s['lunch_total_ms'] ?? 0) ~/ 60000).toString();
-      _startCityController.text = s['start_city'] ?? '';
-      _endCityController.text = s['end_city'] ?? '';
+      _startCityController.text = TransliterationService.transliterateIfNeeded(s['start_city'] ?? '', context.read<LocaleProvider>().currentLang);
+      _endCityController.text = TransliterationService.transliterateIfNeeded(s['end_city'] ?? '', context.read<LocaleProvider>().currentLang);
     } else {
       _startedAt = DateTime(widget.date.year, widget.date.month, widget.date.day, 9, 0);
       _endedAt = DateTime(widget.date.year, widget.date.month, widget.date.day, 17, 0);
@@ -368,7 +368,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                   DropdownMenuItem(value: null, child: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white))),
                   ..._sites.map((s) => DropdownMenuItem(
                         value: s['id'] as String,
-                        child: Text(s['name'] as String, style: GoogleFonts.inter(color: Colors.white)),
+                        child: Text(TransliterationService.transliterateIfNeeded(s['name'] as String, context.read<LocaleProvider>().currentLang), style: GoogleFonts.inter(color: Colors.white)),
                       )),
                 ],
                 onChanged: (val) {

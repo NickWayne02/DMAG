@@ -99,7 +99,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       for (var p in profiles) {
         final id = p['id'] as String;
-        final name = p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени';
+        final name = TransliterationService.transliterateIfNeeded(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
         final role = roleMap[id] ?? 'employee';
         final sh = latestShiftByUser[id];
 

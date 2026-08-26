@@ -3,6 +3,7 @@ import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
+import { langToLocale, type LangCode } from "@/lib/i18n";
 
 // Export helpers for shift monitoring: CSV / Excel / PDF
 // Detailed rows: employee, site, date, start work, start pause, end pause, end work.
@@ -126,7 +127,7 @@ export async function exportShiftsXlsx(rows: ExportRow[], filename: string) {
   triggerDownload(blob, filename);
 }
 
-export async function exportShiftsPdf(rows: ExportRow[], filename: string, title: string) {
+export async function exportShiftsPdf(rows: ExportRow[], filename: string, title: string, lang?: LangCode) {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
@@ -138,7 +139,7 @@ export async function exportShiftsPdf(rows: ExportRow[], filename: string, title
   doc.setFontSize(14);
   doc.text(title, 40, 40);
   doc.setFontSize(9);
-  doc.text(`Сформировано: ${new Date().toLocaleString()}`, 40, 58);
+  doc.text(`Сформировано: ${new Date().toLocaleString(langToLocale(lang ?? "ru"))}`, 40, 58);
   autoTable(doc, {
     head: [HEADERS],
     body: rows.map(rowToArray),

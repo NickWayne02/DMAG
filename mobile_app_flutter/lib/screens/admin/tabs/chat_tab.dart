@@ -313,8 +313,8 @@ class _ChatTabState extends State<ChatTab> {
                   ..._sites.map((site) {
                     return _buildChatItem(
                       icon: LucideIcons.building_2,
-                      title: site['name'],
-                      onTap: () => _openChat('site', site['id'], site['name']),
+                      title: TransliterationService.transliterateIfNeeded(site['name'] ?? '', context.read<LocaleProvider>().currentLang),
+                      onTap: () => _openChat('site', site['id'], TransliterationService.transliterateIfNeeded(site['name'] ?? '', context.read<LocaleProvider>().currentLang)),
                     );
                   }),
                   const SizedBox(height: 24),

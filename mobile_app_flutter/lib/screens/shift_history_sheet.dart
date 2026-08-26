@@ -1,4 +1,5 @@
 import 'package:mobile_app_flutter/utils/transliteration.dart';
+import 'package:mobile_app_flutter/utils/date_format_helper.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -65,8 +66,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
   }
 
   String _formatDate(String isoString) {
-    final d = DateTime.parse(isoString).toLocal();
-    return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+    return DateFormatHelper.formatIsoDateTime(isoString);
   }
 
   @override

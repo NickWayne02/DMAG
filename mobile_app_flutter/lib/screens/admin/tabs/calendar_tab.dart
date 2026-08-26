@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../../../utils/transliteration.dart';
+import '../../../../utils/date_format_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -155,7 +156,7 @@ class _CalendarTabState extends State<CalendarTab> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(e['full_name'] ?? e['id']),
+                      Text(TransliterationService.transliterateIfNeeded(e['full_name'] ?? e['id'], context.read<LocaleProvider>().currentLang)),
                       if (isSelected) const Icon(LucideIcons.check, color: Colors.white, size: 16),
                     ],
                   ),
@@ -471,7 +472,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
   @override
   Widget build(BuildContext context) {
     String formatDate(DateTime d) {
-      return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+      return DateFormatHelper.formatDateTime(d);
     }
     
     return Dialog(

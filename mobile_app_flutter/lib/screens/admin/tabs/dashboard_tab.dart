@@ -1,4 +1,5 @@
 import '../../../../utils/transliteration.dart';
+import '../../../../utils/date_format_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class DashboardTab extends StatelessWidget {
                 _buildActivityItem(
                   context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
                   " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
-                  '22 авг., 19:58',
+                  _getMockDate(context, '19:58'),
                   LucideIcons.activity,
                   const Color(0xFF3b82f6), // Blue
                 ),
@@ -58,7 +59,7 @@ class DashboardTab extends StatelessWidget {
                 _buildActivityItem(
                   context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
                   "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
-                  '22 авг., 19:58',
+                  _getMockDate(context, '19:58'),
                   LucideIcons.users,
                   const Color(0xFF22c55e), // Green
                 ),
@@ -66,7 +67,7 @@ class DashboardTab extends StatelessWidget {
                 _buildActivityItem(
                   context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
                   " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
-                  '22 авг., 19:53',
+                  _getMockDate(context, '19:53'),
                   LucideIcons.activity,
                   const Color(0xFF3b82f6), // Blue
                 ),
@@ -74,7 +75,7 @@ class DashboardTab extends StatelessWidget {
                 _buildActivityItem(
                   context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
                   "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
-                  '22 авг., 19:52',
+                  _getMockDate(context, '19:52'),
                   LucideIcons.users,
                   const Color(0xFF22c55e), // Green
                 ),
@@ -84,6 +85,13 @@ class DashboardTab extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getMockDate(BuildContext context, String time) {
+    final lang = context.watch<LocaleProvider>().currentLang;
+    final parts = time.split(':');
+    final dt = DateTime(2026, 8, 22, int.parse(parts[0]), int.parse(parts[1]));
+    return DateFormatHelper.formatShortDate(dt, lang);
   }
 
   Widget _buildStatCard(String value, String title, IconData icon, Color color) {

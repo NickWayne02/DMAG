@@ -4120,6 +4120,22 @@ export function transliterateName(name: string, lang: LangCode): string {
   return name;
 }
 
+/** Map short lang code to a BCP-47 locale string for Intl.DateTimeFormat / toLocaleString */
+export function langToLocale(lang: LangCode | string): string {
+  const map: Record<string, string> = {
+    ru: "ru-RU",
+    en: "en-US",
+    de: "de-DE",
+    ro: "ro-RO",
+    bg: "bg-BG",
+    pl: "pl-PL",
+    uk: "uk-UA",
+    uz: "uz-UZ",
+    tg: "tg-TJ",
+  };
+  return map[lang] ?? lang;
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<LangCode>("ru");
   const [isTranslating, setIsTranslating] = useState(false);

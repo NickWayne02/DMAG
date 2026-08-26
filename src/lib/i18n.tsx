@@ -579,6 +579,29 @@ const DICT: Dict = {
   },
 
   // Admin User Modals
+  "admin.users.active": {
+    ru: "Активен",
+    en: "Active",
+    de: "Aktiv",
+    ro: "Activ",
+    bg: "Активен",
+    pl: "Aktywny",
+    uk: "Активний",
+    uz: "Faol",
+    tg: "Фаъол",
+  },
+  "admin.users.inactive": {
+    ru: "Отключен",
+    en: "Disabled",
+    de: "Deaktiviert",
+    ro: "Dezactivat",
+    bg: "Изключен",
+    pl: "Wyłączony",
+    uk: "Вимкнений",
+    uz: "Nofaol",
+    tg: "Хомӯшшуда",
+  },
+
   "admin.users.createTitle": {
     ru: "Создать пользователя",
     en: "Create User",

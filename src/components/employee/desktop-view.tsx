@@ -526,10 +526,10 @@ export function EmployeeDesktopView() {
                   >
                     <div>
                       <h2 className="text-2xl font-bold" style={{ color: "var(--neon-text)" }}>
-                        {selectedSite.name}
+                        {tName(selectedSite.name)}
                       </h2>
                       <p className="mt-1" style={{ color: "var(--neon-text-dim)" }}>
-                        {selectedSite.address}
+                        {tName(selectedSite.address)}
                       </p>
                     </div>
                     <Button
@@ -575,9 +575,9 @@ export function EmployeeDesktopView() {
                           const lat = myCoords?.latitude || 0;
                           const lon = myCoords?.longitude || 0;
                           if (lat && lon) {
-                            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
+                            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
                           } else {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
                           }
                         }}
                         title="Проложить маршрут"
@@ -593,7 +593,7 @@ export function EmployeeDesktopView() {
                           if (myCoords) {
                             window.open(`https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`, "_blank");
                           } else {
-                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
                           }
                         }}
                         title="Открыть в Google Maps"
@@ -614,7 +614,7 @@ export function EmployeeDesktopView() {
                       src={
                         myCoords
                           ? `https://maps.google.com/maps?q=${myCoords.latitude},${myCoords.longitude}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
-                          : `https://maps.google.com/maps?q=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
+                          : `https://maps.google.com/maps?q=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
                       }
                     ></iframe>
                   </div>

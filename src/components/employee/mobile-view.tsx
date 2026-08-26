@@ -491,9 +491,9 @@ export function EmployeeMobileView() {
                       </p>
                       <p className="text-xs truncate" style={{ color: "var(--neon-text-dim)" }}>
                         {selectedSite
-                          ? selectedSite.address
-                            ? `${selectedSite.name} · ${selectedSite.address}`
-                            : selectedSite.name
+                          ? tName(selectedSite.address)
+                            ? `${tName(selectedSite.name)} · ${tName(selectedSite.address)}`
+                            : tName(selectedSite.name)
                           : tr("site.notSelected")}
                       </p>
                     </div>
@@ -540,9 +540,9 @@ export function EmployeeMobileView() {
                         const lat = myCoords?.latitude || 0;
                         const lon = myCoords?.longitude || 0;
                         if (lat && lon) {
-                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
+                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&origin=${lat},${lon}`, "_blank");
                         } else {
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
                         }
                       }}
                       title="Проложить маршрут"
@@ -558,7 +558,7 @@ export function EmployeeMobileView() {
                         if (myCoords) {
                           window.open(`https://www.google.com/maps/search/?api=1&query=${myCoords.latitude},${myCoords.longitude}`, "_blank");
                         } else {
-                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}`, "_blank");
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}`, "_blank");
                         }
                       }}
                       title="Открыть в Google Maps"
@@ -579,7 +579,7 @@ export function EmployeeMobileView() {
                     src={
                       myCoords
                         ? `https://maps.google.com/maps?q=${myCoords.latitude},${myCoords.longitude}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
-                        : `https://maps.google.com/maps?q=${encodeURIComponent((selectedSite.address || selectedSite.name).replace(/^GPS:\s*/i, ""))}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
+                        : `https://maps.google.com/maps?q=${encodeURIComponent((tName(selectedSite.address) || tName(selectedSite.name)).replace(/^GPS:\s*/i, ""))}&t=${mapType}&z=15&ie=UTF8&iwloc=&output=embed`
                     }
                   ></iframe>
                 </div>

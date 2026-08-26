@@ -202,7 +202,7 @@ export function PhotoReportDialog({
             <DialogDescription>
               {site ? (
                 <>
-                  Объект: <span className="font-medium">{site.name}</span>
+                  Объект: <span className="font-medium">{tName(site.name)}</span>
                 </>
               ) : skipDbInsert ? (
                 "Фото будет отправлено в текущий чат"

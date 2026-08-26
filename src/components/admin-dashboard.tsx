@@ -785,8 +785,8 @@ export function AdminDashboard({
       started_at: s.started_at,
       ended_at: s.ended_at,
       lunch_started_at: s.lunch_started_at ?? null,
-      start_city: s.start_city ?? null,
-      end_city: s.end_city ?? null,
+      start_city: tName(s.start_city) ?? null,
+      end_city: tName(s.end_city) ?? null,
       lunch_intervals: Array.isArray(s.lunch_intervals) ? s.lunch_intervals : [],
       lunch_total_ms: Number(s.lunch_total_ms ?? 0),
       status: s.status,
@@ -1420,7 +1420,7 @@ export function AdminDashboard({
         ts: s.started_at,
         type: "shift_start",
         title: "Начало смены",
-        desc: `${emp.name} начал смену на объекте ${s.site_name || s.start_city || "Неизвестно"}`,
+        desc: `${emp.name} начал смену на объекте ${s.site_name || tName(s.start_city) || "Неизвестно"}`,
         icon: <Users className="h-4 w-4" />,
         color: "text-green-600 bg-green-500/10",
       });
@@ -1430,7 +1430,7 @@ export function AdminDashboard({
           ts: s.ended_at,
           type: "shift_end",
           title: "Окончание смены",
-          desc: `${emp.name} завершил смену на объекте ${s.site_name || s.end_city || "Неизвестно"}`,
+          desc: `${emp.name} завершил смену на объекте ${s.site_name || tName(s.end_city) || "Неизвестно"}`,
           icon: <Activity className="h-4 w-4" />,
           color: "text-blue-600 bg-blue-500/10",
         });
@@ -2338,7 +2338,7 @@ export function AdminDashboard({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="text-[10px] text-muted-foreground truncate">
-                                  {r.site_name}
+                                  {tName(r.site_name)}
                                 </span>
                               </div>
                               <p className="text-xs line-clamp-2">
@@ -2744,7 +2744,7 @@ export function AdminDashboard({
                                   : ""
                               }
                             >
-                              {e.is_active ? "Активен" : "Отключен"}
+                              {e.is_active ? t("admin.users.active") : t("admin.users.inactive")}
                             </Badge>
                           </div>
 

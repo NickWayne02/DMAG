@@ -602,6 +602,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (canSwitchToAdmin) ...[
                 GestureDetector(
                   onTap: () {
+                    context.read<ShiftProvider>().setAdminView(true);
                     Navigator.of(context).pushReplacement(
                       FadePageRoute(page: const AdminDashboardScreen()),
                     );

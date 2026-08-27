@@ -82,6 +82,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         actions: [
           IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: colors.border),
+              ),
+              child: Icon(LucideIcons.arrow_left, color: colors.foreground.withValues(alpha: 0.7), size: 16),
+            ),
+            onPressed: () {
+              context.read<ShiftProvider>().setAdminView(false);
+              Navigator.of(context).pushReplacement(
+                FadePageRoute(page: const DashboardScreen()),
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(LucideIcons.settings, color: colors.foreground.withValues(alpha: 0.54), size: 20),
             onPressed: () {
               SettingsSheet.show(context);

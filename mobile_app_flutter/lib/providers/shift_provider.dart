@@ -18,6 +18,7 @@ class ShiftProvider extends ChangeNotifier {
   bool _autoLunchApplied = false;
   String? _shiftId;
   String? _travelTime;
+  bool _isAdminView = false; // Add this
 
   Map<String, dynamic>? _userProfile;
   bool _isProfileLoading = false;
@@ -33,7 +34,15 @@ class ShiftProvider extends ChangeNotifier {
   String? get shiftId => _shiftId;
   bool get autoLunchApplied => _autoLunchApplied;
   String? get travelTime => _travelTime;
-  
+  bool get isAdminView => _isAdminView; // Add getter
+
+  void setAdminView(bool val) async {
+    _isAdminView = val;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_admin_view', val);
+  }
+
   int get workMs {
     if (_shiftStart == null) return 0;
     final end = _shiftEnd ?? _now;
@@ -104,6 +113,8 @@ class ShiftProvider extends ChangeNotifier {
     }
 
     final statusStr = prefs.getString('shift_status');
+    _isAdminView = prefs.getBool('is_admin_view') ?? false;
+
     if (statusStr != null) {
       _status = ShiftStatus.values.firstWhere(
         (e) => e.name == statusStr,

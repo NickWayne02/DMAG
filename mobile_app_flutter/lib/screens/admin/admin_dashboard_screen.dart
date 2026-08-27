@@ -11,6 +11,7 @@ import 'tabs/users_tab.dart';
 import 'tabs/chat_tab.dart';
 import '../../services/auth_service.dart';
 import '../dashboard_screen.dart';
+import '../../utils/fade_page_route.dart';
 import '../settings_sheet.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';

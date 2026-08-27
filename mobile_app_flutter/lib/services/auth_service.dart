@@ -34,22 +34,27 @@ class AuthService {
           .eq('id', userId)
           .single();
 
-      // Fetch roles from user_roles
+      // Fetch roles from user_roles (if it exists)
       final rolesData = await _supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', userId);
 
-      String primaryRole = 'employee';
       if ((rolesData as List).isNotEmpty) {
-        final roles = (rolesData as List).map((r) => r['role'] as String).toList();
+        String primaryRole = 'employee';
+        final roles = (rolesData).map((r) => r['role'] as String).toList();
         if (roles.contains('super_admin')) {
           primaryRole = 'super_admin';
-        } else if (roles.contains('admin')) primaryRole = 'admin';
-        else if (roles.contains('brigadier')) primaryRole = 'brigadier';
+        } else if (roles.contains('admin')) {
+          primaryRole = 'admin';
+        } else if (roles.contains('brigadier')) {
+          primaryRole = 'brigadier';
+        }
+        profileData['role'] = primaryRole;
+      } else if (profileData['role'] == null) {
+        profileData['role'] = 'employee';
       }
 
-      profileData['role'] = primaryRole;
       return profileData;
     } catch (e) {
       return null;

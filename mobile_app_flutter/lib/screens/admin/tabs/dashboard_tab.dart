@@ -8,8 +8,60 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../theme/neon_widgets.dart';
 import '../../../theme/app_theme.dart';
 
-class DashboardTab extends StatelessWidget {
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
+
+  @override
+  State<DashboardTab> createState() => _DashboardTabState();
+}
+
+class _DashboardTabState extends State<DashboardTab> {
+  List<Map<String, dynamic>> _activities = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchActivity();
+  }
+
+  Future<void> _fetchActivity() async {
+    try {
+      final resp = await Supabase.instance.client
+          .from('shift_history')
+          .select()
+          .order('ts', ascending: false)
+          .limit(50);
+      
+      final profilesResp = await Supabase.instance.client.from('profiles').select('id, full_name');
+      final sitesResp = await Supabase.instance.client.from('sites').select('id, name');
+      
+      final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};
+      final sites = {for (var s in sitesResp) s['id'] as String: s['name'] as String? ?? 'Неизвестное место'};
+      
+      final List<Map<String, dynamic>> enriched = [];
+      for (var item in resp) {
+        enriched.add({
+          ...item,
+          'user_name': profiles[item['user_id']] ?? 'Неизвестный сотрудник',
+          'site_name': sites[item['site_id']] ?? 'Неизвестный объект',
+        });
+      }
+      
+      if (mounted) {
+        setState(() {
+          _activities = enriched;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,41 +101,63 @@ class DashboardTab extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildActivityItem(
-                  context,
-                  context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
-                  " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
-                  _getMockDate(context, '19:58'),
-                  LucideIcons.activity,
-                  const Color(0xFF3b82f6), // Blue
-                ),
-                const SizedBox(height: 16),
-                _buildActivityItem(
-                  context,
-                  context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
-                  "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
-                  _getMockDate(context, '19:58'),
-                  LucideIcons.users,
-                  const Color(0xFF22c55e), // Green
-                ),
-                const SizedBox(height: 16),
-                _buildActivityItem(
-                  context,
-                  context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
-                  " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
-                  _getMockDate(context, '19:53'),
-                  LucideIcons.activity,
-                  const Color(0xFF3b82f6), // Blue
-                ),
-                const SizedBox(height: 16),
-                _buildActivityItem(
-                  context,
-                  context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
-                  "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
-                  _getMockDate(context, '19:52'),
-                  LucideIcons.users,
-                  const Color(0xFF22c55e), // Green
-                ),
+                if (_isLoading)
+                  const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))
+                else if (_activities.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        context.watch<LocaleProvider>().t('admin.activity.emptyTitle') ?? 'Активности пока нет',
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54)),
+                      ),
+                    ),
+                  )
+                else
+                  ..._activities.map((act) {
+                    String title = '';
+                    String subtitle = '';
+                    IconData icon = LucideIcons.activity;
+                    Color color = const Color(0xFF3b82f6);
+                    
+                    final lang = context.watch<LocaleProvider>().currentLang;
+                    final name = TransliterationService.transliterateIfNeeded(act['user_name'], lang);
+                    final site = TransliterationService.transliterateIfNeeded(act['site_name'], lang);
+                    final dt = DateTime.parse(act['ts']).toLocal();
+                    final timeStr = DateFormatHelper.formatShortDate(dt, lang);
+                    
+                    switch (act['type']) {
+                      case 'shift_start':
+                        title = context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены';
+                        subtitle = "$name ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте'} $site";
+                        icon = LucideIcons.users;
+                        color = const Color(0xFF22c55e);
+                        break;
+                      case 'shift_end':
+                        title = context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены';
+                        subtitle = "$name ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте'} $site";
+                        icon = LucideIcons.activity;
+                        color = const Color(0xFF3b82f6);
+                        break;
+                      case 'lunch_start':
+                        title = context.watch<LocaleProvider>().t('export.pause_start') ?? 'Начало обеда';
+                        subtitle = "$name ${context.watch<LocaleProvider>().t('admin_dashboard.started_lunch') ?? 'ушел на обед'}";
+                        icon = LucideIcons.coffee;
+                        color = const Color(0xFFf59e0b);
+                        break;
+                      case 'lunch_end':
+                        title = context.watch<LocaleProvider>().t('export.pause_end') ?? 'Окончание обеда';
+                        subtitle = "$name ${context.watch<LocaleProvider>().t('admin_dashboard.finished_lunch') ?? 'вернулся с обеда'}";
+                        icon = LucideIcons.coffee;
+                        color = const Color(0xFFf59e0b);
+                        break;
+                    }
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _buildActivityItem(context, title, subtitle, timeStr, icon, color),
+                    );
+                  }),
               ],
             ),
           ),

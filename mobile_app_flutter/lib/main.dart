@@ -133,6 +133,10 @@ class _RootRouterState extends State<RootRouter> {
         body: Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)),
       );
     }
+    final role = shift.userProfile!['role'] as String?;
+    if (role == 'super_admin' || role == 'admin') {
+      return const AdminDashboardScreen();
+    }
     return const DashboardScreen();
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../theme/app_theme.dart';
+import '../widgets/translation_overlay.dart';
 
 class LanguageSheet extends StatelessWidget {
   const LanguageSheet({super.key});
@@ -78,8 +79,13 @@ class LanguageSheet extends StatelessWidget {
                 final isActive = lang['code'] == localeProvider.currentLang;
                 return InkWell(
                   onTap: () {
-                    localeProvider.setLanguage(lang['code']!);
+                    final newLang = lang['code']!;
                     Navigator.pop(context);
+                    if (newLang != localeProvider.currentLang) {
+                      TranslationOverlay.show(context, () async {
+                        await localeProvider.setLanguage(newLang);
+                      });
+                    }
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),

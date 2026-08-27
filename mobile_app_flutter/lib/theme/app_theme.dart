@@ -182,6 +182,11 @@ class AppTheme {
         iconTheme: IconThemeData(color: resolvedColors.foreground),
         titleTextStyle: GoogleFonts.inter(color: resolvedColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
       ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: resolvedColors.primary,
+        selectionColor: resolvedColors.primary.withValues(alpha: 0.3),
+        selectionHandleColor: resolvedColors.primary,
+      ),
       extensions: [resolvedColors],
     );
   }

@@ -2139,7 +2139,7 @@
     "ru": "Отмена",
     "en": "Cancel",
     "de": "Abbrechen",
-    "ro": "Anulează",
+    "ro": "Anulare",
     "bg": "Отказ",
     "pl": "Anuluj",
     "uk": "Скасувати",
@@ -3127,12 +3127,12 @@
     "ru": "Смена завершена",
     "en": "Shift finished",
     "de": "Schicht beendet",
-    "ro": "Tură terminată",
-    "bg": "Смяната е завършена",
+    "ro": "Tura s-a terminat",
+    "bg": "Смяната приключи",
     "pl": "Zmiana zakończona",
-    "uk": "Зміну завершено",
+    "uk": "Зміна завершена",
     "uz": "Smena tugadi",
-    "tg": "Баст анҷом ёфт"
+    "tg": "Баст ба охир расид"
   },
   "dashboard.shiftStart": {
     "ru": "НАЧАЛО СМЕНЫ",
@@ -3160,7 +3160,7 @@
     "ru": "Работа",
     "en": "Work",
     "de": "Arbeit",
-    "ro": "Lucru",
+    "ro": "Muncă",
     "bg": "Работа",
     "pl": "Praca",
     "uk": "Робота",
@@ -4685,13 +4685,13 @@
   "dashboard.commercial_hours": {
     "ru": "Коммерческие часы: ",
     "en": "Commercial hours: ",
-    "de": "Commercial hours: ",
-    "ro": "Commercial hours: ",
-    "bg": "Коммерческие часы: ",
-    "pl": "Commercial hours: ",
+    "de": "Gewerbliche Stunden: ",
+    "ro": "Ore comerciale: ",
+    "bg": "Търговски часове: ",
+    "pl": "Godziny handlowe: ",
     "uk": "Комерційні години: ",
-    "uz": "Commercial hours: ",
-    "tg": "Коммерческие часы: "
+    "uz": "Tijorat soatlari: ",
+    "tg": "Соатҳои тиҷоратӣ: "
   },
   "dashboard.new": {
     "ru": "Новая",
@@ -7737,17 +7737,6 @@
     "uz": "Tasdiqlash",
     "tg": "Тасдиқ кардан"
   },
-  "common.cancel": {
-    "ru": "Отмена",
-    "en": "Cancel",
-    "de": "Abbrechen",
-    "ro": "Anulare",
-    "bg": "Отказ",
-    "pl": "Anuluj",
-    "uk": "Скасувати",
-    "uz": "Bekor qilish",
-    "tg": "Бекор кардан"
-  },
   "dashboard.status_finished": {
     "ru": "✓ Смена завершена",
     "en": "✓ Shift finished",
@@ -7758,61 +7747,6 @@
     "uk": "✓ Зміна завершена",
     "uz": "✓ Smena tugadi",
     "tg": "✓ Баст ба охир расид"
-  },
-  "dashboard.shiftFinished": {
-    "ru": "Смена завершена",
-    "en": "Shift finished",
-    "de": "Schicht beendet",
-    "ro": "Tura s-a terminat",
-    "bg": "Смяната приключи",
-    "pl": "Zmiana zakończona",
-    "uk": "Зміна завершена",
-    "uz": "Smena tugadi",
-    "tg": "Баст ба охир расид"
-  },
-  "dashboard.work": {
-    "ru": "Работа",
-    "en": "Work",
-    "de": "Arbeit",
-    "ro": "Muncă",
-    "bg": "Работа",
-    "pl": "Praca",
-    "uk": "Робота",
-    "uz": "Ish",
-    "tg": "Кор"
-  },
-  "dashboard.lunch": {
-    "ru": "Обед",
-    "en": "Lunch",
-    "de": "Mittagessen",
-    "ro": "Prânz",
-    "bg": "Обяд",
-    "pl": "Obiad",
-    "uk": "Обід",
-    "uz": "Tushlik",
-    "tg": "Хӯроки нисфирӯзӣ"
-  },
-  "dashboard.total": {
-    "ru": "Итого",
-    "en": "Total",
-    "de": "Gesamt",
-    "ro": "Total",
-    "bg": "Общо",
-    "pl": "Razem",
-    "uk": "Разом",
-    "uz": "Jami",
-    "tg": "Ҳамагӣ"
-  },
-  "dashboard.commercial_hours": {
-    "ru": "Коммерческие часы: ",
-    "en": "Commercial hours: ",
-    "de": "Gewerbliche Stunden: ",
-    "ro": "Ore comerciale: ",
-    "bg": "Търговски часове: ",
-    "pl": "Godziny handlowe: ",
-    "uk": "Комерційні години: ",
-    "uz": "Tijorat soatlari: ",
-    "tg": "Соатҳои тиҷоратӣ: "
   },
   "time.hours_short": {
     "ru": "ч",
@@ -7868,5 +7802,11 @@
     "uk": "Облікові дані оновлено (Mock)",
     "uz": "Hisob ma'lumotlari yangilandi (Mock)",
     "tg": "Маълумоти ҳисоб нав карда шуд (Mock)"
+  },
+  "admin.activity.emptyTitle": {
+    "ru": "Активности пока нет",
+    "en": "No activity yet",
+    "uk": "Активностей поки немає",
+    "pl": "Brak aktywności"
   }
 }

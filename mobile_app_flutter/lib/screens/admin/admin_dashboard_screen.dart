@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'tabs/dashboard_tab.dart';
@@ -33,9 +34,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     const DashboardTab(),
     const CalendarTab(),
     PersonnelTab(
-      onNavigateToCalendar: (employeeId) {
+      onNavigateToCalendar: (employeeId) async {
         CalendarTab.initialEmployeeId = employeeId;
         setState(() => _currentIndex = 1);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('admin_dashboard_tab', 1);
       },
     ),
     const SitesTab(),
@@ -60,11 +63,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  void _onMenuTap(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _loadTab();
+  }
+
+  Future<void> _loadTab() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _currentIndex = prefs.getInt('admin_dashboard_tab') ?? 0;
+      });
+    }
+  }
+
+  void _onMenuTap(int index) async {
     setState(() {
       _currentIndex = index;
     });
     Navigator.of(context).pop(); // Close drawer
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('admin_dashboard_tab', index);
   }
 
   @override

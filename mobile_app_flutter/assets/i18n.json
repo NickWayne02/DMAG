@@ -7714,5 +7714,159 @@
     "uk": "Зберегти",
     "uz": "Saqlash",
     "tg": "Захира"
+  },
+  "admin.switch_confirm_title": {
+    "ru": "Переключиться в режим сотрудника?",
+    "en": "Switch to employee mode?",
+    "de": "In den Mitarbeitermodus wechseln?",
+    "ro": "Treceți la modul angajat?",
+    "bg": "Преминаване в режим на служител?",
+    "pl": "Przełączyć na tryb pracownika?",
+    "uk": "Переключитися в режим співробітника?",
+    "uz": "Xodim rejimiga o'tish?",
+    "tg": "Гузаштан ба реҷаи корманд?"
+  },
+  "common.confirm": {
+    "ru": "Подтвердить",
+    "en": "Confirm",
+    "de": "Bestätigen",
+    "ro": "Confirmați",
+    "bg": "Потвърди",
+    "pl": "Potwierdź",
+    "uk": "Підтвердити",
+    "uz": "Tasdiqlash",
+    "tg": "Тасдиқ кардан"
+  },
+  "common.cancel": {
+    "ru": "Отмена",
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "ro": "Anulare",
+    "bg": "Отказ",
+    "pl": "Anuluj",
+    "uk": "Скасувати",
+    "uz": "Bekor qilish",
+    "tg": "Бекор кардан"
+  },
+  "dashboard.status_finished": {
+    "ru": "✓ Смена завершена",
+    "en": "✓ Shift finished",
+    "de": "✓ Schicht beendet",
+    "ro": "✓ Tura s-a terminat",
+    "bg": "✓ Смяната приключи",
+    "pl": "✓ Zmiana zakończona",
+    "uk": "✓ Зміна завершена",
+    "uz": "✓ Smena tugadi",
+    "tg": "✓ Баст ба охир расид"
+  },
+  "dashboard.shiftFinished": {
+    "ru": "Смена завершена",
+    "en": "Shift finished",
+    "de": "Schicht beendet",
+    "ro": "Tura s-a terminat",
+    "bg": "Смяната приключи",
+    "pl": "Zmiana zakończona",
+    "uk": "Зміна завершена",
+    "uz": "Smena tugadi",
+    "tg": "Баст ба охир расид"
+  },
+  "dashboard.work": {
+    "ru": "Работа",
+    "en": "Work",
+    "de": "Arbeit",
+    "ro": "Muncă",
+    "bg": "Работа",
+    "pl": "Praca",
+    "uk": "Робота",
+    "uz": "Ish",
+    "tg": "Кор"
+  },
+  "dashboard.lunch": {
+    "ru": "Обед",
+    "en": "Lunch",
+    "de": "Mittagessen",
+    "ro": "Prânz",
+    "bg": "Обяд",
+    "pl": "Obiad",
+    "uk": "Обід",
+    "uz": "Tushlik",
+    "tg": "Хӯроки нисфирӯзӣ"
+  },
+  "dashboard.total": {
+    "ru": "Итого",
+    "en": "Total",
+    "de": "Gesamt",
+    "ro": "Total",
+    "bg": "Общо",
+    "pl": "Razem",
+    "uk": "Разом",
+    "uz": "Jami",
+    "tg": "Ҳамагӣ"
+  },
+  "dashboard.commercial_hours": {
+    "ru": "Коммерческие часы: ",
+    "en": "Commercial hours: ",
+    "de": "Gewerbliche Stunden: ",
+    "ro": "Ore comerciale: ",
+    "bg": "Търговски часове: ",
+    "pl": "Godziny handlowe: ",
+    "uk": "Комерційні години: ",
+    "uz": "Tijorat soatlari: ",
+    "tg": "Соатҳои тиҷоратӣ: "
+  },
+  "time.hours_short": {
+    "ru": "ч",
+    "en": "h",
+    "de": "h",
+    "ro": "h",
+    "bg": "ч",
+    "pl": "g",
+    "uk": "год",
+    "uz": "s",
+    "tg": "с"
+  },
+  "time.minutes_short": {
+    "ru": "м",
+    "en": "m",
+    "de": "m",
+    "ro": "m",
+    "bg": "м",
+    "pl": "m",
+    "uk": "хв",
+    "uz": "d",
+    "tg": "д"
+  },
+  "auth.email": {
+    "ru": "Email (логин)",
+    "en": "Email",
+    "de": "E-Mail",
+    "ro": "E-mail",
+    "bg": "Имейл",
+    "pl": "E-mail",
+    "uk": "Електронна пошта",
+    "uz": "Elektron pochta",
+    "tg": "Почтаи электронӣ"
+  },
+  "users.change_creds": {
+    "ru": "Логин/пароль",
+    "en": "Login / Password",
+    "de": "Benutzername / Passwort",
+    "ro": "Nume utilizator / Parolă",
+    "bg": "Потребителско име / Парола",
+    "pl": "Nazwa użytkownika / Hasło",
+    "uk": "Логін / Пароль",
+    "uz": "Foydalanuvchi nomi / Parol",
+    "tg": "Номи корбар / Парол"
+  },
+  "users.creds_updated": {
+    "ru": "Данные обновлены (Mock)",
+    "en": "Credentials updated (Mock)",
+    "de": "Anmeldeinformationen aktualisiert (Mock)",
+    "ro": "Acreditări actualizate (Mock)",
+    "bg": "Удостоверенията са актуализирани (Mock)",
+    "pl": "Dane logowania zaktualizowane (Mock)",
+    "uk": "Облікові дані оновлено (Mock)",
+    "uz": "Hisob ma'lumotlari yangilandi (Mock)",
+    "tg": "Маълумоти ҳисоб нав карда шуд (Mock)"
   }
 }

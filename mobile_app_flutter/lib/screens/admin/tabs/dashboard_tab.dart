@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../theme/neon_widgets.dart';
+import '../../../theme/app_theme.dart';
 
 class DashboardTab extends StatelessWidget {
   const DashboardTab({super.key});
@@ -26,10 +27,10 @@ class DashboardTab extends StatelessWidget {
             mainAxisSpacing: 16,
             childAspectRatio: 1.1,
             children: [
-              _buildStatCard('0', context.watch<LocaleProvider>().t('admin_dashboard.emp_on_shift') ?? 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
-              _buildStatCard('0', context.watch<LocaleProvider>().t('admin_dashboard.on_lunch') ?? 'На обеде', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
-              _buildStatCard('6', context.watch<LocaleProvider>().t('admin_dashboard.active_sites') ?? 'Активных объектов', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
-              _buildStatCard('0', context.watch<LocaleProvider>().t('admin_dashboard.urgent_reports') ?? 'Срочных отчётов', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
+              _buildStatCard(context, '0', context.watch<LocaleProvider>().t('admin_dashboard.emp_on_shift') ?? 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
+              _buildStatCard(context, '0', context.watch<LocaleProvider>().t('admin_dashboard.on_lunch') ?? 'На обеде', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
+              _buildStatCard(context, '6', context.watch<LocaleProvider>().t('admin_dashboard.active_sites') ?? 'Активных объектов', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
+              _buildStatCard(context, '0', context.watch<LocaleProvider>().t('admin_dashboard.urgent_reports') ?? 'Срочных отчётов', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
             ],
           ),
           const SizedBox(height: 24),
@@ -42,13 +43,14 @@ class DashboardTab extends StatelessWidget {
                 Text(
                   context.watch<LocaleProvider>().t('admin_dashboard.recent_activity') ?? 'Последняя активность',
                   style: GoogleFonts.inter(
-                    color: Colors.white,
+                    color: Theme.of(context).appColors.foreground,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 20),
                 _buildActivityItem(
+                  context,
                   context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
                   " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
                   _getMockDate(context, '19:58'),
@@ -57,6 +59,7 @@ class DashboardTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _buildActivityItem(
+                  context,
                   context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
                   "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
                   _getMockDate(context, '19:58'),
@@ -65,6 +68,7 @@ class DashboardTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _buildActivityItem(
+                  context,
                   context.watch<LocaleProvider>().t('export.work_end') ?? 'Окончание смены',
                   " ${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.finished_shift') ?? 'завершил смену на объекте Неизвестно'} ",
                   _getMockDate(context, '19:53'),
@@ -73,6 +77,7 @@ class DashboardTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 _buildActivityItem(
+                  context,
                   context.watch<LocaleProvider>().t('export.work_start') ?? 'Начало смены',
                   "${TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang)} ${context.watch<LocaleProvider>().t('admin_dashboard.started_shift') ?? 'начал смену на объекте Неизвестно'}",
                   _getMockDate(context, '19:52'),
@@ -90,11 +95,12 @@ class DashboardTab extends StatelessWidget {
   String _getMockDate(BuildContext context, String time) {
     final lang = context.watch<LocaleProvider>().currentLang;
     final parts = time.split(':');
-    final dt = DateTime(2026, 8, 22, int.parse(parts[0]), int.parse(parts[1]));
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1]));
     return DateFormatHelper.formatShortDate(dt, lang);
   }
 
-  Widget _buildStatCard(String value, String title, IconData icon, Color color) {
+  Widget _buildStatCard(BuildContext context, String value, String title, IconData icon, Color color) {
     return NeonCard(
       glowColor: color.withValues(alpha: 0.3),
       padding: const EdgeInsets.all(16),
@@ -116,7 +122,7 @@ class DashboardTab extends StatelessWidget {
               Text(
                 value,
                 style: GoogleFonts.inter(
-                  color: Colors.white,
+                  color: Theme.of(context).appColors.foreground,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
@@ -125,7 +131,7 @@ class DashboardTab extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.inter(
-                  color: Colors.white54,
+                  color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
                   fontSize: 13,
                   height: 1.2,
                 ),
@@ -137,7 +143,7 @@ class DashboardTab extends StatelessWidget {
     );
   }
 
-  Widget _buildActivityItem(String title, String subtitle, String time, IconData icon, Color color) {
+  Widget _buildActivityItem(BuildContext context, String title, String subtitle, String time, IconData icon, Color color) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -161,7 +167,7 @@ class DashboardTab extends StatelessWidget {
                   Text(
                     title,
                     style: GoogleFonts.inter(
-                      color: Colors.white,
+                      color: Theme.of(context).appColors.foreground,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -169,7 +175,7 @@ class DashboardTab extends StatelessWidget {
                   Text(
                     time,
                     style: GoogleFonts.inter(
-                      color: Colors.white54,
+                      color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
                       fontSize: 12,
                     ),
                   ),
@@ -179,7 +185,7 @@ class DashboardTab extends StatelessWidget {
               Text(
                 subtitle,
                 style: GoogleFonts.inter(
-                  color: Colors.white54,
+                  color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
                   fontSize: 13,
                   height: 1.4,
                 ),

@@ -5,6 +5,7 @@ import '../../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../theme/app_theme.dart';
 
 class ReadOnlyCalendarDialog extends StatefulWidget {
   final String employeeId;
@@ -97,9 +98,9 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.black, // Dialog background matching the screenshot
+          color: Theme.of(context).cardColor, // Dialog background matching the screenshot
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -116,20 +117,20 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                       Text(
                         '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${TransliterationService.transliterateIfNeeded(TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang), context.read<LocaleProvider>().currentLang)}''',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Отработано за месяц: ${_isLoading ? '...' : _formatHM(_totalWorkedMsMonth)}',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), fontSize: 13),
                       ),
                     ],
                   ),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(LucideIcons.x, color: Colors.white54, size: 20),
+                  child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
                 )
               ],
             ),
@@ -141,18 +142,18 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                   onTap: () => _changeMonth(-1),
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Icon(LucideIcons.chevron_left, color: Colors.white, size: 20),
+                    child: Icon(LucideIcons.chevron_left, color: Theme.of(context).appColors.foreground, size: 20),
                   ),
                 ),
                 Text(
                   monthStr,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 GestureDetector(
                   onTap: () => _changeMonth(1),
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Icon(LucideIcons.chevron_right, color: Colors.white, size: 20),
+                    child: Icon(LucideIcons.chevron_right, color: Theme.of(context).appColors.foreground, size: 20),
                   ),
                 ),
               ],
@@ -166,7 +167,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                   child: Center(
                     child: Text(
                       day,
-                      style: GoogleFonts.inter(color: const Color(0xFF94a3b8), fontSize: 14, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                   ),
                 );
@@ -231,9 +232,9 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                   
                   return Container(
                     decoration: BoxDecoration(
-                      color: hasShift ? Colors.white.withValues(alpha: 0.05) : Colors.transparent,
+                      color: hasShift ? Theme.of(context).appColors.foreground.withValues(alpha: 0.05) : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
-                      border: hasShift ? Border.all(color: Colors.white12) : null,
+                      border: hasShift ? Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)) : null,
                     ),
                     padding: const EdgeInsets.all(4),
                     child: Column(
@@ -243,16 +244,16 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                         Text(
                           day.toString(),
                           style: GoogleFonts.inter(
-                            color: hasShift ? Colors.white : Colors.white.withValues(alpha: 0.4), 
+                            color: hasShift ? Theme.of(context).appColors.foreground : Theme.of(context).appColors.foreground.withValues(alpha: 0.4), 
                             fontSize: 14, 
                             fontWeight: hasShift ? FontWeight.bold : FontWeight.normal
                           ),
                         ),
                         if (hasShift) ...[
                           const SizedBox(height: 4),
-                          Text(timesText, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white54, fontSize: 9, height: 1.1)),
+                          Text(timesText, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 9, height: 1.1)),
                           const SizedBox(height: 4),
-                          Text(durationText, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, height: 1.1)),
+                          Text(durationText, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 10, fontWeight: FontWeight.bold, height: 1.1)),
                         ]
                       ],
                     ),

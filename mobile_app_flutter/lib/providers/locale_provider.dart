@@ -56,17 +56,18 @@ class LocaleProvider extends ChangeNotifier {
     await prefs.setString(_storageKey, langCode);
   }
 
-  String t(String key, [Map<String, String>? params]) {
-    if (!_isLoaded || !_dictionary.containsKey(key)) return key;
+  String? t(String key, [Map<String, String>? params]) {
+    if (!_isLoaded || !_dictionary.containsKey(key)) return null;
 
     final entry = _dictionary[key] as Map<String, dynamic>?;
-    if (entry == null) return key;
+    if (entry == null) return null;
 
-    String translated = entry[_currentLang] ?? entry['ru'] ?? key;
+    String? translated = entry[_currentLang] ?? entry['ru'];
+    if (translated == null) return null;
 
     if (params != null) {
       params.forEach((k, v) {
-        translated = translated.replaceAll('{{$k}}', v);
+        translated = translated!.replaceAll('{{$k}}', v);
       });
     }
 

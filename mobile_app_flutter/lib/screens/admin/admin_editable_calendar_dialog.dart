@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
 import '../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -105,17 +106,17 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: Row(
           children: [
-            if (left) Icon(icon, color: Colors.white, size: 16),
+            if (left) Icon(icon, color: Theme.of(context).appColors.foreground, size: 16),
             if (left) const SizedBox(width: 4),
-            Text(text, style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(text, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
             if (!left) const SizedBox(width: 4),
-            if (!left) Icon(icon, color: Colors.white, size: 16),
+            if (!left) Icon(icon, color: Theme.of(context).appColors.foreground, size: 16),
           ],
         ),
       ),
@@ -139,9 +140,9 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -155,15 +156,15 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${context.watch<LocaleProvider>().t('calendar.manage_shifts') ?? 'Управление сменами'} · ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('${context.watch<LocaleProvider>().t('calendar.manage_shifts') ?? 'Управление сменами'} · ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text(context.watch<LocaleProvider>().t('calendar.click_to_edit') ?? 'Нажмите на любой день, чтобы добавить или отредактировать смену.', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
+                      Text(context.watch<LocaleProvider>().t('calendar.click_to_edit') ?? 'Нажмите на любой день, чтобы добавить или отредактировать смену.', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
                     ],
                   ),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(LucideIcons.x, color: Colors.white54, size: 24),
+                  child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 24),
                 ),
               ],
             ),
@@ -174,7 +175,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
                 _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.prev') ?? 'Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
                 Text(
                   monthStr,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.next') ?? 'След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
               ],
@@ -185,7 +186,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
               children: (context.watch<LocaleProvider>().t('calendar.days_short') ?? 'Пн,Вт,Ср,Чт,Пт,Сб,Вс').split(',').map((day) {
                 return Expanded(
                   child: Center(
-                    child: Text(day, style: GoogleFonts.inter(color: Colors.white54, fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text(day, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14, fontWeight: FontWeight.bold)),
                   ),
                 );
               }).toList(),
@@ -236,9 +237,9 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
       },
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF0C0C0E),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: hasShifts ? Border.all(color: Colors.white24, width: 1) : null,
+          border: hasShifts ? Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.24), width: 1) : null,
         ),
         padding: const EdgeInsets.all(4),
         child: Column(
@@ -246,7 +247,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
           children: [
             Text(
               day.toString(),
-              style: GoogleFonts.inter(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold),
+              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), fontSize: 14, fontWeight: FontWeight.bold),
             ),
             if (hasShifts) ...[
               const SizedBox(height: 2),
@@ -281,9 +282,9 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(stStr, style: GoogleFonts.inter(color: Colors.white54, fontSize: 10)),
+          Text(stStr, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 10)),
           const SizedBox(height: 2),
-          Text('$hours${context.watch<LocaleProvider>().t('history.h') ?? 'ч'}\n$mins${context.watch<LocaleProvider>().t('history.m') ?? 'м'}', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, height: 1.1)),
+          Text('$hours${context.watch<LocaleProvider>().t('history.h') ?? 'ч'}\n$mins${context.watch<LocaleProvider>().t('history.m') ?? 'м'}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 11, fontWeight: FontWeight.bold, height: 1.1)),
         ],
       ),
     );

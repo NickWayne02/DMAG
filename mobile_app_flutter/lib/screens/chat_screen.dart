@@ -7,6 +7,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
 import 'photo_report_sheet.dart';
+import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -92,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Text(context.watch<LocaleProvider>().t('chat.new_dialog') ?? 'Новый диалог', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('chat.new_dialog') ?? 'Новый диалог', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -101,11 +102,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     final p = available[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: Colors.white24,
+                        backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.24),
                         backgroundImage: p['avatar_url'] != null ? NetworkImage(p['avatar_url']) : null,
-                        child: p['avatar_url'] == null ? Text(p['full_name']?.substring(0, 1) ?? 'U', style: const TextStyle(color: Colors.white)) : null,
+                        child: p['avatar_url'] == null ? Text(p['full_name']?.substring(0, 1) ?? 'U', style: TextStyle(color: Theme.of(context).appColors.foreground)) : null,
                       ),
-                      title: Text(p['full_name'] ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', style: GoogleFonts.inter(color: Colors.white)),
+                      title: Text(p['full_name'] ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                       onTap: () {
                         Navigator.of(context).pop();
                         final ids = [user.id, p['id']]..sort();
@@ -131,10 +132,10 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: Text(context.watch<LocaleProvider>().t('chat.delete_title') ?? 'Удалить чат?', style: const TextStyle(color: Colors.white)),
-        content: Text(context.watch<LocaleProvider>().t('chat.delete_msg') ?? 'Вы уверены, что хотите удалить этот диалог? История будет удалена.', style: const TextStyle(color: Colors.white70)),
+        title: Text(context.watch<LocaleProvider>().t('chat.delete_title') ?? 'Удалить чат?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.watch<LocaleProvider>().t('chat.delete_msg') ?? 'Вы уверены, что хотите удалить этот диалог? История будет удалена.', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: const TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red))),
         ],
       )
@@ -164,10 +165,10 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: Text(context.watch<LocaleProvider>().t('chat.clear_history_title') ?? 'Очистить историю?', style: const TextStyle(color: Colors.white)),
-        content: Text(context.watch<LocaleProvider>().t('chat.clear_history_msg') ?? 'Это действие удалит все сообщения в текущем чате.', style: const TextStyle(color: Colors.white70)),
+        title: Text(context.watch<LocaleProvider>().t('chat.clear_history_title') ?? 'Очистить историю?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.watch<LocaleProvider>().t('chat.clear_history_msg') ?? 'Это действие удалит все сообщения в текущем чате.', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: const TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.watch<LocaleProvider>().t('chat.clear_btn') ?? 'Очистить', style: const TextStyle(color: Colors.red))),
         ],
       )
@@ -188,24 +189,24 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: Text(context.watch<LocaleProvider>().t('chat.info_title') ?? 'Информация о чате', style: const TextStyle(color: Colors.white)),
+        title: Text(context.watch<LocaleProvider>().t('chat.info_title') ?? 'Информация о чате', style: TextStyle(color: Theme.of(context).appColors.foreground)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.watch<LocaleProvider>().t('chat.info_name') ?? 'Название', style: const TextStyle(color: Colors.white54, fontSize: 12)),
-            Text(_activeChannelTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(context.watch<LocaleProvider>().t('chat.info_name') ?? 'Название', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
+            Text(_activeChannelTitle, style: TextStyle(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Text(context.watch<LocaleProvider>().t('chat.info_type') ?? 'Тип чата', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+            Text(context.watch<LocaleProvider>().t('chat.info_type') ?? 'Тип чата', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
             Text(
               _activeChannelType == 'general' ? context.watch<LocaleProvider>().t('chat.info_type_general') ?? 'Общий канал' : _activeChannelType == 'direct' ? context.watch<LocaleProvider>().t('chat.info_type_dm') ?? 'Личные сообщения' : context.watch<LocaleProvider>().t('chat.info_type_site') ?? 'Чат объекта',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: Theme.of(context).appColors.foreground, fontSize: 14),
             ),
             const SizedBox(height: 12),
-            Text(context.watch<LocaleProvider>().t('chat.info_notifs') ?? 'Уведомления', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+            Text(context.watch<LocaleProvider>().t('chat.info_notifs') ?? 'Уведомления', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
             Text(
               _mutedChannels.contains(_activeChannelId) ? context.watch<LocaleProvider>().t('chat.info_notifs_off') ?? 'Отключены' : context.watch<LocaleProvider>().t('chat.info_notifs_on') ?? 'Включены',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: Theme.of(context).appColors.foreground, fontSize: 14),
             ),
           ],
         ),
@@ -235,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
               top: 40,
               right: 20,
               child: IconButton(
-                icon: const Icon(LucideIcons.x, color: Colors.white, size: 30),
+                icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground, size: 30),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ),
@@ -270,7 +271,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(context.watch<LocaleProvider>().t('chat.media_title') ?? 'Вложенные медиа', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(context.watch<LocaleProvider>().t('chat.media_title') ?? 'Вложенные медиа', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
                           if (!isSelectionMode)
                             Row(
                               children: [
@@ -280,15 +281,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                   },
                                   style: TextButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    side: const BorderSide(color: Colors.white24),
+                                    side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.24)),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                   ),
-                                  child: Text(context.watch<LocaleProvider>().t('chat.media_select') ?? 'Выбрать', style: const TextStyle(color: Colors.white)),
+                                  child: Text(context.watch<LocaleProvider>().t('chat.media_select') ?? 'Выбрать', style: TextStyle(color: Theme.of(context).appColors.foreground)),
                                 ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
                                   onTap: () => Navigator.of(context).pop(),
-                                  child: const Icon(LucideIcons.x, color: Colors.white54, size: 24),
+                                  child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 24),
                                 )
                               ],
                             )
@@ -302,7 +303,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       selectedMessageIds.clear();
                                     });
                                   },
-                                  child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: const TextStyle(color: Colors.white)),
+                                  child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground)),
                                 ),
                                 if (selectedMessageIds.isNotEmpty)
                                   TextButton(
@@ -326,12 +327,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                       backgroundColor: const Color(0xFFE54D4D),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                     ),
-                                    child: Text('''${context.watch<LocaleProvider>().t('chat.media_delete_count') ?? 'Удалить'} (${selectedMessageIds.length})''', style: const TextStyle(color: Colors.white)),
+                                    child: Text('''${context.watch<LocaleProvider>().t('chat.media_delete_count') ?? 'Удалить'} (${selectedMessageIds.length})''', style: TextStyle(color: Theme.of(context).appColors.foreground)),
                                   ),
                                 const SizedBox(width: 8),
                                 GestureDetector(
                                   onTap: () => Navigator.of(context).pop(),
-                                  child: const Icon(LucideIcons.x, color: Colors.white54, size: 24),
+                                  child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 24),
                                 )
                               ],
                             ),
@@ -352,7 +353,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
                           }
                           if (snapshot.hasError) {
-                            return Center(child: Text(context.watch<LocaleProvider>().t('chat.media_error_load') ?? 'Ошибка загрузки', style: const TextStyle(color: Colors.white54)));
+                            return Center(child: Text(context.watch<LocaleProvider>().t('chat.media_error_load') ?? 'Ошибка загрузки', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))));
                           }
                           final items = snapshot.data ?? [];
                           
@@ -374,7 +375,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           }
 
                           if (mediaItems.isEmpty) {
-                            return Center(child: Text(context.watch<LocaleProvider>().t('chat.media_empty') ?? 'Нет медиа файлов', style: const TextStyle(color: Colors.white54)));
+                            return Center(child: Text(context.watch<LocaleProvider>().t('chat.media_empty') ?? 'Нет медиа файлов', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))));
                           }
 
                           return GridView.builder(
@@ -482,16 +483,16 @@ class _ChatScreenState extends State<ChatScreen> {
         appBar: AppBar(
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           leading: IconButton(
-            icon: const Icon(LucideIcons.arrow_left, color: Colors.white),
+            icon: Icon(LucideIcons.arrow_left, color: Theme.of(context).appColors.foreground),
             onPressed: () => Navigator.of(context).pop(), // Go back to dashboard
           ),
           title: Text(
             'DMAG Chat',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(1),
-            child: Container(color: Colors.white12, height: 1),
+            child: Container(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
           ),
         ),
         body: ListView(
@@ -499,7 +500,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 4, bottom: 8),
-              child: Text(context.watch<LocaleProvider>().t('chat.main') ?? 'ОСНОВНЫЕ', style: GoogleFonts.inter(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              child: Text(context.watch<LocaleProvider>().t('chat.main') ?? 'ОСНОВНЫЕ', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
             ),
             _buildDrawerItem(
               icon: LucideIcons.hash,
@@ -515,10 +516,10 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(context.watch<LocaleProvider>().t('chat.dms') ?? 'ЛИЧНЫЕ СООБЩЕНИЯ', style: GoogleFonts.inter(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                  Text(context.watch<LocaleProvider>().t('chat.dms') ?? 'ЛИЧНЫЕ СООБЩЕНИЯ', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
                   GestureDetector(
                     onTap: _startNewDm,
-                    child: const Icon(LucideIcons.plus, color: Colors.white54, size: 16),
+                    child: Icon(LucideIcons.plus, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
                   )
                 ],
               ),
@@ -540,7 +541,7 @@ class _ChatScreenState extends State<ChatScreen> {
             if (_sites.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(left: 4, bottom: 8),
-                child: Text(context.watch<LocaleProvider>().t('chat.sites') ?? 'ОБЪЕКТЫ', style: GoogleFonts.inter(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                child: Text(context.watch<LocaleProvider>().t('chat.sites') ?? 'ОБЪЕКТЫ', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               ),
             ..._sites.map((site) {
               return _buildDrawerItem(
@@ -561,7 +562,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         leading: IconButton(
-          icon: const Icon(LucideIcons.arrow_left, color: Colors.white),
+          icon: Icon(LucideIcons.arrow_left, color: Theme.of(context).appColors.foreground),
           onPressed: () {
             setState(() {
               _isShowingChannelsList = true;
@@ -570,11 +571,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         title: Text(
           _activeChannelTitle,
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
+            icon: Icon(Icons.more_vert, color: Theme.of(context).appColors.foreground),
             color: const Color(0xFF151515),
             onSelected: (value) {
               if (value == 'info') _showChatInfo();
@@ -593,15 +594,15 @@ class _ChatScreenState extends State<ChatScreen> {
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
               PopupMenuItem<String>(
                 value: 'info',
-                child: Text(context.watch<LocaleProvider>().t('chat.info_title') ?? 'Информация о чате', style: const TextStyle(color: Colors.white)),
+                child: Text(context.watch<LocaleProvider>().t('chat.info_title') ?? 'Информация о чате', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
               PopupMenuItem<String>(
                 value: 'media',
-                child: Text(context.watch<LocaleProvider>().t('chat.media_title') ?? 'Вложенные медиа', style: const TextStyle(color: Colors.white)),
+                child: Text(context.watch<LocaleProvider>().t('chat.media_title') ?? 'Вложенные медиа', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
               PopupMenuItem<String>(
                 value: 'mute',
-                child: Text(_mutedChannels.contains(_activeChannelId) ? context.watch<LocaleProvider>().t('chat.notifs_enable') ?? 'Включить уведомления' : context.watch<LocaleProvider>().t('chat.notifs_disable') ?? 'Отключить уведомления', style: const TextStyle(color: Colors.white)),
+                child: Text(_mutedChannels.contains(_activeChannelId) ? context.watch<LocaleProvider>().t('chat.notifs_enable') ?? 'Включить уведомления' : context.watch<LocaleProvider>().t('chat.notifs_disable') ?? 'Отключить уведомления', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
               PopupMenuItem<String>(
                 value: 'clear',
@@ -612,7 +613,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.white12, height: 1),
+          child: Container(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
         ),
       ),
       body: ChatContent(
@@ -633,11 +634,11 @@ class _ChatScreenState extends State<ChatScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Colors.white54, size: 18),
+        leading: Icon(icon, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 18),
         title: Text(
           title,
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: Theme.of(context).appColors.foreground,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             fontSize: 14,
           ),
@@ -647,7 +648,7 @@ class _ChatScreenState extends State<ChatScreen> {
         trailing: onDelete != null
           ? GestureDetector(
               onTap: onDelete,
-              child: const Icon(LucideIcons.trash_2, color: Colors.white54, size: 16),
+              child: Icon(LucideIcons.trash_2, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
             )
           : null,
         onTap: onTap,
@@ -743,10 +744,10 @@ class _ChatContentState extends State<ChatContent> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: Text(context.watch<LocaleProvider>().t('chat.del_msg_title') ?? 'Удалить?', style: const TextStyle(color: Colors.white)),
-        content: Text(context.watch<LocaleProvider>().t('chat.del_msg_content') ?? 'Сообщение будет удалено.', style: const TextStyle(color: Colors.white70)),
+        title: Text(context.watch<LocaleProvider>().t('chat.del_msg_title') ?? 'Удалить?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.watch<LocaleProvider>().t('chat.del_msg_content') ?? 'Сообщение будет удалено.', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: const TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('chat.media_cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red))),
         ],
       )
@@ -780,7 +781,7 @@ class _ChatContentState extends State<ChatContent> {
               top: 40,
               right: 20,
               child: IconButton(
-                icon: const Icon(LucideIcons.x, color: Colors.white, size: 30),
+                icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground, size: 30),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ),
@@ -811,7 +812,7 @@ class _ChatContentState extends State<ChatContent> {
                 .order('created_at', ascending: false),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return Center(child: Text(context.watch<LocaleProvider>().t('chat.media_error_load') ?? 'Ошибка загрузки', style: const TextStyle(color: Colors.white54)));
+                return Center(child: Text(context.watch<LocaleProvider>().t('chat.media_error_load') ?? 'Ошибка загрузки', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))));
               }
               if (!snapshot.hasData) {
                 return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
@@ -819,7 +820,7 @@ class _ChatContentState extends State<ChatContent> {
 
               final messages = snapshot.data!;
               if (messages.isEmpty) {
-                return Center(child: Text(context.watch<LocaleProvider>().t('chat.no_msgs') ?? 'Нет сообщений', style: const TextStyle(color: Colors.white54)));
+                return Center(child: Text(context.watch<LocaleProvider>().t('chat.no_msgs') ?? 'Нет сообщений', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))));
               }
 
               return ListView.builder(
@@ -846,7 +847,7 @@ class _ChatContentState extends State<ChatContent> {
               children: [
                 GestureDetector(
                   onTap: _openPhotoReport,
-                  child: const Icon(LucideIcons.camera, color: Colors.white70, size: 24),
+                  child: Icon(LucideIcons.camera, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -857,10 +858,10 @@ class _ChatContentState extends State<ChatContent> {
                     ),
                     child: TextField(
                       controller: _messageController,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(color: Theme.of(context).appColors.foreground, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: context.watch<LocaleProvider>().t('chat.input_placeholder') ?? 'Сообщение...',
-                        hintStyle: const TextStyle(color: Colors.white38),
+                        hintStyle: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
@@ -878,8 +879,8 @@ class _ChatContentState extends State<ChatContent> {
                       shape: BoxShape.circle,
                     ),
                     child: _isSending
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Icon(LucideIcons.send, color: Colors.white, size: 18),
+                        ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Theme.of(context).appColors.foreground, strokeWidth: 2))
+                        : Icon(LucideIcons.send, color: Theme.of(context).appColors.foreground, size: 18),
                   ),
                 )
               ],
@@ -922,11 +923,11 @@ class _ChatContentState extends State<ChatContent> {
           if (!isMe) ...[
             CircleAvatar(
               radius: 16,
-              backgroundColor: Colors.white12,
+              backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.12),
               backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null ? Text(
                 authorName.isNotEmpty ? authorName[0].toUpperCase() : 'U',
-                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
               ) : null,
             ),
             const SizedBox(width: 8),
@@ -939,7 +940,7 @@ class _ChatContentState extends State<ChatContent> {
               children: [
                 if (isMe) 
                    PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Colors.white38, size: 16),
+                    icon: Icon(Icons.more_vert, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 16),
                     color: const Color(0xFF151515),
                     onSelected: (val) {
                       if (val == 'delete') _deleteMessage(msg['id'].toString());
@@ -964,7 +965,7 @@ class _ChatContentState extends State<ChatContent> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF0A0A0A), // Very black bubble
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -974,7 +975,7 @@ class _ChatContentState extends State<ChatContent> {
                             padding: const EdgeInsets.only(bottom: 4),
                             child: Text(
                               authorName,
-                              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
+                              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7)),
                             ),
                           ),
                         
@@ -991,14 +992,14 @@ class _ChatContentState extends State<ChatContent> {
 
                         Text(
                           displayContent,
-                          style: GoogleFonts.inter(fontSize: 14, color: Colors.white),
+                          style: GoogleFonts.inter(fontSize: 14, color: Theme.of(context).appColors.foreground),
                         ),
                         const SizedBox(height: 4),
                         Align(
                           alignment: Alignment.bottomRight,
                           child: Text(
                             timeString,
-                            style: GoogleFonts.inter(fontSize: 10, color: Colors.white38),
+                            style: GoogleFonts.inter(fontSize: 10, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
                           ),
                         ),
                       ],
@@ -1008,7 +1009,7 @@ class _ChatContentState extends State<ChatContent> {
 
                 if (!isMe)
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Colors.white38, size: 16),
+                    icon: Icon(Icons.more_vert, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 16),
                     color: const Color(0xFF151515),
                     onSelected: (val) {
                       if (val == 'delete') _deleteMessage(msg['id'].toString());

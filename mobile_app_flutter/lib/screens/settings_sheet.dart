@@ -115,7 +115,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                 Icon(LucideIcons.settings, color: colors.foreground),
                 const SizedBox(width: 12),
                 Text(
-                  context.read<LocaleProvider>().t('settings.title'),
+                  context.read<LocaleProvider>().t('settings.title') ?? 'Настройки',
                   style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -133,7 +133,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              context.read<LocaleProvider>().t('settings.subtitle'),
+              context.read<LocaleProvider>().t('settings.subtitle') ?? 'Управление внешним видом',
               style: GoogleFonts.inter(
                 color: colors.foreground.withValues(alpha: 0.5),
                 fontSize: 14,
@@ -153,7 +153,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        context.read<LocaleProvider>().t('settings.language'),
+                        context.read<LocaleProvider>().t('settings.language') ?? 'Язык',
                         style: GoogleFonts.inter(
                           color: colors.foreground,
                           fontSize: 16,
@@ -187,7 +187,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    context.read<LocaleProvider>().t('settings.languageHint'),
+                    context.read<LocaleProvider>().t('settings.languageHint') ?? 'Выберите язык приложения',
                     style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5), fontSize: 12),
                   ),
                   
@@ -201,19 +201,19 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     children: [
                       Icon(LucideIcons.palette, color: colors.foreground, size: 18),
                       const SizedBox(width: 8),
-                      Text(context.read<LocaleProvider>().t('settings.theme'), style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(context.read<LocaleProvider>().t('settings.theme') ?? 'Тема оформления', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.sun, context.read<LocaleProvider>().t('settings.theme.light'), ThemeModeType.light)),
+                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.sun, context.read<LocaleProvider>().t('settings.theme.light') ?? 'Светлая', ThemeModeType.light)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.moon, context.read<LocaleProvider>().t('settings.theme.dark'), ThemeModeType.dark)),
+                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.moon, context.read<LocaleProvider>().t('settings.theme.dark') ?? 'Тёмная', ThemeModeType.dark)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.zap, context.read<LocaleProvider>().t('settings.theme.neon'), ThemeModeType.neon)),
+                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.zap, context.read<LocaleProvider>().t('settings.theme.neon') ?? 'Неон', ThemeModeType.neon)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.sliders_horizontal, context.read<LocaleProvider>().t('settings.theme.custom'), ThemeModeType.custom)),
+                      Expanded(child: _buildModeOption(context, themeProvider, LucideIcons.sliders_horizontal, context.read<LocaleProvider>().t('settings.theme.custom') ?? 'Своя', ThemeModeType.custom)),
                     ],
                   ),
 
@@ -227,7 +227,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     children: [
                       Icon(LucideIcons.paint_bucket, color: colors.foreground, size: 18),
                       const SizedBox(width: 8),
-                      Text(context.read<LocaleProvider>().t('settings.accent'), style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(context.read<LocaleProvider>().t('settings.accent') ?? 'Цветовой акцент', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -308,7 +308,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   _buildSliderRow(
                     context: context,
                     provider: themeProvider,
-                    label: context.read<LocaleProvider>().t('settings.scale'),
+                    label: context.read<LocaleProvider>().t('settings.scale') ?? 'Масштаб текста',
                     left: '85%',
                     middle: '${(themeProvider.textSizeScale * 100).toInt()}%',
                     right: '125%',
@@ -321,10 +321,10 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   _buildSliderRow(
                     context: context,
                     provider: themeProvider,
-                    label: context.read<LocaleProvider>().t('settings.radius'),
-                    left: context.read<LocaleProvider>().t('settings.radiusSharp'),
+                    label: context.read<LocaleProvider>().t('settings.radius') ?? 'Скругление углов',
+                    left: context.read<LocaleProvider>().t('settings.radiusSharp') ?? 'Прямо',
                     middle: '${(themeProvider.borderRadius / 16).toStringAsFixed(2)}rem',
-                    right: context.read<LocaleProvider>().t('settings.radiusRound'),
+                    right: context.read<LocaleProvider>().t('settings.radiusRound') ?? 'Кругло',
                     value: themeProvider.borderRadius,
                     min: 0.0,
                     max: 32.0,
@@ -346,7 +346,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       alignment: Alignment.center,
-                      child: Text(context.read<LocaleProvider>().t('settings.done'), style: GoogleFonts.inter(color: colors.primaryForeground, fontWeight: FontWeight.w600)),
+                      child: Text(context.read<LocaleProvider>().t('settings.done') ?? 'Готово', style: GoogleFonts.inter(color: colors.primaryForeground, fontWeight: FontWeight.w600)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -372,7 +372,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                         children: [
                           Icon(LucideIcons.rotate_ccw, color: colors.foreground, size: 16),
                           const SizedBox(width: 8),
-                          Text(context.read<LocaleProvider>().t('settings.reset'), style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                          Text(context.read<LocaleProvider>().t('settings.reset') ?? 'Сбросить настройки', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),

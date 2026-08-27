@@ -12,6 +12,7 @@ import 'tabs/chat_tab.dart';
 import '../../services/auth_service.dart';
 import '../dashboard_screen.dart';
 import '../settings_sheet.dart';
+import '../../main.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../providers/shift_provider.dart';
@@ -46,13 +47,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   String _getTabTitle(BuildContext context, int index) {
     final t = context.watch<LocaleProvider>().t;
     switch (index) {
-      case 0: return t('admin.tab.dashboard');
-      case 1: return t('admin.tab.calendar');
-      case 2: return t('admin.tab.personnel');
-      case 3: return t('admin.tab.sites');
-      case 4: return t('admin.tab.reports');
-      case 5: return t('admin.tab.security');
-      case 6: return t('admin.tab.users');
+      case 0: return t('admin.tab.dashboard') ?? 'Дашборд';
+      case 1: return t('admin.tab.calendar') ?? 'Календарь';
+      case 2: return t('admin.tab.personnel') ?? 'Персонал';
+      case 3: return t('admin.tab.sites') ?? 'Объекты';
+      case 4: return t('admin.tab.reports') ?? 'Отчёты';
+      case 5: return t('admin.tab.security') ?? 'Безопасность';
+      case 6: return t('admin.tab.users') ?? 'Управление';
       case 7: return t('admin.tab.chat') ?? 'Чат';
       default: return '';
     }
@@ -81,15 +82,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(LucideIcons.arrow_left, color: colors.foreground.withValues(alpha: 0.54), size: 20),
-            tooltip: context.watch<LocaleProvider>().t('dashboard.back_to_employee') ?? 'Вернуться в режим сотрудника',
-            onPressed: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              );
-            },
-          ),
-          IconButton(
             icon: Icon(LucideIcons.settings, color: colors.foreground.withValues(alpha: 0.54), size: 20),
             onPressed: () {
               SettingsSheet.show(context);
@@ -98,6 +90,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           IconButton(
             icon: Icon(LucideIcons.log_out, color: colors.foreground.withValues(alpha: 0.54), size: 20),
             onPressed: () async {
+              final nav = Navigator.of(context, rootNavigator: true);
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -105,7 +98,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               );
               context.read<ShiftProvider>().resetShift();
               await AuthService.signOut();
-              if (context.mounted) Navigator.pop(context);
+              nav.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                (route) => false,
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -162,6 +158,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
             ),
+            Divider(color: colors.border, height: 1),
+            // Back to employee mode
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: ListTile(
+                leading: Icon(LucideIcons.arrow_left, color: colors.foreground.withValues(alpha: 0.7), size: 20),
+                title: Text(
+                  context.watch<LocaleProvider>().t('dashboard.back_to_employee') ?? 'Режим сотрудника',
+                  style: GoogleFonts.inter(
+                    color: colors.foreground,
+                    fontSize: 14,
+                  ),
+                ),
+                onTap: () => _confirmSwitchToEmployee(context, colors),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -185,6 +199,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           key: ValueKey<int>(_currentIndex),
           child: _tabs[_currentIndex],
         ),
+      ),
+    );
+  }
+
+  void _confirmSwitchToEmployee(BuildContext context, AppColors colors) {
+    Navigator.of(context).pop(); // Close drawer first
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colors.border),
+        ),
+        title: Text(
+          context.read<LocaleProvider>().t('admin.switch_confirm_title') ?? 'Переключиться в режим сотрудника?',
+          style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              context.read<LocaleProvider>().t('common.cancel') ?? 'Отмена',
+              style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.7)),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              );
+            },
+            child: Text(
+              context.read<LocaleProvider>().t('common.confirm') ?? 'Подтвердить',
+              style: GoogleFonts.inter(color: colors.primary, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }

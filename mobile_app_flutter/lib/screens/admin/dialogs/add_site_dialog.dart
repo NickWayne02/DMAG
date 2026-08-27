@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../../theme/app_theme.dart';
 
 class AddSiteDialog extends StatefulWidget {
   final Map<String, dynamic>? site; // if null, creating new
@@ -125,16 +126,16 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   InputDecoration _inputDeco(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.inter(color: Colors.white38, fontSize: 16),
+      hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), fontSize: 16),
       filled: true,
-      fillColor: Colors.black, // Dark input background
+      fillColor: Theme.of(context).cardColor, // Dark input background
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white12),
+        borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white38),
+        borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
@@ -143,11 +144,11 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).cardColor,
       insetPadding: const EdgeInsets.all(16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: Colors.white12),
+        side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
       ),
       child: Container(
         width: double.infinity,
@@ -171,7 +172,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                             widget.site == null ? context.read<LocaleProvider>().t('add_site.new') ?? 'Новый объект' : context.read<LocaleProvider>().t('add_site.edit') ?? 'Редактировать объект',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
-                              color: Colors.white,
+                              color: Theme.of(context).appColors.foreground,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -181,7 +182,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                             context.watch<LocaleProvider>().t('add_site.subtitle') ?? 'Заполните данные строительной площадки',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.inter(
-                              color: Colors.white70,
+                              color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                           ),
@@ -189,7 +190,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(LucideIcons.x, color: Colors.white70, size: 20),
+                      icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 20),
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -201,47 +202,47 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                   padding: const EdgeInsets.only(bottom: 24),
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white24),
+                      side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.24)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       minimumSize: const Size.fromHeight(56),
-                      backgroundColor: Colors.black,
+                      backgroundColor: Theme.of(context).cardColor,
                     ),
                     icon: _isGpsLoading 
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(LucideIcons.map_pin, size: 18, color: Colors.white),
+                      ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).appColors.foreground))
+                      : Icon(LucideIcons.map_pin, size: 18, color: Theme.of(context).appColors.foreground),
                     label: Text(
                       context.watch<LocaleProvider>().t('add_site.gps') ?? 'Определить по GPS',
-                      style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     onPressed: _isGpsLoading ? null : _fillFromGps,
                   ),
                 ),
 
-                Text(context.watch<LocaleProvider>().t('add_site.name_lbl') ?? 'Название *', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(context.watch<LocaleProvider>().t('add_site.name_lbl') ?? 'Название *', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameCtrl,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16),
                   decoration: _inputDeco(context.watch<LocaleProvider>().t('add_site.name_hint') ?? 'Название объекта'),
                   validator: (v) => v == null || v.isEmpty ? context.read<LocaleProvider>().t('add_site.required') ?? 'Обязательное поле' : null,
                 ),
                 const SizedBox(height: 20),
 
-                Text(context.watch<LocaleProvider>().t('add_site.address_lbl') ?? 'Адрес', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(context.watch<LocaleProvider>().t('add_site.address_lbl') ?? 'Адрес', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _addressCtrl,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16),
                   decoration: _inputDeco(context.watch<LocaleProvider>().t('add_site.address_hint') ?? 'GPS: широта, долгота или адрес'),
                 ),
                 const SizedBox(height: 20),
 
-                Text(context.watch<LocaleProvider>().t('add_site.client') ?? 'Заказчик', style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(context.watch<LocaleProvider>().t('add_site.client') ?? 'Заказчик', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _customerCtrl,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16),
                   decoration: _inputDeco('DMAG'),
                 ),
                 const SizedBox(height: 32),
@@ -267,7 +268,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                         minimumSize: const Size.fromHeight(48),
                       ),
                       onPressed: () => Navigator.pop(context),
-                      child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 )

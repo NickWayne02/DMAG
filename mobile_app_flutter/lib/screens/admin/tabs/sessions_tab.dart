@@ -3,6 +3,7 @@ import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../../theme/app_theme.dart';
 
 class SessionsTab extends StatelessWidget {
   const SessionsTab({super.key});
@@ -14,9 +15,9 @@ class SessionsTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: const Color(0xFF09090b),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,7 +25,7 @@ class SessionsTab extends StatelessWidget {
             Text(
               context.watch<LocaleProvider>().t('sessions.current') ?? 'Текущая сессия',
               style: GoogleFonts.inter(
-                color: Colors.white,
+                color: Theme.of(context).appColors.foreground,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -33,9 +34,9 @@ class SessionsTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.02),
+                color: Theme.of(context).appColors.foreground.withValues(alpha: 0.02),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,10 +44,10 @@ class SessionsTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
+                      color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(LucideIcons.smartphone, color: Colors.white54, size: 24),
+                    child: Icon(LucideIcons.smartphone, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 24),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -60,7 +61,7 @@ class SessionsTab extends StatelessWidget {
                               child: Text(
                                 context.watch<LocaleProvider>().t('sessions.mobile') ?? 'Мобильное приложение',
                                 style: GoogleFonts.inter(
-                                  color: Colors.white,
+                                  color: Theme.of(context).appColors.foreground,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -102,7 +103,7 @@ class SessionsTab extends StatelessWidget {
                         Text(
                           '176.109.170.47 · Svitlovodsk, UA',
                           style: GoogleFonts.inter(
-                            color: Colors.white54,
+                            color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
                             fontSize: 14,
                           ),
                         ),
@@ -124,7 +125,7 @@ class SessionsTab extends StatelessWidget {
             Text(
               context.watch<LocaleProvider>().t('sessions.other') ?? 'Другие сессии',
               style: GoogleFonts.inter(
-                color: Colors.white,
+                color: Theme.of(context).appColors.foreground,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -133,7 +134,7 @@ class SessionsTab extends StatelessWidget {
             Text(
               context.watch<LocaleProvider>().t('sessions.empty') ?? 'Нет событий',
               style: GoogleFonts.inter(
-                color: Colors.white54,
+                color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
                 fontSize: 14,
               ),
             ),

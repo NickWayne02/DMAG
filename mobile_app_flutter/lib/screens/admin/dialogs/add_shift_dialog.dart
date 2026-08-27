@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../widgets/bounce_button.dart';
+import '../../../theme/app_theme.dart';
 
 class AddShiftDialog extends StatefulWidget {
   final List<Map<String, dynamic>> employees;
@@ -143,9 +144,9 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -158,39 +159,39 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(context.watch<LocaleProvider>().t('add_shift.title') ?? context.watch<LocaleProvider>().t('add_shift.title') ?? 'Добавить смену', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(context.watch<LocaleProvider>().t('add_shift.title') ?? context.watch<LocaleProvider>().t('add_shift.title') ?? 'Добавить смену', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
                       if (selectedEmpName.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4.0),
-                          child: Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(selectedEmpName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
+                          child: Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(selectedEmpName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
                         ),
                     ],
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(LucideIcons.x, color: Colors.white54, size: 20),
+                    child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
                   )
                 ],
               ),
               const SizedBox(height: 24),
               
-              Text(context.watch<LocaleProvider>().t('calendar.employee') ?? context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('calendar.employee') ?? context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 height: 44,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: Colors.white12),
+                  color: Theme.of(context).cardColor,
+                  border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedEmployeeId,
                     isExpanded: true,
-                    dropdownColor: const Color(0xFF1E293B),
-                    icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                    dropdownColor: Theme.of(context).cardColor,
+                    icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                     items: widget.employees.map((e) {
                       String role = e['role'] == 'super_admin' ? context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ' : (e['role'] == 'admin' ? 'Админ' : (e['role'] == 'brigadier' ? context.watch<LocaleProvider>().t('role.brigadier') ?? 'Бригадир' : context.watch<LocaleProvider>().t('calendar.employee') ?? context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник'));
                       return DropdownMenuItem<String>(
@@ -204,24 +205,24 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
               ),
               
               const SizedBox(height: 16),
-              Text(context.watch<LocaleProvider>().t('calendar.site') ?? context.watch<LocaleProvider>().t('calendar.site') ?? 'Объект', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('calendar.site') ?? context.watch<LocaleProvider>().t('calendar.site') ?? 'Объект', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Container(
                 height: 44,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: Colors.white12),
+                  color: Theme.of(context).cardColor,
+                  border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedSiteId,
-                    hint: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white)),
+                    hint: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                     isExpanded: true,
-                    dropdownColor: const Color(0xFF1E293B),
-                    icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                    dropdownColor: Theme.of(context).cardColor,
+                    icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                     items: [
                       DropdownMenuItem<String>(value: null, child: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —')),
                       ...widget.sites.map((s) => DropdownMenuItem<String>(
@@ -241,7 +242,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.watch<LocaleProvider>().t('calendar.start') ?? context.watch<LocaleProvider>().t('calendar.start') ?? 'Начало', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.start') ?? context.watch<LocaleProvider>().t('calendar.start') ?? 'Начало', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, true),
@@ -249,11 +250,11 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                             height: 44,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white12),
+                              border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.centerLeft,
-                            child: Text(formatDate(_startedAt), style: GoogleFonts.inter(color: Colors.white, fontSize: 14)),
+                            child: Text(formatDate(_startedAt), style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14)),
                           ),
                         ),
                       ],
@@ -264,7 +265,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.watch<LocaleProvider>().t('calendar.end') ?? context.watch<LocaleProvider>().t('calendar.end') ?? 'Конец', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.end') ?? context.watch<LocaleProvider>().t('calendar.end') ?? 'Конец', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, false),
@@ -272,11 +273,11 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                             height: 44,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white12),
+                              border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.centerLeft,
-                            child: Text(formatDate(_endedAt), style: GoogleFonts.inter(color: Colors.white, fontSize: 14)),
+                            child: Text(formatDate(_endedAt), style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14)),
                           ),
                         ),
                       ],
@@ -286,18 +287,18 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
               ),
               
               const SizedBox(height: 16),
-              Text(context.watch<LocaleProvider>().t('calendar.pause') ?? context.watch<LocaleProvider>().t('calendar.pause') ?? 'Пауза (минут)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('calendar.pause') ?? context.watch<LocaleProvider>().t('calendar.pause') ?? 'Пауза (минут)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               SizedBox(
                 height: 44,
                 child: TextField(
                   controller: _pauseController,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white38)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38))),
                   ),
                 ),
               ),
@@ -309,19 +310,19 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.watch<LocaleProvider>().t('calendar.gps_start') ?? context.watch<LocaleProvider>().t('calendar.gps_start') ?? 'GPS город (старт)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.gps_start') ?? context.watch<LocaleProvider>().t('calendar.gps_start') ?? 'GPS город (старт)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         SizedBox(
                           height: 44,
                           child: TextField(
                             controller: _startCityController,
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                               hintText: 'Köln',
-                              hintStyle: GoogleFonts.inter(color: Colors.white24),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white38)),
+                              hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.24)),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38))),
                             ),
                           ),
                         ),
@@ -333,19 +334,19 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.watch<LocaleProvider>().t('calendar.gps_end') ?? context.watch<LocaleProvider>().t('calendar.gps_end') ?? 'GPS город (конец)', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text(context.watch<LocaleProvider>().t('calendar.gps_end') ?? context.watch<LocaleProvider>().t('calendar.gps_end') ?? 'GPS город (конец)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         SizedBox(
                           height: 44,
                           child: TextField(
                             controller: _endCityController,
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                               hintText: 'Köln',
-                              hintStyle: GoogleFonts.inter(color: Colors.white24),
-                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white12)),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white38)),
+                              hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.24)),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38))),
                             ),
                           ),
                         ),
@@ -365,12 +366,12 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(
-                          color: Colors.black,
-                          border: Border.all(color: Colors.white24),
+                          color: Theme.of(context).cardColor,
+                          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.24)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
-                          child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                          child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.bold, fontSize: 14)),
                         ),
                       ),
                     ),
@@ -388,8 +389,8 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                         ),
                         child: Center(
                           child: _isSaving
-                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : Text(context.watch<LocaleProvider>().t('calendar.save') ?? context.watch<LocaleProvider>().t('calendar.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 14)),
+                              ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).appColors.foreground))
+                              : Text(context.watch<LocaleProvider>().t('calendar.save') ?? context.watch<LocaleProvider>().t('calendar.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.normal, fontSize: 14)),
                         ),
                       ),
                     ),

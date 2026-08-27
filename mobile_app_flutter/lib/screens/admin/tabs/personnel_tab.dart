@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -229,12 +230,12 @@ class _PersonnelTabState extends State<PersonnelTab> {
                       children: [
                         Text(
                           context.watch<LocaleProvider>().t('personnel.monitoring') ?? 'Мониторинг сотрудников',
-                          style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           context.watch<LocaleProvider>().t('personnel.status_and_time') ?? 'Статус смены и время фиксации',
-                          style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12),
                         ),
                       ],
                     ),
@@ -244,12 +245,12 @@ class _PersonnelTabState extends State<PersonnelTab> {
                     children: [
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white12),
+                          side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                         ),
-                        icon: const Icon(LucideIcons.plus, color: Colors.white, size: 14),
-                        label: Text(context.watch<LocaleProvider>().t('personnel.add') ?? 'Добавить', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+                        icon: Icon(LucideIcons.plus, color: Theme.of(context).appColors.foreground, size: 14),
+                        label: Text(context.watch<LocaleProvider>().t('personnel.add') ?? 'Добавить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12)),
                         onPressed: () => _showAddShiftModal(null),
                       ),
                       const SizedBox(width: 8),
@@ -259,10 +260,10 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           highlightColor: Colors.transparent,
                         ),
                         child: PopupMenuButton<String>(
-                          color: Colors.black,
+                          color: Theme.of(context).cardColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side: const BorderSide(color: Colors.white12),
+                            side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                           ),
                           offset: const Offset(0, 40),
                           onSelected: (val) {
@@ -273,9 +274,9 @@ class _PersonnelTabState extends State<PersonnelTab> {
                               value: 'Excel',
                               child: Row(
                                 children: [
-                                  const Icon(LucideIcons.file_spreadsheet, color: Colors.white70, size: 16),
+                                  Icon(LucideIcons.file_spreadsheet, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 16),
                                   const SizedBox(width: 12),
-                                  Text('Excel', style: GoogleFonts.inter(color: Colors.white)),
+                                  Text('Excel', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                                 ],
                               ),
                             ),
@@ -283,9 +284,9 @@ class _PersonnelTabState extends State<PersonnelTab> {
                               value: 'PDF',
                               child: Row(
                                 children: [
-                                  const Icon(LucideIcons.file_text, color: Colors.white70, size: 16),
+                                  Icon(LucideIcons.file_text, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 16),
                                   const SizedBox(width: 12),
-                                  Text('PDF', style: GoogleFonts.inter(color: Colors.white)),
+                                  Text('PDF', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                                 ],
                               ),
                             ),
@@ -293,15 +294,15 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white12),
+                              border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(LucideIcons.download, color: Colors.white, size: 14),
+                                Icon(LucideIcons.download, color: Theme.of(context).appColors.foreground, size: 14),
                                 const SizedBox(width: 8),
-                                Text(context.watch<LocaleProvider>().t('personnel.export') ?? 'Экспорт', style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500)),
+                                Text(context.watch<LocaleProvider>().t('personnel.export') ?? 'Экспорт', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -321,20 +322,20 @@ class _PersonnelTabState extends State<PersonnelTab> {
                       height: 44,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.black,
-                        border: Border.all(color: Colors.white12),
+                        color: Theme.of(context).cardColor,
+                        border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          const Icon(LucideIcons.search, color: Colors.white54, size: 16),
+                          Icon(LucideIcons.search, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
-                              style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                               decoration: InputDecoration(
                                 hintText: context.watch<LocaleProvider>().t('personnel.search') ?? 'Поиск...',
-                                hintStyle: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
+                                hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14),
                                 border: InputBorder.none,
                               ),
                               onChanged: (val) {
@@ -354,17 +355,17 @@ class _PersonnelTabState extends State<PersonnelTab> {
                       height: 44,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.black,
-                        border: Border.all(color: Colors.white12),
+                        color: Theme.of(context).cardColor,
+                        border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _roleFilter,
                           isExpanded: true,
-                          dropdownColor: const Color(0xFF1E293B),
-                          icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                          style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                          dropdownColor: Theme.of(context).cardColor,
+                          icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                           items: [
                             DropdownMenuItem(value: 'all', child: Text(context.watch<LocaleProvider>().t('personnel.all_roles') ?? 'Все роли')),
                             DropdownMenuItem(value: 'employee', child: Text(context.watch<LocaleProvider>().t('admin.personnel.employees') ?? 'Сотрудники')),
@@ -389,7 +390,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: Colors.cyan))
               : _filteredEmployees.isEmpty
-                  ? Center(child: Text(context.watch<LocaleProvider>().t('shift_history.empty') ?? 'Нет данных', style: GoogleFonts.inter(color: Colors.white54)))
+                  ? Center(child: Text(context.watch<LocaleProvider>().t('shift_history.empty') ?? 'Нет данных', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))))
                   : ListView.builder(
                       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
                       itemCount: _filteredEmployees.length,
@@ -422,7 +423,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: Theme.of(context).appColors.foreground.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: emp.avatarUrl != null && emp.avatarUrl!.isNotEmpty 
@@ -433,7 +434,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                             : Center(
                                 child: Text(
                                   emp.name.isNotEmpty ? emp.name.substring(0, 1).toUpperCase() : '?',
-                                  style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                               ),
                       ),
@@ -444,13 +445,13 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           children: [
                             Text(
                               TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang),
-                              style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               _getRoleLabel(emp.role),
-                              style: GoogleFonts.inter(color: Colors.white54, fontSize: 13),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 13),
                             ),
                           ],
                         ),
@@ -464,14 +465,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
                       onTap: () {
                         AdminCalendarDialog.show(context, emp.id, emp.name);
                       },
-                      child: const Icon(LucideIcons.calendar, color: Colors.white54, size: 20),
+                      child: Icon(LucideIcons.calendar, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
                     ),
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () {
                         _openEditShiftsForMonth(emp);
                       },
-                      child: const Icon(LucideIcons.pencil, color: Colors.white54, size: 20),
+                      child: Icon(LucideIcons.pencil, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
                     ),
                   ],
                 ),
@@ -501,14 +502,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
                 ),
                 Text(
                   emp.siteName ?? '—',
-                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), fontSize: 13),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
             if (emp.status != 'offline') ...[
               const SizedBox(height: 12),
-              const Divider(color: Colors.white12, height: 1),
+              Divider(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -529,9 +530,9 @@ class _PersonnelTabState extends State<PersonnelTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.inter(color: Colors.white54, fontSize: 11)),
+        Text(label, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 11)),
         const SizedBox(height: 2),
-        Text(value, style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+        Text(value, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -548,9 +549,9 @@ class _PersonnelTabState extends State<PersonnelTab> {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -559,29 +560,29 @@ class _PersonnelTabState extends State<PersonnelTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(context.watch<LocaleProvider>().t('personnel.edit_role') ?? 'Редактировать роль', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      GestureDetector(onTap: () => Navigator.pop(ctx), child: const Icon(LucideIcons.x, color: Colors.white54, size: 20)),
+                      Text(context.watch<LocaleProvider>().t('personnel.edit_role') ?? 'Редактировать роль', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
+                      GestureDetector(onTap: () => Navigator.pop(ctx), child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20)),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 14)),
+                  Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14)),
                   const SizedBox(height: 24),
-                  Text(context.watch<LocaleProvider>().t('personnel.access_role') ?? 'Роль доступа', style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  Text(context.watch<LocaleProvider>().t('personnel.access_role') ?? 'Роль доступа', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.black,
-                      border: Border.all(color: Colors.white12),
+                      color: Theme.of(context).cardColor,
+                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: selectedRole,
                         isExpanded: true,
-                        dropdownColor: const Color(0xFF1E293B),
-                        icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                        dropdownColor: Theme.of(context).cardColor,
+                        icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                         items: [
                           DropdownMenuItem(value: 'employee', child: Text(context.watch<LocaleProvider>().t('role.employee') ?? 'Сотрудник')),
                           DropdownMenuItem(value: 'brigadier', child: Text(context.watch<LocaleProvider>().t('role.brigadier') ?? context.read<LocaleProvider>().t('role.brigadier') ?? 'Бригадир')),
@@ -613,7 +614,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<LocaleProvider>().t('auth.errors.default') ?? 'Ошибка:'} $e')));
                         }
                       },
-                      child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                      child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],

@@ -7,6 +7,7 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../services/auth_service.dart';
 import '../../chat_screen.dart'; // To reuse ChatContent
+import '../../../theme/app_theme.dart';
 
 class ChatTab extends StatefulWidget {
   const ChatTab({super.key});
@@ -75,20 +76,20 @@ class _ChatTabState extends State<ChatTab> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => Scaffold(
-          backgroundColor: Colors.black,
+          backgroundColor: Theme.of(context).cardColor,
           appBar: AppBar(
-            backgroundColor: Colors.black,
+            backgroundColor: Theme.of(context).cardColor,
             leading: IconButton(
-              icon: const Icon(LucideIcons.arrow_left, color: Colors.white),
+              icon: Icon(LucideIcons.arrow_left, color: Theme.of(context).appColors.foreground),
               onPressed: () => Navigator.of(ctx).pop(),
             ),
             title: Text(
               title,
-              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
             ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),
-              child: Container(color: Colors.white12, height: 1),
+              child: Container(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
             ),
           ),
           body: ChatContent(
@@ -110,7 +111,7 @@ class _ChatTabState extends State<ChatTab> {
     
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E), // standard dark sheet
+      backgroundColor: Theme.of(context).cardColor, // standard dark sheet
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
         return Container(
@@ -118,7 +119,7 @@ class _ChatTabState extends State<ChatTab> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Text(context.watch<LocaleProvider>().t('chat.new_dialog') ?? 'Новый диалог', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(context.watch<LocaleProvider>().t('chat.new_dialog') ?? 'Новый диалог', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -127,11 +128,11 @@ class _ChatTabState extends State<ChatTab> {
                     final p = available[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: Colors.white24,
+                        backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.24),
                         backgroundImage: p['avatar_url'] != null ? NetworkImage(p['avatar_url']) : null,
-                        child: p['avatar_url'] == null ? Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang).substring(0, 1) ?? 'U', style: const TextStyle(color: Colors.white)) : null,
+                        child: p['avatar_url'] == null ? Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang).substring(0, 1) ?? 'U', style: TextStyle(color: Theme.of(context).appColors.foreground)) : null,
                       ),
-                      title: Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang) ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', style: GoogleFonts.inter(color: Colors.white)),
+                      title: Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang) ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                       onTap: () {
                         Navigator.of(context).pop();
                         final ids = [user.id, p['id']]..sort();
@@ -159,11 +160,11 @@ class _ChatTabState extends State<ChatTab> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
-        title: Text(context.watch<LocaleProvider>().t('chat.delete_title') ?? 'Удалить чат?', style: const TextStyle(color: Colors.white)),
-        content: Text(context.watch<LocaleProvider>().t('chat.delete_msg') ?? 'Вы уверены, что хотите удалить этот диалог? История будет удалена.', style: const TextStyle(color: Colors.white70)),
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(context.watch<LocaleProvider>().t('chat.delete_title') ?? 'Удалить чат?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.watch<LocaleProvider>().t('chat.delete_msg') ?? 'Вы уверены, что хотите удалить этот диалог? История будет удалена.', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: const TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red))),
         ],
       )
@@ -191,7 +192,7 @@ class _ChatTabState extends State<ChatTab> {
           Text(
             title,
             style: GoogleFonts.inter(
-              color: Colors.white54,
+              color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
               fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -200,7 +201,7 @@ class _ChatTabState extends State<ChatTab> {
           if (hasAddButton)
             GestureDetector(
               onTap: onAddTap,
-              child: const Icon(LucideIcons.plus, color: Colors.white54, size: 16),
+              child: Icon(LucideIcons.plus, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
             ),
         ],
       ),
@@ -223,11 +224,11 @@ class _ChatTabState extends State<ChatTab> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-        leading: Icon(icon, color: Colors.white70, size: 20),
+        leading: Icon(icon, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 20),
         title: Text(
           title,
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: Theme.of(context).appColors.foreground,
             fontSize: 14,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
@@ -235,7 +236,7 @@ class _ChatTabState extends State<ChatTab> {
         trailing: hasDelete
             ? GestureDetector(
                 onTap: onDelete,
-                child: const Icon(LucideIcons.trash_2, color: Colors.white54, size: 16),
+                child: Icon(LucideIcons.trash_2, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
               )
             : null,
         onTap: onTap,
@@ -250,9 +251,9 @@ class _ChatTabState extends State<ChatTab> {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF09090b),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -262,17 +263,17 @@ class _ChatTabState extends State<ChatTab> {
               child: Text(
                 'DMAG Chat',
                 style: GoogleFonts.inter(
-                  color: Colors.white,
+                  color: Theme.of(context).appColors.foreground,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const Divider(color: Colors.white12, height: 1),
+            Divider(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
             const SizedBox(height: 16),
             Expanded(
               child: _isLoading 
-                ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                ? Center(child: CircularProgressIndicator(color: Theme.of(context).appColors.foreground))
                 : ListView(
                 padding: EdgeInsets.zero,
                 children: [
@@ -289,7 +290,7 @@ class _ChatTabState extends State<ChatTab> {
                   if (_dmChannelIds.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Text(context.watch<LocaleProvider>().t('chat.no_dms') ?? 'Нет личных сообщений', style: GoogleFonts.inter(color: Colors.white38, fontSize: 13)),
+                      child: Text(context.watch<LocaleProvider>().t('chat.no_dms') ?? 'Нет личных сообщений', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), fontSize: 13)),
                     ),
                   ..._dmChannelIds.map((cid) {
                     final profile = _dmChannelsMap[cid];
@@ -308,7 +309,7 @@ class _ChatTabState extends State<ChatTab> {
                   if (_sites.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Colors.white38, fontSize: 13)),
+                      child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), fontSize: 13)),
                     ),
                   ..._sites.map((site) {
                     return _buildChatItem(

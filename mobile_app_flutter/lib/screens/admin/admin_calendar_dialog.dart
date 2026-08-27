@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'admin_shift_edit_sheet.dart';
+import '../../theme/app_theme.dart';
 
 class AdminCalendarDialog extends StatefulWidget {
   final String employeeId;
@@ -131,9 +132,9 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
       padding: const EdgeInsets.all(20),
       constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
       decoration: BoxDecoration(
-        color: Colors.black, // Dark dialog
+        color: Theme.of(context).cardColor, // Dark dialog
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -146,12 +147,12 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
               Expanded(
                 child: Text(
                   '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: const Icon(LucideIcons.x, color: Colors.white54, size: 20),
+                child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
               )
             ],
           ),
@@ -161,20 +162,20 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
             children: [
               GestureDetector(
                 onTap: () => _changeMonth(-1),
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Icon(LucideIcons.chevron_left, color: Colors.white, size: 20),
+                  child: Icon(LucideIcons.chevron_left, color: Theme.of(context).appColors.foreground, size: 20),
                 ),
               ),
               Text(
                 monthStr,
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
               ),
               GestureDetector(
                 onTap: () => _changeMonth(1),
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Icon(LucideIcons.chevron_right, color: Colors.white, size: 20),
+                  child: Icon(LucideIcons.chevron_right, color: Theme.of(context).appColors.foreground, size: 20),
                 ),
               ),
             ],
@@ -184,7 +185,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
           // Weekday headers
           Row(
             children: (context.watch<LocaleProvider>().t('calendar.days_short') ?? 'Пн,Вт,Ср,Чт,Пт,Сб,Вс').split(',').map((d) => Expanded(
-              child: Text(d, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white54, fontSize: 12)),
+              child: Text(d, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
             )).toList(),
           ),
           const SizedBox(height: 8),
@@ -213,8 +214,8 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
                     onTap: () => _onDayClick(day),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: hasShift ? Colors.cyan.withValues(alpha: 0.2) : (isToday ? Colors.white12 : Colors.transparent),
-                        border: Border.all(color: isToday ? Colors.cyan.withValues(alpha: 0.5) : Colors.white12),
+                        color: hasShift ? Colors.cyan.withValues(alpha: 0.2) : (isToday ? Theme.of(context).appColors.foreground.withValues(alpha: 0.12) : Colors.transparent),
+                        border: Border.all(color: isToday ? Colors.cyan.withValues(alpha: 0.5) : Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Center(
@@ -224,7 +225,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
                             Text(
                               day.toString(),
                               style: GoogleFonts.inter(
-                                color: hasShift ? Colors.cyanAccent : Colors.white,
+                                color: hasShift ? Colors.cyanAccent : Theme.of(context).appColors.foreground,
                                 fontWeight: hasShift || isToday ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),

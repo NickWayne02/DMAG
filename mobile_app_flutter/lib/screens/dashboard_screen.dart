@@ -25,6 +25,7 @@ import 'footer_sheets.dart';
 import 'admin/admin_dashboard_screen.dart';
 import '../providers/locale_provider.dart';
 import 'admin/admin_editable_calendar_dialog.dart';
+import '../main.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -67,10 +68,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final totalMin = (ms / 60000).floor();
     final h = (totalMin / 60).floor();
     final m = totalMin % 60;
-    return '$hч ${m.toString().padLeft(2, '0')}м';
+    
+    // Use localized suffixes if available
+    String hStr = 'ч';
+    String mStr = 'м';
+    if (mounted) {
+      final loc = context.read<LocaleProvider>();
+      hStr = loc.t('time.hours_short') ?? 'ч';
+      mStr = loc.t('time.minutes_short') ?? 'м';
+    }
+    
+    return '$h$hStr ${m.toString().padLeft(2, '0')}$mStr';
   }
 
   String _formatHMS(int ms) {
+    if (ms < 0) ms = 0;
     final total = (ms / 1000).floor();
     final h = (total / 3600).floor();
     final m = ((total % 3600) / 60).floor();
@@ -116,15 +128,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         break;
       case ShiftStatus.finished:
         statusColor = Colors.white;
-        statusLabel = '✓ Смена завершена';
+        statusLabel = t('dashboard.status_finished') ?? '✓ Смена завершена';
         break;
       case ShiftStatus.working:
         statusColor = const Color(0xFF22c55e); // Success green
-        statusLabel = '🟢 Работа идет';
+        statusLabel = t('dashboard.status_working') ?? '🟢 Работа идет';
         break;
       case ShiftStatus.lunch:
         statusColor = const Color(0xFFf59e0b); // Warning amber
-        statusLabel = '🟡 Обед';
+        statusLabel = t('dashboard.status_lunch') ?? '🟡 Обед';
         break;
     }
 
@@ -513,6 +525,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 16),
               BounceButton(
                 onTap: () async {
+                  final nav = Navigator.of(context, rootNavigator: true);
                   showDialog(
                     context: context,
                     barrierDismissible: false,
@@ -520,7 +533,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                   context.read<ShiftProvider>().resetShift();
                   await AuthService.signOut();
-                  if (context.mounted) Navigator.pop(context);
+                  nav.pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                    (route) => false,
+                  );
                 },
                 child: Icon(LucideIcons.log_out, color: colors.foreground.withValues(alpha: 0.54), size: 18),
               ),
@@ -707,7 +723,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 Text(
-                  '\${context.watch<LocaleProvider>().t(\'dashboard.commercial_hours\') ?? \'Коммерческие часы: \'}${_formatHM(shift.workMs)}',
+                  '${context.watch<LocaleProvider>().t('dashboard.commercial_hours') ?? 'Коммерческие часы: '}${_formatHM(shift.workMs)}',
                   style: GoogleFonts.inter(
                     color: Theme.of(context).appColors.muted,
                     fontSize: 12,
@@ -725,7 +741,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               minimumSize: Size.zero,
             ),
             onPressed: () => shift.resetShift(),
-            child: Text('Новая', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text(t('dashboard.new_shift') ?? 'Новая', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

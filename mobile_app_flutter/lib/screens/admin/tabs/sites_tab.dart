@@ -2,6 +2,7 @@ import '../../../utils/transliteration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -66,13 +67,13 @@ class _SitesTabState extends State<SitesTab> {
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF09090b),
-        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: GoogleFonts.inter(color: Colors.white)),
-        content: Text(context.read<LocaleProvider>().t('sites.delete_msg') ?? 'Вы уверены, что хотите удалить этот объект?', style: GoogleFonts.inter(color: Colors.white70)),
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.read<LocaleProvider>().t('sites.delete_msg') ?? 'Вы уверены, что хотите удалить этот объект?', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white54)),
+            child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -127,18 +128,18 @@ class _SitesTabState extends State<SitesTab> {
                           children: [
                             Text(
                               context.watch<LocaleProvider>().t('sites.title') ?? 'Объекты',
-                              style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.white12,
+                                color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 '${_sites.length}',
-                                style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                             )
                           ],
@@ -146,7 +147,7 @@ class _SitesTabState extends State<SitesTab> {
                         const SizedBox(height: 4),
                         Text(
                           context.watch<LocaleProvider>().t('sites.subtitle') ?? 'Строительные площадки из базы данных',
-                          style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12),
                         ),
                       ],
                     ),
@@ -154,12 +155,12 @@ class _SitesTabState extends State<SitesTab> {
                   const SizedBox(width: 8),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white12),
+                      side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
-                    icon: const Icon(LucideIcons.plus, color: Colors.white, size: 14),
-                    label: Text(context.watch<LocaleProvider>().t('sites.add') ?? 'Добавить', style: GoogleFonts.inter(color: Colors.white, fontSize: 12)),
+                    icon: Icon(LucideIcons.plus, color: Theme.of(context).appColors.foreground, size: 14),
+                    label: Text(context.watch<LocaleProvider>().t('sites.add') ?? 'Добавить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12)),
                     onPressed: () => _showSiteDialog(),
                   ),
                 ],
@@ -172,21 +173,21 @@ class _SitesTabState extends State<SitesTab> {
                     _applyFilter();
                   });
                 },
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: context.watch<LocaleProvider>().t('sites.search') ?? 'Поиск объекта...',
-                  hintStyle: GoogleFonts.inter(color: Colors.white38),
-                  prefixIcon: const Icon(LucideIcons.search, color: Colors.white38, size: 18),
+                  hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
+                  prefixIcon: Icon(LucideIcons.search, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 18),
                   filled: true,
-                  fillColor: const Color(0xFF09090b),
+                  fillColor: Theme.of(context).cardColor,
                   contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Colors.white12),
+                    borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Colors.white38),
+                    borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
                   ),
                 ),
               ),
@@ -196,10 +197,10 @@ class _SitesTabState extends State<SitesTab> {
         
         Expanded(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Colors.white54))
+              ? Center(child: CircularProgressIndicator(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54)))
               : _filteredSites.isEmpty
                   ? Center(
-                      child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Colors.white54)),
+                      child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -213,8 +214,8 @@ class _SitesTabState extends State<SitesTab> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF09090b),
-                            border: Border.all(color: Colors.white12),
+                            color: Theme.of(context).cardColor,
+                            border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Column(
@@ -225,11 +226,11 @@ class _SitesTabState extends State<SitesTab> {
                                   Expanded(
                                     child: Text(
                                       TransliterationService.transliterateIfNeeded(site['name'] ?? context.watch<LocaleProvider>().t('sites.no_name') ?? 'Без названия', context.read<LocaleProvider>().currentLang),
-                                      style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                      style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(LucideIcons.pencil, color: Colors.white70, size: 16),
+                                    icon: Icon(LucideIcons.pencil, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 16),
                                     onPressed: () => _showSiteDialog(site),
                                     constraints: const BoxConstraints(),
                                     padding: const EdgeInsets.all(8),
@@ -246,7 +247,7 @@ class _SitesTabState extends State<SitesTab> {
                               if (address.isNotEmpty) ...[
                                 Row(
                                   children: [
-                                    const Icon(LucideIcons.map_pin, color: Colors.white54, size: 14),
+                                    Icon(LucideIcons.map_pin, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 14),
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
@@ -261,36 +262,36 @@ class _SitesTabState extends State<SitesTab> {
                               if (isGpsAuto) ...[
                                 Row(
                                   children: [
-                                    const Icon(LucideIcons.building, color: Colors.white54, size: 14),
+                                    Icon(LucideIcons.building, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 14),
                                     const SizedBox(width: 6),
                                     Text(
                                       'GPS Auto',
-                                      style: GoogleFonts.inter(color: Colors.white54, fontSize: 13),
+                                      style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 13),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
                               ],
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                child: Divider(color: Colors.white12, height: 1),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                child: Divider(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     context.watch<LocaleProvider>().t('sites.employees') ?? 'Сотрудников:',
-                                    style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
+                                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: Colors.white12,
+                                      color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       '0', // Placeholder
-                                      style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                      style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ],

@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
@@ -22,17 +23,17 @@ class _ReportsTabState extends State<ReportsTab> {
   InputDecoration _inputDeco(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
+      hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), fontSize: 14),
       filled: true,
-      fillColor: Colors.black,
+      fillColor: Theme.of(context).cardColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.white12),
+        borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.white38),
+        borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
       ),
     );
   }
@@ -51,7 +52,7 @@ class _ReportsTabState extends State<ReportsTab> {
             children: [
               Text(
                 context.watch<LocaleProvider>().t('reports.title') ?? 'Фотоотчёты',
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -60,9 +61,9 @@ class _ReportsTabState extends State<ReportsTab> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF09090b),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,22 +77,22 @@ class _ReportsTabState extends State<ReportsTab> {
                           children: [
                             Text(
                               context.watch<LocaleProvider>().t('reports.feed_title') ?? 'Лента фотоотчётов',
-                              style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               context.watch<LocaleProvider>().t('reports.feed_subtitle') ?? 'Последние загрузки со всех объектов',
-                              style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12),
                             ),
                           ],
                         ),
                       ),
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white12),
+                          side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          foregroundColor: Colors.white,
+                          foregroundColor: Theme.of(context).appColors.foreground,
                         ),
                         icon: const Icon(LucideIcons.download, size: 14),
                         label: Text(context.watch<LocaleProvider>().t('reports.export') ?? 'Экспорт', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
@@ -106,7 +107,7 @@ class _ReportsTabState extends State<ReportsTab> {
                   // Search
                   TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                     decoration: _inputDeco(context.watch<LocaleProvider>().t('reports.search') ?? 'Поиск по описанию...'),
                   ),
                   const SizedBox(height: 12),
@@ -116,16 +117,16 @@ class _ReportsTabState extends State<ReportsTab> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: sites.contains(_selectedSite) ? _selectedSite : sites.first,
-                        dropdownColor: const Color(0xFF18181b),
-                        icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                        dropdownColor: Theme.of(context).cardColor,
+                        icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                         items: sites.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _selectedSite = v);
@@ -140,16 +141,16 @@ class _ReportsTabState extends State<ReportsTab> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: times.contains(_selectedTime) ? _selectedTime : times.first,
-                        dropdownColor: const Color(0xFF18181b),
-                        icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                        dropdownColor: Theme.of(context).cardColor,
+                        icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                         items: times.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _selectedTime = v);
@@ -163,7 +164,7 @@ class _ReportsTabState extends State<ReportsTab> {
                   // Empty state
                   Expanded(
                     child: CustomPaint(
-                      painter: _DashedRectPainter(color: Colors.white12, strokeWidth: 1.5, gap: 6),
+                      painter: _DashedRectPainter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), strokeWidth: 1.5, gap: 6),
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(24),
@@ -173,15 +174,15 @@ class _ReportsTabState extends State<ReportsTab> {
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.05),
+                                color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(LucideIcons.camera, color: Colors.white38, size: 32),
+                              child: Icon(LucideIcons.camera, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 32),
                             ),
                             const SizedBox(height: 16),
                             Text(
                               context.watch<LocaleProvider>().t('reports.empty') ?? 'Отчётов пока нет',
-                              style: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
+                              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14),
                             ),
                           ],
                         ),

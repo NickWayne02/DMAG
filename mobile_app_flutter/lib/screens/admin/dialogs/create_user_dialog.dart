@@ -3,6 +3,7 @@ import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../../theme/app_theme.dart';
 
 class CreateUserDialog extends StatefulWidget {
   const CreateUserDialog({super.key});
@@ -30,25 +31,25 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         Text(
           label,
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: Theme.of(context).appColors.foreground,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
         TextField(
-          style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.black,
+            fillColor: Theme.of(context).cardColor,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.white12),
+              borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.white38),
+              borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
             ),
           ),
         ),
@@ -66,9 +67,9 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.black, // true black
+          color: Theme.of(context).cardColor, // true black
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -84,7 +85,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                       context.watch<LocaleProvider>().t('create_user.title') ?? 'Создать пользователя',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
-                        color: Colors.white,
+                        color: Theme.of(context).appColors.foreground,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -92,7 +93,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(LucideIcons.x, color: Colors.white54, size: 24),
+                    child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 24),
                   ),
                 ],
               ),
@@ -100,7 +101,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               Text(
                 context.watch<LocaleProvider>().t('create_user.subtitle') ?? 'Логин и пароль будут выданы новому сотруднику или администратору.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(color: Colors.white54, fontSize: 13),
+                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 13),
               ),
               const SizedBox(height: 24),
               
@@ -114,7 +115,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                   Text(
                     context.watch<LocaleProvider>().t('create_user.role') ?? 'Роль',
                     style: GoogleFonts.inter(
-                      color: Colors.white,
+                      color: Theme.of(context).appColors.foreground,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -124,16 +125,16 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white12),
+                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedRole,
-                        dropdownColor: const Color(0xFF18181b),
-                        icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                        dropdownColor: Theme.of(context).cardColor,
+                        icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                         items: _roles.map((r) => DropdownMenuItem(value: r, child: Text(context.watch<LocaleProvider>().t('role.$r') ?? r))).toList(),
                         onChanged: (v) {
                           if (v != null) setState(() => _selectedRole = v);
@@ -151,7 +152,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF334155), // Slate 700
-                    foregroundColor: Colors.white,
+                    foregroundColor: Theme.of(context).appColors.foreground,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
@@ -171,7 +172,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                  child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

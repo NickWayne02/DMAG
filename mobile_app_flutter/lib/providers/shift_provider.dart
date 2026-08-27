@@ -209,7 +209,7 @@ class ShiftProvider extends ChangeNotifier {
           'site_id': siteId,
           'site_name': siteName,
           'status': 'working',
-          'started_at': _shiftStart!.toIso8601String(),
+          'started_at': _shiftStart!.toUtc().toIso8601String(),
           'lunch_total_ms': 0,
           'lunch_intervals': [],
           'start_lat': pos?.latitude,
@@ -237,7 +237,7 @@ class ShiftProvider extends ChangeNotifier {
       try {
         await Supabase.instance.client.from('shifts').update({
           'status': 'lunch',
-          'lunch_started_at': _lunchStart!.toIso8601String(),
+          'lunch_started_at': _lunchStart!.toUtc().toIso8601String(),
         }).eq('id', _shiftId!);
       } catch (_) {}
     }
@@ -305,7 +305,7 @@ class ShiftProvider extends ChangeNotifier {
       try {
         await Supabase.instance.client.from('shifts').update({
           'status': 'finished',
-          'ended_at': _shiftEnd!.toIso8601String(),
+          'ended_at': _shiftEnd!.toUtc().toIso8601String(),
           'lunch_started_at': null,
           'lunch_total_ms': _lunchAccumMs,
           'lunch_intervals': _lunchIntervals,

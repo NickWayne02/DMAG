@@ -12,13 +12,13 @@ class FooterSheets {
       context,
       context.read<LocaleProvider>().t('footer.privacy') ?? 'Политика конфиденциальности',
       [
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_desc') ?? 'Настоящая Политика конфиденциальности...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_1') ?? '1. Сбор данных') '\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_1_desc') ?? 'Мы собираем данные...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_2') ?? '2. Использование фотоотчётов') '\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_2_desc') ?? 'Фотографии, загруженные...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_3') ?? '3. Безопасность') '\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.privacy_3_desc') ?? 'Мы применяем...') '\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_desc') ?? 'Настоящая Политика конфиденциальности...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_1') ?? '1. Сбор данных'}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_1_desc') ?? 'Мы собираем данные...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_2') ?? '2. Использование фотоотчётов'}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_2_desc') ?? 'Фотографии, загруженные...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_3') ?? '3. Безопасность'}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.privacy_3_desc') ?? 'Мы применяем...'}\n'),
       ]
     );
   }
@@ -28,11 +28,11 @@ class FooterSheets {
       context,
       context.read<LocaleProvider>().t('footer.terms') ?? 'Условия использования',
       [
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.terms_desc') ?? 'Используя корпоративный портал...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.terms_1') ?? '• Сотрудник обязан...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.terms_2') ?? '• Отчёты по объектам...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.terms_3') ?? '• Запрещается...') '\n\n'),
-        TextSpan(text: (context.watch<LocaleProvider>().t('footer.terms_concl') ?? 'Нарушение данных условий...') '\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.terms_desc') ?? 'Используя корпоративный портал...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.terms_1') ?? '• Сотрудник обязан...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.terms_2') ?? '• Отчёты по объектам...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.terms_3') ?? '• Запрещается...'}\n\n'),
+        TextSpan(text: '${context.watch<LocaleProvider>().t('footer.terms_concl') ?? 'Нарушение данных условий...'}\n'),
       ]
     );
   }

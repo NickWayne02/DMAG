@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../dialogs/create_user_dialog.dart';
+import '../dialogs/change_credentials_dialog.dart';
+import '../../../theme/app_theme.dart';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UsersTab extends StatefulWidget {
   const UsersTab({super.key});
@@ -15,11 +19,37 @@ class UsersTab extends StatefulWidget {
 
 class _UsersTabState extends State<UsersTab> {
   String _searchQuery = '';
+  List<Map<String, dynamic>> _users = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+  }
+
+  Future<void> _fetchUsers() async {
+    try {
+      final res = await Supabase.instance.client.from('profiles').select();
+      if (mounted) {
+        setState(() {
+          _users = List<Map<String, dynamic>>.from(res);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   Widget _buildUserCard({
     required String name,
     required String role,
     required String initials,
+    required String userId,
+    required String userEmail,
     String? avatarUrl,
     required String lastLogin,
     bool isOnline = false,
@@ -29,9 +59,9 @@ class _UsersTabState extends State<UsersTab> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF09090b),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +73,7 @@ class _UsersTabState extends State<UsersTab> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.white12,
+                  color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                   image: avatarUrl != null
                       ? DecorationImage(image: NetworkImage(avatarUrl), fit: BoxFit.cover)
@@ -53,7 +83,7 @@ class _UsersTabState extends State<UsersTab> {
                     ? Center(
                         child: Text(
                           initials,
-                          style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       )
                     : null,
@@ -69,7 +99,7 @@ class _UsersTabState extends State<UsersTab> {
                         Expanded(
                           child: Text(
                             name,
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -106,19 +136,19 @@ class _UsersTabState extends State<UsersTab> {
             children: [
               Text(
                 context.watch<LocaleProvider>().t('users.last_login') ?? 'Последний вход: ',
-                style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), fontSize: 13),
               ),
               Text(
                 lastLogin,
                 style: GoogleFonts.inter(
-                  color: isOnline ? const Color(0xFF06b6d4) : Colors.white54, 
+                  color: isOnline ? const Color(0xFF06b6d4) : Theme.of(context).appColors.foreground.withValues(alpha: 0.54), 
                   fontSize: 13,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(color: Colors.white12, height: 1),
+          Divider(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12), height: 1),
           const SizedBox(height: 16),
           
           // Action Buttons
@@ -127,10 +157,10 @@ class _UsersTabState extends State<UsersTab> {
               width: double.infinity,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: isSelf ? Colors.white.withValues(alpha: 0.05) : Colors.white12),
+                  side: BorderSide(color: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.05) : Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  foregroundColor: isSelf ? Colors.white30 : Colors.white,
+                  foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
                 ),
                 onPressed: isSelf ? null : () {},
                 child: Text(context.watch<LocaleProvider>().t('users.make_admin') ?? 'Сделать Админ', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
@@ -142,14 +172,21 @@ class _UsersTabState extends State<UsersTab> {
               Expanded(
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: isSelf ? Colors.white.withValues(alpha: 0.05) : Colors.white12),
+                    side: BorderSide(color: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.05) : Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    foregroundColor: isSelf ? Colors.white30 : Colors.white,
+                    foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
                   ),
                   icon: const Icon(LucideIcons.key, size: 14),
                   label: Text(context.watch<LocaleProvider>().t('users.login_pass') ?? 'Логин/пароль', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
-                  onPressed: isSelf ? null : () {},
+                  onPressed: isSelf ? null : () {
+                    ChangeCredentialsDialog.show(
+                      context,
+                      userId: userId,
+                      userName: name,
+                      userEmail: userEmail,
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 8),
@@ -160,7 +197,7 @@ class _UsersTabState extends State<UsersTab> {
                   padding: const EdgeInsets.all(12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   minimumSize: const Size(44, 44),
-                  foregroundColor: isSelf ? Colors.white30 : Colors.white,
+                  foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
                 ),
                 onPressed: isSelf ? null : () {},
                 child: const Icon(LucideIcons.trash_2, size: 16),
@@ -178,9 +215,9 @@ class _UsersTabState extends State<UsersTab> {
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF09090b),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: Column(
           children: [
@@ -192,7 +229,7 @@ class _UsersTabState extends State<UsersTab> {
                   Text(
                     context.watch<LocaleProvider>().t('users.title') ?? 'Список пользователей',
                     style: GoogleFonts.inter(
-                      color: Colors.white,
+                      color: Theme.of(context).appColors.foreground,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -226,20 +263,20 @@ class _UsersTabState extends State<UsersTab> {
                   const SizedBox(height: 16),
                   TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: context.watch<LocaleProvider>().t('users.search') ?? 'Поиск пользователя...',
-                      hintStyle: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
+                      hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), fontSize: 14),
                       filled: true,
-                      fillColor: Colors.black,
+                      fillColor: Theme.of(context).cardColor,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.white12),
+                        borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.white38),
+                        borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38)),
                       ),
                     ),
                   ),
@@ -247,46 +284,51 @@ class _UsersTabState extends State<UsersTab> {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                children: [
-                  _buildUserCard(
-                    name: TransliterationService.transliterateIfNeeded('Евгений Хань', context.read<LocaleProvider>().currentLang),
-                    role: context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
-                    initials: 'ЕВ', // Actually it's ЕХ, but in screenshot it's ЕВ maybe from Evgeny?
-                    lastLogin: '01.08, 22:52',
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator())
+                : Builder(
+                    builder: (context) {
+                      final filteredUsers = _users.where((u) {
+                        final name = (u['full_name'] ?? u['email'] ?? u['phone'] ?? '').toString().toLowerCase();
+                        return name.contains(_searchQuery.toLowerCase());
+                      }).toList();
+                      
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: filteredUsers.length,
+                        itemBuilder: (context, index) {
+                          final u = filteredUsers[index];
+                          final rawName = u['full_name'] ?? u['email'] ?? u['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени';
+                          final name = TransliterationService.transliterateIfNeeded(rawName, context.read<LocaleProvider>().currentLang);
+                          
+                          // Simple initials generator
+                          final nameParts = rawName.toString().split(' ').where((e) => e.isNotEmpty).toList();
+                          String initials = '?';
+                          if (nameParts.length >= 2) {
+                            initials = '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
+                          } else if (nameParts.isNotEmpty) {
+                            initials = nameParts[0].substring(0, 1).toUpperCase();
+                          }
+                          
+                          final role = (u['role'] == 'super_admin' || u['role'] == 'admin') 
+                              ? (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ')
+                              : (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник');
+                              
+                          return _buildUserCard(
+                            name: name,
+                            role: role,
+                            initials: initials,
+                            userId: u['id'],
+                            userEmail: u['email'] ?? '',
+                            avatarUrl: u['avatar_url'],
+                            lastLogin: '—', // Could be fetched if tracked
+                            isOnline: false,
+                            isSelf: u['id'] == Supabase.instance.client.auth.currentUser?.id,
+                          );
+                        },
+                      );
+                    }
                   ),
-                  _buildUserCard(
-                    name: TransliterationService.transliterateIfNeeded('Оскар Ткаченко', context.read<LocaleProvider>().currentLang),
-                    role: context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник',
-                    initials: 'ОС', // maybe OSkar?
-                    lastLogin: '07.08, 21:34',
-                  ),
-                  _buildUserCard(
-                    name: TransliterationService.transliterateIfNeeded('Владислав', context.read<LocaleProvider>().currentLang),
-                    role: context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник',
-                    initials: 'ВЛ',
-                    avatarUrl: 'https://i.pravatar.cc/150?img=11', // Placeholder avatar
-                    lastLogin: '09.08, 13:12',
-                  ),
-                  _buildUserCard(
-                    name: TransliterationService.transliterateIfNeeded('Руслан Ткаченко', context.read<LocaleProvider>().currentLang),
-                    role: context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
-                    initials: 'РТ',
-                    avatarUrl: 'https://i.pravatar.cc/150?img=12', // Placeholder avatar
-                    lastLogin: '22.08, 13:26',
-                  ),
-                  _buildUserCard(
-                    name: TransliterationService.transliterateIfNeeded('Евгений Костин', context.read<LocaleProvider>().currentLang),
-                    role: context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ',
-                    initials: 'ЕК',
-                    avatarUrl: 'https://i.pravatar.cc/150?img=13', // Placeholder avatar
-                    lastLogin: context.watch<LocaleProvider>().t('sessions.online') ?? 'В сети',
-                    isOnline: true,
-                    isSelf: true,
-                  ),
-                ],
-              ),
             ),
           ],
         ),

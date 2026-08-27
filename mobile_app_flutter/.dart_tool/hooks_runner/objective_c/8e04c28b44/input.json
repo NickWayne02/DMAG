@@ -1,7 +1,9 @@
 {
   "assets": {},
   "config": {
-    "build_asset_types": ["code_assets/code"],
+    "build_asset_types": [
+      "code_assets/code"
+    ],
     "extensions": {
       "code_assets": {
         "link_mode_preference": "dynamic",

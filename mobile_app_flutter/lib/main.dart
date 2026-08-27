@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
 import 'providers/shift_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/locale_provider.dart';
@@ -100,6 +101,42 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
     
-    return _isAuthenticated ? const DashboardScreen() : const LoginScreen();
+    return _isAuthenticated ? const RootRouter() : const LoginScreen();
+  }
+}
+
+class RootRouter extends StatefulWidget {
+  const RootRouter({super.key});
+
+  @override
+  State<RootRouter> createState() => _RootRouterState();
+}
+
+class _RootRouterState extends State<RootRouter> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final shift = context.read<ShiftProvider>();
+      if (shift.userProfile == null) {
+        shift.reloadProfile();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final shift = context.watch<ShiftProvider>();
+    if (shift.isProfileLoading || shift.userProfile == null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor)),
+      );
+    }
+    final role = shift.userProfile!['role'] as String?;
+    if (role == 'super_admin' || role == 'admin') {
+      return const AdminDashboardScreen();
+    }
+    return const DashboardScreen();
   }
 }

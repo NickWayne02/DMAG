@@ -3,6 +3,7 @@ import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../../../utils/transliteration.dart';
 import '../../../../utils/date_format_helper.dart';
 import 'package:flutter/material.dart';
+import '../../../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -101,12 +102,12 @@ class _CalendarTabState extends State<CalendarTab> {
         children: [
           Text(
             context.watch<LocaleProvider>().t('calendar.title') ?? 'Календарь',
-            style: GoogleFonts.inter(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             context.watch<LocaleProvider>().t('calendar.subtitle') ?? 'Просмотр и редактирование смен сотрудников',
-            style: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
+            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14),
           ),
           const SizedBox(height: 20),
           _buildEmployeeDropdown(),
@@ -124,14 +125,14 @@ class _CalendarTabState extends State<CalendarTab> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF09090b),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white12),
+        border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
       ),
       child: DropdownButtonHideUnderline(
         child: Theme(
           data: Theme.of(context).copyWith(
-            hoverColor: Colors.white.withValues(alpha: 0.1),
+            hoverColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.1),
             focusColor: Colors.transparent,
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
@@ -140,14 +141,14 @@ class _CalendarTabState extends State<CalendarTab> {
             value: _selectedEmployeeId,
             hint: const SizedBox.shrink(), // We now have it in items
             isExpanded: true,
-            dropdownColor: Colors.black,
+            dropdownColor: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
-            icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 20),
-            style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+            icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
+            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
             items: [
               DropdownMenuItem<String>(
                 value: null,
-                child: Text(context.watch<LocaleProvider>().t('calendar.select_employee') ?? '-- Выберите сотрудника --', style: GoogleFonts.inter(color: Colors.white)),
+                child: Text(context.watch<LocaleProvider>().t('calendar.select_employee') ?? '-- Выберите сотрудника --', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
               ),
               ..._employees.map((e) {
                 bool isSelected = _selectedEmployeeId == e['id'];
@@ -157,7 +158,7 @@ class _CalendarTabState extends State<CalendarTab> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(TransliterationService.transliterateIfNeeded(e['full_name'] ?? e['id'], context.read<LocaleProvider>().currentLang)),
-                      if (isSelected) const Icon(LucideIcons.check, color: Colors.white, size: 16),
+                      if (isSelected) Icon(LucideIcons.check, color: Theme.of(context).appColors.foreground, size: 16),
                     ],
                   ),
                 );
@@ -194,7 +195,7 @@ class _CalendarTabState extends State<CalendarTab> {
               _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.prev') ?? 'Пред.', LucideIcons.chevron_left, true, () => _changeMonth(-1)),
               Text(
                 monthStr,
-                style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               _buildMonthNavButton(context.watch<LocaleProvider>().t('calendar.next') ?? 'След.', LucideIcons.chevron_right, false, () => _changeMonth(1)),
             ],
@@ -208,7 +209,7 @@ class _CalendarTabState extends State<CalendarTab> {
                 child: Center(
                   child: Text(
                     day,
-                    style: GoogleFonts.inter(color: const Color(0xFF94a3b8), fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               );
@@ -269,19 +270,19 @@ class _CalendarTabState extends State<CalendarTab> {
                       height: 40,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
                         border: isToday ? Border.all(color: Colors.blue.withValues(alpha: 0.5), width: 1) : null,
                       ),
                       child: Center(
                         child: Text(
                           day.toString(),
-                          style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                         ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     if (primaryShift != null)
-                      Text(durationText, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white70, fontSize: 10, height: 1.1)),
+                      Text(durationText, textAlign: TextAlign.center, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), fontSize: 10, height: 1.1)),
                   ],
                 ),
               );
@@ -298,16 +299,16 @@ class _CalendarTabState extends State<CalendarTab> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            if (left) Icon(icon, color: Colors.white, size: 16),
+            if (left) Icon(icon, color: Theme.of(context).appColors.foreground, size: 16),
             if (left) const SizedBox(width: 4),
-            Text(text, style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(text, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
             if (!left) const SizedBox(width: 4),
-            if (!left) Icon(icon, color: Colors.white, size: 16),
+            if (!left) Icon(icon, color: Theme.of(context).appColors.foreground, size: 16),
           ],
         ),
       ),
@@ -446,12 +447,12 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: const TextStyle(color: Colors.white)),
-        content: Text(context.read<LocaleProvider>().t('admin.shift.delete_msg') ?? 'Вы уверены, что хотите удалить эту смену?', style: const TextStyle(color: Colors.white70)),
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.read<LocaleProvider>().t('admin.shift.delete_msg') ?? 'Вы уверены, что хотите удалить эту смену?', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.read<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: const TextStyle(color: Colors.white70))),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.read<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7)))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -482,9 +483,9 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.black, // Modal background
+          color: Theme.of(context).cardColor, // Modal background
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -494,33 +495,33 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(context.watch<LocaleProvider>().t('admin.shift.edit_title') ?? 'Редактировать смену', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(context.watch<LocaleProvider>().t('admin.shift.edit_title') ?? 'Редактировать смену', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(LucideIcons.x, color: Colors.white54, size: 20),
+                    child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 14)),
+              Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14)),
               const SizedBox(height: 24),
               
               _buildInputLabel(context.watch<LocaleProvider>().t('export.site') ?? 'Объект'),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: Colors.white12),
+                  color: Theme.of(context).cardColor,
+                  border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedSiteId,
-                    hint: Text(context.watch<LocaleProvider>().t('admin.shift.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Colors.white)),
+                    hint: Text(context.watch<LocaleProvider>().t('admin.shift.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                     isExpanded: true,
-                    dropdownColor: const Color(0xFF1E293B),
-                    icon: const Icon(LucideIcons.chevron_down, color: Colors.white54, size: 16),
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                    dropdownColor: Theme.of(context).cardColor,
+                    icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                     items: [
                       DropdownMenuItem<String>(value: null, child: Text(context.watch<LocaleProvider>().t('admin.shift.no_site') ?? '— Без объекта —')),
                       ...widget.sites.map((s) => DropdownMenuItem<String>(value: s['id'], child: Text(s['name']))),
@@ -565,13 +566,13 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
               _buildInputLabel(context.watch<LocaleProvider>().t('shift.pause_mins') ?? 'Пауза (минут)'),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: Colors.white12),
+                  color: Theme.of(context).cardColor,
+                  border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: TextField(
                   controller: _pauseController,
-                  style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -590,13 +591,13 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                         _buildInputLabel(context.watch<LocaleProvider>().t('shift.gps_start') ?? 'GPS город (старт)'),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black,
-                            border: Border.all(color: Colors.white12),
+                            color: Theme.of(context).cardColor,
+                            border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: TextField(
                             controller: _startCityController,
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                             decoration: const InputDecoration(
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -614,13 +615,13 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                         _buildInputLabel(context.watch<LocaleProvider>().t('shift.gps_end') ?? 'GPS город (конец)'),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.black,
-                            border: Border.all(color: Colors.white12),
+                            color: Theme.of(context).cardColor,
+                            border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: TextField(
                             controller: _endCityController,
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                             decoration: const InputDecoration(
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -648,7 +649,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: _save,
-                    child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                    child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -657,11 +658,11 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                   height: 44,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white12),
+                      side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: () => Navigator.pop(context),
-                    child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                    child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -673,8 +674,8 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                       backgroundColor: const Color(0xFFef4444), // Red
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    icon: const Icon(LucideIcons.trash_2, color: Colors.white, size: 16),
-                    label: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
+                    icon: Icon(LucideIcons.trash_2, color: Theme.of(context).appColors.foreground, size: 16),
+                    label: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
                     onPressed: _delete,
                   ),
                 ),
@@ -689,7 +690,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
   Widget _buildInputLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(text, style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+      child: Text(text, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -698,11 +699,11 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border.all(color: Colors.white12),
+        color: Theme.of(context).cardColor,
+        border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(value, style: GoogleFonts.inter(color: Colors.white, fontSize: 14)),
+      child: Text(value, style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14)),
     );
   }
 }

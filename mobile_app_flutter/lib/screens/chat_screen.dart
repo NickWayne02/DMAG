@@ -409,33 +409,41 @@ class _ChatScreenState extends State<ChatScreen> {
                                         selectedMessageIds.add(id);
                                       }
                                     });
-                                  } else {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => Dialog(
-                                        backgroundColor: Colors.transparent,
-                                        insetPadding: EdgeInsets.zero,
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            InteractiveViewer(
-                                              panEnabled: true,
-                                              minScale: 0.5,
-                                              maxScale: 4,
-                                              child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
-                                            ),
-                                            Positioned(
-                                              top: 40,
-                                              right: 20,
-                                              child: IconButton(
-                                                icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground, size: 30),
-                                                onPressed: () => Navigator.of(ctx).pop(),
+                                    Navigator.push(context, PageRouteBuilder(
+                                      opaque: false,
+                                      barrierColor: Colors.black.withOpacity(0.9),
+                                      pageBuilder: (context, _, __) {
+                                        return Scaffold(
+                                          backgroundColor: Colors.transparent,
+                                          body: Stack(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () => Navigator.pop(context),
+                                                child: Center(
+                                                  child: InteractiveViewer(
+                                                    panEnabled: true,
+                                                    minScale: 0.5,
+                                                    maxScale: 4,
+                                                    child: Hero(
+                                                      tag: 'photo_$id',
+                                                      child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
+                                              Positioned(
+                                                top: 40,
+                                                right: 20,
+                                                child: IconButton(
+                                                  icon: const Icon(LucideIcons.x, color: Colors.white, size: 24),
+                                                  onPressed: () => Navigator.pop(context),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    ));
                                   }
                                 },
                                 onLongPress: () {
@@ -456,20 +464,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(isSelected ? 9 : 12),
-                                        child: Image.network(url, fit: BoxFit.cover),
+                                        child: Hero(
+                                          tag: 'photo_$id',
+                                          child: Image.network(url, fit: BoxFit.cover),
+                                        ),
                                       ),
                                       if (isSelected)
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.black45,
+                                            color: Colors.black.withOpacity(0.4),
                                             borderRadius: BorderRadius.circular(9),
                                           ),
-                                        ),
-                                      if (isSelected)
-                                        Positioned(
-                                          top: 6,
-                                          right: 6,
-                                          child: Icon(Icons.check_circle, color: Theme.of(context).primaryColor, size: 20),
+                                          child: const Center(
+                                            child: Icon(Icons.check_circle, color: Colors.white, size: 32),
+                                          ),
                                         ),
                                     ],
                                   ),
@@ -797,33 +805,42 @@ class _ChatContentState extends State<ChatContent> {
     }
   }
 
-  void _showImageFullScreen(String url) {
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.zero,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            InteractiveViewer(
-              panEnabled: true,
-              minScale: 0.5,
-              maxScale: 4,
-              child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
-            ),
-            Positioned(
-              top: 40,
-              right: 20,
-              child: IconButton(
-                icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground, size: 30),
-                onPressed: () => Navigator.of(ctx).pop(),
+  void _showImageFullScreen(String url, String tag) {
+    Navigator.push(context, PageRouteBuilder(
+      opaque: false,
+      barrierColor: Colors.black.withOpacity(0.9),
+      pageBuilder: (context, _, __) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Stack(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Center(
+                  child: InteractiveViewer(
+                    panEnabled: true,
+                    minScale: 0.5,
+                    maxScale: 4,
+                    child: Hero(
+                      tag: tag,
+                      child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+              Positioned(
+                top: 40,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(LucideIcons.x, color: Colors.white, size: 24),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    ));
   }
 
   @override
@@ -1016,10 +1033,13 @@ class _ChatContentState extends State<ChatContent> {
                         
                         if (isPhotoReport && photoUrl != null && photoUrl.startsWith('http')) ...[
                           GestureDetector(
-                            onTap: () => _showImageFullScreen(photoUrl!),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(photoUrl, fit: BoxFit.cover),
+                            onTap: () => _showImageFullScreen(photoUrl!, 'photo_${msg['id']}'),
+                            child: Hero(
+                              tag: 'photo_${msg['id']}',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(photoUrl, fit: BoxFit.cover),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),

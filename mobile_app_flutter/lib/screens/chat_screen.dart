@@ -30,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<String> _mutedChannels = [];
 
   bool _isLoading = true;
+  bool _isSuperAdmin = false;
 
   @override
   void initState() {
@@ -59,6 +60,11 @@ class _ChatScreenState extends State<ChatScreen> {
         uniqueDms.add(row['channel_id'] as String);
       }
       _dmChannelIds = uniqueDms.toList();
+      
+      final p = await AuthService.getProfile(user.id);
+      if (p != null) {
+        _isSuperAdmin = p['role'] == 'super_admin';
+      }
     } catch (e) {
       debugPrint('Error loading chat data: $e');
     }
@@ -604,10 +610,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 value: 'mute',
                 child: Text(_mutedChannels.contains(_activeChannelId) ? context.watch<LocaleProvider>().t('chat.notifs_enable') ?? 'Включить уведомления' : context.watch<LocaleProvider>().t('chat.notifs_disable') ?? 'Отключить уведомления', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
-              PopupMenuItem<String>(
-                value: 'clear',
-                child: Text(context.watch<LocaleProvider>().t('chat.clear_history') ?? 'Очистить историю', style: const TextStyle(color: Colors.red)),
-              ),
+              if (_activeChannelType == 'direct' || _isSuperAdmin)
+                PopupMenuItem<String>(
+                  value: 'clear',
+                  child: Text(context.watch<LocaleProvider>().t('chat.clear_history') ?? 'Очистить историю', style: const TextStyle(color: Colors.red)),
+                ),
             ],
           )
         ],
@@ -622,6 +629,7 @@ class _ChatScreenState extends State<ChatScreen> {
         channelId: _activeChannelId,
         profiles: _profiles,
         sites: _sites,
+        isSuperAdmin: _isSuperAdmin,
       ),
     );
   }
@@ -669,6 +677,7 @@ class ChatContent extends StatefulWidget {
   final String channelId;
   final List<Map<String, dynamic>> profiles;
   final List<Map<String, dynamic>> sites;
+  final bool isSuperAdmin;
 
   const ChatContent({
     super.key,
@@ -676,6 +685,7 @@ class ChatContent extends StatefulWidget {
     required this.channelId,
     required this.profiles,
     required this.sites,
+    this.isSuperAdmin = false,
   });
 
   @override
@@ -1007,7 +1017,7 @@ class _ChatContentState extends State<ChatContent> {
                   ),
                 ),
 
-                if (!isMe)
+                if (!isMe && widget.isSuperAdmin)
                   PopupMenuButton<String>(
                     icon: Icon(Icons.more_vert, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 16),
                     color: const Color(0xFF151515),

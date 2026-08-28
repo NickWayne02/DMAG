@@ -25,6 +25,7 @@ class _ChatTabState extends State<ChatTab> {
   final Map<String, Map<String, dynamic>> _dmChannelsMap = {};
 
   bool _isLoading = true;
+  bool _isSuperAdmin = false;
 
   @override
   void initState() {
@@ -63,6 +64,11 @@ class _ChatTabState extends State<ChatTab> {
           _dmChannelsMap[cid] = otherProfile;
         }
       }
+      
+      final p = await AuthService.getProfile(user.id);
+      if (p != null) {
+        _isSuperAdmin = p['role'] == 'super_admin';
+      }
     } catch (e) {
       debugPrint('Error loading chat data: $e');
     }
@@ -97,6 +103,7 @@ class _ChatTabState extends State<ChatTab> {
             channelId: id,
             profiles: _profiles,
             sites: _sites,
+            isSuperAdmin: _isSuperAdmin,
           ),
         ),
       ),

@@ -219,7 +219,7 @@ class _ChatTabState extends State<ChatTab> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF334155) : Colors.transparent, // Slate 700 if active
+        color: isActive ? Theme.of(context).appColors.primary.withValues(alpha: 0.1) : Colors.transparent, 
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(

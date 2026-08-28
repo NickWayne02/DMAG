@@ -630,7 +630,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF2C3540) : Colors.transparent, // Like screenshot
+        color: isActive ? Theme.of(context).appColors.primary.withValues(alpha: 0.1) : Colors.transparent, 
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
@@ -841,7 +841,7 @@ class _ChatContentState extends State<ChatContent> {
         // Message Input matching screenshot
         Container(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 16),
-          color: Colors.black, // Dark input area
+          color: Theme.of(context).cardColor, 
           child: SafeArea(
             child: Row(
               children: [
@@ -853,7 +853,7 @@ class _ChatContentState extends State<ChatContent> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF151515), // Very dark gray for input
+                      color: Theme.of(context).appColors.background, 
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: TextField(
@@ -874,13 +874,13 @@ class _ChatContentState extends State<ChatContent> {
                   onTap: _isSending ? null : _sendMessage,
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1C2433), // Darker blueish circle for send
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor, 
                       shape: BoxShape.circle,
                     ),
                     child: _isSending
-                        ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Theme.of(context).appColors.foreground, strokeWidth: 2))
-                        : Icon(LucideIcons.send, color: Theme.of(context).appColors.foreground, size: 18),
+                        ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Theme.of(context).appColors.primaryForeground, strokeWidth: 2))
+                        : Icon(LucideIcons.send, color: Theme.of(context).appColors.primaryForeground, size: 18),
                   ),
                 )
               ],
@@ -963,9 +963,9 @@ class _ChatContentState extends State<ChatContent> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0A0A0A), // Very black bubble
+                      color: isMe ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
+                      border: Border.all(color: Theme.of(context).appColors.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

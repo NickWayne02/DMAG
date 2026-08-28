@@ -410,7 +410,32 @@ class _ChatScreenState extends State<ChatScreen> {
                                       }
                                     });
                                   } else {
-                                    // Normally we would show Image full screen here, but we can't easily without a BuildContext that can push routes from modal
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => Dialog(
+                                        backgroundColor: Colors.transparent,
+                                        insetPadding: EdgeInsets.zero,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            InteractiveViewer(
+                                              panEnabled: true,
+                                              minScale: 0.5,
+                                              maxScale: 4,
+                                              child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
+                                            ),
+                                            Positioned(
+                                              top: 40,
+                                              right: 20,
+                                              child: IconButton(
+                                                icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground, size: 30),
+                                                onPressed: () => Navigator.of(ctx).pop(),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
                                   }
                                 },
                                 onLongPress: () {

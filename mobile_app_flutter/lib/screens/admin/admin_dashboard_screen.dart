@@ -111,7 +111,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               child: Icon(LucideIcons.arrow_left, color: colors.foreground.withValues(alpha: 0.7), size: 16),
             ),
-            onPressed: () {
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setInt('admin_dashboard_tab', 0);
+              if (!context.mounted) return;
               context.read<ShiftProvider>().setAdminView(false);
               Navigator.of(context).pushReplacement(
                 FadePageRoute(page: const DashboardScreen()),
@@ -127,6 +130,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           IconButton(
             icon: Icon(LucideIcons.log_out, color: colors.foreground.withValues(alpha: 0.54), size: 20),
             onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setInt('admin_dashboard_tab', 0);
+              if (!context.mounted) return;
               final nav = Navigator.of(context, rootNavigator: true);
               showDialog(
                 context: context,

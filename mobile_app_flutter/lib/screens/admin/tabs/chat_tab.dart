@@ -282,7 +282,7 @@ class _ChatTabState extends State<ChatTab> {
                     icon: LucideIcons.hash,
                     title: context.watch<LocaleProvider>().t('chat.general') ?? 'Общий чат команды',
                     isActive: false,
-                    onTap: () => _openChat('general', 'general', context.watch<LocaleProvider>().t('chat.general') ?? 'Общий чат команды'),
+                    onTap: () => _openChat('general', 'general', context.read<LocaleProvider>().t('chat.general') ?? 'Общий чат команды'),
                   ),
                   const SizedBox(height: 12),
                   

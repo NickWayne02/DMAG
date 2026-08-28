@@ -506,7 +506,7 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: LucideIcons.hash,
               title: context.watch<LocaleProvider>().t('chat.general') ?? 'Общий чат команды',
               isActive: _activeChannelType == 'general',
-              onTap: () => _switchChannel('general', 'general', context.watch<LocaleProvider>().t('chat.general') ?? 'Общий чат команды'),
+              onTap: () => _switchChannel('general', 'general', context.read<LocaleProvider>().t('chat.general') ?? 'Общий чат команды'),
             ),
             
             const SizedBox(height: 24),

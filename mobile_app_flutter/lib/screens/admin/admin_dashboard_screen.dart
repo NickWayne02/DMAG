@@ -195,24 +195,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
             ),
-            Divider(color: colors.border, height: 1),
-            // Back to employee mode
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: ListTile(
-                leading: Icon(LucideIcons.arrow_left, color: colors.foreground.withValues(alpha: 0.7), size: 20),
-                title: Text(
-                  context.watch<LocaleProvider>().t('dashboard.back_to_employee') ?? 'Режим сотрудника',
-                  style: GoogleFonts.inter(
-                    color: colors.foreground,
-                    fontSize: 14,
-                  ),
-                ),
-                onTap: () => _confirmSwitchToEmployee(context, colors),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -236,45 +218,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           key: ValueKey<int>(_currentIndex),
           child: _tabs[_currentIndex],
         ),
-      ),
-    );
-  }
-
-  void _confirmSwitchToEmployee(BuildContext context, AppColors colors) {
-    Navigator.of(context).pop(); // Close drawer first
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: colors.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: colors.border),
-        ),
-        title: Text(
-          context.read<LocaleProvider>().t('admin.switch_confirm_title') ?? 'Переключиться в режим сотрудника?',
-          style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(
-              context.read<LocaleProvider>().t('common.cancel') ?? 'Отмена',
-              style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.7)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const DashboardScreen()),
-              );
-            },
-            child: Text(
-              context.read<LocaleProvider>().t('common.confirm') ?? 'Подтвердить',
-              style: GoogleFonts.inter(color: colors.primary, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
       ),
     );
   }

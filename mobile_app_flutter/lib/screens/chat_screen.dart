@@ -597,23 +597,23 @@ class _ChatScreenState extends State<ChatScreen> {
               }
               if (value == 'clear') _clearHistory();
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            itemBuilder: (BuildContext ctx) => <PopupMenuEntry<String>>[
               PopupMenuItem<String>(
                 value: 'info',
-                child: Text(context.watch<LocaleProvider>().t('chat.info_title') ?? 'Информация о чате', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+                child: Text(ctx.read<LocaleProvider>().t('chat.info_title') ?? 'Информация о чате', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
               PopupMenuItem<String>(
                 value: 'media',
-                child: Text(context.watch<LocaleProvider>().t('chat.media_title') ?? 'Вложенные медиа', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+                child: Text(ctx.read<LocaleProvider>().t('chat.media_title') ?? 'Вложенные медиа', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
               PopupMenuItem<String>(
                 value: 'mute',
-                child: Text(_mutedChannels.contains(_activeChannelId) ? context.watch<LocaleProvider>().t('chat.notifs_enable') ?? 'Включить уведомления' : context.watch<LocaleProvider>().t('chat.notifs_disable') ?? 'Отключить уведомления', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+                child: Text(_mutedChannels.contains(_activeChannelId) ? ctx.read<LocaleProvider>().t('chat.notifs_enable') ?? 'Включить уведомления' : ctx.read<LocaleProvider>().t('chat.notifs_disable') ?? 'Отключить уведомления', style: TextStyle(color: Theme.of(context).appColors.foreground)),
               ),
               if (_activeChannelType == 'direct' || _isSuperAdmin)
                 PopupMenuItem<String>(
                   value: 'clear',
-                  child: Text(context.watch<LocaleProvider>().t('chat.clear_history') ?? 'Очистить историю', style: const TextStyle(color: Colors.red)),
+                  child: Text(ctx.read<LocaleProvider>().t('chat.clear_history') ?? 'Очистить историю', style: const TextStyle(color: Colors.red)),
                 ),
             ],
           )
@@ -962,7 +962,7 @@ class _ChatContentState extends State<ChatContent> {
                           children: [
                             const Icon(LucideIcons.trash_2, color: Colors.red, size: 16),
                             const SizedBox(width: 8),
-                            Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red)),
+                            Text(ctx.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red)),
                           ],
                         ),
                       )
@@ -1031,7 +1031,7 @@ class _ChatContentState extends State<ChatContent> {
                           children: [
                             const Icon(LucideIcons.trash_2, color: Colors.red, size: 16),
                             const SizedBox(width: 8),
-                            Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red)),
+                            Text(ctx.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red)),
                           ],
                         ),
                       )

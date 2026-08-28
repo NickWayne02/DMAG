@@ -409,37 +409,48 @@ class _ChatScreenState extends State<ChatScreen> {
                                         selectedMessageIds.add(id);
                                       }
                                     });
+                                  } else {
                                     Navigator.push(context, PageRouteBuilder(
                                       opaque: false,
                                       barrierColor: Colors.black.withOpacity(0.9),
                                       pageBuilder: (context, _, __) {
                                         return Scaffold(
                                           backgroundColor: Colors.transparent,
-                                          body: Stack(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () => Navigator.pop(context),
-                                                child: Center(
+                                          body: Center(
+                                            child: Stack(
+                                              alignment: Alignment.topRight,
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () => Navigator.pop(context),
                                                   child: InteractiveViewer(
                                                     panEnabled: true,
                                                     minScale: 0.5,
                                                     maxScale: 4,
                                                     child: Hero(
-                                                      tag: 'photo_$id',
-                                                      child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
+                                                      tag: 'media_photo_$id',
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(24),
+                                                        child: Image.network(url, fit: BoxFit.contain, width: MediaQuery.of(context).size.width * 0.95, height: MediaQuery.of(context).size.height * 0.85),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              Positioned(
-                                                top: 40,
-                                                right: 20,
-                                                child: IconButton(
-                                                  icon: const Icon(LucideIcons.x, color: Colors.white, size: 24),
-                                                  onPressed: () => Navigator.pop(context),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: GestureDetector(
+                                                    onTap: () => Navigator.pop(context),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black.withOpacity(0.5),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      padding: const EdgeInsets.all(8),
+                                                      child: const Icon(LucideIcons.x, color: Colors.white, size: 20),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         );
                                       }
@@ -465,7 +476,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(isSelected ? 9 : 12),
                                         child: Hero(
-                                          tag: 'photo_$id',
+                                          tag: 'media_photo_$id',
                                           child: Image.network(url, fit: BoxFit.cover),
                                         ),
                                       ),
@@ -812,31 +823,41 @@ class _ChatContentState extends State<ChatContent> {
       pageBuilder: (context, _, __) {
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: Stack(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Center(
+          body: Center(
+            child: Stack(
+              alignment: Alignment.topRight,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
                   child: InteractiveViewer(
                     panEnabled: true,
                     minScale: 0.5,
                     maxScale: 4,
                     child: Hero(
                       tag: tag,
-                      child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.network(url, fit: BoxFit.contain, width: MediaQuery.of(context).size.width * 0.95, height: MediaQuery.of(context).size.height * 0.85),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 40,
-                right: 20,
-                child: IconButton(
-                  icon: const Icon(LucideIcons.x, color: Colors.white, size: 24),
-                  onPressed: () => Navigator.pop(context),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(LucideIcons.x, color: Colors.white, size: 20),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }

@@ -21,6 +21,12 @@ class _BrandingTabState extends State<BrandingTab> {
   final _appNameController = TextEditingController();
   bool _isLoading = false;
   bool _isUploading = false;
+  late Future<List<Map<String, dynamic>>> _presetsFuture;
+
+  Future<List<Map<String, dynamic>>> _fetchPresets() async {
+    final response = await _supabase.from('app_branding_presets').select().order('created_at');
+    return List<Map<String, dynamic>>.from(response);
+  }
 
   @override
   void initState() {
@@ -28,6 +34,7 @@ class _BrandingTabState extends State<BrandingTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _appNameController.text = context.read<SettingsProvider>().settings.appName;
     });
+    _presetsFuture = _fetchPresets();
   }
 
   @override
@@ -134,6 +141,9 @@ class _BrandingTabState extends State<BrandingTab> {
         'app_logo_url': currentLogo,
       });
       if (mounted) {
+        setState(() {
+          _presetsFuture = _fetchPresets();
+        });
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Текущий бренд сохранен в галерею')));
       }
     } catch (e) {
@@ -173,6 +183,11 @@ class _BrandingTabState extends State<BrandingTab> {
   Future<void> _deletePreset(String id) async {
     try {
       await _supabase.from('app_branding_presets').delete().eq('id', id);
+      if (mounted) {
+        setState(() {
+          _presetsFuture = _fetchPresets();
+        });
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка удаления: $e'), backgroundColor: Colors.red));
@@ -391,8 +406,8 @@ class _BrandingTabState extends State<BrandingTab> {
               ],
             ),
             const SizedBox(height: 16),
-            StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _supabase.from('app_branding_presets').stream(primaryKey: ['id']).order('created_at'),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _presetsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

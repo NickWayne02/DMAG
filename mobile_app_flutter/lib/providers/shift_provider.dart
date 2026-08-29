@@ -116,10 +116,18 @@ class ShiftProvider extends ChangeNotifier {
     _isAdminView = prefs.getBool('is_admin_view') ?? false;
 
     if (statusStr != null) {
-      _status = ShiftStatus.values.firstWhere(
+      final loadedStatus = ShiftStatus.values.firstWhere(
         (e) => e.name == statusStr,
         orElse: () => ShiftStatus.idle,
       );
+
+      if (loadedStatus == ShiftStatus.finished) {
+        // Stats should reset after reload if shift is already finished
+        resetShift();
+        return;
+      }
+
+      _status = loadedStatus;
       
       final startMs = prefs.getInt('shift_start');
       if (startMs != null) _shiftStart = DateTime.fromMillisecondsSinceEpoch(startMs);

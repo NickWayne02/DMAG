@@ -54,10 +54,12 @@ class _TranslationDialog extends StatelessWidget {
                 ),
               );
             },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 40),
-              padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-              decoration: BoxDecoration(
+            child: Material(
+              type: MaterialType.transparency,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 40),
+                padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                decoration: BoxDecoration(
                 color: colors.card.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(32),
                 border: Border.all(color: colors.border.withValues(alpha: 0.5)),
@@ -84,6 +86,7 @@ class _TranslationDialog extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
             ),
           ),
         ),

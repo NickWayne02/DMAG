@@ -7852,5 +7852,16 @@
     "en": "No activity yet",
     "uk": "Активностей поки немає",
     "pl": "Brak aktywności"
+  },
+  "admin.tab.branding": {
+    "ru": "Брендирование",
+    "en": "Branding",
+    "de": "Branding",
+    "ro": "Branding",
+    "bg": "Брандиране",
+    "pl": "Marka",
+    "uk": "Брендування",
+    "uz": "Brending",
+    "tg": "Брендинг"
   }
 }

@@ -55,6 +55,19 @@ export function BrandingSettingsTab() {
         .from("assets")
         .getPublicUrl(filePath);
 
+      // Удаляем старый логотип из Storage, если он был
+      if (settings?.app_logo_url) {
+        try {
+          const oldUrlParts = settings.app_logo_url.split('/assets/');
+          if (oldUrlParts.length > 1) {
+            const oldFilePath = oldUrlParts[1];
+            await supabase.storage.from("assets").remove([oldFilePath]);
+          }
+        } catch (err) {
+          console.error("Failed to delete old logo", err);
+        }
+      }
+
       await updateSettings.mutateAsync({ app_logo_url: publicUrlData.publicUrl });
       toast.success("Логотип обновлен");
     } catch (e: any) {

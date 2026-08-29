@@ -75,6 +75,20 @@ class _BrandingTabState extends State<BrandingTab> {
       final fileExt = pickedFile.path.split('.').last;
       final fileName = 'logo_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
+      // Получаем текущий URL, чтобы удалить старый файл
+      final currentLogoUrl = mounted ? context.read<SettingsProvider>().settings.appLogoUrl : null;
+      if (currentLogoUrl != null && currentLogoUrl.contains('/assets/')) {
+        try {
+          final parts = currentLogoUrl.split('/assets/');
+          if (parts.length > 1) {
+            final oldPath = parts[1];
+            await _supabase.storage.from('assets').remove([oldPath]);
+          }
+        } catch (e) {
+          debugPrint('Failed to delete old logo: $e');
+        }
+      }
+
       // Upload to Supabase Storage
       await _supabase.storage.from('assets').uploadBinary(
             fileName,

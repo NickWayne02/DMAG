@@ -8,6 +8,8 @@ import '../theme/app_theme.dart';
 
 class TranslationOverlay {
   static Future<void> show(BuildContext context, Future<void> Function() action) async {
+    final nav = Navigator.of(context, rootNavigator: true);
+    
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -16,11 +18,11 @@ class TranslationOverlay {
     );
 
     await Future.delayed(const Duration(milliseconds: 100));
-    await action();
-    await Future.delayed(const Duration(milliseconds: 200));
-    
-    if (context.mounted) {
-      Navigator.of(context, rootNavigator: true).pop();
+    try {
+      await action();
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 200));
+      nav.pop();
     }
   }
 }

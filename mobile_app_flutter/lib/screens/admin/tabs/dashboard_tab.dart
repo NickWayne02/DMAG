@@ -29,34 +29,93 @@ class _DashboardTabState extends State<DashboardTab> {
 
   Future<void> _fetchActivity() async {
     try {
+      final now = DateTime.now();
+      final sinceMidnight = DateTime(now.year, now.month, now.day).toUtc().toIso8601String();
+
       final resp = await Supabase.instance.client
-          .from('shift_history')
-          .select()
-          .order('ts', ascending: false)
+          .from('shifts')
+          .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city')
+          .gte('started_at', sinceMidnight)
+          .order('started_at', ascending: false)
           .limit(50);
       
       final profilesResp = await Supabase.instance.client.from('profiles').select('id, full_name');
-      final sitesResp = await Supabase.instance.client.from('sites').select('id, name');
-      
       final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};
-      final sites = {for (var s in sitesResp) s['id'] as String: s['name'] as String? ?? 'Неизвестное место'};
       
       final List<Map<String, dynamic>> enriched = [];
-      for (var item in resp) {
-        enriched.add({
-          ...item,
-          'user_name': profiles[item['user_id']] ?? 'Неизвестный сотрудник',
-          'site_name': sites[item['site_id']] ?? 'Неизвестный объект',
-        });
+      for (var s in resp) {
+        final userName = profiles[s['user_id']] ?? 'Неизвестный сотрудник';
+        final siteName = s['site_name'] ?? s['start_city'] ?? 'Неизвестный объект';
+        
+        // Shift Start
+        if (s['started_at'] != null) {
+          enriched.add({
+            'ts': s['started_at'],
+            'type': 'shift_start',
+            'user_name': userName,
+            'site_name': siteName,
+          });
+        }
+        
+        // Shift End
+        if (s['ended_at'] != null) {
+          enriched.add({
+            'ts': s['ended_at'],
+            'type': 'shift_end',
+            'user_name': userName,
+            'site_name': s['site_name'] ?? s['end_city'] ?? siteName,
+          });
+        }
+        
+        // Lunch Intervals
+        final lunchIntervals = s['lunch_intervals'] as List<dynamic>? ?? [];
+        for (var i = 0; i < lunchIntervals.length; i++) {
+          final interval = lunchIntervals[i] as Map<String, dynamic>;
+          if (interval['start'] != null) {
+            final startDate = DateTime.fromMillisecondsSinceEpoch(interval['start']).toUtc().toIso8601String();
+            enriched.add({
+              'ts': startDate,
+              'type': 'lunch_start',
+              'user_name': userName,
+              'site_name': siteName,
+            });
+          }
+          if (interval['end'] != null) {
+            final endDate = DateTime.fromMillisecondsSinceEpoch(interval['end']).toUtc().toIso8601String();
+            
+            // Check for auto-closed lunch (within 2 seconds of shift end)
+            bool isAutoClosed = false;
+            if (s['ended_at'] != null) {
+              final endShiftDt = DateTime.parse(s['ended_at']);
+              final endLunchDt = DateTime.fromMillisecondsSinceEpoch(interval['end']);
+              if (endShiftDt.difference(endLunchDt).inMilliseconds.abs() < 2000) {
+                isAutoClosed = true;
+              }
+            }
+            
+            if (!isAutoClosed) {
+              enriched.add({
+                'ts': endDate,
+                'type': 'lunch_end',
+                'user_name': userName,
+                'site_name': siteName,
+              });
+            }
+          }
+        }
       }
+      
+      // Sort all synthesized events by timestamp descending
+      enriched.sort((a, b) => DateTime.parse(b['ts']).compareTo(DateTime.parse(a['ts'])));
       
       if (mounted) {
         setState(() {
-          _activities = enriched;
+          _activities = enriched.take(50).toList();
           _isLoading = false;
         });
       }
     } catch (e) {
+      print('Activity fetch error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }

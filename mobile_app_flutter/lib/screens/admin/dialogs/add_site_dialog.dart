@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../theme/app_theme.dart';
+import '../../../services/location_service.dart';
 
 class AddSiteDialog extends StatefulWidget {
   final Map<String, dynamic>? site; // if null, creating new
@@ -55,37 +56,30 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   Future<void> _fillFromGps() async {
     setState(() => _isGpsLoading = true);
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw Exception(context.read<LocaleProvider>().t('location.error_disabled') ?? 'Службы геолокации отключены.');
+      final position = await LocationService.getCurrentPosition();
+      if (position == null) {
+        throw Exception(context.read<LocaleProvider>().t('location.error_denied') ?? 'Не удалось получить GPS (даже по IP). Проверьте разрешения.');
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception(context.read<LocaleProvider>().t('location.error_denied') ?? 'Доступ к геолокации запрещен.');
-        }
-      }
+      String? city;
+      try {
+        city = await LocationService.reverseGeocodeCity(position.latitude, position.longitude);
+      } catch (_) {}
 
-      if (permission == LocationPermission.deniedForever) {
-        throw Exception(context.read<LocaleProvider>().t('location.error_denied_forever') ?? 'Доступ к геолокации запрещен навсегда.');
+      if (mounted) {
+        setState(() {
+          _addressCtrl.text = 'GPS: ${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
+          if (_nameCtrl.text.isEmpty || _nameCtrl.text == (context.read<LocaleProvider>().t('add_site.new') ?? 'Новый объект')) {
+            _nameCtrl.text = city ?? (context.read<LocaleProvider>().t('add_site.new') ?? 'Новый объект');
+          }
+        });
       }
-
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      
-      setState(() {
-        _addressCtrl.text = 'GPS: ${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
-        if (_nameCtrl.text.isEmpty) {
-          _nameCtrl.text = context.read<LocaleProvider>().t('add_site.new') ?? 'Новый объект';
-        }
-      });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка GPS: $e')));
       }
     } finally {
-      setState(() => _isGpsLoading = false);
+      if (mounted) setState(() => _isGpsLoading = false);
     }
   }
 

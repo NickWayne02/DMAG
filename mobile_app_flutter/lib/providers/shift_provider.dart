@@ -190,16 +190,6 @@ class ShiftProvider extends ChangeNotifier {
       throw Exception('Не удалось определить местоположение. Пожалуйста, выберите объект вручную или разрешите доступ к GPS.');
     }
     
-    _status = ShiftStatus.working;
-    _shiftStart = DateTime.now();
-    _lunchAccumMs = 0;
-    _lunchStart = null;
-    _shiftEnd = null;
-    _lunchIntervals = [];
-    _autoLunchApplied = false;
-    _shiftId = null;
-    notifyListeners();
-    
     if (pos != null) {
       if (siteId == null) {
         final nearest = await LocationService.findNearestSite(pos.latitude, pos.longitude);
@@ -225,6 +215,7 @@ class ShiftProvider extends ChangeNotifier {
     }
     
     final user = AuthService.currentUser;
+    String? shiftId;
     if (user != null) {
       try {
         final data = await Supabase.instance.client.from('shifts').insert({
@@ -232,18 +223,27 @@ class ShiftProvider extends ChangeNotifier {
           'site_id': siteId,
           'site_name': siteName,
           'status': 'working',
-          'started_at': _shiftStart!.toUtc().toIso8601String(),
+          'started_at': DateTime.now().toUtc().toIso8601String(),
           'lunch_total_ms': 0,
           'lunch_intervals': [],
           'start_lat': pos?.latitude,
           'start_lng': pos?.longitude,
           'start_city': city,
         }).select('id').single();
-        _shiftId = data['id'];
+        shiftId = data['id'];
       } catch (e) {
-        // Ignored, network error handled implicitly
+        throw Exception('Ошибка сохранения смены в базу данных: $e');
       }
     }
+    
+    _status = ShiftStatus.working;
+    _shiftStart = DateTime.now();
+    _lunchAccumMs = 0;
+    _lunchStart = null;
+    _shiftEnd = null;
+    _lunchIntervals = [];
+    _autoLunchApplied = false;
+    _shiftId = shiftId;
     
     _saveState();
     notifyListeners();

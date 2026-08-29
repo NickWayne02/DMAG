@@ -801,20 +801,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          if (lat != 0.0 && lon != 0.0)
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.border),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: GoogleMapEmbed(query: address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), '')),
+          Container(
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colors.border),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: GoogleMapEmbed(
+                query: address.startsWith('GPS: ') 
+                  ? address.replaceFirst('GPS: ', '').trim() 
+                  : address.isNotEmpty ? address : site['name'] as String
               ),
             ),
-          if (lat != 0.0 && lon != 0.0)
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 16),
           BounceButton(
             onTap: () {
               final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));

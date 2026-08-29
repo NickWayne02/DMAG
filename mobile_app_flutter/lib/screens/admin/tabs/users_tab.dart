@@ -88,6 +88,7 @@ class _UsersTabState extends State<UsersTab> {
             final shiftData = latestShifts[u['id']];
             if (shiftData != null) {
               u['last_shift_start'] = shiftData['started_at'];
+              u['shift_status'] = shiftData['status'];
             }
             return u;
           }).toList();
@@ -111,6 +112,7 @@ class _UsersTabState extends State<UsersTab> {
     required String lastLogin,
     bool isOnline = false,
     bool isSelf = false,
+    String? shiftStatus,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -140,12 +142,12 @@ class _UsersTabState extends State<UsersTab> {
                     ? Center(
                         child: Text(
                           initials,
-                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       )
                     : null,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,20 +163,66 @@ class _UsersTabState extends State<UsersTab> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF064e3b).withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            context.watch<LocaleProvider>().t('users.active') ?? 'Активен',
-                            style: GoogleFonts.inter(
-                              color: const Color(0xFF10b981),
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF064e3b).withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                context.watch<LocaleProvider>().t('users.active') ?? 'Активен',
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xFF10b981),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
+                            if (shiftStatus == 'working') ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF22c55e).withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFF22c55e).withValues(alpha: 0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF22c55e))),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      context.watch<LocaleProvider>().t('personnel.status_working') ?? 'На смене',
+                                      style: GoogleFonts.inter(color: const Color(0xFF22c55e), fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            if (shiftStatus == 'lunch') ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFf59e0b).withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFf59e0b).withValues(alpha: 0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFf59e0b))),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      context.watch<LocaleProvider>().t('personnel.status_lunch') ?? 'На паузе',
+                                      style: GoogleFonts.inter(color: const Color(0xFFf59e0b), fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
@@ -391,6 +439,7 @@ class _UsersTabState extends State<UsersTab> {
                                 : lastLoginStr,
                             isOnline: isOnline,
                             isSelf: u['id'] == Supabase.instance.client.auth.currentUser?.id,
+                            shiftStatus: u['shift_status'],
                           );
                         },
                       );

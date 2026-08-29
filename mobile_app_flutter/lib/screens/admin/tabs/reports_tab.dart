@@ -13,6 +13,7 @@ class ReportsTab extends StatefulWidget {
 }
 
 class _ReportsTabState extends State<ReportsTab> {
+
   String _searchQuery = '';
   String? _selectedSite;
   String? _selectedTime;

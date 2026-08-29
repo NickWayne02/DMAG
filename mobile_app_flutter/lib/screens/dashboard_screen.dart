@@ -37,7 +37,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _isShiftLoading = false;
-  final bool _isMapSatellite = false;
 
   void _openSiteSelector(BuildContext context, ShiftProvider shift) {
     SiteSelectorSheet.show(
@@ -766,14 +765,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       displayName = shift.userProfile?['start_city'] ?? site['name'] as String;
     }
 
-    double lat = 0.0;
-    double lon = 0.0;
     if (address.startsWith('GPS: ')) {
-      final parts = address.replaceFirst('GPS: ', '').split(',');
-      if (parts.length >= 2) {
-        lat = double.tryParse(parts[0].trim()) ?? 0.0;
-        lon = double.tryParse(parts[1].trim()) ?? 0.0;
-      }
+      // coordinates can be parsed here if needed
     }
 
     return NeonCard(
@@ -840,22 +833,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMapIconButton(BuildContext context, IconData icon, VoidCallback onTap) {
-    final colors = Theme.of(context).appColors;
-    return BounceButton(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: colors.card,
-          shape: BoxShape.circle,
-          border: Border.all(color: colors.border),
-        ),
-        child: Icon(icon, color: colors.foreground, size: 16),
       ),
     );
   }

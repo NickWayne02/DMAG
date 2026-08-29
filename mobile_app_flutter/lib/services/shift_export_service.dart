@@ -108,7 +108,7 @@ class ShiftExportService {
   static Future<void> exportExcel(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, {required Map<String, String> t}) async {
     final rows = _toExportRows(shifts, employees, sites);
     final excel = Excel.createExcel();
-    const sheetName = 'Смены' ?? 'Смены';
+    const sheetName = 'Смены';
     final sheet = excel[sheetName];
     excel.setDefaultSheet(sheetName);
     
@@ -177,7 +177,7 @@ class ShiftExportService {
           return [
             pw.Text(title, style: pw.TextStyle(font: boldFont, fontSize: 18)),
             pw.SizedBox(height: 8),
-            pw.Text('''${'Сформировано' ?? 'Сформировано'}: ${DateTime.now().toString()}''', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
+            pw.Text('''Сформировано: ${DateTime.now().toString()}''', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
             pw.SizedBox(height: 20),
             pw.TableHelper.fromTextArray(
               headers: headers,

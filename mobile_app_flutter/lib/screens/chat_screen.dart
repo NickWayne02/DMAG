@@ -223,35 +223,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _showImageFullScreen(String url) {
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.zero,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            InteractiveViewer(
-              panEnabled: true,
-              minScale: 0.5,
-              maxScale: 4,
-              child: Image.network(url, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
-            ),
-            Positioned(
-              top: 40,
-              right: 20,
-              child: IconButton(
-                icon: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground, size: 30),
-                onPressed: () => Navigator.of(ctx).pop(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showChatMedia() {
     showModalBottomSheet(
       context: context,
@@ -974,8 +945,6 @@ class _ChatContentState extends State<ChatContent> {
     final isPhotoReport = content.startsWith('[ФОТО_ОТЧЕТ]') || content.startsWith('[PHOTO_REPORT]');
     String? photoUrl;
     String displayContent = content;
-    Color? critColor;
-    
     if (isPhotoReport) {
       final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\] |\[PHOTO_REPORT\] '), '').split(' | ');
       photoUrl = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0] : null;

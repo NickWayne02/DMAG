@@ -210,16 +210,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, Map<String, dynamic>> criticalityOptions = {
-      'info': {'label': 'Информация', 'color': const Color(0xFF4CAF50), 'icon': LucideIcons.info},
-      'important': {'label': 'Важно', 'color': const Color(0xFFFFB300), 'icon': LucideIcons.triangle_alert},
-      'urgent': {'label': 'Срочно', 'color': const Color(0xFFF44336), 'icon': LucideIcons.circle_alert},
-    };
-    final Map<String, dynamic> types = {
-      'info': {'label': 'Информация', 'color': const Color(0xFF4CAF50), 'icon': LucideIcons.info},
-      'important': {'label': 'Важно', 'color': const Color(0xFFFFB300), 'icon': LucideIcons.triangle_alert},
-      'urgent': {'label': 'Срочно', 'color': const Color(0xFFF44336), 'icon': LucideIcons.circle_alert},
-    };
+
     final colors = Theme.of(context).appColors;
 
     return Container(

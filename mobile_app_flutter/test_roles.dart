@@ -2,8 +2,8 @@ import 'package:supabase/supabase.dart';
 import 'dart:io';
 
 void main() async {
-  final supabaseUrl = 'YOUR_URL';
-  final supabaseKey = 'YOUR_KEY';
+  const supabaseUrl = 'YOUR_URL';
+  const supabaseKey = 'YOUR_KEY';
   
   final file = File('.env');
   final lines = await file.readAsLines();

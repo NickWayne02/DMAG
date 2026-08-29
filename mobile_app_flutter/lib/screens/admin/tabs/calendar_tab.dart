@@ -452,7 +452,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
         content: Text(context.read<LocaleProvider>().t('admin.shift.delete_msg') ?? 'Вы уверены, что хотите удалить эту смену?', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.read<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7)))),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(context.read<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: const TextStyle(color: Colors.red))),
         ],
       ),
     );

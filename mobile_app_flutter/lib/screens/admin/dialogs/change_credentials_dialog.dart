@@ -64,7 +64,7 @@ class _ChangeCredentialsDialogState extends State<ChangeCredentialsDialog> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
           controller: controller,
           obscureText: isPassword && _obscurePassword,
@@ -97,7 +97,7 @@ class _ChangeCredentialsDialogState extends State<ChangeCredentialsDialog> {
             ),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -123,7 +123,7 @@ class _ChangeCredentialsDialogState extends State<ChangeCredentialsDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(width: 24),
+                  const SizedBox(width: 24),
                   Expanded(
                     child: Text(
                       context.watch<LocaleProvider>().t('users.change_creds') ?? 'Логин/пароль',
@@ -141,7 +141,7 @@ class _ChangeCredentialsDialogState extends State<ChangeCredentialsDialog> {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 widget.userName,
                 textAlign: TextAlign.center,
@@ -150,12 +150,12 @@ class _ChangeCredentialsDialogState extends State<ChangeCredentialsDialog> {
                   fontSize: 14,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               _buildTextField(context.watch<LocaleProvider>().t('auth.email') ?? 'Email (Логин)', _loginController),
               _buildTextField(context.watch<LocaleProvider>().t('auth.password') ?? 'Пароль', _passwordController, isPassword: true),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               
               SizedBox(
                 width: double.infinity,
@@ -178,7 +178,7 @@ class _ChangeCredentialsDialogState extends State<ChangeCredentialsDialog> {
                   child: Text(context.watch<LocaleProvider>().t('calendar.save') ?? 'Сохранить', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: TextButton(

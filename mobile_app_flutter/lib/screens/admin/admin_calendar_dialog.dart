@@ -163,7 +163,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
               GestureDetector(
                 onTap: () => _changeMonth(-1),
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Icon(LucideIcons.chevron_left, color: Theme.of(context).appColors.foreground, size: 20),
                 ),
               ),
@@ -174,7 +174,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
               GestureDetector(
                 onTap: () => _changeMonth(1),
                 child: Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Icon(LucideIcons.chevron_right, color: Theme.of(context).appColors.foreground, size: 20),
                 ),
               ),

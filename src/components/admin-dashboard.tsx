@@ -2399,15 +2399,12 @@ export function AdminDashboard({
                                 {r.description || t("admin.reports.noDesc")}
                               </p>
                               <p className="text-[10px] text-muted-foreground mt-1">
-                                {new Date(r.created_at).toLocaleString(
-                                  langToLocale(lang),
-                                  {
-                                    day: "numeric",
-                                    month: "short",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  },
-                                )}
+                                {new Date(r.created_at).toLocaleString(langToLocale(lang), {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
                               </p>
                             </div>
                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -2625,15 +2622,12 @@ export function AdminDashboard({
                           const lastLogin = isOnline
                             ? t("admin.users.online")
                             : e.updated_at
-                              ? new Date(e.updated_at).toLocaleString(
-                                  langToLocale(lang),
-                                  {
-                                    day: "numeric",
-                                    month: "short",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  },
-                                )
+                              ? new Date(e.updated_at).toLocaleString(langToLocale(lang), {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
                               : t("admin.users.noData");
                           return (
                             <TableRow key={`mgr-${e.id}`}>
@@ -2817,15 +2811,12 @@ export function AdminDashboard({
                               {onlineUsers.includes(e.id)
                                 ? t("admin.users.online")
                                 : e.updated_at
-                                  ? new Date(e.updated_at).toLocaleString(
-                                      langToLocale(lang),
-                                      {
-                                        day: "numeric",
-                                        month: "short",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      },
-                                    )
+                                  ? new Date(e.updated_at).toLocaleString(langToLocale(lang), {
+                                      day: "numeric",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
                                   : t("admin.users.noData")}
                             </span>
                           </div>

@@ -127,7 +127,12 @@ export async function exportShiftsXlsx(rows: ExportRow[], filename: string) {
   triggerDownload(blob, filename);
 }
 
-export async function exportShiftsPdf(rows: ExportRow[], filename: string, title: string, lang?: LangCode) {
+export async function exportShiftsPdf(
+  rows: ExportRow[],
+  filename: string,
+  title: string,
+  lang?: LangCode,
+) {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });

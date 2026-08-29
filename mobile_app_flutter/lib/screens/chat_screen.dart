@@ -412,7 +412,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   } else {
                                     Navigator.push(context, PageRouteBuilder(
                                       opaque: false,
-                                      barrierColor: Colors.black.withOpacity(0.9),
+                                      barrierColor: Colors.black.withValues(alpha: 0.9),
                                       pageBuilder: (context, _, __) {
                                         return Scaffold(
                                           backgroundColor: Colors.transparent,
@@ -441,7 +441,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                     onTap: () => Navigator.pop(context),
                                                     child: Container(
                                                       decoration: BoxDecoration(
-                                                        color: Colors.black.withOpacity(0.5),
+                                                        color: Colors.black.withValues(alpha: 0.5),
                                                         shape: BoxShape.circle,
                                                       ),
                                                       padding: const EdgeInsets.all(8),
@@ -483,7 +483,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       if (isSelected)
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.4),
+                                            color: Colors.black.withValues(alpha: 0.4),
                                             borderRadius: BorderRadius.circular(9),
                                           ),
                                           child: const Center(
@@ -819,7 +819,7 @@ class _ChatContentState extends State<ChatContent> {
   void _showImageFullScreen(String url, String tag) {
     Navigator.push(context, PageRouteBuilder(
       opaque: false,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       pageBuilder: (context, _, __) {
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -848,7 +848,7 @@ class _ChatContentState extends State<ChatContent> {
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(8),

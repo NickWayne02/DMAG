@@ -1,6 +1,7 @@
 /// Locale-aware date formatting utilities.
 /// Maps short language codes to localized month names and provides
 /// consistent date formatting across the app.
+library;
 
 const Map<String, List<String>> _shortMonths = {
   'ru': ['янв.', 'февр.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'],

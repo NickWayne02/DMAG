@@ -8,6 +8,51 @@ export type Database = {
   };
   public: {
     Tables: {
+      app_branding_presets: {
+        Row: {
+          app_logo_url: string | null;
+          app_name: string;
+          created_at: string;
+          id: string;
+        };
+        Insert: {
+          app_logo_url?: string | null;
+          app_name: string;
+          created_at?: string;
+          id?: string;
+        };
+        Update: {
+          app_logo_url?: string | null;
+          app_name?: string;
+          created_at?: string;
+          id?: string;
+        };
+        Relationships: [];
+      };
+      app_settings: {
+        Row: {
+          app_logo_url: string | null;
+          app_name: string;
+          created_at: string;
+          id: number;
+          updated_at: string;
+        };
+        Insert: {
+          app_logo_url?: string | null;
+          app_name?: string;
+          created_at?: string;
+          id?: number;
+          updated_at?: string;
+        };
+        Update: {
+          app_logo_url?: string | null;
+          app_name?: string;
+          created_at?: string;
+          id?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       chat_messages: {
         Row: {
           author_id: string;

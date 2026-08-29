@@ -7,33 +7,13 @@ import 'package:app_settings/app_settings.dart';
 class LocationService {
   /// Request permissions and get current position
   static Future<Position?> getCurrentPosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
     try {
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return null; // Location services are disabled.
-      }
-
-      permission = await Geolocator.checkPermission();
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return await _getIpBasedPosition();
+      
+      LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          return null;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        AppSettings.openAppSettings(type: AppSettingsType.location);
-        return null;
-      }
-
-      final accuracy = await Geolocator.getLocationAccuracy();
-      if (accuracy == LocationAccuracyStatus.reduced) {
-        AppSettings.openAppSettings(type: AppSettingsType.location);
-      }
-
       return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 15),

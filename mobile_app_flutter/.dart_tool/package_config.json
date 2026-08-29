@@ -902,6 +902,36 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "webview_flutter",
+      "rootUri": "file:///C:/Users/Eugene/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter-4.14.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.10"
+    },
+    {
+      "name": "webview_flutter_android",
+      "rootUri": "file:///C:/Users/Eugene/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_android-4.14.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.12"
+    },
+    {
+      "name": "webview_flutter_platform_interface",
+      "rootUri": "file:///C:/Users/Eugene/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_platform_interface-2.15.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
+    },
+    {
+      "name": "webview_flutter_web",
+      "rootUri": "file:///C:/Users/Eugene/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_web-0.2.3+4",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "webview_flutter_wkwebview",
+      "rootUri": "file:///C:/Users/Eugene/AppData/Local/Pub/Cache/hosted/pub.dev/webview_flutter_wkwebview-3.26.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.12"
+    },
+    {
       "name": "win32",
       "rootUri": "file:///C:/Users/Eugene/AppData/Local/Pub/Cache/hosted/pub.dev/win32-6.4.0",
       "packageUri": "lib/",

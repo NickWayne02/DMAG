@@ -20,6 +20,7 @@ import 'settings_sheet.dart';
 import '../utils/app_toast.dart';
 import '../utils/fade_page_route.dart';
 import '../widgets/bounce_button.dart';
+import '../widgets/google_map_embed.dart';
 import 'shift_history_sheet.dart';
 import 'footer_sheets.dart';
 import 'admin/admin_dashboard_screen.dart';
@@ -803,23 +804,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  color: colors.muted,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.map, color: colors.foreground.withValues(alpha: 0.5), size: 48),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Карта временно отключена\n(Требуется Google Maps API Key)",
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5), fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                child: GoogleMapEmbed(query: address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), '')),
               ),
             ),
           if (lat != 0.0 && lon != 0.0)

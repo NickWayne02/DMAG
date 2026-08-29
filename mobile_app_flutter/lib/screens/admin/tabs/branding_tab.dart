@@ -218,7 +218,7 @@ class _BrandingTabState extends State<BrandingTab> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: colors.card,
-                    padding: const EdgeInsets.zero,
+                    padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text('Применить', style: TextStyle(fontSize: 11)),

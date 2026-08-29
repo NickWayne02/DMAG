@@ -81,6 +81,17 @@ const DICT: Dict = {
   },
 
   // Admin Tabs
+  "admin.tab.branding": {
+    ru: "Брендирование",
+    en: "Branding",
+    de: "Branding",
+    ro: "Branding",
+    bg: "Брандиране",
+    pl: "Marka",
+    uk: "Брендування",
+    uz: "Brending",
+    tg: "Брендинг",
+  },
   "admin.tab.dashboard": {
     ru: "Дашборд",
     en: "Dashboard",

@@ -1572,7 +1572,7 @@ export function AdminDashboard({
             { id: "personnel", icon: Users, label: t("admin.tab.personnel"), super: false },
             { id: "sites", icon: Building2, label: t("admin.tab.sites"), super: false },
             { id: "reports", icon: Camera, label: t("admin.tab.reports"), super: false },
-            { id: "branding", icon: Palette, label: "Брендирование", super: true },
+            { id: "branding", icon: Palette, label: t("admin.tab.branding"), super: true },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
             { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
             { id: "chat", icon: MessageSquare, label: t("tile.chat"), super: false },
@@ -1618,7 +1618,7 @@ export function AdminDashboard({
                 {activeTab === "personnel" && <span>{t("admin.tab.personnel")}</span>}
                 {activeTab === "sites" && <span>{t("admin.tab.sites")}</span>}
                 {activeTab === "reports" && <span>{t("admin.tab.reports")}</span>}
-                {activeTab === "branding" && <span>Брендирование</span>}
+                {activeTab === "branding" && <span>{t("admin.tab.branding")}</span>}
                 {activeTab === "security" && <span>{t("admin.tab.security")}</span>}
                 {activeTab === "admin-management" && <span>{t("admin.tab.users")}</span>}
                 {activeTab === "chat" && <span>{t("tile.chat")}</span>}

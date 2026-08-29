@@ -9,7 +9,6 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
 import 'photo_report_sheet.dart';
-import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});

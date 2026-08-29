@@ -134,6 +134,13 @@ class ShiftProvider extends ChangeNotifier {
     
     final siteId = prefs.getString('selected_site_id');
     if (siteId != null) {
+      // Restore immediately from cache to prevent UI flashing and race conditions
+      _selectedSite = {
+        'id': siteId,
+        'name': prefs.getString('selected_site_name'),
+        'address': prefs.getString('selected_site_address'),
+      };
+
       try {
         final exists = await Supabase.instance.client
             .from('sites')
@@ -141,25 +148,15 @@ class ShiftProvider extends ChangeNotifier {
             .eq('id', siteId)
             .maybeSingle();
             
-        if (exists != null) {
-          _selectedSite = {
-            'id': siteId,
-            'name': prefs.getString('selected_site_name'),
-            'address': prefs.getString('selected_site_address'),
-          };
-        } else {
-          // The site was deleted while the app was closed
+        if (exists == null && Supabase.instance.client.auth.currentSession != null) {
+          // The site was truly deleted while the app was closed (and we are authenticated)
+          _selectedSite = null;
           await prefs.remove('selected_site_id');
           await prefs.remove('selected_site_name');
           await prefs.remove('selected_site_address');
         }
       } catch (_) {
-        // If offline or error, just load it anyway so we don't break offline mode
-        _selectedSite = {
-          'id': siteId,
-          'name': prefs.getString('selected_site_name'),
-          'address': prefs.getString('selected_site_address'),
-        };
+        // If offline or RLS error, keep the cached site
       }
     }
 

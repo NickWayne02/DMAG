@@ -158,6 +158,17 @@ const DICT: Dict = {
     uz: "Taqvim",
     tg: "Тақвим",
   },
+  "admin.loading": {
+    ru: "Загрузка...",
+    en: "Loading...",
+    de: "Wird geladen...",
+    ro: "Se încarcă...",
+    bg: "Зареждане...",
+    pl: "Ładowanie...",
+    uk: "Завантаження...",
+    uz: "Yuklanmoqda...",
+    tg: "Боркунӣ...",
+  },
 
   "admin.reports.searchDesc": {
     ru: "Поиск по описанию...",

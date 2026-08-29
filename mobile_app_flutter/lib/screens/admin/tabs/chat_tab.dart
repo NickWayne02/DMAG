@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../services/auth_service.dart';
 import '../../chat_screen.dart'; // To reuse ChatContent
 import '../../../theme/app_theme.dart';
+import '../../../providers/settings_provider.dart';
 
 class ChatTab extends StatefulWidget {
   const ChatTab({super.key});

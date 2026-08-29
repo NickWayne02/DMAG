@@ -7863,5 +7863,115 @@
     "uk": "Брендування",
     "uz": "Brending",
     "tg": "Брендинг"
+  },
+  "admin.branding.nameDesc": {
+    "ru": "Название приложения",
+    "en": "Application Name",
+    "de": "Anwendungsname",
+    "ro": "Numele aplicației",
+    "bg": "Име на приложението",
+    "pl": "Nazwa aplikacji",
+    "uk": "Назва додатку",
+    "uz": "Ilova nomi",
+    "tg": "Номи барнома"
+  },
+  "admin.branding.logoDesc": {
+    "ru": "Логотип приложения",
+    "en": "Application Logo",
+    "de": "Anwendungslogo",
+    "ro": "Logo aplicație",
+    "bg": "Лого на приложението",
+    "pl": "Logo aplikacji",
+    "uk": "Логотип додатку",
+    "uz": "Ilova logotipi",
+    "tg": "Логотипи барнома"
+  },
+  "admin.branding.noLogo": {
+    "ru": "Нет лого",
+    "en": "No logo",
+    "de": "Kein Logo",
+    "ro": "Niciun logo",
+    "bg": "Няма лого",
+    "pl": "Brak logo",
+    "uk": "Немає логотипу",
+    "uz": "Logotip yo'q",
+    "tg": "Логотип нест"
+  },
+  "admin.branding.uploadNew": {
+    "ru": "Загрузить новый",
+    "en": "Upload new",
+    "de": "Neu hochladen",
+    "ro": "Încărcați nou",
+    "bg": "Качи ново",
+    "pl": "Prześlij nowe",
+    "uk": "Завантажити новий",
+    "uz": "Yangi yuklash",
+    "tg": "Боркунии нав"
+  },
+  "admin.branding.logoHint": {
+    "ru": "Рекомендуется 256x256",
+    "en": "Recommended 256x256",
+    "de": "Empfohlen 256x256",
+    "ro": "Recomandat 256x256",
+    "bg": "Препоръчително 256x256",
+    "pl": "Zalecane 256x256",
+    "uk": "Рекомендується 256x256",
+    "uz": "Tavsiya etiladi 256x256",
+    "tg": "Тавсия дода мешавад 256x256"
+  },
+  "admin.branding.gallery": {
+    "ru": "Галерея брендов",
+    "en": "Brand Gallery",
+    "de": "Markengalerie",
+    "ro": "Galeria de mărci",
+    "bg": "Галерия на марки",
+    "pl": "Galeria marek",
+    "uk": "Галерея брендів",
+    "uz": "Brend galereyasi",
+    "tg": "Галереяи брендҳо"
+  },
+  "admin.branding.saveCurrent": {
+    "ru": "В галерею",
+    "en": "Save to gallery",
+    "de": "In Galerie speichern",
+    "ro": "Salvează în galerie",
+    "bg": "Запази в галерията",
+    "pl": "Zapisz w galerii",
+    "uk": "Зберегти в галерею",
+    "uz": "Galereyaga saqlash",
+    "tg": "Дар галерея захира кардан"
+  },
+  "admin.branding.galleryEmpty": {
+    "ru": "Пусто",
+    "en": "Empty",
+    "de": "Leer",
+    "ro": "Gol",
+    "bg": "Празно",
+    "pl": "Pusto",
+    "uk": "Пусто",
+    "uz": "Bo'sh",
+    "tg": "Холӣ"
+  },
+  "admin.branding.noName": {
+    "ru": "Без названия",
+    "en": "Unnamed",
+    "de": "Ohne Namen",
+    "ro": "Fără nume",
+    "bg": "Без име",
+    "pl": "Bez nazwy",
+    "uk": "Без назви",
+    "uz": "Nomsiz",
+    "tg": "Бе ном"
+  },
+  "admin.branding.apply": {
+    "ru": "Применить",
+    "en": "Apply",
+    "de": "Anwenden",
+    "ro": "Aplică",
+    "bg": "Приложи",
+    "pl": "Zastosuj",
+    "uk": "Застосувати",
+    "uz": "Qo'llash",
+    "tg": "Татбиқ кардан"
   }
 }

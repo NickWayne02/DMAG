@@ -179,7 +179,7 @@ class _BrandingTabState extends State<BrandingTab> {
     }
   }
 
-  Widget _buildPresetCard(Map<String, dynamic> preset, AppColors colors) {
+  Widget _buildPresetCard(Map<String, dynamic> preset, AppColors colors, String? Function(String) t) {
     return Container(
       decoration: BoxDecoration(
         color: colors.card,
@@ -199,12 +199,12 @@ class _BrandingTabState extends State<BrandingTab> {
               clipBehavior: Clip.hardEdge,
               child: preset['app_logo_url'] != null
                   ? Image.network(preset['app_logo_url'], fit: BoxFit.cover)
-                  : Center(child: Text('Нет лого', style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withValues(alpha: 0.5)))),
+                  : Center(child: Text(t('admin.branding.noLogo') ?? 'Нет лого', style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withValues(alpha: 0.5)))),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            preset['app_name'] ?? 'Без названия',
+            preset['app_name'] ?? (t('admin.branding.noName') ?? 'Без названия'),
             style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -221,7 +221,7 @@ class _BrandingTabState extends State<BrandingTab> {
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('Применить', style: TextStyle(fontSize: 11)),
+                  child: Text(t('admin.branding.apply') ?? 'Применить', style: const TextStyle(fontSize: 11)),
                 ),
               ),
               const SizedBox(width: 4),
@@ -246,6 +246,7 @@ class _BrandingTabState extends State<BrandingTab> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).appColors;
+    final t = context.watch<LocaleProvider>().t;
     final currentLogoUrl = context.watch<SettingsProvider>().settings.appLogoUrl;
 
     return Scaffold(
@@ -253,7 +254,7 @@ class _BrandingTabState extends State<BrandingTab> {
       appBar: AppBar(
         backgroundColor: colors.card,
         title: Text(
-          'Брендирование приложения',
+          t('admin.tab.branding') ?? 'Брендирование',
           style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold),
         ),
         elevation: 1,
@@ -264,7 +265,7 @@ class _BrandingTabState extends State<BrandingTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Название приложения (отображается в меню и заголовках)',
+              t('admin.branding.nameDesc') ?? 'Название приложения',
               style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 12),
@@ -304,14 +305,14 @@ class _BrandingTabState extends State<BrandingTab> {
                     ),
                     child: _isLoading 
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Сохранить'),
+                        : Text(t('admin.users.save') ?? 'Сохранить'),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 32),
             Text(
-              'Логотип приложения (используется в меню и как иконка сайта)',
+              t('admin.branding.logoDesc') ?? 'Логотип приложения',
               style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 16),
@@ -331,7 +332,7 @@ class _BrandingTabState extends State<BrandingTab> {
                       ? Image.network(currentLogoUrl, fit: BoxFit.cover)
                       : Center(
                           child: Text(
-                            'Нет лого',
+                            t('admin.branding.noLogo') ?? 'Нет лого',
                             style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5)),
                           ),
                         ),
@@ -353,11 +354,11 @@ class _BrandingTabState extends State<BrandingTab> {
                         icon: _isUploading
                             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                             : const Icon(LucideIcons.upload),
-                        label: const Text('Загрузить новый'),
+                        label: Text(t('admin.branding.uploadNew') ?? 'Загрузить новый'),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Рекомендуется квадратное изображение (PNG, JPG) размером от 256x256.',
+                        t('admin.branding.logoHint') ?? 'Рекомендуется квадратное изображение (PNG, JPG) размером от 256x256.',
                         style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5), fontSize: 14),
                       ),
                     ],
@@ -372,7 +373,7 @@ class _BrandingTabState extends State<BrandingTab> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Галерея брендов (Пресеты)',
+                  t('admin.branding.gallery') ?? 'Галерея брендов',
                   style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton.icon(
@@ -384,7 +385,7 @@ class _BrandingTabState extends State<BrandingTab> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   icon: const Icon(LucideIcons.save, size: 16),
-                  label: const Text('Сохранить текущий'),
+                  label: Text(t('admin.branding.saveCurrent') ?? 'В галерею'),
                 ),
               ],
             ),
@@ -400,7 +401,7 @@ class _BrandingTabState extends State<BrandingTab> {
                 }
                 final presets = snapshot.data ?? [];
                 if (presets.isEmpty) {
-                  return Text('В галерее пока нет пресетов.', style: TextStyle(color: colors.foreground.withValues(alpha: 0.5)));
+                  return Text(t('admin.branding.galleryEmpty') ?? 'Пусто', style: TextStyle(color: colors.foreground.withValues(alpha: 0.5)));
                 }
                 return GridView.builder(
                   shrinkWrap: true,
@@ -414,7 +415,7 @@ class _BrandingTabState extends State<BrandingTab> {
                   itemCount: presets.length,
                   itemBuilder: (context, index) {
                     final preset = presets[index];
-                    return _buildPresetCard(preset, colors);
+                    return _buildPresetCard(preset, colors, t);
                   },
                 );
               },

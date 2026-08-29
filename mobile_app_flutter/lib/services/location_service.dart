@@ -14,13 +14,45 @@ class LocationService {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 15),
-      );
-    } catch (e) {
-      return null;
+        if (permission == LocationPermission.denied) return await _getIpBasedPosition();
+      }
+      if (permission == LocationPermission.deniedForever) return await _getIpBasedPosition();
+      
+      try {
+        return await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 5),
+        );
+      } catch (_) {
+        return await _getIpBasedPosition();
+      }
+    } catch (_) {
+      return await _getIpBasedPosition();
     }
+  }
+
+  static Future<Position?> _getIpBasedPosition() async {
+    try {
+      final response = await http.get(Uri.parse('http://ip-api.com/json/?fields=lat,lon'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['lat'] != null && data['lon'] != null) {
+          return Position(
+            longitude: data['lon'].toDouble(),
+            latitude: data['lat'].toDouble(),
+            timestamp: DateTime.now(),
+            accuracy: 1000,
+            altitude: 0,
+            altitudeAccuracy: 0,
+            heading: 0,
+            headingAccuracy: 0,
+            speed: 0,
+            speedAccuracy: 0,
+          );
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   /// Reverse geocode coords to city name via OpenStreetMap Nominatim

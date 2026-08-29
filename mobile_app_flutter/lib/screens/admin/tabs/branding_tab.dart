@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../providers/settings_provider.dart';
 import '../../../../theme/app_theme.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import '../../../../providers/locale_provider.dart';
 
 class BrandingTab extends StatefulWidget {
   const BrandingTab({super.key});

@@ -330,7 +330,7 @@ class ShiftProvider extends ChangeNotifier {
     }
   }
 
-  void resetShift() {
+  Future<void> resetShift() async {
     _status = ShiftStatus.idle;
     _shiftStart = null;
     _shiftEnd = null;
@@ -339,6 +339,11 @@ class ShiftProvider extends ChangeNotifier {
     _lunchIntervals = [];
     _shiftId = null;
     _autoLunchApplied = false;
+    _isAdminView = false;
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_admin_view', false);
+
     _saveState();
     notifyListeners();
   }

@@ -4,18 +4,23 @@ import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LocationService {
-  /// Request permissions and get current position
-  static Future<Position?> getCurrentPosition() async {
+  static Future<Position?> getCurrentPosition({bool forceExact = false}) async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return await _getIpBasedPosition();
-      
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) return await _getIpBasedPosition();
       }
-      if (permission == LocationPermission.deniedForever) return await _getIpBasedPosition();
+      
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        if (forceExact) throw Exception('Для точного местоположения требуется разрешение на геолокацию.');
+        return await _getIpBasedPosition();
+      }
+
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (forceExact) throw Exception('Службы геолокации отключены. Включите их для точного позиционирования.');
+        return await _getIpBasedPosition();
+      }
       
       try {
         return await Geolocator.getCurrentPosition(
@@ -23,9 +28,11 @@ class LocationService {
           timeLimit: const Duration(seconds: 15),
         );
       } catch (_) {
+        if (forceExact) throw Exception('Таймаут или ошибка получения точных GPS-координат.');
         return await _getIpBasedPosition();
       }
-    } catch (_) {
+    } catch (e) {
+      if (forceExact) rethrow;
       return await _getIpBasedPosition();
     }
   }

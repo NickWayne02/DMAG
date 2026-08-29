@@ -295,11 +295,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 isSolid: shift.status == ShiftStatus.idle || shift.status == ShiftStatus.finished,
                                 onTap: () async {
                                   final allowed = await _showGpsDialog(context);
-                                  if (allowed) {
-                                    // TODO: Actually fetch GPS coords
-                                  }
                                   try {
-                                    await shift.startShift();
+                                    await shift.startShift(forceExact: allowed);
                                     if (mounted) AppToast.showSuccess(context, 'Смена начата');
                                   } catch (e) {
                                     if (mounted) {

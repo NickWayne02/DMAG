@@ -56,7 +56,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   Future<void> _fillFromGps() async {
     setState(() => _isGpsLoading = true);
     try {
-      final position = await LocationService.getCurrentPosition();
+      final position = await LocationService.getCurrentPosition(forceExact: true);
       if (position == null) {
         throw Exception(context.read<LocaleProvider>().t('location.error_denied') ?? 'Не удалось получить GPS (даже по IP). Проверьте разрешения.');
       }

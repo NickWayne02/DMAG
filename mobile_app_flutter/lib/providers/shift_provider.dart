@@ -225,10 +225,10 @@ class ShiftProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> startShift() async {
+  Future<void> startShift({bool forceExact = false}) async {
     if (_status != ShiftStatus.idle && _status != ShiftStatus.finished) return;
     
-    final pos = await LocationService.getCurrentPosition();
+    final pos = await LocationService.getCurrentPosition(forceExact: forceExact);
     
     String? siteId = _selectedSite?['id'];
     String? siteName = _selectedSite?['name'];

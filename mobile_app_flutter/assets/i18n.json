@@ -3740,26 +3740,26 @@
     "tg": "д"
   },
   "admin_dashboard.finished_shift": {
-    "ru": "завершил смену на объекте Неизвестно",
-    "en": "finished shift at Unknown site",
-    "de": "hat die Schicht am unbekannten Standort beendet",
-    "ro": "a terminat tura la site-ul Necunoscut",
-    "bg": "завърши смяната на обект Неизвестен",
-    "pl": "zakończył zmianę na nieznanym obiekcie",
-    "uk": "завершив зміну на об'єкті Невідомо",
-    "uz": "Noma'lum obyektdagi smenani tugatdi",
-    "tg": "басти худро дар сайти номаълум ба анҷом расонд"
+    "ru": "завершил смену на объекте",
+    "en": "finished shift at site",
+    "de": "hat die Schicht am Standort beendet",
+    "ro": "a terminat tura la site-ul",
+    "bg": "завърши смяната на обект",
+    "pl": "zakończył zmianę na obiekcie",
+    "uk": "завершив зміну на об'єкті",
+    "uz": "obyektdagi smenani tugatdi",
+    "tg": "басти худро дар сайт ба анҷом расонд"
   },
   "admin_dashboard.started_shift": {
-    "ru": "начал смену на объекте Неизвестно",
-    "en": "started shift at Unknown site",
-    "de": "hat die Schicht am unbekannten Standort begonnen",
-    "ro": "a început tura la site-ul Necunoscut",
-    "bg": "започна смяната на обект Неизвестен",
-    "pl": "rozpoczął zmianę na nieznanym obiekcie",
-    "uk": "розпочав зміну на об'єкті Невідомо",
-    "uz": "Noma'lum obyektdagi smenani boshladi",
-    "tg": "басти худро дар сайти номаълум оғоз кард"
+    "ru": "начал смену на объекте",
+    "en": "started shift at site",
+    "de": "hat die Schicht am Standort begonnen",
+    "ro": "a început tura la site-ul",
+    "bg": "започна смяната на обект",
+    "pl": "rozpoczął zmianę na obiekcie",
+    "uk": "розпочав зміну на об'єкті",
+    "uz": "obyektdagi smenani boshladi",
+    "tg": "басти худро дар сайт оғоз кард"
   },
   "personnel.monitoring": {
     "ru": "Мониторинг сотрудников",

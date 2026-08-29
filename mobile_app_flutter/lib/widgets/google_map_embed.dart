@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class GoogleMapEmbed extends StatefulWidget {
@@ -16,10 +17,12 @@ class _GoogleMapEmbedState extends State<GoogleMapEmbed> {
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(
-          'https://maps.google.com/maps?q=${Uri.encodeComponent(widget.query)}&t=m&z=15&ie=UTF8&iwloc=&output=embed'));
+    _controller = WebViewController();
+    if (!kIsWeb) {
+      _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+    }
+    _controller.loadRequest(Uri.parse(
+        'https://maps.google.com/maps?q=${Uri.encodeComponent(widget.query)}&t=m&z=15&ie=UTF8&iwloc=&output=embed'));
   }
 
   @override

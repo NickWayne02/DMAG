@@ -116,11 +116,12 @@ class LocationService {
         'address': 'GPS: ${lat.toStringAsFixed(5)}, ${lon.toStringAsFixed(5)}',
         'customer': 'GPS Auto',
         'created_by': supabase.auth.currentUser?.id,
-      }).select('id, name').single();
+      }).select('id, name, address').single();
       
       return created;
-    } catch (_) {
-      return null;
+    } catch (e) {
+      print('ensureSiteForCity error: $e');
+      throw Exception('Не удалось создать объект: $e');
     }
   }
 }

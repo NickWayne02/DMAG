@@ -299,8 +299,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   if (allowed) {
                                     // TODO: Actually fetch GPS coords
                                   }
-                                  await shift.startShift();
-                                  if (mounted) AppToast.showSuccess(context, 'Смена начата');
+                                  try {
+                                    await shift.startShift();
+                                    if (mounted) AppToast.showSuccess(context, 'Смена начата');
+                                  } catch (e) {
+                                    if (mounted) {
+                                      AppToast.showError(context, e.toString().replaceAll('Exception: ', ''));
+                                    }
+                                  }
                                 },
                               ),
                             ),

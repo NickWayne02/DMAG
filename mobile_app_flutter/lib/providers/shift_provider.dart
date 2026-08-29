@@ -195,6 +195,9 @@ class ShiftProvider extends ChangeNotifier {
     String? siteId = _selectedSite?['id'];
     String? siteName = _selectedSite?['name'];
     String? city = siteName;
+    if (pos == null && siteId == null) {
+      throw Exception('Не удалось определить местоположение. Пожалуйста, выберите объект вручную или разрешите доступ к GPS.');
+    }
     
     if (pos != null) {
       if (siteId == null) {
@@ -209,13 +212,13 @@ class ShiftProvider extends ChangeNotifier {
       
       if (siteId == null) {
         city = await LocationService.reverseGeocodeCity(pos.latitude, pos.longitude);
-        if (city != null) {
-          final autoSite = await LocationService.ensureSiteForCity(city, pos.latitude, pos.longitude);
-          if (autoSite != null) {
-            siteId = autoSite['id'];
-            siteName = autoSite['name'];
-            setSelectedSite(autoSite);
-          }
+        final safeCity = city ?? 'Auto Site ${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)}';
+        final autoSite = await LocationService.ensureSiteForCity(safeCity, pos.latitude, pos.longitude);
+        if (autoSite != null) {
+          siteId = autoSite['id'];
+          siteName = autoSite['name'];
+          city = safeCity;
+          setSelectedSite(autoSite);
         }
       }
     }

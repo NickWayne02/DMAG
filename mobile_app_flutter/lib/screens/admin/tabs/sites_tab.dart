@@ -88,6 +88,12 @@ class _SitesTabState extends State<SitesTab> {
     try {
       await Supabase.instance.client.from('sites').delete().eq('id', id);
       _fetchSites();
+      if (mounted) {
+        final shift = context.read<ShiftProvider>();
+        if (shift.selectedSite != null && shift.selectedSite!['id'] == id) {
+          shift.resetShift();
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка удаления: $e')));

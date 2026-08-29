@@ -122,6 +122,127 @@ class _BrandingTabState extends State<BrandingTab> {
     }
   }
 
+  Future<void> _saveCurrentAsPreset() async {
+    final currentName = context.read<SettingsProvider>().settings.appName;
+    final currentLogo = context.read<SettingsProvider>().settings.appLogoUrl;
+    
+    setState(() => _isUploading = true);
+    try {
+      await _supabase.from('app_branding_presets').insert({
+        'app_name': currentName,
+        'app_logo_url': currentLogo,
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Текущий бренд сохранен в галерею')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка сохранения: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  Future<void> _applyPreset(Map<String, dynamic> preset) async {
+    setState(() => _isLoading = true);
+    try {
+      await _supabase.from('app_settings').update({
+        'app_name': preset['app_name'],
+        'app_logo_url': preset['app_logo_url'],
+      }).eq('id', 1);
+      
+      if (mounted) {
+        context.read<SettingsProvider>().updateSettings(
+          appName: preset['app_name'], 
+          appLogoUrl: preset['app_logo_url']
+        );
+        _appNameController.text = preset['app_name'];
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Бренд применен!')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка применения: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deletePreset(String id) async {
+    try {
+      await _supabase.from('app_branding_presets').delete().eq('id', id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка удаления: $e'), backgroundColor: Colors.red));
+      }
+    }
+  }
+
+  Widget _buildPresetCard(Map<String, dynamic> preset, AppColors colors) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.border),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: colors.background,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: preset['app_logo_url'] != null
+                  ? Image.network(preset['app_logo_url'], fit: BoxFit.cover)
+                  : Center(child: Text('Нет лого', style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withValues(alpha: 0.5)))),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            preset['app_name'] ?? 'Без названия',
+            style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : () => _applyPreset(preset),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.card,
+                    padding: const EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('Применить', style: TextStyle(fontSize: 11)),
+                ),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                onPressed: () => _deletePreset(preset['id']),
+                icon: const Icon(LucideIcons.trash_2, size: 16),
+                color: Colors.red,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.red.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).appColors;
@@ -243,6 +364,60 @@ class _BrandingTabState extends State<BrandingTab> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Галерея брендов (Пресеты)',
+                  style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _isUploading ? null : _saveCurrentAsPreset,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.card,
+                    foregroundColor: colors.foreground,
+                    side: BorderSide(color: colors.border),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(LucideIcons.save, size: 16),
+                  label: const Text('Сохранить текущий'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _supabase.from('app_branding_presets').stream(primaryKey: ['id']).order('created_at'),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Ошибка загрузки галереи: ${snapshot.error}', style: const TextStyle(color: Colors.red));
+                }
+                final presets = snapshot.data ?? [];
+                if (presets.isEmpty) {
+                  return Text('В галерее пока нет пресетов.', style: TextStyle(color: colors.foreground.withValues(alpha: 0.5)));
+                }
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.85,
+                  ),
+                  itemCount: presets.length,
+                  itemBuilder: (context, index) {
+                    final preset = presets[index];
+                    return _buildPresetCard(preset, colors);
+                  },
+                );
+              },
             ),
           ],
         ),

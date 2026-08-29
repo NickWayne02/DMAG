@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSettings, useUpdateAppSettings } from "@/hooks/use-app-settings";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,9 +12,44 @@ import { Loader2, Upload, Trash2 } from "lucide-react";
 export function BrandingSettingsTab() {
   const { data: settings, isLoading } = useAppSettings();
   const updateSettings = useUpdateAppSettings();
+  const queryClient = useQueryClient();
   
   const [name, setName] = useState(settings?.app_name || "DMAG");
   const [uploading, setUploading] = useState(false);
+
+  const { data: presets, isLoading: isLoadingPresets } = useQuery({
+    queryKey: ['app_branding_presets'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('app_branding_presets').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const savePresetMutation = useMutation({
+    mutationFn: async (preset: { app_name: string; app_logo_url: string | null }) => {
+      const { data, error } = await supabase.from('app_branding_presets').insert(preset).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app_branding_presets'] });
+      toast.success("Пресет сохранен в галерею");
+    },
+    onError: (e: any) => toast.error(e.message || "Ошибка сохранения пресета")
+  });
+
+  const deletePresetMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('app_branding_presets').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app_branding_presets'] });
+      toast.success("Пресет удален");
+    },
+    onError: (e: any) => toast.error(e.message || "Ошибка удаления пресета")
+  });
 
   // Sync state when settings load
   if (!isLoading && settings && name === "DMAG" && settings.app_name !== "DMAG") {
@@ -149,6 +185,71 @@ export function BrandingSettingsTab() {
             </div>
           </div>
         </div>
+
+        <div className="flex gap-4 pt-4 border-t border-border">
+          <Button 
+            variant="secondary" 
+            onClick={() => savePresetMutation.mutate({ app_name: name, app_logo_url: settings?.app_logo_url || null })}
+            disabled={savePresetMutation.isPending}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Сохранить как пресет в галерею
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-12 border-t border-border pt-8">
+        <h3 className="font-semibold text-lg mb-6">Галерея брендов (Пресеты)</h3>
+        {isLoadingPresets ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="animate-spin h-4 w-4" /> Загрузка галереи...</div>
+        ) : presets?.length === 0 ? (
+          <p className="text-sm text-muted-foreground">В галерее пока нет сохраненных пресетов. Вы можете сохранить текущий бренд, нажав кнопку выше.</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {presets?.map((preset: any) => (
+              <Card key={preset.id} className="overflow-hidden bg-card/50">
+                <CardContent className="p-4 flex flex-col items-center gap-4">
+                  <div className="h-16 w-16 rounded-xl border border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                    {preset.app_logo_url ? (
+                      <img src={preset.app_logo_url} alt={preset.app_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground">Нет</span>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-center truncate w-full" title={preset.app_name}>{preset.app_name}</p>
+                  
+                  <div className="flex w-full gap-2 mt-auto">
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={async () => {
+                        try {
+                          await updateSettings.mutateAsync({ app_name: preset.app_name, app_logo_url: preset.app_logo_url });
+                          toast.success("Бренд применен");
+                        } catch (e: any) {
+                          toast.error(e.message || "Ошибка");
+                        }
+                      }}
+                      disabled={updateSettings.isPending}
+                    >
+                      Применить
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="icon" 
+                      className="shrink-0 h-9 w-9"
+                      onClick={() => deletePresetMutation.mutate(preset.id)}
+                      disabled={deletePresetMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </Card>
   );

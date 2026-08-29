@@ -806,29 +806,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          BounceButton(
-            onTap: () {
-              final query = Uri.encodeComponent(address.replaceAll(RegExp(r'^GPS:\s*', caseSensitive: false), ''));
-              launchUrl(Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$query'), mode: LaunchMode.externalApplication);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: colors.foreground.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.border),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(LucideIcons.map, color: colors.foreground, size: 18),
-                  const SizedBox(width: 8),
-                  Text(context.watch<LocaleProvider>().t('dashboard.open_maps') ?? 'Открыть в Google Картах', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          ),
+
         ],
       ),
     );

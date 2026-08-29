@@ -15,9 +15,9 @@ class TranslationOverlay {
       builder: (ctx) => const _TranslationDialog(),
     );
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
     await action();
-    await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 200));
     
     if (context.mounted) {
       Navigator.of(context, rootNavigator: true).pop();

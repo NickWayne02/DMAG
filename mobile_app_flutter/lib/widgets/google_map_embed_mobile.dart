@@ -13,21 +13,42 @@ class GoogleMapEmbedImpl extends StatefulWidget {
 class _GoogleMapEmbedImplState extends State<GoogleMapEmbedImpl> {
   late final WebViewController _controller;
 
+  void _loadMap() {
+    final htmlString = '''
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }</style>
+      </head>
+      <body>
+        <iframe 
+          width="100%" 
+          height="100%" 
+          frameborder="0" 
+          style="border:0;" 
+          src="https://maps.google.com/maps?q=${Uri.encodeComponent(widget.query)}&t=m&z=15&ie=UTF8&iwloc=&output=embed" 
+          allowfullscreen>
+        </iframe>
+      </body>
+      </html>
+    ''';
+    _controller.loadHtmlString(htmlString);
+  }
+
   @override
   void initState() {
     super.initState();
     _controller = WebViewController();
     _controller.setJavaScriptMode(JavaScriptMode.unrestricted);
-    _controller.loadRequest(Uri.parse(
-        'https://maps.google.com/maps?q=${Uri.encodeComponent(widget.query)}&t=m&z=15&ie=UTF8&iwloc=&output=embed'));
+    _loadMap();
   }
 
   @override
   void didUpdateWidget(covariant GoogleMapEmbedImpl oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.query != widget.query) {
-      _controller.loadRequest(Uri.parse(
-          'https://maps.google.com/maps?q=${Uri.encodeComponent(widget.query)}&t=m&z=15&ie=UTF8&iwloc=&output=embed'));
+      _loadMap();
     }
   }
 

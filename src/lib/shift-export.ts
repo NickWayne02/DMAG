@@ -189,12 +189,17 @@ function triggerDownloadSync(blob: Blob, filename: string) {
         const base64data = reader.result as string;
         const base64 = base64data.split(",")[1];
 
-        await Filesystem.writeFile({
+        const result = await Filesystem.writeFile({
           path: filename,
           data: base64,
-          directory: Directory.Documents,
+          directory: Directory.Cache,
         });
-        toast.success("Файл сохранён в Документы");
+        
+        await Share.share({
+          title: filename,
+          url: result.uri,
+        });
+        toast.success("Открыто меню Поделиться");
       } catch (e) {
         console.error("Capacitor save error", e);
         toast.error("Ошибка сохранения файла");

@@ -2657,12 +2657,14 @@ export function AdminDashboard({
                                     </Badge>
                                   )}
                                   {e.status === "working" && (
-                                    <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20 whitespace-nowrap">
+                                    <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20 whitespace-nowrap flex items-center gap-1.5">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
                                       {lang === "en" ? "On shift" : "На смене"}
                                     </Badge>
                                   )}
                                   {e.status === "lunch" && (
-                                    <Badge className="bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 border-orange-500/20 whitespace-nowrap">
+                                    <Badge className="bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 border-orange-500/20 whitespace-nowrap flex items-center gap-1.5">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
                                       {lang === "en" ? "On lunch" : "На обеде"}
                                     </Badge>
                                   )}

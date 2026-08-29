@@ -31,9 +31,48 @@ class _UsersTabState extends State<UsersTab> {
   Future<void> _fetchUsers() async {
     try {
       final res = await Supabase.instance.client.from('profiles').select();
+      final rolesRes = await Supabase.instance.client.from('user_roles').select();
+      
+      final shiftsRes = await Supabase.instance.client
+          .from('shifts')
+          .select('user_id, started_at, status')
+          .order('started_at', ascending: false);
+
+      final latestShifts = <String, Map<String, dynamic>>{};
+      for (var s in shiftsRes) {
+        final uid = s['user_id'] as String;
+        if (!latestShifts.containsKey(uid) && s['started_at'] != null) {
+          latestShifts[uid] = {
+            'started_at': DateTime.parse(s['started_at'] as String),
+            'status': s['status'] as String?,
+          };
+        }
+      }
+
+      final roleMap = <String, String>{};
+      final prio = {'super_admin': 4, 'admin': 3, 'brigadier': 2, 'employee': 1};
+      for (var r in rolesRes) {
+        final uid = r['user_id'] as String;
+        final cur = roleMap[uid] ?? 'employee';
+        final newRole = r['role'] as String;
+        if ((prio[newRole] ?? 1) > (prio[cur] ?? 1)) {
+          roleMap[uid] = newRole;
+        }
+      }
+
       if (mounted) {
         setState(() {
-          _users = List<Map<String, dynamic>>.from(res);
+          _users = List<Map<String, dynamic>>.from(res).map((u) {
+            u['role'] = roleMap[u['id']] ?? 'employee';
+            final shiftData = latestShifts[u['id']];
+            if (shiftData != null) {
+              u['last_shift_start'] = shiftData['started_at'];
+              u['is_online'] = shiftData['status'] == 'working' || shiftData['status'] == 'lunch';
+            } else {
+              u['is_online'] = false;
+            }
+            return u;
+          }).toList();
           _isLoading = false;
         });
       }
@@ -314,6 +353,12 @@ class _UsersTabState extends State<UsersTab> {
                               ? (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ')
                               : (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник');
                               
+                          String lastLoginStr = '—';
+                          if (u['last_shift_start'] != null) {
+                             final dt = (u['last_shift_start'] as DateTime).toLocal();
+                             lastLoginStr = '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                          }
+
                           return _buildUserCard(
                             name: name,
                             role: role,
@@ -321,8 +366,10 @@ class _UsersTabState extends State<UsersTab> {
                             userId: u['id'],
                             userEmail: u['email'] ?? '',
                             avatarUrl: u['avatar_url'],
-                            lastLogin: '—', // Could be fetched if tracked
-                            isOnline: false,
+                            lastLogin: (u['is_online'] == true) 
+                                ? (context.watch<LocaleProvider>().t('sessions.online') ?? 'В сети') 
+                                : lastLoginStr,
+                            isOnline: u['is_online'] == true,
                             isSelf: u['id'] == Supabase.instance.client.auth.currentUser?.id,
                           );
                         },

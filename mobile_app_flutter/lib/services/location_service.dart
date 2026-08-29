@@ -108,7 +108,7 @@ class LocationService {
   static Future<Map<String, dynamic>?> ensureSiteForCity(String city, double lat, double lon) async {
     try {
       final supabase = Supabase.instance.client;
-      final existing = await supabase.from('sites').select('id, name').ilike('name', city).limit(1).maybeSingle();
+      final existing = await supabase.from('sites').select('id, name, address').ilike('name', city).limit(1).maybeSingle();
       if (existing != null) return existing;
       
       final created = await supabase.from('sites').insert({

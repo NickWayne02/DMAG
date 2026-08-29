@@ -20,14 +20,18 @@ class DashboardTab extends StatefulWidget {
 class _DashboardTabState extends State<DashboardTab> {
   List<Map<String, dynamic>> _activities = [];
   bool _isLoading = true;
+  String? _errorMessage;
+  
+  int _employeesOnShift = 0;
+  int _employeesOnLunch = 0;
+  int _activeSitesCount = 0;
+  int _urgentReportsCount = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchActivity();
   }
-
-  String? _errorMessage;
 
   Future<void> _fetchActivity() async {
     try {
@@ -36,10 +40,14 @@ class _DashboardTabState extends State<DashboardTab> {
 
       final resp = await Supabase.instance.client
           .from('shifts')
-          .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city')
+          .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city, site_id')
           .gte('started_at', sinceMidnight)
           .order('started_at', ascending: false)
           .limit(50);
+          
+      final activeSitesSet = <String>{};
+      int onShift = 0;
+      int onLunch = 0;
       
       final profilesResp = await Supabase.instance.client.from('profiles').select('id, full_name');
       final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};
@@ -48,6 +56,14 @@ class _DashboardTabState extends State<DashboardTab> {
       for (var s in resp) {
         final userName = profiles[s['user_id']] ?? 'Неизвестный сотрудник';
         final siteName = s['site_name'] ?? s['start_city'] ?? 'Неизвестный объект';
+        
+        if (s['status'] == 'working') {
+          onShift++;
+          if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
+        } else if (s['status'] == 'lunch') {
+          onLunch++;
+          if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
+        }
         
         // Shift Start
         if (s['started_at'] != null) {
@@ -115,6 +131,9 @@ class _DashboardTabState extends State<DashboardTab> {
       if (mounted) {
         setState(() {
           _activities = enriched.take(50).toList();
+          _employeesOnShift = onShift;
+          _employeesOnLunch = onLunch;
+          _activeSitesCount = activeSitesSet.length;
           _isLoading = false;
           _errorMessage = null;
         });
@@ -146,10 +165,10 @@ class _DashboardTabState extends State<DashboardTab> {
             mainAxisSpacing: 16,
             childAspectRatio: 1.1,
             children: [
-              _buildStatCard(context, '0', context.watch<LocaleProvider>().t('admin_dashboard.emp_on_shift') ?? 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
-              _buildStatCard(context, '0', context.watch<LocaleProvider>().t('admin_dashboard.on_lunch') ?? 'На обеде', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
-              _buildStatCard(context, '6', context.watch<LocaleProvider>().t('admin_dashboard.active_sites') ?? 'Активных объектов', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
-              _buildStatCard(context, '0', context.watch<LocaleProvider>().t('admin_dashboard.urgent_reports') ?? 'Срочных отчётов', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
+              _buildStatCard(context, _employeesOnShift.toString(), context.watch<LocaleProvider>().t('admin_dashboard.emp_on_shift') ?? 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
+              _buildStatCard(context, _employeesOnLunch.toString(), context.watch<LocaleProvider>().t('admin_dashboard.on_lunch') ?? 'На обеде', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
+              _buildStatCard(context, _activeSitesCount.toString(), context.watch<LocaleProvider>().t('admin_dashboard.active_sites') ?? 'Активных объектов', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
+              _buildStatCard(context, _urgentReportsCount.toString(), context.watch<LocaleProvider>().t('admin_dashboard.urgent_reports') ?? 'Срочных отчётов', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
             ],
           ),
           const SizedBox(height: 24),

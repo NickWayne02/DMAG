@@ -100,6 +100,15 @@ class ShiftProvider extends ChangeNotifier {
     await prefs.setString('selected_site_address', site['address'] ?? '');
   }
 
+  void clearSelectedSite() async {
+    _selectedSite = null;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selected_site_id');
+    await prefs.remove('selected_site_name');
+    await prefs.remove('selected_site_address');
+  }
+
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
     

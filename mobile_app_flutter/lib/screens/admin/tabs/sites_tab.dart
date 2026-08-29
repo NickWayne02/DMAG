@@ -93,6 +93,7 @@ class _SitesTabState extends State<SitesTab> {
         final shift = context.read<ShiftProvider>();
         if (shift.selectedSite != null && shift.selectedSite!['id'] == id) {
           shift.resetShift();
+          shift.clearSelectedSite();
         }
       }
     } catch (e) {

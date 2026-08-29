@@ -37,7 +37,7 @@ class _UsersTabState extends State<UsersTab> {
       final state = _presenceChannel!.presenceState();
       if (mounted) {
         setState(() {
-          _onlineUserIds = state.keys.toList();
+          _onlineUserIds = state.map((s) => s.key).toList();
         });
       }
     }).subscribe();

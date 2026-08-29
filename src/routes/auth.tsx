@@ -132,9 +132,6 @@ function AuthPage() {
       <Card className="w-full max-w-md p-8 rounded-2xl shadow-xl border-0 relative mt-8">
         <div className="flex flex-col items-center mb-6">
           <img src={appSettings?.app_logo_url || dmagLogo} alt="Logo" className="w-35 h-auto rounded-xl shadow-md" />
-          {appSettings?.app_name && appSettings.app_name !== "DMAG" && (
-             <h2 className="mt-4 text-xl font-bold">{appSettings.app_name}</h2>
-          )}
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "signup")}>

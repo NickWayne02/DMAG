@@ -171,17 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             fit: BoxFit.cover,
                           ),
                     ),
-                    if (context.watch<SettingsProvider>().settings.appName != 'DMAG') ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        context.watch<SettingsProvider>().settings.appName,
-                        style: GoogleFonts.inter(
-                          color: textColor, // use textColor instead of mutedTextColor for better visibility
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),

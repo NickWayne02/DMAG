@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ExportRow {
   final String date;
@@ -144,7 +148,7 @@ class ShiftExportService {
 
     final bytes = excel.encode();
     if (bytes != null) {
-      _downloadFileWeb(bytes, filename);
+      await _downloadFile(bytes, filename);
     }
   }
 
@@ -177,7 +181,7 @@ class ShiftExportService {
           return [
             pw.Text(title, style: pw.TextStyle(font: boldFont, fontSize: 18)),
             pw.SizedBox(height: 8),
-            pw.Text('''Сформировано: ${DateTime.now().toString()}''', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
+            pw.Text('Сформировано: ${DateTime.now().toString()}', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
             pw.SizedBox(height: 20),
             pw.TableHelper.fromTextArray(
               headers: headers,
@@ -205,20 +209,27 @@ class ShiftExportService {
     );
 
     final bytes = await pdf.save();
-    _downloadFileWeb(bytes, filename);
+    await _downloadFile(bytes, filename);
   }
 
-  static void _downloadFileWeb(List<int> bytes, String filename) {
-    final blob = html.Blob([Uint8List.fromList(bytes)]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.document.createElement('a') as html.AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download = filename;
-    
-    html.document.body?.children.add(anchor);
-    anchor.click();
-    html.document.body?.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
+  static Future<void> _downloadFile(List<int> bytes, String filename) async {
+    if (kIsWeb) {
+      final blob = html.Blob([Uint8List.fromList(bytes)]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.document.createElement('a') as html.AnchorElement
+        ..href = url
+        ..style.display = 'none'
+        ..download = filename;
+      
+      html.document.body?.children.add(anchor);
+      anchor.click();
+      html.document.body?.children.remove(anchor);
+      html.Url.revokeObjectUrl(url);
+    } else {
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$filename');
+      await file.writeAsBytes(bytes);
+      await Share.shareXFiles([XFile(file.path)], text: 'Export: $filename');
+    }
   }
 }

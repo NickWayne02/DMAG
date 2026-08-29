@@ -16,18 +16,16 @@ class LocationService {
         return await _getIpBasedPosition();
       }
 
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        if (forceExact) throw Exception('Службы геолокации отключены. Включите их для точного позиционирования.');
-        return await _getIpBasedPosition();
-      }
-      
       try {
         return await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high,
           timeLimit: const Duration(seconds: 15),
         );
-      } catch (_) {
+      } catch (e) {
+        if (e is LocationServiceDisabledException) {
+          if (forceExact) throw Exception('Службы геолокации отключены на уровне системы. Включите GPS (Локацию) в настройках телефона.');
+          return await _getIpBasedPosition();
+        }
         if (forceExact) throw Exception('Таймаут или ошибка получения точных GPS-координат.');
         return await _getIpBasedPosition();
       }

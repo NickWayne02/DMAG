@@ -52,6 +52,8 @@ dependencies:
   google_maps_flutter: ^2.18.0
   webview_flutter: ^4.14.1
   webview_flutter_web: ^0.2.3+4
+  path_provider: ^2.1.6
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

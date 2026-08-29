@@ -21,11 +21,32 @@ class _UsersTabState extends State<UsersTab> {
   String _searchQuery = '';
   List<Map<String, dynamic>> _users = [];
   bool _isLoading = true;
+  List<String> _onlineUserIds = [];
+  RealtimeChannel? _presenceChannel;
 
   @override
   void initState() {
     super.initState();
     _fetchUsers();
+    _initPresence();
+  }
+
+  void _initPresence() {
+    _presenceChannel = Supabase.instance.client.channel('global-online-users');
+    _presenceChannel!.onPresenceSync((payload) {
+      final state = _presenceChannel!.presenceState();
+      if (mounted) {
+        setState(() {
+          _onlineUserIds = state.keys.toList();
+        });
+      }
+    }).subscribe();
+  }
+
+  @override
+  void dispose() {
+    _presenceChannel?.unsubscribe();
+    super.dispose();
   }
 
   Future<void> _fetchUsers() async {
@@ -67,9 +88,6 @@ class _UsersTabState extends State<UsersTab> {
             final shiftData = latestShifts[u['id']];
             if (shiftData != null) {
               u['last_shift_start'] = shiftData['started_at'];
-              u['is_online'] = shiftData['status'] == 'working' || shiftData['status'] == 'lunch';
-            } else {
-              u['is_online'] = false;
             }
             return u;
           }).toList();
@@ -359,6 +377,8 @@ class _UsersTabState extends State<UsersTab> {
                              lastLoginStr = '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
                           }
 
+                          final isOnline = _onlineUserIds.contains(u['id']);
+                          
                           return _buildUserCard(
                             name: name,
                             role: role,
@@ -366,10 +386,10 @@ class _UsersTabState extends State<UsersTab> {
                             userId: u['id'],
                             userEmail: u['email'] ?? '',
                             avatarUrl: u['avatar_url'],
-                            lastLogin: (u['is_online'] == true) 
+                            lastLogin: isOnline 
                                 ? (context.watch<LocaleProvider>().t('sessions.online') ?? 'В сети') 
                                 : lastLoginStr,
-                            isOnline: u['is_online'] == true,
+                            isOnline: isOnline,
                             isSelf: u['id'] == Supabase.instance.client.auth.currentUser?.id,
                           );
                         },

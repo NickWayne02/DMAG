@@ -21,6 +21,7 @@ class _DashboardTabState extends State<DashboardTab> {
   List<Map<String, dynamic>> _activities = [];
   bool _isLoading = true;
   String? _errorMessage;
+  RealtimeChannel? _subscription;
   
   int _employeesOnShift = 0;
   int _employeesOnLunch = 0;
@@ -31,6 +32,27 @@ class _DashboardTabState extends State<DashboardTab> {
   void initState() {
     super.initState();
     _fetchActivity();
+    _setupRealtime();
+  }
+
+  void _setupRealtime() {
+    _subscription = Supabase.instance.client
+        .channel('public:shifts')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'shifts',
+          callback: (payload) {
+            _fetchActivity();
+          },
+        )
+        .subscribe();
+  }
+
+  @override
+  void dispose() {
+    _subscription?.unsubscribe();
+    super.dispose();
   }
 
   Future<void> _fetchActivity() async {
@@ -122,6 +144,16 @@ class _DashboardTabState extends State<DashboardTab> {
               });
             }
           }
+        }
+        
+        // Active Lunch Start
+        if (s['lunch_started_at'] != null) {
+          enriched.add({
+            'ts': s['lunch_started_at'],
+            'type': 'lunch_start',
+            'user_name': userName,
+            'site_name': siteName,
+          });
         }
       }
       

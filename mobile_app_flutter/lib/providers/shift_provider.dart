@@ -310,7 +310,9 @@ class ShiftProvider extends ChangeNotifier {
           'status': 'lunch',
           'lunch_started_at': _lunchStart!.toUtc().toIso8601String(),
         }).eq('id', _shiftId!);
-      } catch (_) {}
+      } catch (e) {
+        throw Exception('Ошибка при начале паузы: $e');
+      }
     }
   }
 
@@ -335,7 +337,9 @@ class ShiftProvider extends ChangeNotifier {
           'lunch_total_ms': _lunchAccumMs,
           'lunch_intervals': _lunchIntervals,
         }).eq('id', _shiftId!);
-      } catch (_) {}
+      } catch (e) {
+        throw Exception('Ошибка при завершении паузы: $e');
+      }
     }
   }
 

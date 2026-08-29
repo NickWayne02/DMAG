@@ -573,6 +573,50 @@
     "uz": "To'liq ism",
     "tg": "Номи пурра"
   },
+  "admin.pagination.prev": {
+    "ru": "Пред.",
+    "en": "Prev.",
+    "de": "Zurück",
+    "ro": "Prec.",
+    "bg": "Предиш.",
+    "pl": "Poprz.",
+    "uk": "Попер.",
+    "uz": "Olding.",
+    "tg": "Қаблӣ"
+  },
+  "admin.pagination.next": {
+    "ru": "След.",
+    "en": "Next",
+    "de": "Weiter",
+    "ro": "Urm.",
+    "bg": "Следв.",
+    "pl": "Nast.",
+    "uk": "Наст.",
+    "uz": "Keying.",
+    "tg": "Баъдӣ"
+  },
+  "admin.shift.management": {
+    "ru": "Управление сменами",
+    "en": "Shift Management",
+    "de": "Schichtverwaltung",
+    "ro": "Managementul turelor",
+    "bg": "Управление на смени",
+    "pl": "Zarządzanie zmianami",
+    "uk": "Керування змінами",
+    "uz": "Smena boshqaruvi",
+    "tg": "Идоракунии сменаҳо"
+  },
+  "admin.shift.instruction": {
+    "ru": "Инструкция по сменам",
+    "en": "Shift Instruction",
+    "de": "Schichtanweisung",
+    "ro": "Instrucțiuni de tură",
+    "bg": "Инструкция за смяна",
+    "pl": "Instrukcja zmianowa",
+    "uk": "Інструкція по змінах",
+    "uz": "Smena yo'riqnomasi",
+    "tg": "Дастури смена"
+  },
   "admin.users.email": {
     "ru": "Email (логин)",
     "en": "Email (login)",

@@ -78,6 +78,8 @@ class _PersonnelTabState extends State<PersonnelTab> {
         Supabase.instance.client.from('sites').select('id, name'),
       ]);
 
+      if (!mounted) return;
+
       final profiles = List<Map<String, dynamic>>.from(results[0]);
       final roles = List<Map<String, dynamic>>.from(results[1]);
       final shifts = List<Map<String, dynamic>>.from(results[2]);
@@ -125,8 +127,11 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
           if (sh['status'] == 'working') {
             status = 'working';
-          } else if (sh['status'] == 'lunch') status = 'lunch';
-          else status = 'finished';
+          } else if (sh['status'] == 'lunch') {
+            status = 'lunch';
+          } else {
+            status = 'finished';
+          }
 
           final startDt = DateTime.parse(sh['started_at']).toLocal();
           startedAt = '${startDt.hour.toString().padLeft(2, '0')}:${startDt.minute.toString().padLeft(2, '0')}';
@@ -537,94 +542,6 @@ class _PersonnelTabState extends State<PersonnelTab> {
     );
   }
 
-  void _showEditRoleModal(EmployeeRow emp) {
-    String selectedRole = emp.role;
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setStateModal) {
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: const EdgeInsets.all(16),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(context.watch<LocaleProvider>().t('personnel.edit_role') ?? 'Редактировать роль', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
-                      GestureDetector(onTap: () => Navigator.pop(ctx), child: Icon(LucideIcons.x, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14)),
-                  const SizedBox(height: 24),
-                  Text(context.watch<LocaleProvider>().t('personnel.access_role') ?? 'Роль доступа', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: selectedRole,
-                        isExpanded: true,
-                        dropdownColor: Theme.of(context).cardColor,
-                        icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
-                        style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
-                        items: [
-                          DropdownMenuItem(value: 'employee', child: Text(context.watch<LocaleProvider>().t('role.employee') ?? 'Сотрудник')),
-                          DropdownMenuItem(value: 'brigadier', child: Text(context.watch<LocaleProvider>().t('role.brigadier') ?? context.read<LocaleProvider>().t('role.brigadier') ?? 'Бригадир')),
-                          DropdownMenuItem(value: 'admin', child: Text(context.watch<LocaleProvider>().t('role.admin') ?? 'Администратор')),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) setStateModal(() => selectedRole = val);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF334155),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () async {
-                        try {
-                          await Supabase.instance.client.from('user_roles').upsert({'user_id': emp.id, 'role': selectedRole});
-                          if (mounted) {
-                            Navigator.pop(ctx);
-                            _fetchData(); // Reload list
-                          }
-                        } catch (e) {
-                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${context.read<LocaleProvider>().t('auth.errors.default') ?? 'Ошибка:'} $e')));
-                        }
-                      },
-                      child: Text(context.watch<LocaleProvider>().t('settings.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Future<void> _openEditShiftsForMonth(EmployeeRow emp) async {
     final now = DateTime.now();
@@ -691,6 +608,8 @@ class _PersonnelTabState extends State<PersonnelTab> {
           .order('started_at', ascending: false);
 
       final shifts = List<Map<String, dynamic>>.from(response);
+
+      if (!mounted) return;
 
       final empsList = _allEmployees.map((e) => <String, dynamic>{
         'id': e.id,

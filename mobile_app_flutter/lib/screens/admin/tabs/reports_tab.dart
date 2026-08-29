@@ -13,8 +13,6 @@ class ReportsTab extends StatefulWidget {
 }
 
 class _ReportsTabState extends State<ReportsTab> {
-
-  String _searchQuery = '';
   String? _selectedSite;
   String? _selectedTime;
 
@@ -107,7 +105,9 @@ class _ReportsTabState extends State<ReportsTab> {
                   
                   // Search
                   TextField(
-                    onChanged: (val) => setState(() => _searchQuery = val),
+                    onChanged: (val) {
+                      // Optionally add local search
+                    },
                     style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
                     decoration: _inputDeco(context.watch<LocaleProvider>().t('reports.search') ?? 'Поиск по описанию...'),
                   ),

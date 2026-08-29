@@ -140,8 +140,8 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
               children: [
                 GestureDetector(
                   onTap: () => _changeMonth(-1),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Icon(LucideIcons.chevron_left, color: Theme.of(context).appColors.foreground, size: 20),
                   ),
                 ),
@@ -151,8 +151,8 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                 ),
                 GestureDetector(
                   onTap: () => _changeMonth(1),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Icon(LucideIcons.chevron_right, color: Theme.of(context).appColors.foreground, size: 20),
                   ),
                 ),
@@ -226,7 +226,9 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                       
                       final hours = workMs ~/ 3600000;
                       final mins = (workMs % 3600000) ~/ 60000;
-                      durationText = '$hours${context.watch<LocaleProvider>().t(\'history.h\') ?? \'ч\'} $mins${context.watch<LocaleProvider>().t(\'history.m\') ?? \'м\'}';
+                      final hStr = context.read<LocaleProvider>().t('history.h') ?? 'ч';
+                      final mStr = context.read<LocaleProvider>().t('history.m') ?? 'м';
+                      durationText = '$hours$hStr $mins$mStr';
                     }
                   }
                   
@@ -259,15 +261,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                     ),
                   );
                 },
-              
-                  return null;
-                  return null;
-                  return null;
-                  return null;
-                  return null;
-                  return null;
-                  return null;
-                  return null;),
+              ),
           ],
         ),
       ),

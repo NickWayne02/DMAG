@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:excel/excel.dart';
@@ -229,6 +228,7 @@ class ShiftExportService {
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(bytes);
+      // ignore: deprecated_member_use
       await Share.shareXFiles([XFile(file.path)], text: 'Export: $filename');
     }
   }

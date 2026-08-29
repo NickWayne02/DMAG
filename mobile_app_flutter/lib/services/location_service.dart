@@ -18,8 +18,10 @@ class LocationService {
 
       try {
         return await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 15),
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 15),
+          ),
         );
       } catch (e) {
         if (e is LocationServiceDisabledException) {
@@ -76,6 +78,9 @@ class LocationService {
                  address['town'] ?? 
                  address['village'] ?? 
                  address['hamlet'] ?? 
+                 address['municipality'] ??
+                 address['county'] ??
+                 address['state_district'] ??
                  json['name'];
         }
       }
@@ -136,7 +141,6 @@ class LocationService {
       
       return created;
     } catch (e) {
-      print('ensureSiteForCity error: $e');
       throw Exception('Не удалось создать объект: $e');
     }
   }

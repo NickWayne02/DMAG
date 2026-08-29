@@ -185,9 +185,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       await _supabase.from('chat_messages').delete().eq('channel_type', _activeChannelType).eq('channel_id', _activeChannelId);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.watch<LocaleProvider>().t('chat.clear_success') ?? 'История очищена')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('chat.clear_success') ?? 'История очищена')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.watch<LocaleProvider>().t('chat.clear_error') ?? 'Ошибка очистки истории')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('chat.clear_error') ?? 'Ошибка очистки истории')));
     }
   }
 
@@ -292,13 +294,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                             .from('chat_messages')
                                             .delete()
                                             .inFilter('id', selectedMessageIds.toList());
+                                        if (!context.mounted) return;
                                         setModalState(() {
                                           isSelectionMode = false;
                                           selectedMessageIds.clear();
                                         });
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.watch<LocaleProvider>().t('chat.media_delete_success') ?? 'Удалено')));
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('chat.media_delete_success') ?? 'Удалено')));
                                       } catch (e) {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.watch<LocaleProvider>().t('chat.media_delete_error') ?? 'Ошибка удаления')));
+                                        if (!context.mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('chat.media_delete_error') ?? 'Ошибка удаления')));
                                       }
                                     },
                                     style: TextButton.styleFrom(

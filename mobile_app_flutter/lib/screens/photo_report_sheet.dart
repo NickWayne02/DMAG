@@ -81,7 +81,8 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
         });
       }
     } catch (e) {
-      AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_photo') ?? 'Ошибка при выборе фото', color: Colors.red);
+      if (!mounted) return;
+      AppToast.show(context, context.read<LocaleProvider>().t('photo_report.error_photo') ?? 'Ошибка при выборе фото', color: Colors.red);
     }
   }
 

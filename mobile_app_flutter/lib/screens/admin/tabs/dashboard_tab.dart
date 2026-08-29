@@ -26,7 +26,7 @@ class _DashboardTabState extends State<DashboardTab> {
   int _employeesOnShift = 0;
   int _employeesOnLunch = 0;
   int _activeSitesCount = 0;
-  int _urgentReportsCount = 0;
+  final int _urgentReportsCount = 0;
 
   @override
   void initState() {
@@ -171,7 +171,6 @@ class _DashboardTabState extends State<DashboardTab> {
         });
       }
     } catch (e) {
-      print('Activity fetch error: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -295,13 +294,7 @@ class _DashboardTabState extends State<DashboardTab> {
     );
   }
 
-  String _getMockDate(BuildContext context, String time) {
-    final lang = context.watch<LocaleProvider>().currentLang;
-    final parts = time.split(':');
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, int.parse(parts[0]), int.parse(parts[1]));
-    return DateFormatHelper.formatShortDate(dt, lang);
-  }
+
 
   Widget _buildStatCard(BuildContext context, String value, String title, IconData icon, Color color) {
     return NeonCard(

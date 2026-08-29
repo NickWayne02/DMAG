@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../../theme/app_theme.dart';
 import '../../../services/location_service.dart';
 
@@ -56,9 +55,10 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   Future<void> _fillFromGps() async {
     setState(() => _isGpsLoading = true);
     try {
+      final errorMsg = context.read<LocaleProvider>().t('location.error_denied') ?? 'Не удалось получить GPS (даже по IP). Проверьте разрешения.';
       final position = await LocationService.getCurrentPosition(forceExact: true);
       if (position == null) {
-        throw Exception(context.read<LocaleProvider>().t('location.error_denied') ?? 'Не удалось получить GPS (даже по IP). Проверьте разрешения.');
+        throw Exception(errorMsg);
       }
 
       String? city;

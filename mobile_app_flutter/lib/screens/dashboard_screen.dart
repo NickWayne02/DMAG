@@ -4,7 +4,6 @@ import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
 import '../theme/neon_widgets.dart';
@@ -298,9 +297,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   final allowed = await _showGpsDialog(context);
                                   try {
                                     await shift.startShift(forceExact: allowed);
-                                    if (mounted) AppToast.showSuccess(context, 'Смена начата');
+                                    if (context.mounted) AppToast.showSuccess(context, 'Смена начата');
                                   } catch (e) {
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       AppToast.showError(context, e.toString().replaceAll('Exception: ', ''));
                                     }
                                   }
@@ -318,7 +317,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 isSolid: shift.status == ShiftStatus.working,
                                 onTap: () async {
                                   await shift.startLunch();
-                                  if (mounted) AppToast.showWarning(context, 'Перерыв начат');
+                                  if (context.mounted) AppToast.showWarning(context, 'Перерыв начат');
                                 },
                               ),
                             ),
@@ -337,7 +336,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 isSolid: shift.status == ShiftStatus.lunch,
                                 onTap: () async {
                                   await shift.endLunch();
-                                  if (mounted) AppToast.showSuccess(context, 'Перерыв завершен');
+                                  if (context.mounted) AppToast.showSuccess(context, 'Перерыв завершен');
                                 },
                               ),
                             ),
@@ -352,7 +351,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 isSolid: shift.status == ShiftStatus.working || shift.status == ShiftStatus.lunch,
                                 onTap: () async {
                                   await _handleEndShift(context, shift);
-                                  if (mounted && shift.status == ShiftStatus.finished) {
+                                  if (context.mounted && shift.status == ShiftStatus.finished) {
                                     AppToast.showInfo(context, t('dashboard.shiftFinished') ?? 'Смена завершена');
                                   }
                                 },
@@ -910,6 +909,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         shift.totalMs > eightHoursMs && 
         !shift.autoLunchApplied) {
       
+      if (!context.mounted) return;
       final provider = context.read<ThemeProvider>();
       final colors = Theme.of(context).appColors;
       const warningColor = Color(0xFFf59e0b);

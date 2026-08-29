@@ -78,7 +78,7 @@ class ShiftProvider extends ChangeNotifier {
         table: 'sites',
         callback: (payload) {
           final oldRecord = payload.oldRecord;
-          if (oldRecord != null && _selectedSite != null) {
+          if (_selectedSite != null) {
             if (oldRecord['id'] == _selectedSite!['id']) {
               clearSelectedSite();
               if (_status != ShiftStatus.idle) {

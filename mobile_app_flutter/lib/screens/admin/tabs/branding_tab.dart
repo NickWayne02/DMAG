@@ -110,7 +110,7 @@ class _BrandingTabState extends State<BrandingTab> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppTheme.colors;
+    final colors = Theme.of(context).appColors;
     final currentLogoUrl = context.watch<SettingsProvider>().settings.appLogoUrl;
 
     return Scaffold(

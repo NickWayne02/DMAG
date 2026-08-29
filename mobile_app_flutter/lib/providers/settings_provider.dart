@@ -29,6 +29,14 @@ class SettingsProvider with ChangeNotifier {
     _loadSettings();
   }
 
+  void updateSettings({String? appName, String? appLogoUrl}) {
+    _settings = AppSettings(
+      appName: appName ?? _settings.appName,
+      appLogoUrl: appLogoUrl ?? _settings.appLogoUrl,
+    );
+    notifyListeners();
+  }
+
   Future<void> _loadSettings() async {
     try {
       final response = await Supabase.instance.client

@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Upload, Trash2 } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 export function BrandingSettingsTab() {
+  const { t } = useLanguage();
   const { data: settings, isLoading } = useAppSettings();
   const updateSettings = useUpdateAppSettings();
   const queryClient = useQueryClient();
@@ -128,11 +130,11 @@ export function BrandingSettingsTab() {
 
   return (
     <Card className="p-6 rounded-2xl max-w-2xl">
-      <h3 className="font-semibold text-lg mb-6">Брендирование приложения</h3>
+      <h3 className="font-semibold text-lg mb-6">{t("admin.branding.title")}</h3>
       
       <div className="space-y-6">
         <div className="space-y-3">
-          <Label htmlFor="app-name">Название приложения (отображается в меню и заголовках)</Label>
+          <Label htmlFor="app-name">{t("admin.branding.nameDesc")}</Label>
           <div className="flex gap-2">
             <Input 
               id="app-name" 
@@ -143,20 +145,20 @@ export function BrandingSettingsTab() {
             />
             <Button onClick={handleSaveName} disabled={updateSettings.isPending}>
               {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Сохранить
+              {t("admin.users.save")}
             </Button>
           </div>
         </div>
 
         <div className="space-y-3">
-          <Label>Логотип приложения (используется в меню и как иконка сайта)</Label>
+          <Label>{t("admin.branding.logoDesc")}</Label>
           
           <div className="flex items-end gap-4">
             <div className="h-24 w-24 rounded-2xl border-2 border-dashed border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
               {settings?.app_logo_url ? (
                 <img src={settings.app_logo_url} alt="Logo" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-xs text-muted-foreground">Нет лого</span>
+                <span className="text-xs text-muted-foreground">{t("admin.branding.noLogo")}</span>
               )}
             </div>
             
@@ -164,7 +166,7 @@ export function BrandingSettingsTab() {
               <div className="flex gap-2">
                 <Button variant="outline" className="relative overflow-hidden" disabled={uploading}>
                   {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                  {uploading ? "Загрузка..." : "Загрузить новый"}
+                  {uploading ? "..." : t("admin.branding.uploadNew")}
                   <input 
                     type="file" 
                     accept="image/*"
@@ -181,7 +183,7 @@ export function BrandingSettingsTab() {
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">Рекомендуется квадратное изображение (PNG, JPG) размером от 256x256.</p>
+              <p className="text-xs text-muted-foreground">{t("admin.branding.logoHint")}</p>
             </div>
           </div>
         </div>
@@ -193,17 +195,17 @@ export function BrandingSettingsTab() {
             disabled={savePresetMutation.isPending}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Сохранить как пресет в галерею
+            {t("admin.branding.saveCurrent")}
           </Button>
         </div>
       </div>
 
       <div className="mt-12 border-t border-border pt-8">
-        <h3 className="font-semibold text-lg mb-6">Галерея брендов (Пресеты)</h3>
+        <h3 className="font-semibold text-lg mb-6">{t("admin.branding.gallery")}</h3>
         {isLoadingPresets ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="animate-spin h-4 w-4" /> Загрузка галереи...</div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="animate-spin h-4 w-4" /> ...</div>
         ) : presets?.length === 0 ? (
-          <p className="text-sm text-muted-foreground">В галерее пока нет сохраненных пресетов. Вы можете сохранить текущий бренд, нажав кнопку выше.</p>
+          <p className="text-sm text-muted-foreground">{t("admin.branding.galleryEmpty")}</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {presets?.map((preset: any) => (
@@ -213,7 +215,7 @@ export function BrandingSettingsTab() {
                     {preset.app_logo_url ? (
                       <img src={preset.app_logo_url} alt={preset.app_name} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-[10px] text-muted-foreground">Нет</span>
+                      <span className="text-[10px] text-muted-foreground">{t("admin.branding.noLogo")}</span>
                     )}
                   </div>
                   <p className="text-sm font-medium text-center truncate w-full" title={preset.app_name}>{preset.app_name}</p>
@@ -233,7 +235,7 @@ export function BrandingSettingsTab() {
                       }}
                       disabled={updateSettings.isPending}
                     >
-                      Применить
+                      {t("admin.branding.apply")}
                     </Button>
                     <Button 
                       variant="destructive" 

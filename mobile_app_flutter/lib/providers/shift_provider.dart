@@ -134,11 +134,33 @@ class ShiftProvider extends ChangeNotifier {
     
     final siteId = prefs.getString('selected_site_id');
     if (siteId != null) {
-      _selectedSite = {
-        'id': siteId,
-        'name': prefs.getString('selected_site_name'),
-        'address': prefs.getString('selected_site_address'),
-      };
+      try {
+        final exists = await Supabase.instance.client
+            .from('sites')
+            .select('id')
+            .eq('id', siteId)
+            .maybeSingle();
+            
+        if (exists != null) {
+          _selectedSite = {
+            'id': siteId,
+            'name': prefs.getString('selected_site_name'),
+            'address': prefs.getString('selected_site_address'),
+          };
+        } else {
+          // The site was deleted while the app was closed
+          await prefs.remove('selected_site_id');
+          await prefs.remove('selected_site_name');
+          await prefs.remove('selected_site_address');
+        }
+      } catch (_) {
+        // If offline or error, just load it anyway so we don't break offline mode
+        _selectedSite = {
+          'id': siteId,
+          'name': prefs.getString('selected_site_name'),
+          'address': prefs.getString('selected_site_address'),
+        };
+      }
     }
 
     final statusStr = prefs.getString('shift_status');

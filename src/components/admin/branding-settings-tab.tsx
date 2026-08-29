@@ -33,6 +33,11 @@ export function BrandingSettingsTab() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Файл слишком большой. Максимальный размер: 2 МБ");
+      return;
+    }
+
     try {
       setUploading(true);
       

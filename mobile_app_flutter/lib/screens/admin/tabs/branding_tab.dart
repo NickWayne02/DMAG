@@ -65,7 +65,7 @@ class _BrandingTabState extends State<BrandingTab> {
 
   Future<void> _pickAndUploadLogo() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 500, maxHeight: 500);
 
     if (pickedFile == null) return;
 

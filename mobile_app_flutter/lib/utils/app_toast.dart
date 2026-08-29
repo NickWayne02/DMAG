@@ -45,4 +45,8 @@ class AppToast {
   static void showInfo(BuildContext context, String message) {
     show(context, message, color: const Color(0xFF3b82f6), icon: LucideIcons.info);
   }
+
+  static void showError(BuildContext context, String message) {
+    show(context, message, color: const Color(0xFFef4444), icon: Icons.error_outline);
+  }
 }

@@ -69,6 +69,26 @@ class ShiftProvider extends ChangeNotifier {
         notifyListeners();
       }
     });
+
+    Supabase.instance.client
+      .channel('public:sites')
+      .onPostgresChanges(
+        event: PostgresChangeEvent.delete,
+        schema: 'public',
+        table: 'sites',
+        callback: (payload) {
+          final oldRecord = payload.oldRecord;
+          if (oldRecord != null && _selectedSite != null) {
+            if (oldRecord['id'] == _selectedSite!['id']) {
+              clearSelectedSite();
+              if (_status != ShiftStatus.idle) {
+                // We should also probably stop the shift, but let's just reset
+                resetShift();
+              }
+            }
+          }
+        }
+      ).subscribe();
   }
 
   void _startTimer() {

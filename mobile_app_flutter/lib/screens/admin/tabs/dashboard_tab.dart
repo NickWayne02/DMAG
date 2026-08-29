@@ -27,6 +27,8 @@ class _DashboardTabState extends State<DashboardTab> {
     _fetchActivity();
   }
 
+  String? _errorMessage;
+
   Future<void> _fetchActivity() async {
     try {
       final now = DateTime.now();
@@ -68,11 +70,13 @@ class _DashboardTabState extends State<DashboardTab> {
         }
         
         // Lunch Intervals
-        final lunchIntervals = s['lunch_intervals'] as List<dynamic>? ?? [];
+        final lunchIntervals = (s['lunch_intervals'] as List<dynamic>?) ?? [];
         for (var i = 0; i < lunchIntervals.length; i++) {
-          final interval = lunchIntervals[i] as Map<String, dynamic>;
+          final interval = lunchIntervals[i] as Map<String, dynamic>?;
+          if (interval == null) continue;
+          
           if (interval['start'] != null) {
-            final startDate = DateTime.fromMillisecondsSinceEpoch(interval['start']).toUtc().toIso8601String();
+            final startDate = DateTime.fromMillisecondsSinceEpoch(interval['start'] as int).toUtc().toIso8601String();
             enriched.add({
               'ts': startDate,
               'type': 'lunch_start',
@@ -81,13 +85,13 @@ class _DashboardTabState extends State<DashboardTab> {
             });
           }
           if (interval['end'] != null) {
-            final endDate = DateTime.fromMillisecondsSinceEpoch(interval['end']).toUtc().toIso8601String();
+            final endDate = DateTime.fromMillisecondsSinceEpoch(interval['end'] as int).toUtc().toIso8601String();
             
             // Check for auto-closed lunch (within 2 seconds of shift end)
             bool isAutoClosed = false;
             if (s['ended_at'] != null) {
               final endShiftDt = DateTime.parse(s['ended_at']);
-              final endLunchDt = DateTime.fromMillisecondsSinceEpoch(interval['end']);
+              final endLunchDt = DateTime.fromMillisecondsSinceEpoch(interval['end'] as int);
               if (endShiftDt.difference(endLunchDt).inMilliseconds.abs() < 2000) {
                 isAutoClosed = true;
               }
@@ -112,12 +116,16 @@ class _DashboardTabState extends State<DashboardTab> {
         setState(() {
           _activities = enriched.take(50).toList();
           _isLoading = false;
+          _errorMessage = null;
         });
       }
     } catch (e) {
       print('Activity fetch error: $e');
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
       }
     }
   }
@@ -162,6 +170,17 @@ class _DashboardTabState extends State<DashboardTab> {
                 const SizedBox(height: 20),
                 if (_isLoading)
                   const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()))
+                else if (_errorMessage != null)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        _errorMessage!,
+                        style: GoogleFonts.inter(color: Colors.red.withValues(alpha: 0.8)),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  )
                 else if (_activities.isEmpty)
                   Center(
                     child: Padding(

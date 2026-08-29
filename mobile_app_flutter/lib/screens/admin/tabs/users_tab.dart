@@ -54,9 +54,13 @@ class _UsersTabState extends State<UsersTab> {
       final res = await Supabase.instance.client.from('profiles').select();
       final rolesRes = await Supabase.instance.client.from('user_roles').select();
       
+      final now = DateTime.now();
+      final midnight = DateTime(now.year, now.month, now.day);
+      
       final shiftsRes = await Supabase.instance.client
           .from('shifts')
           .select('user_id, started_at, status')
+          .gte('started_at', midnight.toUtc().toIso8601String())
           .order('started_at', ascending: false);
 
       final latestShifts = <String, Map<String, dynamic>>{};
@@ -420,12 +424,15 @@ class _UsersTabState extends State<UsersTab> {
                               : (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник');
                               
                           String lastLoginStr = '—';
+                          bool isOnline = _onlineUserIds.contains(u['id']);
+                          
                           if (u['updated_at'] != null) {
                              final dt = DateTime.parse(u['updated_at']).toLocal();
+                             if (DateTime.now().difference(dt).inMinutes <= 2) {
+                               isOnline = true;
+                             }
                              lastLoginStr = '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
                           }
-
-                          final isOnline = _onlineUserIds.contains(u['id']);
                           
                           return _buildUserCard(
                             name: name,

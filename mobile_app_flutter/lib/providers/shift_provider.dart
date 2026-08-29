@@ -182,6 +182,14 @@ class ShiftProvider extends ChangeNotifier {
     
     final pos = await LocationService.getCurrentPosition();
     
+    String? siteId = _selectedSite?['id'];
+    String? siteName = _selectedSite?['name'];
+    String? city = siteName;
+    
+    if (pos == null && siteId == null) {
+      throw Exception('Не удалось определить местоположение. Пожалуйста, выберите объект вручную или разрешите доступ к GPS.');
+    }
+    
     _status = ShiftStatus.working;
     _shiftStart = DateTime.now();
     _lunchAccumMs = 0;
@@ -191,13 +199,6 @@ class ShiftProvider extends ChangeNotifier {
     _autoLunchApplied = false;
     _shiftId = null;
     notifyListeners();
-    
-    String? siteId = _selectedSite?['id'];
-    String? siteName = _selectedSite?['name'];
-    String? city = siteName;
-    if (pos == null && siteId == null) {
-      throw Exception('Не удалось определить местоположение. Пожалуйста, выберите объект вручную или разрешите доступ к GPS.');
-    }
     
     if (pos != null) {
       if (siteId == null) {

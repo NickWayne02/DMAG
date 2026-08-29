@@ -2643,18 +2643,30 @@ export function AdminDashboard({
                                 </div>
                               </TableCell>
                               <TableCell>
-                                {e.is_active ? (
-                                  <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
-                                    {t("admin.users.active")}
-                                  </Badge>
-                                ) : (
-                                  <Badge
-                                    variant="secondary"
-                                    className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20"
-                                  >
-                                    {t("admin.users.moderation")}
-                                  </Badge>
-                                )}
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                  {e.is_active ? (
+                                    <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20">
+                                      {t("admin.users.active")}
+                                    </Badge>
+                                  ) : (
+                                    <Badge
+                                      variant="secondary"
+                                      className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-yellow-500/20"
+                                    >
+                                      {t("admin.users.moderation")}
+                                    </Badge>
+                                  )}
+                                  {e.status === "working" && (
+                                    <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20 whitespace-nowrap">
+                                      {lang === "en" ? "On shift" : "На смене"}
+                                    </Badge>
+                                  )}
+                                  {e.status === "lunch" && (
+                                    <Badge className="bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 border-orange-500/20 whitespace-nowrap">
+                                      {lang === "en" ? "On lunch" : "На обеде"}
+                                    </Badge>
+                                  )}
+                                </div>
                               </TableCell>
                               <TableCell className="text-sm text-muted-foreground">
                                 {lastLogin}

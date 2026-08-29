@@ -10,6 +10,7 @@ import 'tabs/reports_tab.dart';
 import 'tabs/sessions_tab.dart';
 import 'tabs/users_tab.dart';
 import 'tabs/chat_tab.dart';
+import 'tabs/branding_tab.dart';
 import '../../services/auth_service.dart';
 import '../dashboard_screen.dart';
 import '../../utils/fade_page_route.dart';
@@ -44,6 +45,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     ),
     const SitesTab(),
     const ReportsTab(),
+    const BrandingTab(),
     const SessionsTab(),
     const UsersTab(),
     const ChatTab(),
@@ -57,9 +59,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       case 2: return t('admin.tab.personnel') ?? 'Персонал';
       case 3: return t('admin.tab.sites') ?? 'Объекты';
       case 4: return t('admin.tab.reports') ?? 'Отчёты';
-      case 5: return t('admin.tab.security') ?? 'Безопасность';
-      case 6: return t('admin.tab.users') ?? 'Управление';
-      case 7: return t('admin.tab.chat') ?? 'Чат';
+      case 5: return t('admin.tab.branding') ?? 'Брендирование';
+      case 6: return t('admin.tab.security') ?? 'Безопасность';
+      case 7: return t('admin.tab.users') ?? 'Пользователи';
+      case 8: return t('admin.tab.chats') ?? 'Чаты';
       default: return '';
     }
   }
@@ -206,9 +209,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildDrawerItem(context, 2, LucideIcons.users, _getTabTitle(context, 2), colors),
                   _buildDrawerItem(context, 3, LucideIcons.building_2, _getTabTitle(context, 3), colors),
                   _buildDrawerItem(context, 4, LucideIcons.camera, _getTabTitle(context, 4), colors),
-                  _buildDrawerItem(context, 5, LucideIcons.shield_check, _getTabTitle(context, 5), colors),
-                  _buildDrawerItem(context, 6, LucideIcons.user_cog, _getTabTitle(context, 6), colors),
-                  _buildDrawerItem(context, 7, LucideIcons.message_square, _getTabTitle(context, 7), colors),
+                  _buildDrawerItem(context, 5, LucideIcons.palette, _getTabTitle(context, 5), colors),
+                  _buildDrawerItem(context, 6, LucideIcons.shield_check, _getTabTitle(context, 6), colors),
+                  _buildDrawerItem(context, 7, LucideIcons.user_cog, _getTabTitle(context, 7), colors),
+                  _buildDrawerItem(context, 8, LucideIcons.message_square, _getTabTitle(context, 8), colors),
                 ],
               ),
             ),

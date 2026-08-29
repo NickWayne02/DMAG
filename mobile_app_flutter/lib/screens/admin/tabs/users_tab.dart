@@ -354,8 +354,8 @@ class _UsersTabState extends State<UsersTab> {
                               : (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник');
                               
                           String lastLoginStr = '—';
-                          if (u['last_shift_start'] != null) {
-                             final dt = (u['last_shift_start'] as DateTime).toLocal();
+                          if (u['updated_at'] != null) {
+                             final dt = DateTime.parse(u['updated_at']).toLocal();
                              lastLoginStr = '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
                           }
 

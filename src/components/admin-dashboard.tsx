@@ -70,6 +70,7 @@ import {
   ChevronRight,
   FolderSearch,
   MessageSquare,
+  Palette,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -84,6 +85,8 @@ import {
 import { FullChatApp } from "@/components/full-chat-app";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
+import { BrandingSettingsTab } from "@/components/admin/branding-settings-tab";
+import { useAppSettings } from "@/hooks/use-app-settings";
 import dmagLogo from "@/assets/dmag-logo.png";
 import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
 import { clearAdminSession } from "@/lib/admin-session";
@@ -260,6 +263,8 @@ export function AdminDashboard({
 
   const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => setIsHydrated(true), []);
+
+  const { data: appSettings } = useAppSettings();
 
   const [activeTab, setActiveTab] = useSessionState("dmag_admin_activeTab", "dashboard");
 
@@ -1554,9 +1559,9 @@ export function AdminDashboard({
         }`}
       >
         <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
-          <img src={dmagLogo} alt="DMAG" className="h-10 w-10 rounded-xl object-cover shadow" />
+          <img src={appSettings?.app_logo_url || dmagLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow" />
           <div>
-            <p className="font-bold leading-tight">DMAG</p>
+            <p className="font-bold leading-tight">{appSettings?.app_name || "DMAG"}</p>
             <p className="text-xs opacity-75">Admin Console</p>
           </div>
         </div>
@@ -1567,6 +1572,7 @@ export function AdminDashboard({
             { id: "personnel", icon: Users, label: t("admin.tab.personnel"), super: false },
             { id: "sites", icon: Building2, label: t("admin.tab.sites"), super: false },
             { id: "reports", icon: Camera, label: t("admin.tab.reports"), super: false },
+            { id: "branding", icon: Palette, label: "Брендирование", super: true },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
             { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
             { id: "chat", icon: MessageSquare, label: t("tile.chat"), super: false },
@@ -1612,6 +1618,7 @@ export function AdminDashboard({
                 {activeTab === "personnel" && <span>{t("admin.tab.personnel")}</span>}
                 {activeTab === "sites" && <span>{t("admin.tab.sites")}</span>}
                 {activeTab === "reports" && <span>{t("admin.tab.reports")}</span>}
+                {activeTab === "branding" && <span>Брендирование</span>}
                 {activeTab === "security" && <span>{t("admin.tab.security")}</span>}
                 {activeTab === "admin-management" && <span>{t("admin.tab.users")}</span>}
                 {activeTab === "chat" && <span>{t("tile.chat")}</span>}
@@ -2454,6 +2461,11 @@ export function AdminDashboard({
                 )}
               </Card>
             </section>
+          )}
+
+          {/* BRANDING TAB */}
+          {activeTab === "branding" && superMode && (
+            <BrandingSettingsTab />
           )}
 
           {/* SECURITY TAB */}

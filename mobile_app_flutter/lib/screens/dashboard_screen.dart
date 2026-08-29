@@ -25,6 +25,7 @@ import 'shift_history_sheet.dart';
 import 'footer_sheets.dart';
 import 'admin/admin_dashboard_screen.dart';
 import '../providers/locale_provider.dart';
+import '../providers/settings_provider.dart';
 import 'admin/admin_editable_calendar_dialog.dart';
 import '../main.dart';
 
@@ -435,7 +436,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           text: TextSpan(
                             style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.3), fontSize: 12),
                             children: [
-                              TextSpan(text: 'DMAG', style: TextStyle(fontWeight: FontWeight.bold, color: colors.foreground)),
+                              TextSpan(text: context.watch<SettingsProvider>().settings.appName, style: TextStyle(fontWeight: FontWeight.bold, color: colors.foreground)),
                               TextSpan(text: ' © 2026 ${context.watch<LocaleProvider>().t('footer.copyright') ?? 'Все права защищены'}'),
                             ],
                           ),

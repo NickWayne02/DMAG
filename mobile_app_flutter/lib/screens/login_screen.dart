@@ -8,6 +8,7 @@ import '../providers/locale_provider.dart';
 import '../services/auth_service.dart';
 import 'language_sheet.dart';
 import 'settings_sheet.dart';
+import '../providers/settings_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -156,21 +157,31 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        'assets/dmag_logo.png',
-                        width: 140,
-                        height: 140,
-                        fit: BoxFit.cover,
-                      ),
+                      child: context.watch<SettingsProvider>().settings.appLogoUrl != null 
+                        ? Image.network(
+                            context.watch<SettingsProvider>().settings.appLogoUrl!,
+                            width: 140,
+                            height: 140,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/dmag_logo.png',
+                            width: 140,
+                            height: 140,
+                            fit: BoxFit.cover,
+                          ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Maschinen und Anlagenbau',
-                      style: GoogleFonts.inter(
-                        color: mutedTextColor,
-                        fontSize: 14,
+                    if (context.watch<SettingsProvider>().settings.appName != 'DMAG') ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        context.watch<SettingsProvider>().settings.appName,
+                        style: GoogleFonts.inter(
+                          color: textColor, // use textColor instead of mutedTextColor for better visibility
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

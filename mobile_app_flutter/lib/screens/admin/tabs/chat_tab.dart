@@ -268,7 +268,7 @@ class _ChatTabState extends State<ChatTab> {
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Text(
-                'DMAG Chat',
+                '${context.watch<SettingsProvider>().settings.appName} Chat',
                 style: GoogleFonts.inter(
                   color: Theme.of(context).appColors.foreground,
                   fontSize: 20,

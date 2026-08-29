@@ -18,6 +18,7 @@ import '../../main.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../providers/shift_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../theme/app_theme.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -164,19 +165,29 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   Container(
                     width: 40,
                     height: 40,
+                    clipBehavior: Clip.hardEdge,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(color: colors.border),
                     ),
-                    child: Center(
-                      child: Text('D', style: TextStyle(color: colors.foreground, fontSize: 20, fontWeight: FontWeight.bold)),
-                    ), // Using placeholder for DMAG logo
+                    child: context.watch<SettingsProvider>().settings.appLogoUrl != null
+                        ? Image.network(
+                            context.watch<SettingsProvider>().settings.appLogoUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/dmag_logo.png',
+                            fit: BoxFit.cover,
+                          ),
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('DMAG', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(
+                        context.watch<SettingsProvider>().settings.appName, 
+                        style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)
+                      ),
                       Text('Admin Console', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 12)),
                     ],
                   ),

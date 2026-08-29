@@ -12,13 +12,14 @@ import dmagLogo from "@/assets/dmag-logo.png";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { useT } from "@/lib/i18n";
+import { useAppSettings } from "@/hooks/use-app-settings";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
       { title: "DMAG · Авторизация" },
-      { name: "description", content: "Вход в корпоративную систему DMAG" },
+      { name: "description", content: "Вход в корпоративную систему" },
     ],
   }),
   component: AuthPage,
@@ -37,6 +38,8 @@ function loginToEmail(login: string): string {
 function AuthPage() {
   const navigate = useNavigate();
   const t = useT();
+  const { data: appSettings } = useAppSettings();
+  
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -121,15 +124,17 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-primary/10 relative">
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 [&_button]:!bg-primary [&_button]:!text-primary-foreground [&_button]:!shadow-md hover:[&_button]:!bg-primary/90">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-linear-to-br from-primary/5 via-background to-primary/10 relative">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 [&_button]:bg-primary! [&_button]:text-primary-foreground! [&_button]:shadow-md! hover:[&_button]:bg-primary/90!">
         <LanguageSwitcher />
         <SettingsDialog />
       </div>
       <Card className="w-full max-w-md p-8 rounded-2xl shadow-xl border-0 relative mt-8">
         <div className="flex flex-col items-center mb-6">
-          <img src={dmagLogo} alt="DMAG" className="w-[140px] h-auto rounded-xl shadow-md" />
-          <p className="mt-3 text-sm text-muted-foreground">Maschinen und Anlagenbau</p>
+          <img src={appSettings?.app_logo_url || dmagLogo} alt="Logo" className="w-35 h-auto rounded-xl shadow-md" />
+          {appSettings?.app_name && appSettings.app_name !== "DMAG" && (
+             <h2 className="mt-4 text-xl font-bold">{appSettings.app_name}</h2>
+          )}
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "signup")}>

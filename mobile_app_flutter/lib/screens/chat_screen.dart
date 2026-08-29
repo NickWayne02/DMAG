@@ -1,5 +1,7 @@
 import 'package:mobile_app_flutter/utils/transliteration.dart';
-import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../theme/app_theme.dart';
+import '../providers/locale_provider.dart';
+import '../providers/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -508,7 +510,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () => Navigator.of(context).pop(), // Go back to dashboard
           ),
           title: Text(
-            'DMAG Chat',
+            '${context.watch<SettingsProvider>().settings.appName} Chat',
             style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
           ),
           bottom: PreferredSize(

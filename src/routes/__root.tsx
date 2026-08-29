@@ -126,6 +126,38 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { useAppSettings } from "@/hooks/use-app-settings";
+
+function AppBranding() {
+  const { data: settings } = useAppSettings();
+
+  useEffect(() => {
+    if (settings) {
+      document.title = settings.app_name;
+      
+      if (settings.app_logo_url) {
+        let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = "icon";
+          document.head.appendChild(link);
+        }
+        link.href = settings.app_logo_url;
+        
+        let appleLink = document.querySelector("link[rel~='apple-touch-icon']") as HTMLLinkElement;
+        if (!appleLink) {
+          appleLink = document.createElement("link");
+          appleLink.rel = "apple-touch-icon";
+          document.head.appendChild(appleLink);
+        }
+        appleLink.href = settings.app_logo_url;
+      }
+    }
+  }, [settings]);
+
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -133,6 +165,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AppBranding />
       <LanguageProvider>
         <SettingsProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}

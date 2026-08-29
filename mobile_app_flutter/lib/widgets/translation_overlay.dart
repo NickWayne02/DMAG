@@ -162,7 +162,7 @@ class _AnimatedTranslationIconState extends State<_AnimatedTranslationIcon> with
               child: Icon(
                 LucideIcons.languages,
                 size: 28,
-                color: widget.color.withValues(alpha: 0.8 + (pulse * 0.4)),
+                color: widget.color.withValues(alpha: (0.8 + (pulse * 0.4)).clamp(0.0, 1.0)),
               ),
             ),
           ],
@@ -203,7 +203,7 @@ class _PulsingTextState extends State<_PulsingText> with SingleTickerProviderSta
       animation: _controller,
       builder: (context, child) {
         return Opacity(
-          opacity: 0.6 + (_controller.value * 0.4),
+          opacity: (0.6 + (_controller.value * 0.4)).clamp(0.0, 1.0),
           child: Text(
             widget.text,
             style: widget.style,

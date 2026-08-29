@@ -79,10 +79,12 @@ class LanguageSheet extends StatelessWidget {
                 final isActive = lang['code'] == localeProvider.currentLang;
                 return InkWell(
                   onTap: () {
+                    final rootNav = Navigator.of(context, rootNavigator: true);
                     final newLang = lang['code']!;
-                    Navigator.pop(context);
+                    Navigator.pop(context); // close the sheet
+                    
                     if (newLang != localeProvider.currentLang) {
-                      TranslationOverlay.show(context, () async {
+                      TranslationOverlay.show(rootNav.context, () async {
                         await localeProvider.setLanguage(newLang);
                       });
                     }

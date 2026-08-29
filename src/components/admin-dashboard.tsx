@@ -2964,14 +2964,13 @@ export function AdminDashboard({
 
               {calEmpId !== "__none__" && (
                 <Card className="p-6 rounded-2xl shadow-sm border border-primary/10">
-                  <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4 sm:gap-2">
+                  <div className="flex items-center justify-between mb-6 gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() =>
                         setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))
                       }
-                      className="w-full sm:w-auto"
                     >
                       <ChevronLeft className="h-4 w-4 mr-1" />{" "}
                       {t("admin.pagination.prev", { defaultValue: "Пред." })}
@@ -2985,7 +2984,6 @@ export function AdminDashboard({
                       onClick={() =>
                         setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))
                       }
-                      className="w-full sm:w-auto"
                     >
                       {t("admin.pagination.next", { defaultValue: "След." })}{" "}
                       <ChevronRight className="h-4 w-4 ml-1" />

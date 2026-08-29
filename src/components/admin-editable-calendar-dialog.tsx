@@ -316,12 +316,11 @@ export function AdminEditableCalendarDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between mb-3 gap-4 sm:gap-2">
+          <div className="flex items-center justify-between mb-3 gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-              className="w-full sm:w-auto"
             >
               <ChevronLeft className="h-4 w-4 mr-1" /> {t("admin.calendar.prev")}
             </Button>
@@ -332,7 +331,6 @@ export function AdminEditableCalendarDialog({
               variant="outline"
               size="sm"
               onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-              className="w-full sm:w-auto"
             >
               {t("admin.calendar.next")} <ChevronRight className="h-4 w-4 ml-1" />
             </Button>

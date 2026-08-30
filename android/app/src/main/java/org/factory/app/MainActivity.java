@@ -1,4 +1,4 @@
-package com.factory.app;
+package org.factory.app;
 
 import com.getcapacitor.BridgeActivity;
 

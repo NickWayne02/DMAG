@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.factory.app",
+  appId: "org.factory.app",
   appName: "DMAG",
   webDir: "dist",
   server: {

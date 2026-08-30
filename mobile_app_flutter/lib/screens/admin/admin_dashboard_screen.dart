@@ -129,18 +129,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             tooltip: 'Смена брендинга',
             onSelected: (brand) async {
               try {
+                const brands = ['samsung', 'xiaomi', 'poco', 'redmi', 'oneplus', 'oppo', 'vivo', 'realme', 'motorola', 'google', 'nokia', 'sony', 'asus', 'huawei', 'honor', 'meizu', 'zte', 'lenovo'];
                 if (brand == 'Brand1') {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG Stark');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand1' : 'Brand1');
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand1' : 'Brand1', blacklistBrands: brands);
                 } else if (brand == 'Brand2') {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG Wayne');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand2' : 'Brand2');
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand2' : 'Brand2', blacklistBrands: brands);
                 } else if (brand == 'Brand3') {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG Corp');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand3' : 'Brand3');
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand3' : 'Brand3', blacklistBrands: brands);
                 } else {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.DefaultAlias' : null); // default
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.DefaultAlias' : null, blacklistBrands: brands); // default
                 }
               } on PlatformException {
                  // ignore

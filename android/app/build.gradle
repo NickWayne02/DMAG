@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "org.dmag.app"
+    namespace = "com.dmag.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "org.dmag.app"
+        applicationId "com.dmag.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

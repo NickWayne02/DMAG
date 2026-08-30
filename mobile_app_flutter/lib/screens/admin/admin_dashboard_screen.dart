@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
 import 'package:flutter/services.dart';
+import 'dart:io' show Platform;
 import 'tabs/dashboard_tab.dart';
 import 'tabs/calendar_tab.dart';
 import 'tabs/personnel_tab.dart';
@@ -130,16 +131,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               try {
                 if (brand == 'Brand1') {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG Stark');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand1');
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand1' : 'Brand1');
                 } else if (brand == 'Brand2') {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG Wayne');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand2');
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand2' : 'Brand2');
                 } else if (brand == 'Brand3') {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG Corp');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand3');
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand3' : 'Brand3');
                 } else {
                   context.read<SettingsProvider>().updateSettings(appName: 'DMAG');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: null); // default
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.DefaultAlias' : null); // default
                 }
               } on PlatformException {
                  // ignore

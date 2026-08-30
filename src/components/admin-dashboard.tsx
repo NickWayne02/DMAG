@@ -538,7 +538,7 @@ export function AdminDashboard({
       navigate({ to: "/auth" });
       return;
     }
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'local' });
     navigate({ to: "/auth" });
   }
 

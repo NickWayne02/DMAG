@@ -130,12 +130,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             onSelected: (brand) async {
               try {
                 if (brand == 'Brand1') {
+                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG Stark');
                   await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand1');
                 } else if (brand == 'Brand2') {
+                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG Wayne');
                   await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand2');
                 } else if (brand == 'Brand3') {
+                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG Corp');
                   await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand3');
                 } else {
+                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG');
                   await FlutterDynamicIconPlus.setAlternateIconName(iconName: null); // default
                 }
               } on PlatformException {

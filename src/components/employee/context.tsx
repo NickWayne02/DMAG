@@ -440,7 +440,7 @@ export function EmployeeProvider({
     window.sessionStorage.removeItem("dmag_site_open");
     window.sessionStorage.removeItem("dmag_report_open");
     window.sessionStorage.removeItem("dmag_chat_open");
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'local' });
     navigate({ to: "/auth" });
   }
 

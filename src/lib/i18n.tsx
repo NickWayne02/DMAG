@@ -1806,6 +1806,17 @@ const DICT: Dict = {
     uz: "Tugatish",
     tg: "Қатъ кардан",
   },
+  "admin.sessions.online": {
+    ru: "В сети",
+    en: "Online",
+    de: "Online",
+    ro: "Online",
+    bg: "На линия",
+    pl: "Online",
+    uk: "В мережі",
+    uz: "Tarmoqda",
+    tg: "Дар шабака",
+  },
   "admin.security.deviceApp": {
     ru: "Приложение DMAG",
     en: "DMAG App",

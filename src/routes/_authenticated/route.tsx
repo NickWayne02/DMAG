@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
       .single();
 
     if (profile && profile.is_active === false) {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: 'local' });
       setTimeout(() => {
         toast.error(
           "Ваш аккаунт находится на рассмотрении. Ожидайте подтверждения от администратора.",

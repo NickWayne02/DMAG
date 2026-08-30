@@ -1,4 +1,4 @@
-package com.dmag.app;
+package com.myplatform.b2b;
 
 import com.getcapacitor.BridgeActivity;
 

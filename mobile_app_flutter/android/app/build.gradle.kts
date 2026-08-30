@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.dmag.app"
+    namespace = "com.myplatform.b2b"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.dmag.app"
+        applicationId = "com.myplatform.b2b"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

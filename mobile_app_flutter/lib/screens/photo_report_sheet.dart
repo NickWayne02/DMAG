@@ -14,10 +14,11 @@ import '../providers/shift_provider.dart';
 
 class PhotoReportSheet extends StatefulWidget {
   final Map<String, dynamic>? site;
+  final Map<String, dynamic>? editingMessage;
 
-  const PhotoReportSheet({super.key, this.site});
+  const PhotoReportSheet({super.key, this.site, this.editingMessage});
 
-  static Future<void> show(BuildContext context, Map<String, dynamic>? site) {
+  static Future<void> show(BuildContext context, Map<String, dynamic>? site, {Map<String, dynamic>? editingMessage}) {
     return showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -29,7 +30,7 @@ class PhotoReportSheet extends StatefulWidget {
           alignment: Alignment.center,
           child: Material(
             color: Colors.transparent,
-            child: PhotoReportSheet(site: site),
+            child: PhotoReportSheet(site: site, editingMessage: editingMessage),
           ),
         );
       },
@@ -59,9 +60,25 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   final TextEditingController _descController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   
-  XFile? _selectedImage;
+  File? _imageFile;
+  String? _existingPhotoUrl;
   String _criticality = 'info';
-  bool _isBusy = false;
+  bool _isSending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editingMessage != null) {
+      final content = widget.editingMessage!['content'] as String;
+      final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\] |\[PHOTO_REPORT\] '), '').split(' | ');
+      if (parts.isNotEmpty) {
+        _existingPhotoUrl = parts[0];
+        if (parts.length > 1) {
+          _descController.text = parts[1];
+        }
+      }
+    }
+  }
 
   final Map<String, Map<String, dynamic>> _criticalityOptions = {
     'info': {'label': 'Информация', 'color': const Color(0xFF4CAF50), 'icon': LucideIcons.info},
@@ -69,35 +86,44 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
     'urgent': {'label': 'Срочно', 'color': const Color(0xFFF44336), 'icon': LucideIcons.circle_alert},
   };
 
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        imageQuality: 80,
-      );
-      if (image != null) {
-        setState(() {
-          _selectedImage = image;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      AppToast.show(context, context.read<LocaleProvider>().t('photo_report.error_photo') ?? 'Ошибка при выборе фото', color: Colors.red);
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+        _existingPhotoUrl = null;
+      });
+    }
+  }
+
+  Future<void> _pickImageGallery() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (image != null) {
+      setState(() {
+        _imageFile = File(image.path);
+        _existingPhotoUrl = null;
+      });
     }
   }
 
   Future<void> _submit() async {
-    if (widget.site == null) {
+    if (widget.site == null && widget.editingMessage == null) {
       AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_site') ?? 'Сначала выберите объект на главном экране', color: Colors.red);
       return;
     }
     
-    if (_selectedImage == null && _descController.text.trim().isEmpty) {
+    if (_imageFile == null && _existingPhotoUrl == null && _descController.text.trim().isEmpty) {
       AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_desc') ?? 'Добавьте фото или описание', color: Colors.red);
       return;
     }
 
-    setState(() => _isBusy = true);
+    setState(() => _isSending = true);
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
@@ -106,33 +132,48 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
       final shift = context.read<ShiftProvider>();
       final authorName = shift.userProfile?['full_name'] ?? user.email ?? context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник';
 
-      String? photoUrl;
-
-      if (_selectedImage != null) {
-        final bytes = await _selectedImage!.readAsBytes();
-        final ext = _selectedImage!.name.split('.').last;
-        final path = '${DateTime.now().millisecondsSinceEpoch}_${user.id.substring(0, 5)}.$ext';
+      String photoUrl;
+      if (_imageFile != null) {
+        final fileExt = _imageFile!.path.split('.').last;
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${user.id}.$fileExt';
         
         await Supabase.instance.client.storage
             .from('photo-reports')
-            .uploadBinary(path, bytes);
+            .upload(fileName, _imageFile!);
             
-        photoUrl = path;
+        photoUrl = fileName;
+      } else {
+        photoUrl = _existingPhotoUrl!;
       }
 
-      await Supabase.instance.client.from('photo_reports').insert({
-        'site_id': widget.site!['id'],
-        'author_id': user.id,
-        'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
-        'criticality': _criticality,
-        'photo_url': photoUrl,
-      });
+      if (widget.editingMessage != null) {
+        final desc = _descController.text.trim().isEmpty ? '' : _descController.text.trim();
+        await Supabase.instance.client.from('chat_messages').update({
+          'content': '[ФОТО_ОТЧЕТ] $photoUrl | $desc',
+        }).eq('id', widget.editingMessage!['id']);
+        
+        if (_existingPhotoUrl != null) {
+           await Supabase.instance.client.from('photo_reports')
+             .update({
+               'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+               'criticality': _criticality,
+               'photo_url': photoUrl,
+             })
+             .eq('photo_url', _existingPhotoUrl!);
+        }
+      } else {
+        await Supabase.instance.client.from('photo_reports').insert({
+          'site_id': widget.site?['id'],
+          'author_id': user.id,
+          'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+          'criticality': _criticality,
+          'photo_url': photoUrl,
+        });
 
-      if (photoUrl != null) {
         final desc = _descController.text.trim().isEmpty ? '' : _descController.text.trim();
         await Supabase.instance.client.from('chat_messages').insert({
-          'channel_type': 'site',
-          'channel_id': widget.site!['id'],
+          'channel_type': widget.site == null ? 'general' : 'site',
+          'channel_id': widget.site == null ? 'general' : widget.site!['id'],
           'author_id': user.id,
           'author_name': authorName,
           'content': '[ФОТО_ОТЧЕТ] $photoUrl | $desc',
@@ -150,7 +191,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
       }
     } finally {
       if (mounted) {
-        setState(() => _isBusy = false);
+        setState(() => _isSending = false);
       }
     }
   }
@@ -239,7 +280,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.watch<LocaleProvider>().t('photo_report.title_new') ?? 'Новый фотоотчет',
+                        widget.editingMessage != null ? 'Редактировать фотоотчет' : (context.watch<LocaleProvider>().t('photo_report.title_new') ?? 'Новый фотоотчет'),
                         style: GoogleFonts.inter(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -258,10 +299,10 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                         )
                       else
                         Text(
-                          context.watch<LocaleProvider>().t('photo_report.error_site') ?? 'Сначала выберите объект на главном экране',
+                          context.watch<LocaleProvider>().t('photo_report.no_site') ?? 'Будет отправлено в общий чат команды',
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: Colors.redAccent,
+                            color: colors.foreground.withValues(alpha: 0.6),
                           ),
                         ),
                     ],
@@ -284,12 +325,12 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                   const SizedBox(height: 8),
                   
                   // Image selection
-                  if (_selectedImage == null) ...[
+                  if (_imageFile == null) ...[
                     Row(
                       children: [
                         Expanded(
                           child: BounceButton(
-                            onTap: () => _pickImage(ImageSource.camera),
+                            onTap: () => _pickImage(),
                             child: Container(
                               height: 100,
                               decoration: BoxDecoration(
@@ -311,7 +352,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: BounceButton(
-                            onTap: () => _pickImage(ImageSource.gallery),
+                            onTap: () => _pickImageGallery(),
                             child: Container(
                               height: 100,
                               decoration: BoxDecoration(
@@ -346,13 +387,13 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                         fit: StackFit.expand,
                         children: [
                           kIsWeb 
-                            ? Image.network(_selectedImage!.path, fit: BoxFit.cover) 
-                            : Image.file(File(_selectedImage!.path), fit: BoxFit.cover),
+                            ? Image.network(_imageFile!.path, fit: BoxFit.cover) 
+                            : Image.file(File(_imageFile!.path), fit: BoxFit.cover),
                           Positioned(
                             top: 8,
                             right: 8,
                             child: BounceButton(
-                              onTap: () => setState(() => _selectedImage = null),
+                              onTap: () => setState(() => _imageFile = null),
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: const BoxDecoration(
@@ -414,15 +455,15 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
           Padding(
             padding: const EdgeInsets.all(24),
             child: BounceButton(
-              onTap: _isBusy || widget.site == null ? () {} : _submit,
+              onTap: _isSending || widget.site == null ? () {} : _submit,
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: _isBusy || widget.site == null ? colors.muted : colors.primary,
+                  color: _isSending || widget.site == null ? colors.muted : colors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: _isBusy
+                child: _isSending
                     ? const Center(
                         child: SizedBox(
                           height: 20,

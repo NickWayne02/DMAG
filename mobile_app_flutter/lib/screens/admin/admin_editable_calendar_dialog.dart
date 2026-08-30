@@ -91,7 +91,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
       context: nav.context,
       builder: (ctx) {
         return EditShiftDialog(
-          shift: shift,
+          shifts: [shift],
           employeeName: widget.employeeName,
           sites: _sites,
           onSaved: () {}, // No need to refresh calendar since it's closed

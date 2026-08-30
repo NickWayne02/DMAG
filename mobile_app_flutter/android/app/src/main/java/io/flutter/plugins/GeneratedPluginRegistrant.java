@@ -26,6 +26,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin app_settings, com.spencerccf.app_settings.AppSettingsPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new com.solusibejo.flutter_dynamic_icon_plus.FlutterDynamicIconPlusPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_dynamic_icon_plus, com.solusibejo.flutter_dynamic_icon_plus.FlutterDynamicIconPlusPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new io.flutter.plugins.flutter_plugin_android_lifecycle.FlutterAndroidLifecyclePlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin flutter_plugin_android_lifecycle, io.flutter.plugins.flutter_plugin_android_lifecycle.FlutterAndroidLifecyclePlugin", e);

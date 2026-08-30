@@ -22,7 +22,6 @@ import '../widgets/bounce_button.dart';
 import '../widgets/google_map_embed.dart';
 import 'shift_history_sheet.dart';
 import 'footer_sheets.dart';
-import 'admin/admin_dashboard_screen.dart';
 import '../providers/locale_provider.dart';
 import '../providers/settings_provider.dart';
 import 'admin/admin_editable_calendar_dialog.dart';
@@ -265,16 +264,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Expanded(child: MetricWidget(label: t('dashboard.work') ?? 'Работа', value: _formatHM(shift.workMs), color: const Color(0xFF84cc16))), // Lime
-                                    const SizedBox(width: 8),
-                                    Expanded(child: MetricWidget(label: t('dashboard.lunch') ?? 'Обед', value: _formatHM(shift.lunchMs), color: const Color(0xFFf59e0b))), // Amber
-                                    const SizedBox(width: 8),
-                                    Expanded(child: MetricWidget(label: t('dashboard.total') ?? 'Итого', value: _formatHM(shift.totalMs), color: const Color(0xFF06b6d4))), // Cyan
-                                  ],
-                                )
                               ]
                             ],
                           ),
@@ -606,9 +595,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 GestureDetector(
                   onTap: () {
                     context.read<ShiftProvider>().setAdminView(true);
-                    Navigator.of(context).pushReplacement(
-                      FadePageRoute(page: const AdminDashboardScreen()),
-                    );
                   },
                   child: Icon(LucideIcons.shield_check, color: colors.foreground.withValues(alpha: 0.7), size: 20),
                 ),

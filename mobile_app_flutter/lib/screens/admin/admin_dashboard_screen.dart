@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
+import 'package:flutter/services.dart';
 import 'tabs/dashboard_tab.dart';
 import 'tabs/calendar_tab.dart';
 import 'tabs/personnel_tab.dart';
@@ -120,10 +122,44 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               await prefs.setInt('admin_dashboard_tab', 0);
               if (!context.mounted) return;
               context.read<ShiftProvider>().setAdminView(false);
-              Navigator.of(context).pushReplacement(
-                FadePageRoute(page: const DashboardScreen()),
-              );
             },
+          ),
+          PopupMenuButton<String>(
+            icon: Icon(LucideIcons.palette, color: colors.foreground.withValues(alpha: 0.54), size: 20),
+            tooltip: 'Смена брендинга',
+            onSelected: (brand) async {
+              try {
+                if (brand == 'Brand1') {
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand1');
+                } else if (brand == 'Brand2') {
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand2');
+                } else if (brand == 'Brand3') {
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand3');
+                } else {
+                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: null); // default
+                }
+              } on PlatformException {
+                 // ignore
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'default',
+                child: Text('DMAG (По умолчанию)'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Brand1',
+                child: Text('DMAG Stark'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Brand2',
+                child: Text('DMAG Wayne'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Brand3',
+                child: Text('DMAG Corp'),
+              ),
+            ],
           ),
           IconButton(
             icon: Icon(LucideIcons.settings, color: colors.foreground.withValues(alpha: 0.54), size: 20),

@@ -322,7 +322,7 @@ class _CalendarTabState extends State<CalendarTab> {
       context: context,
       builder: (context) {
         return EditShiftDialog(
-          shift: shift,
+          shifts: [shift],
           employeeName: TransliterationService.transliterateIfNeeded(employee['full_name'] ?? (context.read<LocaleProvider>().t('calendar.unknown') ?? context.watch<LocaleProvider>().t('personnel.no_name') ?? 'Неизвестно'), context.read<LocaleProvider>().currentLang),
           sites: _sites,
           onSaved: _fetchShifts,
@@ -333,14 +333,14 @@ class _CalendarTabState extends State<CalendarTab> {
 }
 
 class EditShiftDialog extends StatefulWidget {
-  final Map<String, dynamic> shift;
+  final List<Map<String, dynamic>> shifts;
   final String employeeName;
   final List<Map<String, dynamic>> sites;
   final VoidCallback onSaved;
 
   const EditShiftDialog({
     super.key,
-    required this.shift,
+    required this.shifts,
     required this.employeeName,
     required this.sites,
     required this.onSaved,
@@ -358,18 +358,28 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
   late TextEditingController _startCityController;
   late TextEditingController _endCityController;
   bool _isSaving = false;
+  int _selectedShiftIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _selectedSiteId = widget.shift['site_id'];
-    _startedAt = DateTime.parse(widget.shift['started_at']).toLocal();
-    _endedAt = widget.shift['ended_at'] != null ? DateTime.parse(widget.shift['ended_at']).toLocal() : null;
-    
-    int lunchMs = widget.shift['lunch_total_ms'] ?? 0;
-    _pauseController = TextEditingController(text: (lunchMs ~/ 60000).toString());
-    _startCityController = TextEditingController(text: widget.shift['start_city'] ?? '');
-    _endCityController = TextEditingController(text: widget.shift['end_city'] ?? '');
+    _pauseController = TextEditingController();
+    _startCityController = TextEditingController();
+    _endCityController = TextEditingController();
+    _loadShiftData(_selectedShiftIndex);
+  }
+
+  void _loadShiftData(int index) {
+    final shift = widget.shifts[index];
+    setState(() {
+      _selectedSiteId = shift['site_id'];
+      _startedAt = DateTime.parse(shift['started_at']).toLocal();
+      _endedAt = shift['ended_at'] != null ? DateTime.parse(shift['ended_at']).toLocal() : null;
+      int lunchMs = shift['lunch_total_ms'] ?? 0;
+      _pauseController.text = (lunchMs ~/ 60000).toString();
+      _startCityController.text = shift['start_city'] ?? '';
+      _endCityController.text = shift['end_city'] ?? '';
+    });
   }
 
   @override
@@ -432,7 +442,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
       await Supabase.instance.client
           .from('shifts')
           .update(updates)
-          .eq('id', widget.shift['id']);
+          .eq('id', widget.shifts[_selectedShiftIndex]['id']);
           
       widget.onSaved();
       if (mounted) Navigator.pop(context);
@@ -461,7 +471,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
     
     setState(() => _isSaving = true);
     try {
-      await Supabase.instance.client.from('shifts').delete().eq('id', widget.shift['id']);
+      await Supabase.instance.client.from('shifts').delete().eq('id', widget.shifts[_selectedShiftIndex]['id']);
       widget.onSaved();
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -505,7 +515,45 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
               const SizedBox(height: 4),
               Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14)),
               const SizedBox(height: 24),
-              
+              if (widget.shifts.length > 1) ...[
+                Text(context.watch<LocaleProvider>().t('calendar.select_shift') ?? 'Выберите смену для редактирования', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      value: _selectedShiftIndex,
+                      isExpanded: true,
+                      dropdownColor: Theme.of(context).cardColor,
+                      icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                      items: List.generate(widget.shifts.length, (index) {
+                        final shift = widget.shifts[index];
+                        final st = DateTime.parse(shift['started_at']).toLocal();
+                        final stStr = '${st.hour.toString().padLeft(2, '0')}:${st.minute.toString().padLeft(2, '0')}';
+                        return DropdownMenuItem(
+                          value: index,
+                          child: Text('Смена ${index + 1} ($stStr)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14)),
+                        );
+                      }),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setState(() {
+                            _selectedShiftIndex = val;
+                            _loadShiftData(val);
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+
               _buildInputLabel(context.watch<LocaleProvider>().t('export.site') ?? 'Объект'),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

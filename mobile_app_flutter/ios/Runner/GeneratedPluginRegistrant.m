@@ -18,6 +18,12 @@
 @import app_settings;
 #endif
 
+#if __has_include(<flutter_dynamic_icon_plus/FlutterDynamicIconPlusPlugin.h>)
+#import <flutter_dynamic_icon_plus/FlutterDynamicIconPlusPlugin.h>
+#else
+@import flutter_dynamic_icon_plus;
+#endif
+
 #if __has_include(<geolocator_apple/GeolocatorPlugin.h>)
 #import <geolocator_apple/GeolocatorPlugin.h>
 #else
@@ -77,6 +83,7 @@
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
   [AppLinksIosPlugin registerWithRegistrar:[registry registrarForPlugin:@"AppLinksIosPlugin"]];
   [AppSettingsPlugin registerWithRegistrar:[registry registrarForPlugin:@"AppSettingsPlugin"]];
+  [FlutterDynamicIconPlusPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterDynamicIconPlusPlugin"]];
   [GeolocatorPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeolocatorPlugin"]];
   [FGMGoogleMapsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FGMGoogleMapsPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];

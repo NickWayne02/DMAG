@@ -87,7 +87,7 @@ class FooterSheets {
               const SizedBox(height: 32),
               GestureDetector(
                 onTap: () {
-                  launchUrl(Uri.parse('tel:+498001234567'));
+                  launchUrl(Uri.parse('tel:+4927344346048'));
                 },
                 child: Container(
                   width: double.infinity,
@@ -100,8 +100,8 @@ class FooterSheets {
                   child: Column(
                     children: [
                       Text(context.watch<LocaleProvider>().t('support.hotline') ?? 'Горячая линия (24/7)', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground)),
-                      const SizedBox(height: 8),
-                      Text('+49 800 123 4567', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: colors.foreground)),
+                      const SizedBox(height: 4),
+                      Text('+49 2734 4346048', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: colors.foreground)),
                     ],
                   ),
                 ),

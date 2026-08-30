@@ -1,4 +1,4 @@
-package com.myplatform.b2b
+package com.factory.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -167,9 +167,8 @@ export function PhotoReportDialog({
         photoPath = selectedStoragePath;
       }
       if (!skipDbInsert) {
-        if (!site) throw new Error("Cannot insert photo report without a site");
         const { error } = await supabase.from("photo_reports").insert({
-          site_id: site.id,
+          site_id: site?.id || null,
           author_id: user.id,
           description: description.trim() || null,
           criticality,

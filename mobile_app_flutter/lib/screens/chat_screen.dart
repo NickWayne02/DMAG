@@ -343,7 +343,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           final List<Map<String, dynamic>> mediaItems = [];
                           for (var item in items) {
                             final content = item['content'] as String? ?? '';
-                            final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\] |\[PHOTO_REPORT\] '), '').split(' | ');
+                            final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\]\s*|\[PHOTO_REPORT\]\s*'), '').split(' | ');
                             if (parts.isNotEmpty && parts[0].isNotEmpty) {
                               String photoUrl = parts[0];
                               if (!photoUrl.startsWith('http')) {
@@ -951,7 +951,7 @@ class _ChatContentState extends State<ChatContent> {
     String? photoUrl;
     String displayContent = content;
     if (isPhotoReport) {
-      final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\] |\[PHOTO_REPORT\] '), '').split(' | ');
+      final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\]\s*|\[PHOTO_REPORT\]\s*'), '').split(' | ');
       photoUrl = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0] : null;
       if (photoUrl != null && !photoUrl.startsWith('http')) {
         photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);

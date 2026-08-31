@@ -149,7 +149,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
       if (widget.editingMessage != null) {
         final desc = _descController.text.trim().isEmpty ? '' : _descController.text.trim();
         await Supabase.instance.client.from('chat_messages').update({
-          'content': '[ФОТО_ОТЧЕТ] $photoUrl | $_criticality | $desc',
+          'content': '[PHOTO_REPORT] $photoUrl | $_criticality | $desc',
         }).eq('id', widget.editingMessage!['id']);
         
         if (_existingPhotoUrl != null) {
@@ -176,7 +176,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
           'channel_id': widget.site == null ? 'general' : widget.site!['id'],
           'author_id': user.id,
           'author_name': authorName,
-          'content': '[ФОТО_ОТЧЕТ] $photoUrl | $_criticality | $desc',
+          'content': '[PHOTO_REPORT] $photoUrl | $_criticality | $desc',
           'source_lang': 'ru',
         });
       }

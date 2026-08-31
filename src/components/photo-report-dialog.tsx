@@ -289,16 +289,18 @@ export function PhotoReportDialog({
                     className="w-full max-h-[60vh] object-contain cursor-pointer"
                     onClick={() => setFullScreenPreview(true)}
                   />
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="destructive"
-                    className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
-                    onPointerDown={(e) => e.preventDefault()}
-                    onClick={() => handleFile(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  {!skipDbInsert && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
+                      onPointerDown={(e) => e.preventDefault()}
+                      onClick={() => handleFile(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
 
                 <div className="relative">

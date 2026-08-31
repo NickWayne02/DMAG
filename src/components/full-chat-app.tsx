@@ -498,6 +498,13 @@ export function FullChatApp({
           if (error) {
             throw error;
           }
+
+          if (data.photoPath) {
+            await supabase.from("photo_reports").update({
+              description: data.description || null,
+              criticality: data.criticality
+            }).eq("photo_url", data.photoPath);
+          }
           if (!updatedData || updatedData.length === 0) {
             throw new Error(
               "Не удалось применить изменения: возможно, нет прав на редактирование.",

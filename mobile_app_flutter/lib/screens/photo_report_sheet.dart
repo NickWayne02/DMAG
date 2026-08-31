@@ -325,7 +325,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                   const SizedBox(height: 8),
                   
                   // Image selection
-                  if (_imageFile == null) ...[
+                  if (_imageFile == null && _existingPhotoUrl == null) ...[
                     Row(
                       children: [
                         Expanded(
@@ -386,24 +386,28 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          kIsWeb 
-                            ? Image.network(_imageFile!.path, fit: BoxFit.cover) 
-                            : Image.file(File(_imageFile!.path), fit: BoxFit.cover),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: BounceButton(
-                              onTap: () => setState(() => _imageFile = null),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: Colors.black54,
-                                  shape: BoxShape.circle,
+                          if (_imageFile != null)
+                            kIsWeb 
+                              ? Image.network(_imageFile!.path, fit: BoxFit.cover) 
+                              : Image.file(File(_imageFile!.path), fit: BoxFit.cover)
+                          else if (_existingPhotoUrl != null)
+                            Image.network(Supabase.instance.client.storage.from('photo-reports').getPublicUrl(_existingPhotoUrl!), fit: BoxFit.cover),
+                          if (widget.editingMessage == null)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: BounceButton(
+                                onTap: () => setState(() => _imageFile = null),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(LucideIcons.trash_2, color: Colors.white, size: 16),
                                 ),
-                                child: const Icon(LucideIcons.trash_2, color: Colors.white, size: 16),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),

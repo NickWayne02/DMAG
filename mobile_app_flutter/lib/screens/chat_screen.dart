@@ -956,7 +956,11 @@ class _ChatContentState extends State<ChatContent> {
       if (photoUrl != null && !photoUrl.startsWith('http')) {
         photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
       }
-      displayContent = content; 
+      if (parts.length >= 3) {
+        displayContent = parts.sublist(2).join(' | ');
+      } else {
+        displayContent = '';
+      }
     }
 
     final avatarUrl = _getAvatarUrl(msg['author_id'] as String?);
@@ -997,7 +1001,7 @@ class _ChatContentState extends State<ChatContent> {
                       }
                     },
                     itemBuilder: (ctx) => [
-                      if (widget.isSuperAdmin && isPhotoReport)
+                      if (isPhotoReport)
                         PopupMenuItem(
                           value: 'edit',
                           child: Row(

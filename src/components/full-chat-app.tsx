@@ -81,7 +81,10 @@ export function FullChatApp({
 
   const editingPhotoReportInitialData = useMemo(() => {
     if (!editingPhotoReportMessage) return null;
-    const parts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+    const parts = editingPhotoReportMessage.content
+      .replace("[PHOTO_REPORT] ", "")
+      .replace("[ФОТО_ОТЧЕТ] ", "")
+      .split(" | ");
     return {
       photoPath: parts[0] || null,
       criticality: parts[1] || "info",
@@ -499,7 +502,7 @@ export function FullChatApp({
             throw error;
           }
 
-          const oldParts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+          const oldParts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
           const oldPhotoPath = oldParts[0] || data.photoPath;
           
           if (oldPhotoPath) {
@@ -795,8 +798,8 @@ function ChannelContent({
 
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
 
-    if (!error && msg?.content.startsWith("[PHOTO_REPORT] ")) {
-      const parts = msg.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+    if (!error && (msg?.content.startsWith("[PHOTO_REPORT] ") || msg?.content.startsWith("[ФОТО_ОТЧЕТ] "))) {
+      const parts = msg.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
       const photoPath = parts[0];
       if (photoPath) {
         await supabase.from("photo_reports").delete().eq("photo_url", photoPath);
@@ -830,7 +833,7 @@ function ChannelContent({
               m={m}
               onDelete={deleteMessage}
               onEdit={(msg) => {
-                if (msg.content.startsWith("[PHOTO_REPORT] ")) {
+                if (msg.content.startsWith("[PHOTO_REPORT] ") || msg.content.startsWith("[ФОТО_ОТЧЕТ] ")) {
                   onEditPhotoReport?.(msg);
                 } else {
                   setEditingMessage(msg);
@@ -951,16 +954,18 @@ function MessageBubble({
     };
   }, [m.id, m.content, m.source_lang, lang, needsTranslate]);
 
-  const isPhotoReport = m.content.startsWith("[PHOTO_REPORT] ");
+  const isPhotoReport = m.content.startsWith("[PHOTO_REPORT] ") || m.content.startsWith("[ФОТО_ОТЧЕТ] ");
   let photoPath = "";
   let criticality = "";
   let description = m.content;
   if (isPhotoReport) {
-    const parts = m.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+    const parts = m.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
     if (parts.length >= 3) {
       photoPath = parts[0];
       criticality = parts[1];
       description = parts.slice(2).join(" | ");
+    } else {
+      description = "";
     }
   }
 
@@ -1070,7 +1075,7 @@ function MessageBubble({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isMine ? "end" : "start"}>
-                {isMine && (
+                {onEdit && isMine && (
                   <DropdownMenuItem onClick={() => onEdit(m)}>
                     <Pencil className="h-4 w-4 mr-2" />
                     Редактировать
@@ -1130,12 +1135,12 @@ function ChatMediaDialog({
       .select("id, content")
       .eq("channel_type", channelType)
       .eq("channel_id", channelId)
-      .like("content", "[PHOTO_REPORT]%")
+      .or("content.ilike.[PHOTO_REPORT]%,content.ilike.[ФОТО_ОТЧЕТ]%")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
         if (!error && data) {
           const loaded = data.map((m) => {
-            const parts = m.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+            const parts = m.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
             const photoPath = parts[0];
             return {
               id: m.id,

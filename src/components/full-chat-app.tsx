@@ -802,7 +802,7 @@ function ChannelContent({
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
 
     if (!error && (/^\[PHOTO_REPORT\]\s*/i.test(msg?.content || "") || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg?.content || ""))) {
-      const parts = msg.content
+      const parts = (msg?.content || "")
         .replace(/^\[PHOTO_REPORT\]\s*/i, "")
         .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
         .split(" | ");

@@ -502,7 +502,7 @@ export function FullChatApp({
           if (data.photoPath) {
             await supabase.from("photo_reports").update({
               description: data.description || null,
-              criticality: data.criticality
+              criticality: data.criticality as "info" | "important" | "urgent"
             }).eq("photo_url", data.photoPath);
           }
           if (!updatedData || updatedData.length === 0) {

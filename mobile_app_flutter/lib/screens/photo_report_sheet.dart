@@ -113,10 +113,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   }
 
   Future<void> _submit() async {
-    if (widget.site == null && widget.editingMessage == null && false) {
-      AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_site') ?? 'Сначала выберите объект на главном экране', color: Colors.red);
-      return;
-    }
+    // The check for site == null was removed to allow sending reports to the general chat
     
     if (_imageFile == null && _existingPhotoUrl == null && _descController.text.trim().isEmpty) {
       AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_desc') ?? 'Добавьте фото или описание', color: Colors.red);

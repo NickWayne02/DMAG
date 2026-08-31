@@ -82,8 +82,8 @@ export function FullChatApp({
   const editingPhotoReportInitialData = useMemo(() => {
     if (!editingPhotoReportMessage) return null;
     const parts = editingPhotoReportMessage.content
-      .replace("[PHOTO_REPORT] ", "")
-      .replace("[ФОТО_ОТЧЕТ] ", "")
+      .replace(/^\[PHOTO_REPORT\]\s*/i, "")
+      .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
       .split(" | ");
     return {
       photoPath: parts[0] || null,
@@ -502,7 +502,10 @@ export function FullChatApp({
             throw error;
           }
 
-          const oldParts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
+          const oldParts = editingPhotoReportMessage.content
+            .replace(/^\[PHOTO_REPORT\]\s*/i, "")
+            .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
+            .split(" | ");
           const oldPhotoPath = oldParts[0] || data.photoPath;
           
           if (oldPhotoPath) {
@@ -798,8 +801,11 @@ function ChannelContent({
 
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
 
-    if (!error && (msg?.content.startsWith("[PHOTO_REPORT] ") || msg?.content.startsWith("[ФОТО_ОТЧЕТ] "))) {
-      const parts = msg.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
+    if (!error && (/^\[PHOTO_REPORT\]\s*/i.test(msg?.content || "") || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg?.content || ""))) {
+      const parts = msg.content
+        .replace(/^\[PHOTO_REPORT\]\s*/i, "")
+        .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
+        .split(" | ");
       const photoPath = parts[0];
       if (photoPath) {
         await supabase.from("photo_reports").delete().eq("photo_url", photoPath);
@@ -833,7 +839,7 @@ function ChannelContent({
               m={m}
               onDelete={deleteMessage}
               onEdit={(msg) => {
-                if (msg.content.startsWith("[PHOTO_REPORT] ") || msg.content.startsWith("[ФОТО_ОТЧЕТ] ")) {
+                if (/^\[PHOTO_REPORT\]\s*/i.test(msg.content) || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg.content)) {
                   onEditPhotoReport?.(msg);
                 } else {
                   setEditingMessage(msg);
@@ -918,6 +924,8 @@ function MessageBubble({
   const t = useT();
   const isMine = m.author_id === user?.id;
   const isSuperAdmin = roles.includes("super_admin");
+  const canEdit = isMine || isSuperAdmin;
+  const canDelete = isMine || isSuperAdmin;
   const timeStr = new Date(m.created_at).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -954,12 +962,15 @@ function MessageBubble({
     };
   }, [m.id, m.content, m.source_lang, lang, needsTranslate]);
 
-  const isPhotoReport = m.content.startsWith("[PHOTO_REPORT] ") || m.content.startsWith("[ФОТО_ОТЧЕТ] ");
+  const isPhotoReport = /^\[PHOTO_REPORT\]\s*/i.test(m.content) || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(m.content);
   let photoPath = "";
   let criticality = "";
   let description = m.content;
   if (isPhotoReport) {
-    const parts = m.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
+    const parts = m.content
+      .replace(/^\[PHOTO_REPORT\]\s*/i, "")
+      .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
+      .split(" | ");
     if (parts.length >= 3) {
       photoPath = parts[0];
       criticality = parts[1];
@@ -1075,16 +1086,18 @@ function MessageBubble({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isMine ? "end" : "start"}>
-                {onEdit && isMine && (
+                {onEdit && canEdit && (
                   <DropdownMenuItem onClick={() => onEdit(m)}>
                     <Pencil className="h-4 w-4 mr-2" />
                     Редактировать
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => onDelete(m.id)} className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Удалить
-                </DropdownMenuItem>
+                {canDelete && (
+                  <DropdownMenuItem onClick={() => onDelete(m.id)} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Удалить
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -1140,7 +1153,10 @@ function ChatMediaDialog({
       .then(({ data, error }) => {
         if (!error && data) {
           const loaded = data.map((m) => {
-            const parts = m.content.replace("[PHOTO_REPORT] ", "").replace("[ФОТО_ОТЧЕТ] ", "").split(" | ");
+            const parts = m.content
+              .replace(/^\[PHOTO_REPORT\]\s*/i, "")
+              .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
+              .split(" | ");
             const photoPath = parts[0];
             return {
               id: m.id,

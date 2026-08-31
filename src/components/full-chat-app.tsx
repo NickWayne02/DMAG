@@ -476,7 +476,7 @@ export function FullChatApp({
         open={reportOpen}
         onOpenChange={setReportOpen}
         site={sites.find((s) => s.id === activeChannelId) || sites[0] || null}
-        skipDbInsert={activeChannelType !== "site"}
+        skipDbInsert={false}
         onSuccess={handlePhotoReportSuccess}
       />
 
@@ -499,11 +499,15 @@ export function FullChatApp({
             throw error;
           }
 
-          if (data.photoPath) {
+          const oldParts = editingPhotoReportMessage.content.replace("[PHOTO_REPORT] ", "").split(" | ");
+          const oldPhotoPath = oldParts[0] || data.photoPath;
+          
+          if (oldPhotoPath) {
             await supabase.from("photo_reports").update({
               description: data.description || null,
-              criticality: data.criticality as "info" | "important" | "urgent"
-            }).eq("photo_url", data.photoPath);
+              criticality: data.criticality as "info" | "important" | "urgent",
+              photo_url: data.photoPath
+            }).eq("photo_url", oldPhotoPath);
           }
           if (!updatedData || updatedData.length === 0) {
             throw new Error(

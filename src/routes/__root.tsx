@@ -10,14 +10,14 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
-if (typeof window !== 'undefined') {
-  defineCustomElements(window);
-}
-
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/lib/i18n";
 import { SettingsProvider } from "@/lib/settings";
+
+if (typeof window !== 'undefined') {
+  defineCustomElements(window);
+}
 
 function NotFoundComponent() {
   return (

@@ -985,7 +985,7 @@ class _ChatContentState extends State<ChatContent> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isMe || (widget.isSuperAdmin && isPhotoReport)) 
+                if (isMe) 
                    PopupMenuButton<String>(
                     icon: Icon(Icons.more_vert, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 16),
                     color: const Color(0xFF151515),
@@ -1077,9 +1077,24 @@ class _ChatContentState extends State<ChatContent> {
                     icon: Icon(Icons.more_vert, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.38), size: 16),
                     color: const Color(0xFF151515),
                     onSelected: (val) {
-                      if (val == 'delete') _deleteMessage(msg['id'].toString());
+                      if (val == 'delete') {
+                        _deleteMessage(msg['id'].toString());
+                      } else if (val == 'edit') {
+                        PhotoReportSheet.show(context, null, editingMessage: msg);
+                      }
                     },
                     itemBuilder: (ctx) => [
+                      if (isPhotoReport)
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              const Icon(LucideIcons.pencil, color: Colors.blue, size: 16),
+                              const SizedBox(width: 8),
+                              Text(ctx.read<LocaleProvider>().t('calendar.edit') ?? 'Редактировать', style: const TextStyle(color: Colors.blue)),
+                            ],
+                          ),
+                        ),
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(

@@ -124,8 +124,9 @@ export function PhotoReportDialog({
           const f = new File([blob], `photo.${photo.format}`, { type: `image/${photo.format}` });
           handleFile(f);
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Camera error:", e);
+        toast.error(`Ошибка камеры: ${e?.message || 'Нет доступа'}`);
       }
       return; // Never fall back to web input if native!
     }

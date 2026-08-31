@@ -113,7 +113,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   }
 
   Future<void> _submit() async {
-    if (widget.site == null && widget.editingMessage == null) {
+    if (widget.site == null && widget.editingMessage == null && false) {
       AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_site') ?? 'Сначала выберите объект на главном экране', color: Colors.red);
       return;
     }
@@ -455,12 +455,12 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
           Padding(
             padding: const EdgeInsets.all(24),
             child: BounceButton(
-              onTap: _isSending || widget.site == null ? () {} : _submit,
+              onTap: _isSending ? () {} : _submit,
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  color: _isSending || widget.site == null ? colors.muted : colors.primary,
+                  color: _isSending ? colors.muted : colors.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: _isSending

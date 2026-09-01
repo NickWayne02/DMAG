@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useLocale } from "@/lib/i18n";
 
 interface DbMessage {
   id: string;
@@ -21,6 +22,7 @@ interface DbMessage {
 }
 
 export function ModerationTab() {
+  const { t } = useLocale();
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);

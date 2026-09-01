@@ -343,7 +343,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           final List<Map<String, dynamic>> mediaItems = [];
                           for (var item in items) {
                             final content = item['content'] as String? ?? '';
-                            final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\]\s*|\[PHOTO_REPORT\]\s*'), '').split(' | ');
+                            String textToSplit = content;
+                            if (content.contains('[ФОТО_ОТЧЕТ]')) {
+                              textToSplit = content.substring(content.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
+                            } else if (content.contains('[PHOTO_REPORT]')) {
+                              textToSplit = content.substring(content.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
+                            }
+                            final parts = textToSplit.split(' | ');
                             if (parts.isNotEmpty && parts[0].isNotEmpty) {
                               String photoUrl = parts[0];
                               if (!photoUrl.startsWith('http')) {
@@ -947,11 +953,17 @@ class _ChatContentState extends State<ChatContent> {
     final timeString = '${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
     
     // Parse photo report
-    final isPhotoReport = content.startsWith('[ФОТО_ОТЧЕТ]') || content.startsWith('[PHOTO_REPORT]');
+    final isPhotoReport = content.contains('[ФОТО_ОТЧЕТ]') || content.contains('[PHOTO_REPORT]');
     String? photoUrl;
     String displayContent = content;
     if (isPhotoReport) {
-      final parts = content.replaceAll(RegExp(r'\[ФОТО_ОТЧЕТ\]\s*|\[PHOTO_REPORT\]\s*'), '').split(' | ');
+      String textToSplit = content;
+      if (content.contains('[ФОТО_ОТЧЕТ]')) {
+        textToSplit = content.substring(content.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
+      } else if (content.contains('[PHOTO_REPORT]')) {
+        textToSplit = content.substring(content.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
+      }
+      final parts = textToSplit.split(' | ');
       photoUrl = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0] : null;
       if (photoUrl != null && !photoUrl.startsWith('http')) {
         photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);

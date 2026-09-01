@@ -26,10 +26,10 @@ class PhotoReportSheet extends StatefulWidget {
       barrierColor: Colors.black.withValues(alpha: 0.7),
       transitionDuration: const Duration(milliseconds: 250),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return Align(
-          alignment: Alignment.center,
-          child: Material(
-            color: Colors.transparent,
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Align(
+            alignment: Alignment.center,
             child: PhotoReportSheet(site: site, editingMessage: editingMessage),
           ),
         );
@@ -60,7 +60,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   final TextEditingController _descController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   
-  File? _imageFile;
+  XFile? _imageFile;
   String? _existingPhotoUrl;
   String _criticality = 'info';
   bool _isSending = false;
@@ -96,7 +96,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
     );
     if (image != null) {
       setState(() {
-        _imageFile = File(image.path);
+        _imageFile = image;
         _existingPhotoUrl = null;
       });
     }
@@ -109,7 +109,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
     );
     if (image != null) {
       setState(() {
-        _imageFile = File(image.path);
+        _imageFile = image;
         _existingPhotoUrl = null;
       });
     }
@@ -118,8 +118,8 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   Future<void> _submit() async {
     // The check for site == null was removed to allow sending reports to the general chat
     
-    if (_imageFile == null && _existingPhotoUrl == null && _descController.text.trim().isEmpty) {
-      AppToast.show(context, context.watch<LocaleProvider>().t('photo_report.error_desc') ?? 'Добавьте фото или описание', color: Colors.red);
+    if (_imageFile == null && _existingPhotoUrl == null) {
+      AppToast.show(context, context.read<LocaleProvider>().t('photo_report.error_photo') ?? 'Добавьте фото', color: Colors.red);
       return;
     }
 
@@ -127,19 +127,27 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
 
     try {
       final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) throw Exception(context.watch<LocaleProvider>().t('photo_report.error_auth') ?? 'Пользователь не авторизован');
+      if (user == null) throw Exception(context.read<LocaleProvider>().t('photo_report.error_auth') ?? 'Пользователь не авторизован');
       
       final shift = context.read<ShiftProvider>();
-      final authorName = shift.userProfile?['full_name'] ?? user.email ?? context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник';
+      final authorName = shift.userProfile?['full_name'] ?? user.email ?? context.read<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник';
 
       String photoUrl;
       if (_imageFile != null) {
-        final fileExt = _imageFile!.path.split('.').last;
+        final nameParts = _imageFile!.name.split('.');
+        final fileExt = nameParts.length > 1 ? nameParts.last.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '') : 'jpg';
         final fileName = '${DateTime.now().millisecondsSinceEpoch}_${user.id}.$fileExt';
         
-        await Supabase.instance.client.storage
-            .from('photo-reports')
-            .upload(fileName, _imageFile!);
+        if (kIsWeb) {
+          final bytes = await _imageFile!.readAsBytes();
+          await Supabase.instance.client.storage
+              .from('photo-reports')
+              .uploadBinary(fileName, bytes);
+        } else {
+          await Supabase.instance.client.storage
+              .from('photo-reports')
+              .upload(fileName, File(_imageFile!.path));
+        }
             
         photoUrl = fileName;
       } else {
@@ -182,12 +190,14 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
       }
 
       if (mounted) {
-        AppToast.showSuccess(context, context.watch<LocaleProvider>().t('photo_report.success') ?? 'Фотоотчет отправлен');
+        AppToast.showSuccess(context, widget.editingMessage != null 
+          ? (context.read<LocaleProvider>().t('photo_report.success_edit') ?? 'Фотоотчет отредактирован')
+          : (context.read<LocaleProvider>().t('photo_report.success') ?? 'Фотоотчет отправлен'));
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        AppToast.show(context, '''${context.watch<LocaleProvider>().t('photo_report.error_send') ?? 'Ошибка отправки'}: ${e.toString()}''', color: Colors.red);
+        AppToast.show(context, '''${context.read<LocaleProvider>().t('photo_report.error_send') ?? 'Ошибка отправки'}: ${e.toString()}''', color: Colors.red);
       }
     } finally {
       if (mounted) {
@@ -387,7 +397,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                         fit: StackFit.expand,
                         children: [
                           if (_imageFile != null)
-                            kIsWeb 
+                            kIsWeb
                               ? Image.network(_imageFile!.path, fit: BoxFit.cover) 
                               : Image.file(File(_imageFile!.path), fit: BoxFit.cover)
                           else if (_existingPhotoUrl != null)
@@ -481,7 +491,9 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                           Icon(LucideIcons.send, color: colors.primaryForeground, size: 18),
                           const SizedBox(width: 8),
                           Text(
-                            context.watch<LocaleProvider>().t('photo_report.btn_send') ?? 'Отправить отчет',
+                            widget.editingMessage != null 
+                              ? (context.watch<LocaleProvider>().t('photo_report.btn_edit') ?? 'Редактировать')
+                              : (context.watch<LocaleProvider>().t('photo_report.btn_send') ?? 'Отправить отчет'),
                             style: GoogleFonts.inter(
                               color: colors.primaryForeground,
                               fontWeight: FontWeight.bold,

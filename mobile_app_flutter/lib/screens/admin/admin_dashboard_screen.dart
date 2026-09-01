@@ -14,6 +14,7 @@ import 'tabs/sessions_tab.dart';
 import 'tabs/users_tab.dart';
 import 'tabs/chat_tab.dart';
 import 'tabs/branding_tab.dart';
+import 'tabs/moderation_tab.dart';
 import '../../services/auth_service.dart';
 
 import '../settings_sheet.dart';
@@ -51,6 +52,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     const SessionsTab(),
     const UsersTab(),
     const ChatTab(),
+    const ModerationTab(),
   ];
 
   String _getTabTitle(BuildContext context, int index) {
@@ -65,6 +67,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       case 6: return t('admin.tab.security') ?? 'Безопасность';
       case 7: return t('admin.tab.users') ?? 'Пользователи';
       case 8: return t('admin.tab.chats') ?? 'Чаты';
+      case 9: return t('admin.tab.moderation') ?? 'Модерация';
       default: return '';
     }
   }
@@ -254,6 +257,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildDrawerItem(context, 6, LucideIcons.shield_check, _getTabTitle(context, 6), colors),
                   _buildDrawerItem(context, 7, LucideIcons.user_cog, _getTabTitle(context, 7), colors),
                   _buildDrawerItem(context, 8, LucideIcons.message_square, _getTabTitle(context, 8), colors),
+                  _buildDrawerItem(context, 9, LucideIcons.shield_alert, _getTabTitle(context, 9), colors),
                 ],
               ),
             ),

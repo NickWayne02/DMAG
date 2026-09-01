@@ -182,6 +182,17 @@ const DICT: Dict = {
     uz: "Taqvim",
     tg: "Тақвим",
   },
+  "admin.tab.moderation": {
+    ru: "Модерация",
+    en: "Moderation",
+    de: "Moderation",
+    ro: "Moderare",
+    bg: "Модерация",
+    pl: "Moderacja",
+    uk: "Модерація",
+    uz: "Moderatsiya",
+    tg: "Модератсия",
+  },
   "admin.loading": {
     ru: "Загрузка...",
     en: "Loading...",

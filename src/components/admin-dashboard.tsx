@@ -71,6 +71,7 @@ import {
   FolderSearch,
   MessageSquare,
   Palette,
+  ShieldAlert,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -86,6 +87,7 @@ import { FullChatApp } from "@/components/full-chat-app";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { BrandingSettingsTab } from "@/components/admin/branding-settings-tab";
+import { ModerationTab } from "@/components/admin/moderation-tab";
 import { useAppSettings } from "@/hooks/use-app-settings";
 import dmagLogo from "@/assets/dmag-logo.png";
 import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
@@ -1575,6 +1577,7 @@ export function AdminDashboard({
             { id: "branding", icon: Palette, label: t("admin.tab.branding"), super: true },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
             { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
+            { id: "moderation", icon: ShieldAlert, label: t("admin.tab.moderation", { defaultValue: "Модерация" }), super: false },
             { id: "chat", icon: MessageSquare, label: t("tile.chat"), super: false },
           ]
             .filter((item) => !item.super || superMode)
@@ -2952,6 +2955,11 @@ export function AdminDashboard({
             <div className="h-[80vh] md:h-[calc(100vh-6rem)] w-full rounded-2xl overflow-hidden border shadow-sm">
               <FullChatApp sites={sites} />
             </div>
+          )}
+
+          {/* MODERATION TAB */}
+          {activeTab === "moderation" && (
+            <ModerationTab />
           )}
 
           {/* CALENDAR TAB */}

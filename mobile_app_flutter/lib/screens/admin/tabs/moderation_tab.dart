@@ -22,6 +22,8 @@ class _ModerationTabState extends State<ModerationTab> {
   bool _isLoading = true;
   String? _selectedChatId;
 
+  String? t(String key) => context.read<LocaleProvider>().t(key);
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +59,7 @@ class _ModerationTabState extends State<ModerationTab> {
   }
 
   Future<void> _deleteMessage(String id) async {
-    final t = context.read<LocaleProvider>().t;
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

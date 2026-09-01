@@ -116,10 +116,10 @@ export function ModerationTab() {
           />
           <div className="flex justify-end gap-2">
             <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-              <X className="w-4 h-4 mr-1" /> Отмена
+              <X className="w-4 h-4 mr-1" /> {t("admin.moderation.cancel")}
             </Button>
             <Button size="sm" onClick={() => saveEdit(msg.id)}>
-              <Check className="w-4 h-4 mr-1" /> Сохранить
+              <Check className="w-4 h-4 mr-1" /> {t("admin.moderation.save")}
             </Button>
           </div>
         </div>
@@ -164,8 +164,8 @@ export function ModerationTab() {
     if (!channelId.startsWith("dm_")) return channelId;
     const parts = channelId.replace("dm_", "").split("_");
     if (parts.length >= 2) {
-      const name1 = profiles[parts[0]] || "Неизвестный";
-      const name2 = profiles[parts[1]] || "Неизвестный";
+      const name1 = profiles[parts[0]] || t("admin.moderation.unknown");
+      const name2 = profiles[parts[1]] || t("admin.moderation.unknown");
       return `${name1} и ${name2}`;
     }
     return channelId;
@@ -189,7 +189,7 @@ export function ModerationTab() {
         return (
           <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground">
             <MessageSquare className="h-10 w-10 mb-2 opacity-20" />
-            <p className="text-sm">Нет активных личных чатов</p>
+            <p className="text-sm">{t("admin.moderation.no_direct_chats")}</p>
           </div>
         );
       }
@@ -228,10 +228,10 @@ export function ModerationTab() {
       return (
         <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground">
           <MessageSquare className="h-10 w-10 mb-2 opacity-20" />
-          <p className="text-sm">Нет сообщений в этой категории</p>
+          <p className="text-sm">{t("admin.moderation.no_messages")}</p>
           {selectedChatId && (
             <Button variant="link" onClick={() => setSelectedChatId(null)} className="mt-2">
-              Вернуться назад
+              {t("admin.moderation.back")}
             </Button>
           )}
         </div>
@@ -243,7 +243,7 @@ export function ModerationTab() {
         {filterType === "direct" && selectedChatId && (
           <div className="mb-4 sticky top-0 bg-card z-10 pb-2">
             <Button variant="outline" size="sm" onClick={() => setSelectedChatId(null)}>
-              &larr; Назад к списку
+              &larr; {t("admin.moderation.back")}
             </Button>
             <span className="ml-4 text-sm font-semibold">{getChatName(selectedChatId)}</span>
           </div>
@@ -254,13 +254,13 @@ export function ModerationTab() {
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm truncate">{msg.author_name || "Неизвестный"}</span>
+                  <span className="font-semibold text-sm truncate">{msg.author_name || t("admin.moderation.unknown")}</span>
                   <span className="text-xs text-muted-foreground shrink-0">
                     {format(new Date(msg.created_at), "d MMM, HH:mm", { locale: ru })}
                   </span>
                   {filterType === "direct" && (
                     <Badge variant="outline" className="text-[10px] ml-2 shrink-0">
-                      Чат: {getChatName(msg.channel_id)}
+                      {t("admin.moderation.chat")}: {getChatName(msg.channel_id)}
                     </Badge>
                   )}
                 </div>
@@ -276,7 +276,7 @@ export function ModerationTab() {
                       setEditContent(msg.content);
                       setEditingId(msg.id);
                     }}
-                    title="Редактировать"
+                    title={t("admin.moderation.edit")}
                   >
                     <Edit2 className="h-4 w-4" />
                   </Button>
@@ -286,7 +286,7 @@ export function ModerationTab() {
                   size="icon"
                   className="text-red-500 hover:text-red-600 hover:bg-red-50/10"
                   onClick={() => deleteMessage(msg.id)}
-                  title="Удалить"
+                  title={t("admin.moderation.delete")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -302,16 +302,16 @@ export function ModerationTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold tracking-tight">Модерация</h3>
-        <p className="text-sm text-muted-foreground mt-1">Управление сообщениями в Общем и Личных чатах</p>
+        <h3 className="text-xl font-bold tracking-tight">{t("admin.moderation.title")}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{t("admin.moderation.desc")}</p>
       </div>
 
       <Card className="rounded-2xl border bg-card shadow-sm overflow-hidden flex flex-col h-[70vh]">
         <Tabs defaultValue="general" className="flex-1 flex flex-col h-full w-full">
           <div className="px-4 pt-4 border-b">
             <TabsList className="grid w-100 grid-cols-2">
-              <TabsTrigger value="general" onClick={() => setSelectedChatId(null)}>Общий чат</TabsTrigger>
-              <TabsTrigger value="direct" onClick={() => setSelectedChatId(null)}>Личные чаты</TabsTrigger>
+              <TabsTrigger value="general" onClick={() => setSelectedChatId(null)}>{t("admin.moderation.general")}</TabsTrigger>
+              <TabsTrigger value="direct" onClick={() => setSelectedChatId(null)}>{t("admin.moderation.direct")}</TabsTrigger>
             </TabsList>
           </div>
           <div className="flex-1 overflow-y-auto p-4">

@@ -215,7 +215,7 @@ class _ModerationTabState extends State<ModerationTab> {
             children: [
               Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withOpacity(0.2)),
               const SizedBox(height: 16),
-              Text('Нет активных личных чатов', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.5))),
+              Text(t('admin.moderation.no_direct_chats') ?? 'Нет активных личных чатов', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.5))),
             ],
           ),
         );
@@ -281,11 +281,11 @@ class _ModerationTabState extends State<ModerationTab> {
           children: [
             Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withOpacity(0.2)),
             const SizedBox(height: 16),
-            Text('Нет сообщений', style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.5))),
+            Text(t('admin.moderation.no_messages') ?? 'Нет сообщений в этой категории', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.5))),
             if (_selectedChatId != null)
               TextButton(
                 onPressed: () => setState(() => _selectedChatId = null),
-                child: const Text('Назад'),
+                child: Text(t('admin.moderation.back') ?? 'Назад'),
               ),
           ],
         ),
@@ -327,7 +327,7 @@ class _ModerationTabState extends State<ModerationTab> {
                                 borderRadius: BorderRadius.circular(4),
                                 border: Border.all(color: colors.foreground.withOpacity(0.1)),
                               ),
-                              child: Text('Чат: ${_getChatName(msg['channel_id'].toString())}', overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withOpacity(0.7))),
+                              child: Text('${t('admin.moderation.chat') ?? 'Чат'}: ${_getChatName(msg['channel_id'].toString())}', overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withOpacity(0.7))),
                             ),
                           ),
                         ]
@@ -344,12 +344,12 @@ class _ModerationTabState extends State<ModerationTab> {
                   IconButton(
                     icon: const Icon(LucideIcons.pencil, color: Colors.blue, size: 20),
                     onPressed: () => _editMessage(msg),
-                    tooltip: 'Редактировать',
+                    tooltip: t('admin.moderation.edit') ?? 'Редактировать',
                   ),
                   IconButton(
                     icon: const Icon(LucideIcons.trash_2, color: Colors.red, size: 20),
                     onPressed: () => _deleteMessage(msg['id'].toString()),
-                    tooltip: 'Удалить',
+                    tooltip: t('admin.moderation.delete') ?? 'Удалить',
                   ),
                 ],
               ),
@@ -387,6 +387,7 @@ class _ModerationTabState extends State<ModerationTab> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).appColors;
+    final t = context.read<LocaleProvider>().t;
     
     return DefaultTabController(
       length: 2,
@@ -398,9 +399,9 @@ class _ModerationTabState extends State<ModerationTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Модерация', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: colors.foreground)),
+                Text(t('admin.moderation.title') ?? 'Модерация', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white, height: 1.1)),
                 const SizedBox(height: 4),
-                Text('Управление сообщениями в Общем и Личных чатах', style: GoogleFonts.inter(fontSize: 14, color: colors.foreground.withOpacity(0.7))),
+                Text(t('admin.moderation.desc') ?? 'Управление сообщениями в Общем и Личных чатах', style: GoogleFonts.inter(fontSize: 14, color: Colors.white.withValues(alpha: 0.7))),
               ],
             ),
           ),
@@ -413,9 +414,9 @@ class _ModerationTabState extends State<ModerationTab> {
                 setState(() => _selectedChatId = null);
               }
             },
-            tabs: const [
-              Tab(text: 'Общий чат'),
-              Tab(text: 'Личные чаты'),
+            tabs: [
+              Tab(text: t('admin.moderation.general') ?? 'Общий чат'),
+              Tab(text: t('admin.moderation.direct') ?? 'Личные чаты'),
             ],
           ),
           Expanded(

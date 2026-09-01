@@ -7973,5 +7973,27 @@
     "uk": "Застосувати",
     "uz": "Qo'llash",
     "tg": "Татбиқ кардан"
+  },
+  "admin.tab.chats": {
+    "ru": "Чаты",
+    "en": "Chats",
+    "de": "Chats",
+    "ro": "Chat-uri",
+    "bg": "Чатове",
+    "pl": "Czaty",
+    "uk": "Чати",
+    "uz": "Chatlar",
+    "tg": "Чатҳо"
+  },
+  "admin.tab.moderation": {
+    "ru": "Модерация",
+    "en": "Moderation",
+    "de": "Moderation",
+    "ro": "Moderare",
+    "bg": "Модерация",
+    "pl": "Moderacja",
+    "uk": "Модерація",
+    "uz": "Moderatsiya",
+    "tg": "Модератсия"
   }
 }

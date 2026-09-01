@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -191,9 +192,9 @@ class _ModerationTabState extends State<ModerationTab> {
     if (!channelId.startsWith('dm_')) return channelId;
     final parts = channelId.replaceAll('dm_', '').split('_');
     if (parts.length >= 2) {
-      final name1 = _profiles[parts[0]] ?? 'Неизвестный';
-      final name2 = _profiles[parts[1]] ?? 'Неизвестный';
-      return '$name1 и $name2';
+      final name1 = TransliterationService.transliterateIfNeeded(_profiles[parts[0]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.read<LocaleProvider>().currentLang);
+      final name2 = TransliterationService.transliterateIfNeeded(_profiles[parts[1]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.read<LocaleProvider>().currentLang);
+      return '$name1 ${t('admin.moderation.and') ?? 'и'} $name2';
     }
     return channelId;
   }
@@ -298,7 +299,7 @@ class _ModerationTabState extends State<ModerationTab> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final msg = messagesToShow[index];
-        final authorName = msg['author_name']?.toString() ?? 'Неизвестный';
+        final authorName = TransliterationService.transliterateIfNeeded(msg['author_name']?.toString() ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.read<LocaleProvider>().currentLang);
         
         return Container(
           decoration: BoxDecoration(

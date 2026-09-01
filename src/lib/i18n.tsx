@@ -325,6 +325,17 @@ const DICT: Dict = {
     uz: "Saqlash",
     tg: "Захира кардан",
   },
+    "admin.moderation.and": {
+    ru: "и",
+    en: "and",
+    de: "und",
+    ro: "și",
+    bg: "и",
+    pl: "i",
+    uk: "та",
+    uz: "va",
+    tg: "ва",
+  },
   "admin.tab.moderation": {
     ru: "Модерация",
     en: "Moderation",

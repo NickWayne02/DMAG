@@ -3,8 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2, MessageSquare, Edit2, Check, X } from "lucide-react";
-import { format } from "date-fns";
-import { ru } from "date-fns/locale";
+
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +21,7 @@ interface DbMessage {
 }
 
 export function ModerationTab() {
-  const { t } = useLanguage();
+  const { t, lang, tName } = useLanguage();
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -75,7 +74,7 @@ export function ModerationTab() {
       const { data: profData } = await supabase.from("profiles").select("id, full_name");
       if (profData) {
         const map: Record<string, string> = {};
-        profData.forEach(p => map[p.id] = p.full_name || "Без имени");
+        profData.forEach(p => map[p.id] = p.full_name || t("admin.moderation.unknown")!);
         setProfiles(map);
       }
     } catch (err: any) {
@@ -166,9 +165,9 @@ export function ModerationTab() {
     if (!channelId.startsWith("dm_")) return channelId;
     const parts = channelId.replace("dm_", "").split("_");
     if (parts.length >= 2) {
-      const name1 = profiles[parts[0]] || t("admin.moderation.unknown");
-      const name2 = profiles[parts[1]] || t("admin.moderation.unknown");
-      return `${name1} и ${name2}`;
+      const name1 = tName(profiles[parts[0]] || t("admin.moderation.unknown")!);
+      const name2 = tName(profiles[parts[1]] || t("admin.moderation.unknown")!);
+      return `${name1} ${t("admin.moderation.and")} ${name2}`;
     }
     return channelId;
   }
@@ -256,9 +255,9 @@ export function ModerationTab() {
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm truncate">{msg.author_name || t("admin.moderation.unknown")}</span>
+                  <span className="font-semibold text-sm truncate">{tName(msg.author_name || t("admin.moderation.unknown")!)}</span>
                   <span className="text-xs text-muted-foreground shrink-0">
-                    {format(new Date(msg.created_at), "d MMM, HH:mm", { locale: ru })}
+                    {new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(msg.created_at))}
                   </span>
                   {filterType === "direct" && (
                     <Badge variant="outline" className="text-[10px] ml-2 shrink-0">

@@ -116,6 +116,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
   }
 
   Future<void> _submit() async {
+    final currentLang = context.read<LocaleProvider>().currentLang;
     // The check for site == null was removed to allow sending reports to the general chat
     
     if (_imageFile == null && _existingPhotoUrl == null) {
@@ -185,7 +186,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
           'author_id': user.id,
           'author_name': authorName,
           'content': '[PHOTO_REPORT] $photoUrl | $_criticality | $desc',
-          'source_lang': 'ru',
+          'source_lang': context.read<LocaleProvider>().currentLang,
         });
       }
 

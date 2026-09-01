@@ -3,6 +3,7 @@ import '../../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../widgets/translated_message.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../../theme/app_theme.dart';
@@ -22,7 +23,7 @@ class _ModerationTabState extends State<ModerationTab> {
   bool _isLoading = true;
   String? _selectedChatId;
 
-  String? t(String key) => context.read<LocaleProvider>().t(key);
+  String? t(String key) => context.watch<LocaleProvider>().t(key);
 
   @override
   void initState() {
@@ -133,69 +134,99 @@ class _ModerationTabState extends State<ModerationTab> {
     }
   }
 
-  Widget _buildContent(String content, AppColors colors) {
-    if (content.contains('[ФОТО_ОТЧЕТ]') || content.contains('[PHOTO_REPORT]')) {
-      String textToSplit = content;
-      if (content.contains('[ФОТО_ОТЧЕТ]')) {
-        textToSplit = content.substring(content.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
-      } else if (content.contains('[PHOTO_REPORT]')) {
-        textToSplit = content.substring(content.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
-      }
-      final parts = textToSplit.split(' | ');
-      String photoUrl = parts.isNotEmpty ? parts[0] : '';
-      String criticality = parts.length > 1 ? parts[1] : '';
-      String desc = parts.length > 2 ? parts.sublist(2).join(' | ') : '';
+    Widget _buildContent(Map<String, dynamic> msg, AppColors colors) {
+      final content = msg['content']?.toString() ?? '';
+      Widget mainWidget;
+      String displayContent = content;
+      bool isPhotoReport = false;
 
-      if (photoUrl.isNotEmpty && !photoUrl.startsWith('http')) {
-        photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
+      if (content.contains('[ФОТО_ОТЧЕТ]') || content.contains('[PHOTO_REPORT]')) {
+        isPhotoReport = true;
+        String textToSplit = content;
+        if (content.contains('[ФОТО_ОТЧЕТ]')) {
+          textToSplit = content.substring(content.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
+        } else if (content.contains('[PHOTO_REPORT]')) {
+          textToSplit = content.substring(content.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
+        }
+        final parts = textToSplit.split(' | ');
+        String photoUrl = parts.isNotEmpty ? parts[0] : '';
+        String criticality = parts.length > 1 ? parts[1] : '';
+        String desc = parts.length > 2 ? parts.sublist(2).join(' | ') : '';
+        displayContent = desc;
+
+        if (photoUrl.isNotEmpty && !photoUrl.startsWith('http')) {
+          photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
+        }
+        
+        String critLang = criticality;
+        if (criticality == 'INFO') critLang = t('crit.info') ?? 'INFO';
+        if (criticality == 'WARNING') critLang = t('crit.warning') ?? 'WARNING';
+        if (criticality == 'URGENT') critLang = t('crit.urgent') ?? 'URGENT';
+
+        mainWidget = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (photoUrl.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    photoUrl,
+                    height: 120,
+                    width: 120,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                  ),
+                ),
+              ),
+            Row(
+              children: [
+                if (criticality.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(critLang, style: GoogleFonts.inter(fontSize: 10, color: colors.primary, fontWeight: FontWeight.bold)),
+                  ),
+                if (desc.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(desc, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14))),
+                ]
+              ],
+            )
+          ],
+        );
+      } else {
+        mainWidget = Text(content, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14));
       }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (photoUrl.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  photoUrl,
-                  height: 120,
-                  width: 120,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                ),
-              ),
-            ),
-          Row(
-            children: [
-              if (criticality.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: colors.primary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(criticality.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, color: colors.primary, fontWeight: FontWeight.bold)),
-                ),
-              if (desc.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                Expanded(child: Text(desc, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14))),
-              ]
-            ],
-          )
+          mainWidget,
+          TranslatedMessageContent(
+            id: msg['id'].toString(),
+            content: displayContent,
+            sourceLang: msg['source_lang']?.toString(),
+            targetLang: context.watch<LocaleProvider>().currentLang,
+            translatingText: t('translating') ?? 'Перевод...',
+            isMine: false,
+            isPhotoReport: isPhotoReport,
+          ),
         ],
       );
     }
-    return Text(content, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14));
-  }
+
 
   String _getChatName(String channelId) {
     if (!channelId.startsWith('dm_')) return channelId;
     final parts = channelId.replaceAll('dm_', '').split('_');
     if (parts.length >= 2) {
-      final name1 = TransliterationService.transliterateIfNeeded(_profiles[parts[0]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.read<LocaleProvider>().currentLang);
-      final name2 = TransliterationService.transliterateIfNeeded(_profiles[parts[1]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.read<LocaleProvider>().currentLang);
+      final name1 = TransliterationService.transliterateIfNeeded(_profiles[parts[0]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.watch<LocaleProvider>().currentLang);
+      final name2 = TransliterationService.transliterateIfNeeded(_profiles[parts[1]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.watch<LocaleProvider>().currentLang);
       return '$name1 ${t('admin.moderation.and') ?? 'и'} $name2';
     }
     return channelId;
@@ -301,7 +332,7 @@ class _ModerationTabState extends State<ModerationTab> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final msg = messagesToShow[index];
-        final authorName = TransliterationService.transliterateIfNeeded(msg['author_name']?.toString() ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.read<LocaleProvider>().currentLang);
+        final authorName = TransliterationService.transliterateIfNeeded(msg['author_name']?.toString() ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.watch<LocaleProvider>().currentLang);
         
         return Container(
           decoration: BoxDecoration(
@@ -337,7 +368,7 @@ class _ModerationTabState extends State<ModerationTab> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    _buildContent(msg['content']?.toString() ?? '', colors),
+                    _buildContent(msg, colors),
                   ],
                 ),
               ),
@@ -390,7 +421,7 @@ class _ModerationTabState extends State<ModerationTab> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).appColors;
-    final t = context.read<LocaleProvider>().t;
+    final t = context.watch<LocaleProvider>().t;
     
     return DefaultTabController(
       length: 2,

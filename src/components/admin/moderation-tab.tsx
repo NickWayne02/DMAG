@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/lib/i18n";
+import { translateMessage } from "@/lib/translate.functions";
 
 interface DbMessage {
   id: string;
@@ -17,6 +18,7 @@ interface DbMessage {
   author_id: string;
   author_name: string | null;
   content: string;
+  source_lang: string | null;
   created_at: string;
 }
 
@@ -28,6 +30,7 @@ export function ModerationTab() {
   const [editContent, setEditContent] = useState("");
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const [translatedTexts, setTranslatedTexts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchMessages();
@@ -58,12 +61,29 @@ export function ModerationTab() {
     };
   }, []);
 
+  useEffect(() => {
+    setTranslatedTexts({});
+  }, [lang]);
+
+  useEffect(() => {
+    messages.forEach((m) => {
+      if (m.source_lang && m.source_lang !== lang && translatedTexts[m.id] === undefined) {
+        setTranslatedTexts((prev) => ({ ...prev, [m.id]: "" }));
+        translateMessage({ text: m.content, sourceLang: m.source_lang, targetLang: lang })
+          .then((res) => {
+            setTranslatedTexts((prev) => ({ ...prev, [m.id]: res.translated }));
+          })
+          .catch(console.error);
+      }
+    });
+  }, [messages, lang, translatedTexts]);
+
   async function fetchMessages() {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from("chat_messages")
-        .select("*")
+        .select("id, channel_type, channel_id, author_id, author_name, content, created_at, source_lang")
         .in("channel_type", ["general", "direct"])
         .order("created_at", { ascending: false })
         .limit(100);
@@ -146,19 +166,50 @@ export function ModerationTab() {
         photoUrl = supabase.storage.from("photo-reports").getPublicUrl(photoUrl).data.publicUrl;
       }
 
+      let translatedDesc = null;
+      if (msg.source_lang && msg.source_lang !== lang && translatedTexts[msg.id]) {
+        const trText = translatedTexts[msg.id];
+        let trTextToSplit = trText;
+        if (trText.includes("[ФОТО_ОТЧЕТ]")) trTextToSplit = trText.substring(trText.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length).trim();
+        else if (trText.includes("[PHOTO_REPORT]")) trTextToSplit = trText.substring(trText.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length).trim();
+        else if (trText.includes("[PHOTO REPORT]")) trTextToSplit = trText.substring(trText.indexOf("[PHOTO REPORT]") + "[PHOTO REPORT]".length).trim();
+        const trParts = trTextToSplit.split(" | ");
+        if (trParts.length >= 3) {
+          translatedDesc = trParts.slice(2).join(" | ");
+        } else {
+          translatedDesc = trText;
+        }
+      }
+
       return (
         <div className="flex flex-col gap-2 mt-2">
           {photoUrl && (
             <img src={photoUrl} alt="Report" className="w-48 h-48 object-cover rounded-xl border bg-muted" />
           )}
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-[10px] uppercase">{criticality || "info"}</Badge>
-            <span className="text-sm font-medium">{desc}</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-[10px] uppercase">{t(`crit.${criticality || "info"}`) || (criticality || "info")}</Badge>
+              <span className="text-sm font-medium">{desc}</span>
+            </div>
+            {translatedDesc && (
+              <div className="text-sm text-muted-foreground italic border-l-2 pl-2 mt-1">
+                {translatedDesc}
+              </div>
+            )}
           </div>
         </div>
       );
     }
-    return <p className="text-sm mt-1 whitespace-pre-wrap">{content}</p>;
+    
+    const translated = msg.source_lang && msg.source_lang !== lang ? translatedTexts[msg.id] : null;
+    return (
+      <div className="mt-1">
+        <p className="text-sm whitespace-pre-wrap">{content}</p>
+        {translated && (
+          <p className="text-sm whitespace-pre-wrap text-muted-foreground italic border-l-2 pl-2 mt-2">{translated}</p>
+        )}
+      </div>
+    );
   }
 
   function getChatName(channelId: string) {

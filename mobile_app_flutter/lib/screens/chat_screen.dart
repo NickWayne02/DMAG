@@ -4,6 +4,7 @@ import '../providers/locale_provider.dart';
 import '../providers/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import '../widgets/translated_message.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -742,7 +743,7 @@ class _ChatContentState extends State<ChatContent> {
         'author_id': user.id,
         'author_name': authorName,
         'content': text,
-        'source_lang': 'ru',
+        'source_lang': context.read<LocaleProvider>().currentLang,
       });
       _messageController.clear();
       // Scroll to bottom
@@ -1074,6 +1075,15 @@ class _ChatContentState extends State<ChatContent> {
                         Text(
                           displayContent,
                           style: GoogleFonts.inter(fontSize: 14, color: Theme.of(context).appColors.foreground),
+                        ),
+                        TranslatedMessageContent(
+                          id: msg['id'].toString(),
+                          content: displayContent,
+                          sourceLang: msg['source_lang']?.toString(),
+                          targetLang: context.read<LocaleProvider>().currentLang,
+                          translatingText: context.read<LocaleProvider>().t('translating') ?? 'Перевод...',
+                          isMine: isMe,
+                          isPhotoReport: isPhotoReport,
                         ),
                         const SizedBox(height: 4),
                         Align(

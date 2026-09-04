@@ -3761,6 +3761,28 @@
     "uz": "obyektdagi smenani boshladi",
     "tg": "басти худро дар сайт оғоз кард"
   },
+  "admin_dashboard.started_lunch": {
+    "ru": "ушел на обед",
+    "en": "went on lunch",
+    "de": "ist in die Mittagspause gegangen",
+    "ro": "a plecat la pauză",
+    "bg": "излезе в почивка",
+    "pl": "poszedł na przerwę",
+    "uk": "пішов на обід",
+    "uz": "tushlikka chiqdi",
+    "tg": "ба танаффус рафт"
+  },
+  "admin_dashboard.finished_lunch": {
+    "ru": "вернулся с обеда",
+    "en": "returned from lunch",
+    "de": "ist aus der Mittagspause zurückgekehrt",
+    "ro": "s-a întors din pauză",
+    "bg": "се върна от почивка",
+    "pl": "wrócił z przerwy",
+    "uk": "повернувся з обіду",
+    "uz": "tushlikdan qaytdi",
+    "tg": "аз танаффус баргашт"
+  },
   "personnel.monitoring": {
     "ru": "Мониторинг сотрудников",
     "en": "Employee monitoring",
@@ -4674,24 +4696,24 @@
   "dashboard.work_progress": {
     "ru": "🟢 Работа идет",
     "en": "🟢 Work in progress",
-    "de": "🟢 Work in progress",
-    "ro": "🟢 Work in progress",
-    "bg": "🟢 Работа идет",
-    "pl": "🟢 Work in progress",
-    "uk": "🟢 Робота йде",
-    "uz": "🟢 Work in progress",
-    "tg": "🟢 Работа идет"
+    "de": "🟢 In Arbeit",
+    "ro": "🟢 În lucru",
+    "bg": "🟢 В работа",
+    "pl": "🟢 W pracy",
+    "uk": "🟢 Робота триває",
+    "uz": "🟢 Ish jarayoni",
+    "tg": "🟢 Дар ҷараёни кор"
   },
   "dashboard.lunch_status": {
     "ru": "🟡 Обед",
     "en": "🟡 Lunch break",
-    "de": "🟡 Lunch break",
-    "ro": "🟡 Lunch break",
-    "bg": "🟡 Обед",
-    "pl": "🟡 Lunch break",
+    "de": "🟡 Pause",
+    "ro": "🟡 Pauză",
+    "bg": "🟡 Пауза",
+    "pl": "🟡 Przerwa",
     "uk": "🟡 Обід",
-    "uz": "🟡 Lunch break",
-    "tg": "🟡 Обед"
+    "uz": "🟡 Tanaffus",
+    "tg": "🟡 Танаффус"
   },
   "dashboard.toast_shift_started": {
     "ru": "Смена начата",

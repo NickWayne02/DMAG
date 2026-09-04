@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import 'admin/dialogs/add_site_dialog.dart';
+import '../providers/locale_provider.dart';
+import '../utils/transliteration.dart';
 
 class SiteSelectorSheet extends StatefulWidget {
   final String? initialSiteId;
@@ -62,7 +65,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка загрузки объектов')),
+          SnackBar(content: Text(context.read<LocaleProvider>().t('site_selector.error') ?? 'Ошибка загрузки объектов')),
         );
       }
     }
@@ -100,7 +103,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
             child: Row(
               children: [
                 Text(
-                  'Выбор объекта',
+                  context.watch<LocaleProvider>().t('siteDlg.title') ?? 'Выбор объекта',
                   style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -130,13 +133,14 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor))
                 : _sites.isEmpty
-                    ? Center(child: Text('Нет доступных объектов', style: TextStyle(color: Theme.of(context).appColors.muted)))
+                    ? Center(child: Text(context.watch<LocaleProvider>().t('site_selector.empty') ?? 'Нет доступных объектов', style: TextStyle(color: Theme.of(context).appColors.muted)))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                         itemCount: _sites.length,
                         itemBuilder: (context, index) {
                           final site = _sites[index];
                           final isActive = site['id'] == widget.initialSiteId;
+                          final currentLang = context.watch<LocaleProvider>().currentLang;
                           
                           return GestureDetector(
                             onTap: () {
@@ -169,7 +173,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          site['name'] ?? 'Без названия',
+                                          TransliterationService.transliterateIfNeeded(site['name'] ?? context.read<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия', currentLang),
                                           style: GoogleFonts.inter(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -179,7 +183,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                                         if (site['address'] != null && site['address'].toString().isNotEmpty) ...[
                                           const SizedBox(height: 4),
                                           Text(
-                                            site['address'],
+                                            TransliterationService.transliterateIfNeeded(site['address'], currentLang),
                                             style: GoogleFonts.inter(
                                               fontSize: 12,
                                               color: Theme.of(context).appColors.muted,

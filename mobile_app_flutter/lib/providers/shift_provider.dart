@@ -25,6 +25,7 @@ class ShiftProvider extends ChangeNotifier {
   Map<String, dynamic>? _selectedSite;
   Timer? _timer;
   DateTime _now = DateTime.now();
+  RealtimeChannel? _shiftSubscription;
 
   ShiftStatus get status => _status;
   DateTime? get shiftStart => _shiftStart;
@@ -36,11 +37,9 @@ class ShiftProvider extends ChangeNotifier {
   String? get travelTime => _travelTime;
   bool get isAdminView => _isAdminView; // Add getter
 
-  void setAdminView(bool val) async {
+  void setAdminView(bool val) {
     _isAdminView = val;
     notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_admin_view', val);
   }
 
   int get workMs {
@@ -62,10 +61,16 @@ class ShiftProvider extends ChangeNotifier {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.signedIn) {
         reloadProfile();
+        _syncActiveShiftFromServer();
+        _setupShiftSubscription();
       } else if (data.event == AuthChangeEvent.signedOut) {
         resetShift();
         _userProfile = null;
         _selectedSite = null;
+        if (_shiftSubscription != null) {
+          Supabase.instance.client.removeChannel(_shiftSubscription!);
+          _shiftSubscription = null;
+        }
         notifyListeners();
       }
     });
@@ -161,7 +166,7 @@ class ShiftProvider extends ChangeNotifier {
     }
 
     final statusStr = prefs.getString('shift_status');
-    _isAdminView = prefs.getBool('is_admin_view') ?? false;
+    _isAdminView = false; // Always default to employee view on startup
 
     if (statusStr != null) {
       final loadedStatus = ShiftStatus.values.firstWhere(
@@ -196,6 +201,86 @@ class ShiftProvider extends ChangeNotifier {
       _now = DateTime.now();
       notifyListeners();
     }
+
+    _syncActiveShiftFromServer();
+    _setupShiftSubscription();
+  }
+
+  Future<void> _syncActiveShiftFromServer() async {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    
+    try {
+      final data = await Supabase.instance.client
+          .from('shifts')
+          .select()
+          .eq('user_id', user.id)
+          .inFilter('status', ['working', 'lunch'])
+          .isFilter('ended_at', null)
+          .order('created_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      if (data != null) {
+        _status = data['status'] == 'working' ? ShiftStatus.working : ShiftStatus.lunch;
+        _shiftStart = data['started_at'] != null ? DateTime.parse(data['started_at']).toLocal() : null;
+        _shiftId = data['id'];
+        
+        if (data['site_id'] != null && data['site_name'] != null) {
+          setSelectedSite({
+            'id': data['site_id'],
+            'name': data['site_name'],
+            'address': null,
+          });
+        }
+        
+        _lunchAccumMs = data['lunch_total_ms'] ?? 0;
+        _lunchStart = data['lunch_started_at'] != null ? DateTime.parse(data['lunch_started_at']).toLocal() : null;
+        
+        if (data['lunch_intervals'] != null && data['lunch_intervals'] is List) {
+          _lunchIntervals = List<Map<String, dynamic>>.from(data['lunch_intervals']);
+        }
+      } else {
+        if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
+          _status = ShiftStatus.idle;
+          _shiftStart = null;
+          _shiftId = null;
+          _lunchAccumMs = 0;
+          _lunchStart = null;
+          _lunchIntervals = [];
+        }
+      }
+      _saveState();
+      notifyListeners();
+    } catch (_) {
+      // Ignore network errors, fallback to local state
+    }
+  }
+
+  void _setupShiftSubscription() {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+
+    if (_shiftSubscription != null) {
+      Supabase.instance.client.removeChannel(_shiftSubscription!);
+      _shiftSubscription = null;
+    }
+    _shiftSubscription = Supabase.instance.client
+        .channel('public:shifts:user=${user.id}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'shifts',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: user.id,
+          ),
+          callback: (payload) {
+            _syncActiveShiftFromServer();
+          },
+        )
+        .subscribe();
   }
 
   Future<void> _saveState() async {

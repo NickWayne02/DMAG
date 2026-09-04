@@ -163,7 +163,7 @@ export function BrandingSettingsTab() {
             </div>
             
             <div className="space-y-2 flex-1">
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" className="relative overflow-hidden" disabled={uploading}>
                   {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
                   {uploading ? "..." : t("admin.branding.uploadNew")}

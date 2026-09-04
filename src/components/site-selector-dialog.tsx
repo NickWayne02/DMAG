@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, MapPin, Loader2, ArrowLeft, Check } from "lucide-react";
-import { useT } from "@/lib/i18n";
+import { useLanguage } from "@/lib/i18n";
 import { getCurrentPosition, reverseGeocodeCity } from "@/lib/geocode";
 
 export type Site = {
@@ -38,7 +38,7 @@ export function SiteSelectorDialog({
   onSelect: (site: Site) => void;
 }) {
   const { user } = useAuth();
-  const tr = useT();
+  const { t: tr, tName } = useLanguage();
   const [sites, setSites] = useState<Site[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -253,12 +253,12 @@ export function SiteSelectorDialog({
                         <MapPin className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{s.name}</p>
+                        <p className="font-semibold text-sm truncate">{tName(s.name)}</p>
                         {s.address && (
-                          <p className="text-xs text-muted-foreground truncate">{s.address}</p>
+                          <p className="text-xs text-muted-foreground truncate">{tName(s.address)}</p>
                         )}
                         {s.customer && (
-                          <p className="text-xs text-muted-foreground truncate">{s.customer}</p>
+                          <p className="text-xs text-muted-foreground truncate">{tName(s.customer)}</p>
                         )}
                       </div>
                       {active && <Check className="h-5 w-5 text-primary shrink-0" />}

@@ -4503,6 +4503,7 @@ export function transliterateName(name: string, lang: LangCode): string {
     res = res.replace(/Дмитрий/g, "Дмитро").replace(/дмитрий/g, "дмитро");
     res = res.replace(/Владимир/g, "Володимир").replace(/владимир/g, "володимир");
     res = res.replace(/Сергей/g, "Сергій").replace(/сергей/g, "сергій");
+    res = res.replace(/Светловодск/g, "Світловодськ");
     return res;
   }
 

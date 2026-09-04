@@ -131,11 +131,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         break;
       case ShiftStatus.working:
         statusColor = const Color(0xFF22c55e); // Success green
-        statusLabel = t('dashboard.status_working') ?? '🟢 Работа идет';
+        statusLabel = t('dashboard.work_progress') ?? '🟢 Работа идет';
         break;
       case ShiftStatus.lunch:
         statusColor = const Color(0xFFf59e0b); // Warning amber
-        statusLabel = t('dashboard.status_lunch') ?? '🟡 Обед';
+        statusLabel = t('dashboard.lunch_status') ?? '🟡 Обед';
         break;
     }
 
@@ -367,7 +367,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       Text(t('dashboard.site') ?? 'Объект', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                       Text(
                                         shift.selectedSite != null 
-                                            ? (shift.selectedSite!['address'] ?? shift.selectedSite!['name'])
+                                            ? TransliterationService.transliterateIfNeeded(shift.selectedSite!['address'] ?? shift.selectedSite!['name'], context.watch<LocaleProvider>().currentLang)
                                             : context.watch<LocaleProvider>().t('dashboard.site_not_selected') ?? 'Не выбран — нажмите, чтобы выбрать',
                                         style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 11),
                                         maxLines: 1,
@@ -743,10 +743,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final site = shift.selectedSite!;
     final address = site['address'] as String? ?? site['name'] as String;
     
+    final currentLang = context.watch<LocaleProvider>().currentLang;
     String displayName = address;
     if (displayName.startsWith('GPS: ')) {
       displayName = shift.userProfile?['start_city'] ?? site['name'] as String;
     }
+    displayName = TransliterationService.transliterateIfNeeded(displayName, currentLang);
 
     if (address.startsWith('GPS: ')) {
       // coordinates can be parsed here if needed
@@ -788,7 +790,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: GoogleMapEmbed(
                 query: address.startsWith('GPS: ') 
                   ? address.replaceFirst('GPS: ', '').trim() 
-                  : address.isNotEmpty ? address : site['name'] as String
+                  : TransliterationService.transliterateIfNeeded(address.isNotEmpty ? address : site['name'] as String, currentLang)
               ),
             ),
           ),
@@ -827,7 +829,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Зафиксировать GPS-координаты?',
+              context.read<LocaleProvider>().t('dashboard.gps_title') ?? 'Зафиксировать GPS-координаты?',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 color: colors.foreground,
@@ -838,7 +840,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
         content: Text(
-          'Геопозиция запрашивается только в момент действия. Передача добровольна — постоянный трекинг не ведётся.',
+          context.read<LocaleProvider>().t('dashboard.gps_msg') ?? 'Геопозиция запрашивается только в момент действия. Передача добровольна — постоянный трекинг не ведётся.',
           textAlign: TextAlign.center,
           style: GoogleFonts.inter(
             color: colors.foreground.withValues(alpha: 0.7),
@@ -858,7 +860,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('Пропустить', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                  child: Text(context.read<LocaleProvider>().t('dashboard.gps_skip') ?? 'Пропустить', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -872,7 +874,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('Разрешить', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                  child: Text(context.read<LocaleProvider>().t('dashboard.gps_allow') ?? 'Разрешить', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
@@ -924,7 +926,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Смена больше 8 часов',
+                context.read<LocaleProvider>().t('dashboard.lunch_deduct_title') ?? 'Смена больше 8 часов',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   color: colors.foreground,
@@ -935,7 +937,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           content: Text(
-            'Удержать 30 минут за обед?',
+            context.read<LocaleProvider>().t('dashboard.lunch_deduct_msg') ?? 'Удержать 30 минут за обед?',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               color: colors.foreground.withValues(alpha: 0.7),
@@ -955,7 +957,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('Нет', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                    child: Text(context.read<LocaleProvider>().t('dashboard.lunch_deduct_no') ?? 'Нет', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -969,7 +971,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: Text('Удержать', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+                    child: Text(context.read<LocaleProvider>().t('dashboard.lunch_deduct_yes') ?? 'Удержать', style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

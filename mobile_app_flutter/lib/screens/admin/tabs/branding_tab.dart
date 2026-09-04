@@ -384,8 +384,11 @@ class _BrandingTabState extends State<BrandingTab> {
             const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
               children: [
                 Text(
                   t('admin.branding.gallery') ?? 'Галерея брендов',
@@ -400,7 +403,7 @@ class _BrandingTabState extends State<BrandingTab> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   icon: const Icon(LucideIcons.save, size: 16),
-                  label: Text(t('admin.branding.saveCurrent') ?? 'В галерею'),
+                  label: Text(t('admin.branding.saveCurrent') ?? 'Сохранить как пресет', style: const TextStyle(fontSize: 13)),
                 ),
               ],
             ),

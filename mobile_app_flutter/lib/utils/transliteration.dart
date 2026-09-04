@@ -26,7 +26,24 @@ const Map<String, String> _ruToUkMap = {
   'Владислав': 'Владислав',
   'Руслан Ткаченко': 'Руслан Ткаченко',
   'Евгений': 'Євгеній',
+  'евгений': 'євгеній',
+  'Евгения': 'Євгенія',
+  'евгения': 'євгенія',
+  'Николай': 'Микола',
+  'николай': 'микола',
   'Костин': 'Костін',
+  'Светловодск': 'Світловодськ',
+};
+
+const Map<String, String> _ruToUkChars = {
+  'и': 'і',
+  'И': 'І',
+  'ы': 'и',
+  'Ы': 'И',
+  'э': 'е',
+  'Э': 'Е',
+  'ъ': "'",
+  'Ъ': "'",
 };
 
 class TransliterationService {
@@ -35,7 +52,17 @@ class TransliterationService {
   /// Latin languages: en, de, ro, pl, uz
   static String transliterateIfNeeded(String text, String langCode) {
     if (langCode.toLowerCase() == 'uk') {
-      String out = text;
+      final buffer = StringBuffer();
+      for (int i = 0; i < text.length; i++) {
+        final char = text[i];
+        if (_ruToUkChars.containsKey(char)) {
+          buffer.write(_ruToUkChars[char]);
+        } else {
+          buffer.write(char);
+        }
+      }
+      
+      String out = buffer.toString();
       _ruToUkMap.forEach((ru, uk) {
         out = out.replaceAll(ru, uk);
       });

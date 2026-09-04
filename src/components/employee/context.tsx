@@ -425,6 +425,80 @@ export function EmployeeProvider({
     loadReports();
   }, [selectedSite?.id, user?.id]);
 
+  // Synchronize active shift from Supabase
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+
+    async function fetchActiveShift() {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("shifts")
+        .select("*")
+        .eq("user_id", user.id)
+        .in("status", ["working", "lunch"])
+        .is("ended_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!isMounted) return;
+
+      if (data && !error) {
+        setStatus(data.status as ShiftStatus);
+        setShiftStart(data.started_at ? new Date(data.started_at).getTime() : null);
+        setShiftId(data.id);
+        
+        if (data.site_id && data.site_name) {
+          setSelectedSite({ id: data.site_id, name: data.site_name, address: null, customer: null, comment: null });
+        }
+        
+        setLunchAccumMs(data.lunch_total_ms ?? 0);
+        setLunchStart(data.lunch_started_at ? new Date(data.lunch_started_at).getTime() : null);
+        if (data.lunch_intervals && Array.isArray(data.lunch_intervals)) {
+          setLunchIntervals(data.lunch_intervals as any);
+        }
+      } else {
+        // If server says no active shift, make sure we reflect that
+        setStatus((s) => {
+          if (s === "working" || s === "lunch") {
+            setShiftStart(null);
+            setShiftId(null);
+            setLunchAccumMs(0);
+            setLunchStart(null);
+            setLunchIntervals([]);
+            return "idle";
+          }
+          return s;
+        });
+      }
+    }
+
+    void fetchActiveShift();
+
+    const channel = supabase
+      .channel(`public:shifts:user=${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "shifts",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          void fetchActiveShift();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      void supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const totalMs = useMemo(() => {
     if (!shiftStart) return 0;
     const end = shiftEnd ?? now;

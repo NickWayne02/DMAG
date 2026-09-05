@@ -361,6 +361,7 @@ const DICT: Dict = {
 
   "admin.reports.searchDesc": {
     ru: "Поиск по описанию...",
+    uk: "Пошук за описом...",
     en: "Search by description...",
     ro: "Cauta dupa descriere...",
     bg: "Търсене по описание...",
@@ -379,6 +380,7 @@ const DICT: Dict = {
   },
   "admin.reports.allSites": {
     ru: "Все объекты",
+    uk: "Всі об'єкти",
     en: "All sites",
     ro: "Toate obiectele",
     bg: "Всички обекти",
@@ -397,6 +399,7 @@ const DICT: Dict = {
   },
   "admin.reports.allTime": {
     ru: "За всё время",
+    uk: "За весь час",
     en: "All time",
     ro: "Pentru tot timpul",
     bg: "За всички времена",
@@ -424,6 +427,7 @@ const DICT: Dict = {
   },
   "admin.users.search": {
     ru: "Поиск пользователя...",
+    uk: "Пошук користувача...",
     en: "Search user...",
     ro: "Căutați utilizator...",
     bg: "Търсене на потребител...",
@@ -442,6 +446,7 @@ const DICT: Dict = {
   },
   "admin.users.colLastLogin": {
     ru: "Последний вход",
+    uk: "Останній вхід",
     en: "Last login",
     ro: "Ultima intrare",
     bg: "Последно влизане",
@@ -451,6 +456,7 @@ const DICT: Dict = {
   },
   "admin.users.online": {
     ru: "В сети",
+    uk: "В мережі",
     en: "Online",
     ro: "В сети",
     bg: "Онлайн",
@@ -544,12 +550,12 @@ const DICT: Dict = {
   },
   "admin.dashboard.searchSite": {
     ru: "Поиск объекта...",
+    uk: "Пошук об'єкта...",
     en: "Search site...",
     de: "Objekt suchen...",
     ro: "Căutare obiectiv...",
     bg: "Търсене на обект...",
     pl: "Szukaj obiektu...",
-    uk: "Пошук об'єкта...",
     uz: "Obyektni qidirish...",
     tg: "Ҷустуҷӯи объект...",
   },
@@ -1361,34 +1367,34 @@ const DICT: Dict = {
   },
   "admin.personnel.search": {
     ru: "Поиск по имени...",
+    uk: "Пошук за іменем...",
     en: "Search by name...",
     de: "Nach Name suchen...",
     ro: "Поиск по имени...",
     bg: "Поиск по имени...",
     pl: "Szukaj po nazwisku...",
-    uk: "Пошук за іменем...",
     uz: "Поиск по имени...",
     tg: "Поиск по имени...",
   },
   "admin.personnel.allRoles": {
     ru: "Все роли",
+    uk: "Всі ролі",
     en: "All roles",
     de: "Alle Rollen",
     ro: "Все роли",
     bg: "Все роли",
     pl: "Wszystkie role",
-    uk: "Всі ролі",
     uz: "Все роли",
     tg: "Ҳама нақшҳо",
   },
   "admin.personnel.allStatuses": {
     ru: "Все статусы",
+    uk: "Всі статуси",
     en: "All statuses",
     de: "Alle Status",
     ro: "Toate stările",
     bg: "Всички статуси",
     pl: "Wszystkie statusy",
-    uk: "Всі статуси",
     uz: "Barcha holatlar",
     tg: "Ҳама статусҳо",
   },
@@ -1973,12 +1979,12 @@ const DICT: Dict = {
   },
   "admin.sessions.online": {
     ru: "В сети",
+    uk: "В мережі",
     en: "Online",
     de: "Online",
     ro: "Online",
     bg: "На линия",
     pl: "Online",
-    uk: "В мережі",
     uz: "Tarmoqda",
     tg: "Дар шабака",
   },
@@ -4375,6 +4381,127 @@ const DICT: Dict = {
     uz: "Ishonch telefoni (24/7)",
     tg: "Телефони боварӣ (24/7)",
   },
+  'settings.custom_colors_title': {
+    ru: "Конструктор темы",
+    en: "Theme Builder",
+    de: "Themen-Baukasten",
+    ro: "Constructor de Teme",
+    bg: "Конструктор на теми",
+    pl: "Kreator motywów",
+    uk: "Конструктор теми",
+    uz: "Mavzu konstruktori",
+    tg: "Конструктори мавзӯъ",
+  },
+  'settings.custom_colors_hint': {
+    ru: "Выберите цвет для каждой панели интерфейса.",
+    en: "Choose a color for each interface panel.",
+    de: "Wählen Sie eine Farbe für jedes Schnittstellenpanel.",
+    ro: "Alegeți o culoare pentru fiecare panou al interfeței.",
+    bg: "Изберете цвят за всеки интерфейсен панел.",
+    pl: "Wybierz kolor dla każdego panelu interfejsu.",
+    uk: "Оберіть колір для кожної панелі інтерфейсу.",
+    uz: "Har bir interfeys paneli uchun rang tanlang.",
+    tg: "Рангро барои ҳар як панели интерфейс интихоб кунед.",
+  },
+  'settings.colors.background': {
+    ru: "Фон страницы",
+    en: "Page Background",
+    de: "Seitenhintergrund",
+    ro: "Fundal Pagina",
+    bg: "Фон на страницата",
+    pl: "Tło strony",
+    uk: "Тло сторінки",
+    uz: "Sahifa foni",
+    tg: "Заминаи саҳифа",
+  },
+  'settings.colors.foreground': {
+    ru: "Основной текст",
+    en: "Main Text",
+    de: "Haupttext",
+    ro: "Text Principal",
+    bg: "Основен текст",
+    pl: "Tekst główny",
+    uk: "Основний текст",
+    uz: "Asosiy matn",
+    tg: "Матни асосӣ",
+  },
+  'settings.colors.card': {
+    ru: "Карточки",
+    en: "Cards",
+    de: "Karten",
+    ro: "Carduri",
+    bg: "Карти",
+    pl: "Karty",
+    uk: "Картки",
+    uz: "Kartalar",
+    tg: "Кортҳо",
+  },
+  'settings.colors.card_text': {
+    ru: "Текст на карточках",
+    en: "Card Text",
+    de: "Kartentext",
+    ro: "Text Card",
+    bg: "Текст на карти",
+    pl: "Tekst na kartach",
+    uk: "Текст на картках",
+    uz: "Kartadagi matn",
+    tg: "Матн дар кортҳо",
+  },
+  'settings.colors.primary': {
+    ru: "Акцент",
+    en: "Accent",
+    de: "Akzent",
+    ro: "Accent",
+    bg: "Акцент",
+    pl: "Akcent",
+    uk: "Акцент",
+    uz: "Urg'u",
+    tg: "Заминаи асосӣ",
+  },
+  'settings.colors.primary_text': {
+    ru: "Текст на акценте",
+    en: "Accent Text",
+    de: "Akzenttext",
+    ro: "Text Accent",
+    bg: "Текст на акцент",
+    pl: "Tekst akcentu",
+    uk: "Текст на акценті",
+    uz: "Urg'udagi matn",
+    tg: "Матни асосӣ",
+  },
+  'settings.colors.muted': {
+    ru: "Второстепенные",
+    en: "Secondary",
+    de: "Sekundär",
+    ro: "Secundar",
+    bg: "Второстепенни",
+    pl: "Wtórne",
+    uk: "Другорядні",
+    uz: "Ikkilamchi",
+    tg: "Иловагӣ",
+  },
+  'settings.colors.border': {
+    ru: "Границы",
+    en: "Borders",
+    de: "Rahmen",
+    ro: "Margini",
+    bg: "Граници",
+    pl: "Granice",
+    uk: "Межі",
+    uz: "Chegaralar",
+    tg: "Сарҳадҳо",
+  },
+  'settings.colors.reset': {
+    ru: "Сброс",
+    en: "Reset",
+    de: "Zurücksetzen",
+    ro: "Resetare",
+    bg: "Нулиране",
+    pl: "Resetuj",
+    uk: "Скинути",
+    uz: "Qaytarish",
+    tg: "Бозсозӣ",
+  },
 };
 
 type Ctx = {
@@ -4476,6 +4603,8 @@ const RU_TO_UK: Record<string, string> = {
   Ъ: "'",
 };
 
+// Removed hardcoded word mapping
+
 export function transliterateName(name: string, lang: LangCode): string {
   if (!name) return name;
   const isLatin = ["en", "de", "ro", "pl", "uz"].includes(lang);
@@ -4490,21 +4619,17 @@ export function transliterateName(name: string, lang: LangCode): string {
 
   if (isUk) {
     // Basic approximation for Russian to Ukrainian names
-    let res = name
+    // 'Е'/'е' at the start of a word, or after a vowel/soft/hard sign, becomes 'Є'/'є'
+    let out = name;
+    out = out.replace(/(^|[\sаеёиоуыэюяАЕЁИОУЫЭЮЯьъЬЪ])Е/g, "$1Є");
+    out = out.replace(/(^|[\sаеёиоуыэюяАЕЁИОУЫЭЮЯьъЬЪ])е/g, "$1є");
+
+    out = out
       .split("")
       .map((char) => RU_TO_UK[char] ?? char)
       .join("");
-    res = res.replace(/Евгений/g, "Євгеній").replace(/евгений/g, "євгеній");
-    res = res.replace(/Евгения/g, "Євгенія").replace(/евгения/g, "євгенія");
-    res = res.replace(/Николай/g, "Микола").replace(/николай/g, "микола");
-    res = res.replace(/Александр/g, "Олександр").replace(/александр/g, "олександр");
-    res = res.replace(/Алексей/g, "Олексій").replace(/алексей/g, "олексій");
-    res = res.replace(/Михаил/g, "Михайло").replace(/михаил/g, "михайло");
-    res = res.replace(/Дмитрий/g, "Дмитро").replace(/дмитрий/g, "дмитро");
-    res = res.replace(/Владимир/g, "Володимир").replace(/владимир/g, "володимир");
-    res = res.replace(/Сергей/g, "Сергій").replace(/сергей/g, "сергій");
-    res = res.replace(/Светловодск/g, "Світловодськ");
-    return res;
+
+    return out;
   }
 
   return name;
@@ -4541,11 +4666,54 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Setup tick for re-rendering when translations arrive
+  const [_, setTick] = useState(0);
+
   const t = (key: string, vars?: Record<string, string | number>) => {
     const entry = DICT[key];
-    if (!entry) return format(key, vars);
-    const value = entry[lang] ?? entry.ru ?? key;
-    return format(value, vars);
+    
+    // Determine target translation
+    const val = entry ? (entry[lang] ?? entry.ru ?? key) : key;
+    
+    // If we have an exact translation for the selected language, or language is Russian, return it
+    if (lang === "ru" || (entry && entry[lang])) {
+      return format(val, vars);
+    }
+    
+    // Otherwise, we are falling back to Russian. Let's try to translate it dynamically.
+    // The Russian fallback text is `val`
+    let apiLang = lang.toLowerCase();
+    if (apiLang === "gb") apiLang = "en";
+    if (apiLang === "ua") apiLang = "uk";
+    
+    const w = window as any;
+    w.__dmag_ui_cache = w.__dmag_ui_cache || {};
+    w.__dmag_ui_pending = w.__dmag_ui_pending || new Set();
+    
+    if (w.__dmag_ui_cache[val]?.[apiLang]) {
+      return format(w.__dmag_ui_cache[val][apiLang], vars);
+    }
+    
+    const cacheKey = `${val}_${apiLang}`;
+    if (!w.__dmag_ui_pending.has(cacheKey)) {
+      w.__dmag_ui_pending.add(cacheKey);
+      
+      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(val)}&langpair=ru|${apiLang}`)
+        .then(r => r.json())
+        .then(data => {
+          const translated = data.responseData?.translatedText;
+          if (translated && translated.trim() !== "" && !translated.includes("MYMEMORY WARNING")) {
+            if (!w.__dmag_ui_cache[val]) w.__dmag_ui_cache[val] = {};
+            w.__dmag_ui_cache[val][apiLang] = translated;
+            setTick(t => t + 1); // trigger re-render
+          }
+        })
+        .catch(e => console.error("Translation error", e))
+        .finally(() => w.__dmag_ui_pending.delete(cacheKey));
+    }
+    
+    // Return fallback while waiting
+    return format(val, vars);
   };
 
   const setLang = (l: LangCode) => {
@@ -4564,7 +4732,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }, 400);
   };
 
-  const tName = (name: string) => transliterateName(name, lang);
+  // tName ONLY formats data (TitleCase) and applies manual overrides (Евгений -> Євген)
+  const tName = (name: string) => {
+    if (!name || name.trim() === "") return name;
+    
+    let processedName = name;
+    
+    // Auto TitleCase if the name is ALL CAPS
+    if (processedName === processedName.toUpperCase() && processedName.match(/[A-ZА-ЯЁІЇЄ]/)) {
+      processedName = processedName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+    }
+    
+    // Manual specific overrides
+    if (lang === "uk") {
+      processedName = processedName
+        .replace(/Евгений/g, "Євген")
+        .replace(/Костин/g, "Костін")
+        .replace(/Светловодск/g, "Світловодськ");
+    }
+    
+    return processedName;
+  };
 
   return (
     <LangContext.Provider value={{ lang, setLang, t, tName }}>

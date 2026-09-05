@@ -1,3 +1,4 @@
+import '../../providers/translation_provider.dart';
 import '../../utils/transliteration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -101,8 +102,8 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
       _selectedSiteId = s['site_id'];
       _selectedSiteName = s['site_name'];
       _lunchController.text = ((s['lunch_total_ms'] ?? 0) ~/ 60000).toString();
-      _startCityController.text = TransliterationService.transliterateIfNeeded(s['start_city'] ?? '', context.read<LocaleProvider>().currentLang);
-      _endCityController.text = TransliterationService.transliterateIfNeeded(s['end_city'] ?? '', context.read<LocaleProvider>().currentLang);
+      _startCityController.text = context.watch<TranslationProvider>().translate(s['start_city'] ?? '', context.read<LocaleProvider>().currentLang);
+      _endCityController.text = context.watch<TranslationProvider>().translate(s['end_city'] ?? '', context.read<LocaleProvider>().currentLang);
     } else {
       _startedAt = DateTime(widget.date.year, widget.date.month, widget.date.day, 9, 0);
       _endedAt = DateTime(widget.date.year, widget.date.month, widget.date.day, 17, 0);
@@ -280,7 +281,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '''${context.read<LocaleProvider>().t('admin.shift.employee') ?? (context.read<LocaleProvider>().t('admin.shift.employee') ?? 'Сотрудник: ')}${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
+                      '''${context.read<LocaleProvider>().t('admin.shift.employee') ?? (context.read<LocaleProvider>().t('admin.shift.employee') ?? 'Сотрудник: ')}${context.watch<TranslationProvider>().translate(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
                       style: GoogleFonts.inter(fontSize: 13, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54)),
                     ),
                   ],
@@ -369,7 +370,7 @@ class _AdminShiftEditSheetState extends State<AdminShiftEditSheet> {
                   DropdownMenuItem(value: null, child: Text(context.watch<LocaleProvider>().t('calendar.no_site') ?? '— Без объекта —', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground))),
                   ..._sites.map((s) => DropdownMenuItem(
                         value: s['id'] as String,
-                        child: Text(TransliterationService.transliterateIfNeeded(s['name'] as String, context.read<LocaleProvider>().currentLang), style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+                        child: Text(context.watch<TranslationProvider>().translate(s['name'] as String, context.read<LocaleProvider>().currentLang), style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                       )),
                 ],
                 onChanged: (val) {

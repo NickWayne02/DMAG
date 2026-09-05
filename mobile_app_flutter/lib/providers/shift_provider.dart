@@ -64,6 +64,7 @@ class ShiftProvider extends ChangeNotifier {
         _syncActiveShiftFromServer();
         _setupShiftSubscription();
       } else if (data.event == AuthChangeEvent.signedOut) {
+        _isAdminView = false;
         resetShift();
         _userProfile = null;
         _selectedSite = null;
@@ -138,7 +139,7 @@ class ShiftProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     
     final siteId = prefs.getString('selected_site_id');
-    if (siteId != null) {
+    if (siteId != null && siteId.isNotEmpty) {
       // Restore immediately from cache to prevent UI flashing and race conditions
       _selectedSite = {
         'id': siteId,
@@ -226,12 +227,30 @@ class ShiftProvider extends ChangeNotifier {
         _shiftStart = data['started_at'] != null ? DateTime.parse(data['started_at']).toLocal() : null;
         _shiftId = data['id'];
         
-        if (data['site_id'] != null && data['site_name'] != null) {
-          setSelectedSite({
-            'id': data['site_id'],
-            'name': data['site_name'],
-            'address': null,
-          });
+        if (data['site_id'] != null) {
+          try {
+            final siteData = await Supabase.instance.client
+                .from('sites')
+                .select('id, name, address')
+                .eq('id', data['site_id'])
+                .maybeSingle();
+            
+            if (siteData != null) {
+              setSelectedSite(siteData);
+            } else {
+              setSelectedSite({
+                'id': data['site_id'],
+                'name': data['site_name'],
+                'address': null,
+              });
+            }
+          } catch (_) {
+            setSelectedSite({
+              'id': data['site_id'],
+              'name': data['site_name'],
+              'address': null,
+            });
+          }
         }
         
         _lunchAccumMs = data['lunch_total_ms'] ?? 0;
@@ -488,11 +507,9 @@ class ShiftProvider extends ChangeNotifier {
     _lunchIntervals = [];
     _shiftId = null;
     _autoLunchApplied = false;
-    _isAdminView = false;
     
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_admin_view', false);
-
+    
     _saveState();
     notifyListeners();
   }

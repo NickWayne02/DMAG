@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import '../../../utils/transliteration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -233,7 +234,7 @@ class _SitesTabState extends State<SitesTab> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      TransliterationService.transliterateIfNeeded(site['name'] ?? context.watch<LocaleProvider>().t('sites.no_name') ?? 'Без названия', context.read<LocaleProvider>().currentLang),
+                                      context.watch<TranslationProvider>().translate(site['name'] ?? context.watch<LocaleProvider>().t('sites.no_name') ?? 'Без названия', context.read<LocaleProvider>().currentLang),
                                       style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
                                   ),
@@ -259,7 +260,7 @@ class _SitesTabState extends State<SitesTab> {
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
-                                        TransliterationService.transliterateIfNeeded(address, context.read<LocaleProvider>().currentLang),
+                                        context.watch<TranslationProvider>().translate(address, context.read<LocaleProvider>().currentLang),
                                         style: GoogleFonts.inter(color: Colors.cyan[200], fontSize: 13),
                                       ),
                                     ),

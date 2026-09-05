@@ -153,16 +153,18 @@ class AppTheme {
     final mixMuted = tint(base.muted, 0.90);
     final mixBorder = tint(base.border, 0.80);
 
+    final isCustom = provider.mode == ThemeModeType.custom;
+    
     final resolvedColors = AppColors(
-      background: mixBg,
-      foreground: base.foreground,
-      card: mixCard,
-      cardForeground: base.cardForeground,
-      primary: activePrimary,
-      primaryForeground: base.primaryForeground,
-      muted: mixMuted,
-      border: mixBorder,
-      cyan: provider.customAccent ?? provider.activeAccent.cyan,
+      background: isCustom ? (provider.customColors['background'] ?? base.background) : mixBg,
+      foreground: isCustom ? (provider.customColors['foreground'] ?? base.foreground) : base.foreground,
+      card: isCustom ? (provider.customColors['card'] ?? base.card) : mixCard,
+      cardForeground: isCustom ? (provider.customColors['cardForeground'] ?? base.cardForeground) : base.cardForeground,
+      primary: isCustom ? (provider.customColors['primary'] ?? activePrimary) : activePrimary,
+      primaryForeground: isCustom ? (provider.customColors['primaryForeground'] ?? base.primaryForeground) : base.primaryForeground,
+      muted: isCustom ? (provider.customColors['muted'] ?? base.muted) : mixMuted,
+      border: isCustom ? (provider.customColors['border'] ?? base.border) : mixBorder,
+      cyan: provider.customColors['primary'] ?? provider.activeAccent.cyan,
       magenta: provider.activeAccent.magenta,
       violet: provider.activeAccent.violet,
     );

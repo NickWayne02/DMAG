@@ -2128,7 +2128,7 @@ export function AdminDashboard({
                               ).length;
                               return (
                                 <TableRow key={s.id}>
-                                  <TableCell className="font-medium">{s.name}</TableCell>
+                                  <TableCell className="font-medium">{tName(s.name)}</TableCell>
                                   <TableCell className="text-sm text-muted-foreground">
                                     {s.address || "—"}
                                   </TableCell>
@@ -2191,7 +2191,7 @@ export function AdminDashboard({
                             >
                               <div className="flex justify-between items-start gap-2">
                                 <div>
-                                  <h4 className="font-semibold text-base">{s.name}</h4>
+                                  <h4 className="font-semibold text-base">{tName(s.name)}</h4>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Button
@@ -2223,7 +2223,7 @@ export function AdminDashboard({
                                 {s.address && (
                                   <div className="flex items-start gap-1.5">
                                     <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
-                                    <span className="line-clamp-2">{s.address}</span>
+                                    <span className="line-clamp-2">{tName(s.address)}</span>
                                   </div>
                                 )}
                                 {s.customer && (
@@ -2356,7 +2356,7 @@ export function AdminDashboard({
                       <SelectItem value="all">{t("admin.reports.allSites")}</SelectItem>
                       {sites.map((s) => (
                         <SelectItem key={`rs-${s.id}`} value={s.id}>
-                          {s.name}
+                          {tName(s.name)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -3206,7 +3206,7 @@ export function AdminDashboard({
                     <SelectItem value="__none__">{t("admin.calendar.noSite")}</SelectItem>
                     {sites.map((s) => (
                       <SelectItem key={s.id} value={s.id}>
-                        {s.name}
+                        {tName(s.name)}
                       </SelectItem>
                     ))}
                   </SelectContent>

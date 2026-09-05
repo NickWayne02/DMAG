@@ -1,3 +1,4 @@
+import '../../providers/translation_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../utils/transliteration.dart';
@@ -146,7 +147,7 @@ class _AdminCalendarDialogState extends State<AdminCalendarDialog> {
             children: [
               Expanded(
                 child: Text(
-                  '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
+                  '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${context.watch<TranslationProvider>().translate(widget.employeeName, context.read<LocaleProvider>().currentLang)}''',
                   style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),

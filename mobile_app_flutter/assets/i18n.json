@@ -8336,5 +8336,126 @@
     "uk": "Надіслати",
     "uz": "Yuborish",
     "tg": "Ирсол"
+  },
+  "settings.custom_colors_title": {
+    "ru": "Конструктор темы",
+    "en": "Theme Builder",
+    "de": "Themen-Baukasten",
+    "ro": "Constructor de Teme",
+    "bg": "Конструктор на теми",
+    "pl": "Kreator motywów",
+    "uk": "Конструктор теми",
+    "uz": "Mavzu konstruktori",
+    "tg": "Конструктори мавзӯъ"
+  },
+  "settings.custom_colors_hint": {
+    "ru": "Выберите цвет для каждой панели интерфейса.",
+    "en": "Choose a color for each interface panel.",
+    "de": "Wählen Sie eine Farbe für jedes Schnittstellenpanel.",
+    "ro": "Alegeți o culoare pentru fiecare panou al interfeței.",
+    "bg": "Изберете цвят за всеки интерфейсен панел.",
+    "pl": "Wybierz kolor dla każdego panelu interfejsu.",
+    "uk": "Оберіть колір для кожної панелі інтерфейсу.",
+    "uz": "Har bir interfeys paneli uchun rang tanlang.",
+    "tg": "Рангро барои ҳар як панели интерфейс интихоб кунед."
+  },
+  "settings.colors.background": {
+    "ru": "Фон страницы",
+    "en": "Page Background",
+    "de": "Seitenhintergrund",
+    "ro": "Fundal Pagina",
+    "bg": "Фон на страницата",
+    "pl": "Tło strony",
+    "uk": "Тло сторінки",
+    "uz": "Sahifa foni",
+    "tg": "Заминаи саҳифа"
+  },
+  "settings.colors.foreground": {
+    "ru": "Основной текст",
+    "en": "Main Text",
+    "de": "Haupttext",
+    "ro": "Text Principal",
+    "bg": "Основен текст",
+    "pl": "Tekst główny",
+    "uk": "Основний текст",
+    "uz": "Asosiy matn",
+    "tg": "Матни асосӣ"
+  },
+  "settings.colors.card": {
+    "ru": "Карточки",
+    "en": "Cards",
+    "de": "Karten",
+    "ro": "Carduri",
+    "bg": "Карти",
+    "pl": "Karty",
+    "uk": "Картки",
+    "uz": "Kartalar",
+    "tg": "Кортҳо"
+  },
+  "settings.colors.card_text": {
+    "ru": "Текст на карточках",
+    "en": "Card Text",
+    "de": "Kartentext",
+    "ro": "Text Card",
+    "bg": "Текст на карти",
+    "pl": "Tekst na kartach",
+    "uk": "Текст на картках",
+    "uz": "Kartadagi matn",
+    "tg": "Матн дар кортҳо"
+  },
+  "settings.colors.primary": {
+    "ru": "Акцент",
+    "en": "Accent",
+    "de": "Akzent",
+    "ro": "Accent",
+    "bg": "Акцент",
+    "pl": "Akcent",
+    "uk": "Акцент",
+    "uz": "Urg'u",
+    "tg": "Заминаи асосӣ"
+  },
+  "settings.colors.primary_text": {
+    "ru": "Текст на акценте",
+    "en": "Accent Text",
+    "de": "Akzenttext",
+    "ro": "Text Accent",
+    "bg": "Текст на акцент",
+    "pl": "Tekst akcentu",
+    "uk": "Текст на акценті",
+    "uz": "Urg'udagi matn",
+    "tg": "Матни асосӣ"
+  },
+  "settings.colors.muted": {
+    "ru": "Второстепенные",
+    "en": "Secondary",
+    "de": "Sekundär",
+    "ro": "Secundar",
+    "bg": "Второстепенни",
+    "pl": "Wtórne",
+    "uk": "Другорядні",
+    "uz": "Ikkilamchi",
+    "tg": "Иловагӣ"
+  },
+  "settings.colors.border": {
+    "ru": "Границы",
+    "en": "Borders",
+    "de": "Rahmen",
+    "ro": "Margini",
+    "bg": "Граници",
+    "pl": "Granice",
+    "uk": "Межі",
+    "uz": "Chegaralar",
+    "tg": "Сарҳадҳо"
+  },
+  "settings.colors.reset": {
+    "ru": "Сброс",
+    "en": "Reset",
+    "de": "Zurücksetzen",
+    "ro": "Resetare",
+    "bg": "Нулиране",
+    "pl": "Resetuj",
+    "uk": "Скинути",
+    "uz": "Qaytarish",
+    "tg": "Бозсозӣ"
   }
 }

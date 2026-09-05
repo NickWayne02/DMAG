@@ -19,21 +19,7 @@ const Map<String, String> _cyrillicToLatinMap = {
 };
 
 
-const Map<String, String> _ruToUkMap = {
-  'Евгений Костин': 'Євгеній Костін',
-  'Евгений Хань': 'Євгеній Хань',
-  'Оскар Ткаченко': 'Оскар Ткаченко',
-  'Владислав': 'Владислав',
-  'Руслан Ткаченко': 'Руслан Ткаченко',
-  'Евгений': 'Євгеній',
-  'евгений': 'євгеній',
-  'Евгения': 'Євгенія',
-  'евгения': 'євгенія',
-  'Николай': 'Микола',
-  'николай': 'микола',
-  'Костин': 'Костін',
-  'Светловодск': 'Світловодськ',
-};
+// Removed hardcoded specific mappings
 
 const Map<String, String> _ruToUkChars = {
   'и': 'і',
@@ -52,21 +38,21 @@ class TransliterationService {
   /// Latin languages: en, de, ro, pl, uz
   static String transliterateIfNeeded(String text, String langCode) {
     if (langCode.toLowerCase() == 'uk') {
+      String out = text;
+      // 'Е'/'е' at the start of a word, or after a vowel/soft/hard sign, becomes 'Є'/'є'
+      out = out.replaceAllMapped(RegExp(r'(^|[\sаеёиоуыэюяАЕЁИОУЫЭЮЯьъЬЪ])Е'), (m) => '${m.group(1)}Є');
+      out = out.replaceAllMapped(RegExp(r'(^|[\sаеёиоуыэюяАЕЁИОУЫЭЮЯьъЬЪ])е'), (m) => '${m.group(1)}є');
+      
       final buffer = StringBuffer();
-      for (int i = 0; i < text.length; i++) {
-        final char = text[i];
+      for (int i = 0; i < out.length; i++) {
+        final char = out[i];
         if (_ruToUkChars.containsKey(char)) {
           buffer.write(_ruToUkChars[char]);
         } else {
           buffer.write(char);
         }
       }
-      
-      String out = buffer.toString();
-      _ruToUkMap.forEach((ru, uk) {
-        out = out.replaceAll(ru, uk);
-      });
-      return out;
+      return buffer.toString();
     }
 
     // If the language is Cyrillic natively, don't transliterate.

@@ -1,3 +1,4 @@
+import '../providers/translation_provider.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mobile_app_flutter/utils/transliteration.dart';
@@ -366,8 +367,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     children: [
                                       Text(t('dashboard.site') ?? 'Объект', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                       Text(
-                                        shift.selectedSite != null 
-                                            ? TransliterationService.transliterateIfNeeded(shift.selectedSite!['address'] ?? shift.selectedSite!['name'], context.watch<LocaleProvider>().currentLang)
+                                        (shift.selectedSite != null && shift.selectedSite!['id'] != null && shift.selectedSite!['id'].toString().isNotEmpty)
+                                            ? context.watch<TranslationProvider>().translate(
+                                                (shift.selectedSite!['address']?.toString().isNotEmpty == true) ? shift.selectedSite!['address'] : 
+                                                (shift.selectedSite!['name']?.toString().isNotEmpty == true) ? shift.selectedSite!['name'] : 
+                                                (context.watch<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия'),
+                                                context.watch<LocaleProvider>().currentLang)
                                             : context.watch<LocaleProvider>().t('dashboard.site_not_selected') ?? 'Не выбран — нажмите, чтобы выбрать',
                                         style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 11),
                                         maxLines: 1,
@@ -382,7 +387,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
 
-                        if (shift.selectedSite != null) ...[
+                        if (shift.selectedSite != null && shift.selectedSite!['id'] != null && shift.selectedSite!['id'].toString().isNotEmpty) ...[
                           const SizedBox(height: 12),
                           _buildMapCard(context, shift),
                         ],
@@ -579,7 +584,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      TransliterationService.transliterateIfNeeded(name, context.watch<LocaleProvider>().currentLang),
+                      context.watch<TranslationProvider>().translate(name, context.watch<LocaleProvider>().currentLang),
                       style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -628,7 +633,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'amber':
         return const Color(0xFFf59e0b);
       case 'cyan':
-        return provider.customAccent ?? provider.activeAccent.cyan;
+        return provider.customColors['primary'] ?? provider.activeAccent.cyan;
       case 'red':
         return const Color(0xFFef4444);
       default:
@@ -741,14 +746,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildMapCard(BuildContext context, ShiftProvider shift) {
     final colors = Theme.of(context).appColors;
     final site = shift.selectedSite!;
-    final address = site['address'] as String? ?? site['name'] as String;
+    final address = (site['address'] as String?)?.isNotEmpty == true ? (site['address'] as String) : (site['name'] as String? ?? '');
     
     final currentLang = context.watch<LocaleProvider>().currentLang;
     String displayName = address;
     if (displayName.startsWith('GPS: ')) {
-      displayName = shift.userProfile?['start_city'] ?? site['name'] as String;
+      displayName = shift.userProfile?['start_city'] ?? (site['name'] as String? ?? '');
     }
-    displayName = TransliterationService.transliterateIfNeeded(displayName, currentLang);
+    displayName = context.watch<TranslationProvider>().translate(displayName, currentLang);
 
     if (address.startsWith('GPS: ')) {
       // coordinates can be parsed here if needed
@@ -790,7 +795,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: GoogleMapEmbed(
                 query: address.startsWith('GPS: ') 
                   ? address.replaceFirst('GPS: ', '').trim() 
-                  : TransliterationService.transliterateIfNeeded(address.isNotEmpty ? address : site['name'] as String, currentLang)
+                  : context.watch<TranslationProvider>().translate(address.isNotEmpty ? address : site['name'] as String, currentLang)
               ),
             ),
           ),

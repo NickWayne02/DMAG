@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import '../../../../utils/transliteration.dart';
 import '../../../../utils/date_format_helper.dart';
 import 'package:provider/provider.dart';
@@ -58,14 +59,13 @@ class _DashboardTabState extends State<DashboardTab> {
   Future<void> _fetchActivity() async {
     try {
       final now = DateTime.now();
-      final sinceMidnight = DateTime(now.year, now.month, now.day).toUtc().toIso8601String();
+      final since30Days = now.subtract(const Duration(days: 30)).toUtc().toIso8601String();
 
       final resp = await Supabase.instance.client
           .from('shifts')
           .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city, site_id')
-          .gte('started_at', sinceMidnight)
           .order('started_at', ascending: false)
-          .limit(50);
+          .limit(100);
           
       final activeSitesSet = <String>{};
       int onShift = 0;
@@ -75,16 +75,22 @@ class _DashboardTabState extends State<DashboardTab> {
       final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};
       
       final List<Map<String, dynamic>> enriched = [];
+      final Set<String> processedUsers = {};
+      
       for (var s in resp) {
-        final userName = profiles[s['user_id']] ?? 'Неизвестный сотрудник';
+        final userId = s['user_id'] as String;
+        final userName = profiles[userId] ?? 'Неизвестный сотрудник';
         final siteName = s['site_name'] ?? s['start_city'] ?? 'Неизвестный объект';
         
-        if (s['status'] == 'working') {
-          onShift++;
-          if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
-        } else if (s['status'] == 'lunch') {
-          onLunch++;
-          if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
+        if (!processedUsers.contains(userId)) {
+          processedUsers.add(userId);
+          if (s['status'] == 'working') {
+            onShift++;
+            if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
+          } else if (s['status'] == 'lunch') {
+            onLunch++;
+            if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
+          }
         }
         
         // Shift Start
@@ -249,8 +255,8 @@ class _DashboardTabState extends State<DashboardTab> {
                     Color color = const Color(0xFF3b82f6);
                     
                     final lang = context.watch<LocaleProvider>().currentLang;
-                    final name = TransliterationService.transliterateIfNeeded(act['user_name'], lang);
-                    final site = TransliterationService.transliterateIfNeeded(act['site_name'], lang);
+                    final name = context.watch<TranslationProvider>().translate(act['user_name'], lang);
+                    final site = context.watch<TranslationProvider>().translate(act['site_name'], lang);
                     final dt = DateTime.parse(act['ts']).toLocal();
                     final timeStr = DateFormatHelper.formatShortDate(dt, lang);
                     

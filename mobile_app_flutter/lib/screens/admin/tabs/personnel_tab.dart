@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -102,7 +103,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       for (var p in profiles) {
         final id = p['id'] as String;
-        final name = TransliterationService.transliterateIfNeeded(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
+        final name = context.watch<TranslationProvider>().translate(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
         final role = roleMap[id] ?? 'employee';
         final sh = latestShiftByUser[id];
 
@@ -449,7 +450,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              TransliterationService.transliterateIfNeeded(emp.name, context.read<LocaleProvider>().currentLang),
+                              context.watch<TranslationProvider>().translate(emp.name, context.read<LocaleProvider>().currentLang),
                               style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),

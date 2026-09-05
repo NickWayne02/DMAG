@@ -11,6 +11,8 @@ import 'providers/theme_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/settings_provider.dart';
 
+import 'providers/translation_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -31,6 +33,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => TranslationProvider()),
       ],
       child: const DMAGApp(),
     ),

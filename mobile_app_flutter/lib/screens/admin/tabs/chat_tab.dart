@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -138,9 +139,9 @@ class _ChatTabState extends State<ChatTab> {
                       leading: CircleAvatar(
                         backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.24),
                         backgroundImage: p['avatar_url'] != null ? NetworkImage(p['avatar_url']) : null,
-                        child: p['avatar_url'] == null ? Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang).substring(0, 1), style: TextStyle(color: Theme.of(context).appColors.foreground)) : null,
+                        child: p['avatar_url'] == null ? Text(context.watch<TranslationProvider>().translate(p['full_name'] ?? '', context.read<LocaleProvider>().currentLang).substring(0, 1), style: TextStyle(color: Theme.of(context).appColors.foreground)) : null,
                       ),
-                      title: Text(TransliterationService.transliterateIfNeeded(p['full_name'] ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang), style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+                      title: Text(context.watch<TranslationProvider>().translate(p['full_name'] ?? context.watch<LocaleProvider>().t('chat.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang), style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                       onTap: () {
                         Navigator.of(context).pop();
                         final ids = [user.id, p['id']]..sort();
@@ -151,7 +152,7 @@ class _ChatTabState extends State<ChatTab> {
                             _dmChannelsMap[cid] = p;
                           });
                         }
-                        _openChat('direct', cid, TransliterationService.transliterateIfNeeded(p['full_name'] ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат', context.read<LocaleProvider>().currentLang));
+                        _openChat('direct', cid, context.watch<TranslationProvider>().translate(p['full_name'] ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат', context.read<LocaleProvider>().currentLang));
                       },
                     );
                   },
@@ -302,7 +303,7 @@ class _ChatTabState extends State<ChatTab> {
                     ),
                   ..._dmChannelIds.map((cid) {
                     final profile = _dmChannelsMap[cid];
-                    final name = TransliterationService.transliterateIfNeeded(profile?['full_name'] ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат', context.read<LocaleProvider>().currentLang);
+                    final name = context.watch<TranslationProvider>().translate(profile?['full_name'] ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат', context.read<LocaleProvider>().currentLang);
                     return _buildChatItem(
                       icon: LucideIcons.user,
                       title: name,
@@ -322,8 +323,8 @@ class _ChatTabState extends State<ChatTab> {
                   ..._sites.map((site) {
                     return _buildChatItem(
                       icon: LucideIcons.building_2,
-                      title: TransliterationService.transliterateIfNeeded(site['name'] ?? '', context.read<LocaleProvider>().currentLang),
-                      onTap: () => _openChat('site', site['id'], TransliterationService.transliterateIfNeeded(site['name'] ?? '', context.read<LocaleProvider>().currentLang)),
+                      title: context.watch<TranslationProvider>().translate(site['name'] ?? '', context.read<LocaleProvider>().currentLang),
+                      onTap: () => _openChat('site', site['id'], context.watch<TranslationProvider>().translate(site['name'] ?? '', context.read<LocaleProvider>().currentLang)),
                     );
                   }),
                   const SizedBox(height: 24),

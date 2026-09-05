@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../../../utils/transliteration.dart';
@@ -157,7 +158,7 @@ class _CalendarTabState extends State<CalendarTab> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(TransliterationService.transliterateIfNeeded(e['full_name'] ?? e['id'], context.read<LocaleProvider>().currentLang)),
+                      Text(context.watch<TranslationProvider>().translate(e['full_name'] ?? e['id'], context.read<LocaleProvider>().currentLang)),
                       if (isSelected) Icon(LucideIcons.check, color: Theme.of(context).appColors.foreground, size: 16),
                     ],
                   ),
@@ -323,7 +324,7 @@ class _CalendarTabState extends State<CalendarTab> {
       builder: (context) {
         return EditShiftDialog(
           shifts: [shift],
-          employeeName: TransliterationService.transliterateIfNeeded(employee['full_name'] ?? (context.read<LocaleProvider>().t('calendar.unknown') ?? context.watch<LocaleProvider>().t('personnel.no_name') ?? 'Неизвестно'), context.read<LocaleProvider>().currentLang),
+          employeeName: context.watch<TranslationProvider>().translate(employee['full_name'] ?? (context.read<LocaleProvider>().t('calendar.unknown') ?? context.watch<LocaleProvider>().t('personnel.no_name') ?? 'Неизвестно'), context.read<LocaleProvider>().currentLang),
           sites: _sites,
           onSaved: _fetchShifts,
         );
@@ -513,7 +514,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                 ],
               ),
               const SizedBox(height: 4),
-              Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14)),
+              Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${context.watch<TranslationProvider>().translate(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 14)),
               const SizedBox(height: 24),
               if (widget.shifts.length > 1) ...[
                 Text(context.watch<LocaleProvider>().t('calendar.select_shift') ?? 'Выберите смену для редактирования', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),

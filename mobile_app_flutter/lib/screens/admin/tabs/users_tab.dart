@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -408,7 +409,7 @@ class _UsersTabState extends State<UsersTab> {
                         itemBuilder: (context, index) {
                           final u = filteredUsers[index];
                           final rawName = u['full_name'] ?? u['email'] ?? u['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени';
-                          final name = TransliterationService.transliterateIfNeeded(rawName, context.read<LocaleProvider>().currentLang);
+                          final name = context.watch<TranslationProvider>().translate(rawName, context.read<LocaleProvider>().currentLang);
                           
                           // Simple initials generator
                           final nameParts = rawName.toString().split(' ').where((e) => e.isNotEmpty).toList();

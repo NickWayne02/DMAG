@@ -1,3 +1,4 @@
+import '../providers/translation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -173,7 +174,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          TransliterationService.transliterateIfNeeded(site['name'] ?? context.read<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия', currentLang),
+                                          context.watch<TranslationProvider>().translate(site['name'] ?? context.read<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия', currentLang),
                                           style: GoogleFonts.inter(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -183,7 +184,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                                         if (site['address'] != null && site['address'].toString().isNotEmpty) ...[
                                           const SizedBox(height: 4),
                                           Text(
-                                            TransliterationService.transliterateIfNeeded(site['address'], currentLang),
+                                            context.watch<TranslationProvider>().translate(site['address'], currentLang),
                                             style: GoogleFonts.inter(
                                               fontSize: 12,
                                               color: Theme.of(context).appColors.muted,

@@ -76,14 +76,14 @@ class ThemeProvider extends ChangeNotifier {
 
   ThemeModeType _mode = ThemeModeType.light; // Default to Light
   String _accentId = 'dmag';
-  Color? _customAccent;
+  final Map<String, Color?> _customColors = {};
   ButtonStyleType _buttonStyle = ButtonStyleType.filled;
   double _textSizeScale = 1.0;
   double _borderRadius = 14.0; // approx 0.88rem
 
   ThemeModeType get mode => _mode;
   String get accentId => _accentId;
-  Color? get customAccent => _customAccent;
+  Map<String, Color?> get customColors => _customColors;
   ButtonStyleType get buttonStyle => _buttonStyle;
   double get textSizeScale => _textSizeScale;
   double get borderRadius => _borderRadius;
@@ -92,7 +92,7 @@ class ThemeProvider extends ChangeNotifier {
     return presets.firstWhere((p) => p.id == _accentId, orElse: () => presets.first);
   }
 
-  Color get activePrimaryColor => _customAccent ?? activeAccent.primary;
+  Color get activePrimaryColor => _customColors['primary'] ?? activeAccent.primary;
 
   ThemeProvider() {
     _loadSettings();
@@ -105,9 +105,14 @@ class ThemeProvider extends ChangeNotifier {
       _mode = ThemeModeType.values.firstWhere((e) => e.name == modeStr, orElse: () => ThemeModeType.light);
       _accentId = prefs.getString('theme_accent_id') ?? 'dmag';
       
-      final customHex = prefs.getInt('theme_custom_accent');
-      if (customHex != null) {
-        _customAccent = Color(customHex);
+      final keys = ['background', 'foreground', 'card', 'cardForeground', 'primary', 'primaryForeground', 'muted', 'border'];
+      for (var key in keys) {
+        final val = prefs.getInt('theme_custom_$key');
+        if (val != null) {
+          _customColors[key] = Color(val);
+        } else {
+          _customColors.remove(key);
+        }
       }
       
       final btnStyleStr = prefs.getString('theme_button_style') ?? 'filled';
@@ -136,14 +141,24 @@ class ThemeProvider extends ChangeNotifier {
     await prefs.setString('theme_accent_id', id);
   }
 
-  Future<void> setCustomAccent(Color? color) async {
-    _customAccent = color;
+  Future<void> setCustomColor(String key, Color? color) async {
+    _customColors[key] = color;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     if (color == null) {
-      await prefs.remove('theme_custom_accent');
+      await prefs.remove('theme_custom_$key');
     } else {
-      await prefs.setInt('theme_custom_accent', color.toARGB32());
+      await prefs.setInt('theme_custom_$key', color.toARGB32());
+    }
+  }
+  
+  Future<void> clearCustomColors() async {
+    _customColors.clear();
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    final keys = ['background', 'foreground', 'card', 'cardForeground', 'primary', 'primaryForeground', 'muted', 'border'];
+    for (var key in keys) {
+      await prefs.remove('theme_custom_$key');
     }
   }
 

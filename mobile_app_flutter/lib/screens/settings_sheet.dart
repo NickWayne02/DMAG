@@ -56,8 +56,8 @@ class _SettingsSheetState extends State<SettingsSheet> {
   void initState() {
     super.initState();
     final tp = context.read<ThemeProvider>();
-    if (tp.customAccent != null) {
-      _hexController.text = '#${tp.customAccent!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+    if (tp.customColors['primary'] != null) {
+      _hexController.text = '#${tp.customColors['primary']!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     } else {
       _hexController.text = '#${tp.activeAccent.primary.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     }
@@ -74,7 +74,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
     if (hex.length == 6) {
       try {
         Color c = Color(int.parse('FF$hex', radix: 16));
-        provider.setCustomAccent(c);
+        provider.setCustomColor('primary', c);
       } catch (e) {
         // invalid hex
       }
@@ -88,9 +88,9 @@ class _SettingsSheetState extends State<SettingsSheet> {
     final primary = Theme.of(context).primaryColor;
     
     // Update text field if not focused and color changed externally
-    if (themeProvider.customAccent != null && !FocusScope.of(context).hasFocus) {
-      _hexController.text = '#${themeProvider.customAccent!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
-    } else if (themeProvider.customAccent == null && !FocusScope.of(context).hasFocus) {
+    if (themeProvider.customColors['primary'] != null && !FocusScope.of(context).hasFocus) {
+      _hexController.text = '#${themeProvider.customColors['primary']!.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+    } else if (themeProvider.customColors['primary'] == null && !FocusScope.of(context).hasFocus) {
       _hexController.text = '#${themeProvider.activeAccent.primary.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     }
 
@@ -223,58 +223,62 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   ),
 
                   // Color Theme Section
-                  Row(
-                    children: [
-                      Icon(LucideIcons.paint_bucket, color: colors.foreground, size: 18),
-                      const SizedBox(width: 8),
-                      Text(context.read<LocaleProvider>().t('settings.accent') ?? 'Цветовой акцент', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2,
-                    children: ThemeProvider.presets.map((preset) => _buildColorBox(context, themeProvider, preset)).toList(),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Hex Input Box
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: colors.border),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
+                  if (themeProvider.mode == ThemeModeType.custom) ...[
+                    _buildCustomColorGrid(context, themeProvider),
+                  ] else ...[
+                    Row(
                       children: [
-                        Container(
-                          width: 32,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: primary,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextField(
-                            controller: _hexController,
-                            style: GoogleFonts.inter(color: colors.foreground, fontSize: 16),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              isDense: true,
-                            ),
-                            onChanged: (val) => _onHexChanged(val, themeProvider),
-                          ),
-                        ),
+                        Icon(LucideIcons.paint_bucket, color: colors.foreground, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.read<LocaleProvider>().t('settings.accent') ?? 'Цветовой акцент', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 2,
+                      children: ThemeProvider.presets.map((preset) => _buildColorBox(context, themeProvider, preset)).toList(),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Hex Input Box
+                    Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: colors.border),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: primary,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: TextField(
+                              controller: _hexController,
+                              style: GoogleFonts.inter(color: colors.foreground, fontSize: 16),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                              ),
+                              onChanged: (val) => _onHexChanged(val, themeProvider),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
 
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -354,7 +358,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     onTap: () {
                       themeProvider.setMode(ThemeModeType.light);
                       themeProvider.setAccentId('dmag');
-                      themeProvider.setCustomAccent(null);
+                      themeProvider.clearCustomColors();
                       themeProvider.setButtonStyle(ButtonStyleType.filled);
                       themeProvider.setTextSizeScale(1.0);
                       themeProvider.setBorderRadius(14.0);
@@ -384,6 +388,168 @@ class _SettingsSheetState extends State<SettingsSheet> {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildCustomColorGrid(BuildContext context, ThemeProvider provider) {
+    final colors = Theme.of(context).appColors;
+    final Map<String, String> labels = {
+      'background': context.read<LocaleProvider>().t('settings.colors.background') ?? 'Фон страницы',
+      'foreground': context.read<LocaleProvider>().t('settings.colors.foreground') ?? 'Основной текст',
+      'card': context.read<LocaleProvider>().t('settings.colors.card') ?? 'Карточки',
+      'cardForeground': context.read<LocaleProvider>().t('settings.colors.card_text') ?? 'Текст на карточках',
+      'primary': context.read<LocaleProvider>().t('settings.colors.primary') ?? 'Акцент',
+      'primaryForeground': context.read<LocaleProvider>().t('settings.colors.primary_text') ?? 'Текст на акценте',
+      'muted': context.read<LocaleProvider>().t('settings.colors.muted') ?? 'Второстепенные',
+      'border': context.read<LocaleProvider>().t('settings.colors.border') ?? 'Границы',
+    };
+    
+    final Map<String, Color> actualColors = {
+      'background': colors.background,
+      'foreground': colors.foreground,
+      'card': colors.card,
+      'cardForeground': colors.cardForeground,
+      'primary': colors.primary,
+      'primaryForeground': colors.primaryForeground,
+      'muted': colors.muted,
+      'border': colors.border,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(LucideIcons.palette, color: colors.foreground, size: 18),
+            const SizedBox(width: 8),
+            Text(context.read<LocaleProvider>().t('settings.custom_colors_title') ?? 'Конструктор темы', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(context.read<LocaleProvider>().t('settings.custom_colors_hint') ?? 'Выберите цвет для каждой панели интерфейса.', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5), fontSize: 12)),
+        const SizedBox(height: 16),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 3.5,
+          children: labels.keys.map((key) {
+            final currentColor = actualColors[key]!;
+            return BounceButton(
+              onTap: () => _showColorPicker(context, provider, key, labels[key]!, currentColor),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: colors.border),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: currentColor,
+                        border: Border.all(color: colors.border, width: 1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        labels[key]!,
+                        style: GoogleFonts.inter(color: colors.foreground, fontSize: 12, fontWeight: FontWeight.w500),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showColorPicker(BuildContext context, ThemeProvider provider, String key, String label, Color initialColor) async {
+    final colors = Theme.of(context).appColors;
+    final primary = Theme.of(context).primaryColor;
+    
+    String hex = provider.customColors[key]?.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase() 
+                 ?? initialColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
+                 
+    TextEditingController controller = TextEditingController(text: '#$hex');
+    Color previewColor = initialColor;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return AlertDialog(
+              backgroundColor: colors.card,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: colors.border)),
+              title: Text(label, style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 80,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: previewColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: colors.border),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: colors.border),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextField(
+                      controller: controller,
+                      style: GoogleFonts.inter(color: colors.foreground, fontSize: 16),
+                      decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                      onChanged: (val) {
+                        String h = val.replaceAll('#', '');
+                        if (h.length == 6) {
+                          try {
+                            setState(() {
+                              previewColor = Color(int.parse('FF$h', radix: 16));
+                            });
+                          } catch (e) {}
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    provider.setCustomColor(key, null);
+                    Navigator.pop(ctx);
+                  },
+                  child: Text(context.read<LocaleProvider>().t('settings.reset') ?? 'Сброс', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5))),
+                ),
+                TextButton(
+                  onPressed: () {
+                    provider.setCustomColor(key, previewColor);
+                    Navigator.pop(ctx);
+                  },
+                  child: Text(context.read<LocaleProvider>().t('settings.done') ?? 'Сохранить', style: GoogleFonts.inter(color: primary, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -420,11 +586,11 @@ class _SettingsSheetState extends State<SettingsSheet> {
   }
 
   Widget _buildColorBox(BuildContext context, ThemeProvider provider, AccentPreset preset) {
-    final active = provider.accentId == preset.id && provider.customAccent == null;
+    final active = provider.accentId == preset.id && provider.customColors['primary'] == null;
 
     return BounceButton(
       onTap: () {
-        provider.setCustomAccent(null);
+        provider.setCustomColor('primary', null);
         provider.setAccentId(preset.id);
       },
       child: Container(

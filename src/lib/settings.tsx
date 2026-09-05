@@ -92,14 +92,14 @@ export type PanelKey =
 export type PanelColors = Partial<Record<PanelKey, string>>;
 
 export const PANEL_LABELS: Record<PanelKey, string> = {
-  background: "Фон страницы",
-  foreground: "Основной текст",
-  card: "Панели / карточки",
-  cardForeground: "Текст на карточках",
-  primary: "Основной акцент",
-  primaryForeground: "Текст на акценте",
-  muted: "Второстепенные панели",
-  border: "Границы",
+  background: "settings.colors.background",
+  foreground: "settings.colors.foreground",
+  card: "settings.colors.card",
+  cardForeground: "settings.colors.card_text",
+  primary: "settings.colors.primary",
+  primaryForeground: "settings.colors.primary_text",
+  muted: "settings.colors.muted",
+  border: "settings.colors.border",
 };
 
 /** Baseline panel colors per theme mode, used as defaults for the color pickers. */

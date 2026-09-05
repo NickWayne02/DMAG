@@ -1,3 +1,4 @@
+import '../../providers/translation_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
@@ -156,7 +157,7 @@ class _AdminEditableCalendarDialogState extends State<AdminEditableCalendarDialo
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${context.watch<LocaleProvider>().t('calendar.manage_shifts') ?? 'Управление сменами'} · ${TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('${context.watch<LocaleProvider>().t('calendar.manage_shifts') ?? 'Управление сменами'} · ${context.watch<TranslationProvider>().translate(widget.employeeName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Text(context.watch<LocaleProvider>().t('calendar.click_to_edit') ?? 'Нажмите на любой день, чтобы добавить или отредактировать смену.', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
                     ],

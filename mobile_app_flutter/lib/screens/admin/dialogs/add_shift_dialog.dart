@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import '../../../utils/transliteration.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -163,7 +164,7 @@ class _AddShiftDialogState extends State<AddShiftDialog> {
                       if (selectedEmpName.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4.0),
-                          child: Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${TransliterationService.transliterateIfNeeded(selectedEmpName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
+                          child: Text('${context.watch<LocaleProvider>().t('dashboard.employee') ?? 'Сотрудник:'} ${context.watch<TranslationProvider>().translate(selectedEmpName, context.read<LocaleProvider>().currentLang)}', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 12)),
                         ),
                     ],
                   ),

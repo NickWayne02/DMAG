@@ -1,3 +1,4 @@
+import '../../../providers/translation_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
@@ -115,7 +116,7 @@ class _ReadOnlyCalendarDialogState extends State<ReadOnlyCalendarDialog> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${TransliterationService.transliterateIfNeeded(TransliterationService.transliterateIfNeeded(widget.employeeName, context.read<LocaleProvider>().currentLang), context.read<LocaleProvider>().currentLang)}''',
+                        '''${context.read<LocaleProvider>().t('admin.calendar.title') ?? 'Календарь — '}${context.watch<TranslationProvider>().translate(context.watch<TranslationProvider>().translate(widget.employeeName, context.read<LocaleProvider>().currentLang), context.read<LocaleProvider>().currentLang)}''',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 18, fontWeight: FontWeight.bold),
                       ),

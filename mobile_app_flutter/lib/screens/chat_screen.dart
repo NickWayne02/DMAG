@@ -1,3 +1,4 @@
+import '../providers/translation_provider.dart';
 import 'package:mobile_app_flutter/utils/transliteration.dart';
 import '../theme/app_theme.dart';
 import '../providers/locale_provider.dart';
@@ -948,7 +949,7 @@ class _ChatContentState extends State<ChatContent> {
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> msg, bool isMe) {
-    final authorName = TransliterationService.transliterateIfNeeded(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang).isEmpty ? (context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним') : TransliterationService.transliterateIfNeeded(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang); //context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним';
+    final authorName = context.watch<TranslationProvider>().translate(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang).isEmpty ? (context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним') : context.watch<TranslationProvider>().translate(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang); //context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним';
     final content = msg['content'] as String? ?? '';
     final createdAt = DateTime.tryParse(msg['created_at'].toString())?.toLocal() ?? DateTime.now();
     final timeString = '${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';

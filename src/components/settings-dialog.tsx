@@ -152,7 +152,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                           className="h-8 w-8 cursor-pointer rounded"
                         />
                         <span className="text-[11px] leading-tight">
-                          {t(`settings.panel.${key}`) || PANEL_LABELS[key]}
+                          {t(PANEL_LABELS[key]) || PANEL_LABELS[key]}
                         </span>
                       </label>
                     );

@@ -1,3 +1,4 @@
+import '../providers/translation_provider.dart';
 import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:mobile_app_flutter/utils/date_format_helper.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -115,7 +116,7 @@ class _ShiftHistorySheetState extends State<ShiftHistorySheet> {
                         itemBuilder: (context, index) {
                           final shift = _shifts[index];
                           final status = shift['status'] as String;
-                          final siteName = TransliterationService.transliterateIfNeeded(shift['site_name'] as String? ?? '', context.read<LocaleProvider>().currentLang).isEmpty ? (context.watch<LocaleProvider>().t('shift_history.unknown_site') ?? 'Неизвестный объект') : TransliterationService.transliterateIfNeeded(shift['site_name'] as String? ?? '', context.read<LocaleProvider>().currentLang);
+                          final siteName = context.watch<TranslationProvider>().translate(shift['site_name'] as String? ?? '', context.read<LocaleProvider>().currentLang).isEmpty ? (context.watch<LocaleProvider>().t('shift_history.unknown_site') ?? 'Неизвестный объект') : context.watch<TranslationProvider>().translate(shift['site_name'] as String? ?? '', context.read<LocaleProvider>().currentLang);
                           final startStr = shift['started_at'] as String?;
                           final endStr = shift['ended_at'] as String?;
                           final lunchMs = shift['lunch_total_ms'] as int? ?? 0;

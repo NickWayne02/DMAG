@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import 'admin/dialogs/add_site_dialog.dart';
 import '../providers/locale_provider.dart';
-import '../utils/transliteration.dart';
 
 class SiteSelectorSheet extends StatefulWidget {
   final String? initialSiteId;

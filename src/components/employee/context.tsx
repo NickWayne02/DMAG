@@ -516,6 +516,8 @@ export function EmployeeProvider({
     window.sessionStorage.removeItem("dmag_site_open");
     window.sessionStorage.removeItem("dmag_report_open");
     window.sessionStorage.removeItem("dmag_chat_open");
+    // Reset shift time but keep selected site (SITE_STORAGE_KEY stays)
+    window.localStorage.removeItem(SHIFT_STORAGE_KEY);
     await supabase.auth.signOut({ scope: 'local' });
     navigate({ to: "/auth" });
   }

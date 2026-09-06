@@ -67,7 +67,7 @@ class ShiftProvider extends ChangeNotifier {
         _isAdminView = false;
         resetShift();
         _userProfile = null;
-        _selectedSite = null;
+        // Keep _selectedSite — user wants the site to persist across logouts
         if (_shiftSubscription != null) {
           Supabase.instance.client.removeChannel(_shiftSubscription!);
           _shiftSubscription = null;

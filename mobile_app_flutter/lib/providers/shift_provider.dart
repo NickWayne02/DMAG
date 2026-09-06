@@ -86,11 +86,10 @@ class ShiftProvider extends ChangeNotifier {
           final oldRecord = payload.oldRecord;
           if (_selectedSite != null) {
             if (oldRecord['id'] == _selectedSite!['id']) {
-              clearSelectedSite();
               if (_status != ShiftStatus.idle) {
-                // We should also probably stop the shift, but let's just reset
-                resetShift();
+                endShift();
               }
+              clearSelectedSite();
             }
           }
         }
@@ -507,8 +506,6 @@ class ShiftProvider extends ChangeNotifier {
     _lunchIntervals = [];
     _shiftId = null;
     _autoLunchApplied = false;
-    
-    final prefs = await SharedPreferences.getInstance();
     
     _saveState();
     notifyListeners();

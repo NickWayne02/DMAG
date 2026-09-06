@@ -161,3 +161,46 @@ export const adminUpdateAvatar = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
+
+/** Update a user's full name. Admin or super_admin only. */
+export const adminUpdateUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { user_id: string; full_name: string }) => data)
+  .handler(async ({ data, context }) => {
+    await assertAdminOrSuper(context.supabase, context.userId);
+
+    // If caller is not super_admin, verify target user's role
+    const { data: isSuper } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+
+    if (!isSuper) {
+      const { data: targetRoleData } = await context.supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user_id)
+        .single();
+      const targetRole = targetRoleData?.role;
+      if (targetRole === "super_admin") {
+        throw new Error("Forbidden: Cannot modify super_admin");
+      }
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // Update Auth Metadata
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
+      user_metadata: { full_name: data.full_name }
+    });
+    if (authError) throw new Error(authError.message);
+
+    // Update Profile
+    const { error: dbError } = await supabaseAdmin
+      .from("profiles")
+      .update({ full_name: data.full_name })
+      .eq("id", data.user_id);
+    if (dbError) throw new Error(dbError.message);
+
+    return { success: true };
+  });

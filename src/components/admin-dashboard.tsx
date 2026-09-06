@@ -98,6 +98,7 @@ import {
   adminSetRole,
   adminUpdateCredentials,
   adminToggleActive,
+  adminUpdateUser,
 } from "@/lib/admin-users.functions";
 import { getCurrentPosition, reverseGeocodeCity } from "@/lib/geocode";
 import { useLanguage, langToLocale } from "@/lib/i18n";
@@ -1193,6 +1194,7 @@ export function AdminDashboard({
   const setRoleFn = useServerFn(adminSetRole);
   const updateCredsFn = useServerFn(adminUpdateCredentials);
   const adminToggleActiveFn = useServerFn(adminToggleActive);
+  const updateUserFn = useServerFn(adminUpdateUser);
 
   // Mocks vs Real Data
 
@@ -1203,6 +1205,14 @@ export function AdminDashboard({
     full_name: string;
     role: AppRole;
   }>({ open: false, email: "", password: "", full_name: "", role: "employee" });
+  
+  const [nameEdit, setNameEdit] = useState<{
+    user_id: string;
+    user_name: string;
+    current_name: string;
+    open: boolean;
+  } | null>(null);
+
   const [credsEdit, setCredsEdit] = useState<{
     user_id: string;
     user_name: string;
@@ -1231,6 +1241,26 @@ export function AdminDashboard({
       loadAll();
     } catch (e: any) {
       toast.error(e?.message ?? "Не удалось создать");
+    } finally {
+      setUserBusy(false);
+    }
+  }
+
+  async function submitNameUpdate() {
+    if (!nameEdit) return;
+    setUserBusy(true);
+    try {
+      await updateUserFn({
+        data: {
+          user_id: nameEdit.user_id,
+          full_name: nameEdit.current_name,
+        },
+      });
+      toast.success("Имя успешно обновлено");
+      setNameEdit(null);
+      loadAll();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Не удалось обновить имя");
     } finally {
       setUserBusy(false);
     }
@@ -2758,6 +2788,26 @@ export function AdminDashboard({
                                     (!superMode && (e.role === "super_admin" || e.role === "admin"))
                                   }
                                   onClick={() =>
+                                    setNameEdit({
+                                      user_id: e.id,
+                                      user_name: e.name,
+                                      current_name: e.name,
+                                      open: true,
+                                    })
+                                  }
+                                >
+                                  <Pencil className="h-3.5 w-3.5 mr-1" />
+                                  {t("admin.moderation.edit") || "Редактировать"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="rounded-lg"
+                                  disabled={
+                                    userBusy ||
+                                    (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                  }
+                                  onClick={() =>
                                     setCredsEdit({
                                       user_id: e.id,
                                       user_name: e.name,
@@ -2901,6 +2951,26 @@ export function AdminDashboard({
                               </Button>
                             )}
                             <div className="w-full flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 rounded-lg"
+                                disabled={
+                                  userBusy ||
+                                  (!superMode && (e.role === "super_admin" || e.role === "admin"))
+                                }
+                                onClick={() =>
+                                  setNameEdit({
+                                    user_id: e.id,
+                                    user_name: e.name,
+                                    current_name: e.name,
+                                    open: true,
+                                  })
+                                }
+                              >
+                                <Pencil className="h-4 w-4 mr-1.5" />
+                                {t("admin.moderation.edit") || "Редактировать"}
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -3384,6 +3454,37 @@ export function AdminDashboard({
               {t("admin.users.cancel")}
             </Button>
             <Button onClick={submitCredsUpdate} disabled={userBusy}>
+              {userBusy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              {t("admin.users.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Name editor ===== */}
+      <Dialog open={!!nameEdit} onOpenChange={(o) => !o && setNameEdit(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Редактировать имя</DialogTitle>
+            <DialogDescription>{nameEdit ? tName(nameEdit.user_name) : ""}</DialogDescription>
+          </DialogHeader>
+          {nameEdit && (
+            <div className="space-y-3">
+              <div>
+                <Label>Новое ФИО</Label>
+                <Input
+                  value={nameEdit.current_name}
+                  onChange={(e) => setNameEdit({ ...nameEdit, current_name: e.target.value })}
+                  placeholder="Иван Иванов"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNameEdit(null)} disabled={userBusy}>
+              {t("admin.users.cancel")}
+            </Button>
+            <Button onClick={submitNameUpdate} disabled={userBusy}>
               {userBusy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
               {t("admin.users.save")}
             </Button>

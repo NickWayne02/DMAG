@@ -10,6 +10,7 @@ import {
   Moon,
   Zap,
   SlidersHorizontal,
+  Loader2,
 } from "lucide-react";
 import {
   Dialog,
@@ -32,7 +33,10 @@ import {
   type PanelKey,
   type ThemeMode,
 } from "@/lib/settings";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguage } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const MODE_ICON: Record<ThemeMode, typeof Sun> = {
   light: Sun,
@@ -49,7 +53,7 @@ type Props = {
 };
 
 export function SettingsDialog({ variant = "icon", className }: Props) {
-  const t = useT();
+  const { t, tName } = useLanguage();
   const { settings, setSettings, setPanelColor, reset, activeAccent, resolvedPanels } =
     useSettings();
   const [open, setOpen] = useState(false);
@@ -58,9 +62,46 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
     settings.customAccent ?? getValidHex(activeAccent.primary),
   );
 
+  const { user } = useAuth();
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+
   useEffect(() => {
     setCustomHex(settings.customAccent ?? getValidHex(activeAccent.primary));
   }, [settings.customAccent, activeAccent.primary]);
+
+  useEffect(() => {
+    if (user && open) {
+      setNewName(user.user_metadata?.full_name || "");
+      setEditingName(false);
+    }
+  }, [user, open]);
+
+  const handleUpdateName = async () => {
+    if (!user || !newName.trim()) return;
+    setIsUpdatingName(true);
+    try {
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { full_name: newName.trim() }
+      });
+      if (authError) throw authError;
+
+      const { error: dbError } = await supabase
+        .from("profiles")
+        .update({ full_name: newName.trim() })
+        .eq("id", user.id);
+      if (dbError) throw dbError;
+
+      toast.success(t("settings.nameUpdated") || "Имя обновлено");
+      setEditingName(false);
+    } catch (e) {
+      console.error(e);
+      toast.error(t("settings.nameUpdateFailed") || "Ошибка обновления имени");
+    } finally {
+      setIsUpdatingName(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -95,6 +136,53 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
         </DialogHeader>
 
         <div className="space-y-6 mt-2">
+          {user && (
+            <>
+              <section className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">{t("auth.fullName") || "ФИО"}</Label>
+                </div>
+                {editingName ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      placeholder={t("auth.fullNamePh") || "Иван Иванов"}
+                      disabled={isUpdatingName}
+                      className="h-9 text-sm"
+                    />
+                    <Button 
+                      size="sm" 
+                      onClick={handleUpdateName} 
+                      disabled={isUpdatingName || !newName.trim()}
+                    >
+                      {isUpdatingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setNewName(user.user_metadata?.full_name || "");
+                        setEditingName(false);
+                      }}
+                      disabled={isUpdatingName}
+                    >
+                      {t("admin.moderation.cancel") || "Отмена"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between bg-black/5 dark:bg-white/5 rounded-lg p-2 px-3 border border-border">
+                    <span className="text-sm font-medium">{user.user_metadata?.full_name ? tName(user.user_metadata.full_name) : t("admin.moderation.unknown")}</span>
+                    <Button variant="ghost" size="sm" onClick={() => setEditingName(true)} className="h-7 text-xs">
+                      {t("admin.moderation.edit") || "Редактировать"}
+                    </Button>
+                  </div>
+                )}
+              </section>
+              <div className="h-px bg-border" />
+            </>
+          )}
+
           {/* Language cluster */}
           <section className="space-y-2">
             <div className="flex items-center justify-between">

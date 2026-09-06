@@ -1,5 +1,4 @@
 import '../../../providers/translation_provider.dart';
-import '../../../../utils/transliteration.dart';
 import '../../../../utils/date_format_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -59,7 +58,6 @@ class _DashboardTabState extends State<DashboardTab> {
   Future<void> _fetchActivity() async {
     try {
       final now = DateTime.now();
-      final since30Days = now.subtract(const Duration(days: 30)).toUtc().toIso8601String();
 
       final resp = await Supabase.instance.client
           .from('shifts')

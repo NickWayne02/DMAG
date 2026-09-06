@@ -78,7 +78,7 @@ function loadPersistedShift(): PersistedShift | null {
     const raw = window.localStorage.getItem(SHIFT_STORAGE_KEY);
     if (!raw) return null;
     const p = JSON.parse(raw) as PersistedShift;
-    if (!p || p.status === "finished" || p.status === "idle") return null;
+    if (!p || p.status === "idle") return null;
     return p;
   } catch {
     return null;
@@ -390,7 +390,7 @@ export function EmployeeProvider({
   // keeps ticking even after switching to admin mode until the shift ends.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (status === "idle" || status === "finished") {
+    if (status === "idle") {
       window.localStorage.removeItem(SHIFT_STORAGE_KEY);
       return;
     }
@@ -461,6 +461,8 @@ export function EmployeeProvider({
         }
       } else {
         // If server says no active shift, make sure we reflect that
+        // BUT don't overwrite "finished" — that state should persist until
+        // the user manually resets via the "New shift" button.
         setStatus((s) => {
           if (s === "working" || s === "lunch") {
             setShiftStart(null);

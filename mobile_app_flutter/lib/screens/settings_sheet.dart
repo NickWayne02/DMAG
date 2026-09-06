@@ -7,6 +7,8 @@ import '../providers/locale_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bounce_button.dart';
 import 'language_sheet.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../providers/translation_provider.dart';
 
 class SettingsSheet extends StatefulWidget {
   const SettingsSheet({super.key});
@@ -51,6 +53,9 @@ class SettingsSheet extends StatefulWidget {
 
 class _SettingsSheetState extends State<SettingsSheet> {
   final TextEditingController _hexController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  bool _editingName = false;
+  bool _isUpdatingName = false;
 
   @override
   void initState() {
@@ -61,11 +66,52 @@ class _SettingsSheetState extends State<SettingsSheet> {
     } else {
       _hexController.text = '#${tp.activeAccent.primary.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     }
+    
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      _nameController.text = user.userMetadata?['full_name'] ?? '';
+    }
+  }
+
+  Future<void> _updateName() async {
+    final newName = _nameController.text.trim();
+    if (newName.isEmpty) return;
+    setState(() => _isUpdatingName = true);
+
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return;
+
+      await Supabase.instance.client.auth.updateUser(
+        UserAttributes(data: {'full_name': newName}),
+      );
+
+      await Supabase.instance.client
+          .from('profiles')
+          .update({'full_name': newName})
+          .eq('id', user.id);
+
+      if (mounted) {
+        setState(() => _editingName = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LocaleProvider>().t('settings.nameUpdated') ?? 'Имя обновлено')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.read<LocaleProvider>().t('settings.nameUpdateFailed') ?? 'Ошибка обновления имени')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUpdatingName = false);
+    }
   }
 
   @override
   void dispose() {
     _hexController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -148,6 +194,104 @@ class _SettingsSheetState extends State<SettingsSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Name Edit Row
+                  if (Supabase.instance.client.auth.currentUser != null) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.read<LocaleProvider>().t('auth.fullName') ?? 'ФИО',
+                          style: GoogleFonts.inter(
+                            color: colors.foreground,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _editingName
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _nameController,
+                                  style: GoogleFonts.inter(color: colors.foreground),
+                                  decoration: InputDecoration(
+                                    hintText: context.read<LocaleProvider>().t('auth.fullNamePh') ?? 'Иван Иванов',
+                                    hintStyle: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5)),
+                                    filled: true,
+                                    fillColor: colors.foreground.withValues(alpha: 0.05),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              BounceButton(
+                                onTap: _isUpdatingName ? null : () => setState(() => _editingName = false),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: colors.foreground.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(LucideIcons.x, color: colors.foreground, size: 20),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              BounceButton(
+                                onTap: (_isUpdatingName || _nameController.text.trim().isEmpty) ? null : _updateName,
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: primary,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: _isUpdatingName 
+                                    ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: colors.background, strokeWidth: 2))
+                                    : Icon(LucideIcons.check, color: colors.background, size: 20),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: colors.foreground.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: colors.border),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _nameController.text.isNotEmpty ? context.read<TranslationProvider>().translate(_nameController.text, context.read<LocaleProvider>().currentLang) : '',
+                                  style: GoogleFonts.inter(color: colors.foreground, fontSize: 14),
+                                ),
+                                BounceButton(
+                                  onTap: () => setState(() => _editingName = true),
+                                  child: Text(
+                                    context.read<LocaleProvider>().t('admin.moderation.edit') ?? 'Изменить',
+                                    style: GoogleFonts.inter(
+                                      color: primary,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Divider(color: colors.border),
+                    ),
+                  ],
+
                   // Language Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

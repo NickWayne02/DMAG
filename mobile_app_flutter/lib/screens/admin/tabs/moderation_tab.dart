@@ -1,6 +1,5 @@
 import '../../../providers/translation_provider.dart';
 import 'package:flutter/material.dart';
-import '../../../utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

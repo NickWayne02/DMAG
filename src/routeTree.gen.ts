@@ -16,6 +16,8 @@ import { Route as EmployeeRouteImport } from './routes/employee'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin-dashboard'
 import { Route as AuthenticatedEmployeeDashboardRouteImport } from './routes/_authenticated/employee-dashboard'
+import { Route as ApiUsersDeleteRouteImport } from './routes/api/users/delete'
+import { Route as ApiUsersUpdateRouteImport } from './routes/api/users/update'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -53,6 +55,16 @@ const AuthenticatedEmployeeDashboardRoute =
     path: '/employee-dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiUsersDeleteRoute = ApiUsersDeleteRouteImport.update({
+  id: '/api/users/delete',
+  path: '/api/users/delete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUsersUpdateRoute = ApiUsersUpdateRouteImport.update({
+  id: '/api/users/update',
+  path: '/api/users/update',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -61,6 +73,8 @@ export interface FileRoutesByFullPath {
   '/employee': typeof EmployeeRoute
   '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/employee-dashboard': typeof AuthenticatedEmployeeDashboardRoute
+  '/api/users/delete': typeof ApiUsersDeleteRoute
+  '/api/users/update': typeof ApiUsersUpdateRoute
 }
 export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
@@ -69,6 +83,8 @@ export interface FileRoutesByTo {
   '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/employee-dashboard': typeof AuthenticatedEmployeeDashboardRoute
   '/': typeof AuthenticatedIndexRoute
+  '/api/users/delete': typeof ApiUsersDeleteRoute
+  '/api/users/update': typeof ApiUsersUpdateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,6 +95,8 @@ export interface FileRoutesById {
   '/_authenticated/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/employee-dashboard': typeof AuthenticatedEmployeeDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/api/users/delete': typeof ApiUsersDeleteRoute
+  '/api/users/update': typeof ApiUsersUpdateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,6 +107,8 @@ export interface FileRouteTypes {
     | '/employee'
     | '/admin-dashboard'
     | '/employee-dashboard'
+    | '/api/users/delete'
+    | '/api/users/update'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin'
@@ -97,6 +117,8 @@ export interface FileRouteTypes {
     | '/admin-dashboard'
     | '/employee-dashboard'
     | '/'
+    | '/api/users/delete'
+    | '/api/users/update'
   id:
     | '__root__'
     | '/_authenticated'
@@ -106,6 +128,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-dashboard'
     | '/_authenticated/employee-dashboard'
     | '/_authenticated/'
+    | '/api/users/delete'
+    | '/api/users/update'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -113,6 +137,8 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   EmployeeRoute: typeof EmployeeRoute
+  ApiUsersDeleteRoute: typeof ApiUsersDeleteRoute
+  ApiUsersUpdateRoute: typeof ApiUsersUpdateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -166,6 +192,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeeDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/users/delete': {
+      id: '/api/users/delete'
+      path: '/api/users/delete'
+      fullPath: '/api/users/delete'
+      preLoaderRoute: typeof ApiUsersDeleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/users/update': {
+      id: '/api/users/update'
+      path: '/api/users/update'
+      fullPath: '/api/users/update'
+      preLoaderRoute: typeof ApiUsersUpdateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -189,6 +229,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   EmployeeRoute: EmployeeRoute,
+  ApiUsersDeleteRoute: ApiUsersDeleteRoute,
+  ApiUsersUpdateRoute: ApiUsersUpdateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

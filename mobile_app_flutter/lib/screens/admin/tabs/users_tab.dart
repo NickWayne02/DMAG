@@ -7,9 +7,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../dialogs/create_user_dialog.dart';
 import '../dialogs/change_credentials_dialog.dart';
+import '../dialogs/change_name_dialog.dart';
 import '../../../theme/app_theme.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class UsersTab extends StatefulWidget {
   const UsersTab({super.key});
@@ -102,6 +105,59 @@ class _UsersTabState extends State<UsersTab> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _deleteUser(String userId) async {
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session == null) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.watch<LocaleProvider>().t('users.delete_user') ?? 'Удалить пользователя?'),
+        content: Text(context.watch<LocaleProvider>().t('users.delete_confirm') ?? 'Вы уверены? Это действие необратимо.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(context.watch<LocaleProvider>().t('users.delete') ?? 'Удалить'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/users/delete'),
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'user_id': userId}),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to delete user: ${response.body}");
+      }
+      
+      _fetchUsers();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка удаления: $e')),
+        );
         setState(() => _isLoading = false);
       }
     }
@@ -287,8 +343,29 @@ class _UsersTabState extends State<UsersTab> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
                   ),
+                  icon: const Icon(LucideIcons.pencil, size: 14),
+                  label: Text(context.watch<LocaleProvider>().t('admin.moderation.edit') ?? 'Имя', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                  onPressed: isSelf ? null : () {
+                    ChangeNameDialog.show(
+                      context,
+                      userId: userId,
+                      userName: name,
+                      onSuccess: _fetchUsers,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.05) : Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
+                  ),
                   icon: const Icon(LucideIcons.key, size: 14),
-                  label: Text(context.watch<LocaleProvider>().t('users.login_pass') ?? 'Логин/пароль', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
+                  label: Text(context.watch<LocaleProvider>().t('users.login_pass') ?? 'Логин', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
                   onPressed: isSelf ? null : () {
                     ChangeCredentialsDialog.show(
                       context,
@@ -309,7 +386,7 @@ class _UsersTabState extends State<UsersTab> {
                   minimumSize: const Size(44, 44),
                   foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
                 ),
-                onPressed: isSelf ? null : () {},
+                onPressed: isSelf ? null : () => _deleteUser(userId),
                 child: const Icon(LucideIcons.trash_2, size: 16),
               ),
             ],

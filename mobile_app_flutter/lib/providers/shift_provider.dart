@@ -175,8 +175,21 @@ class ShiftProvider extends ChangeNotifier {
       );
 
       if (loadedStatus == ShiftStatus.finished) {
-        // Stats should reset after reload if shift is already finished
-        resetShift();
+        // Restore finished state so the summary card stays visible
+        _status = ShiftStatus.finished;
+        final startMs = prefs.getInt('shift_start');
+        if (startMs != null) _shiftStart = DateTime.fromMillisecondsSinceEpoch(startMs);
+        final endMs = prefs.getInt('shift_end');
+        if (endMs != null) _shiftEnd = DateTime.fromMillisecondsSinceEpoch(endMs);
+        _lunchAccumMs = prefs.getInt('lunch_accum') ?? 0;
+        _autoLunchApplied = prefs.getBool('auto_lunch_applied') ?? false;
+        final intervalsStr = prefs.getString('lunch_intervals');
+        if (intervalsStr != null) {
+          final List<dynamic> decoded = jsonDecode(intervalsStr);
+          _lunchIntervals = decoded.map((e) => e as Map<String, dynamic>).toList();
+        }
+        _now = DateTime.now();
+        notifyListeners();
         return;
       }
 
@@ -259,6 +272,7 @@ class ShiftProvider extends ChangeNotifier {
           _lunchIntervals = List<Map<String, dynamic>>.from(data['lunch_intervals']);
         }
       } else {
+        // Don't overwrite 'finished' — that state persists until user starts a new shift
         if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
           _status = ShiftStatus.idle;
           _shiftStart = null;
@@ -309,6 +323,12 @@ class ShiftProvider extends ChangeNotifier {
       await prefs.setInt('shift_start', _shiftStart!.millisecondsSinceEpoch);
     } else {
       await prefs.remove('shift_start');
+    }
+    
+    if (_shiftEnd != null) {
+      await prefs.setInt('shift_end', _shiftEnd!.millisecondsSinceEpoch);
+    } else {
+      await prefs.remove('shift_end');
     }
     
     if (_lunchStart != null) {

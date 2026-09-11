@@ -10,6 +10,28 @@
     "uz": "Interfeys tarjima qilinmoqda...",
     "tg": "Тарҷумаи интерфейс..."
   },
+  "dashboard.firm": {
+    "ru": "Фирма",
+    "en": "Firm",
+    "de": "Firma",
+    "ro": "Firmă",
+    "bg": "Фирма",
+    "pl": "Firma",
+    "uk": "Фірма",
+    "uz": "Firma",
+    "tg": "Фирма"
+  },
+  "dashboard.select_firm": {
+    "ru": "Выберите Фирму",
+    "en": "Select Firm",
+    "de": "Firma auswählen",
+    "ro": "Selectați firma",
+    "bg": "Изберете фирма",
+    "pl": "Wybierz firmę",
+    "uk": "Оберіть фірму",
+    "uz": "Firmani tanlang",
+    "tg": "Фирмаро интихоб кунед"
+  },
   "admin.tab.dashboard": {
     "ru": "Дашборд",
     "en": "Dashboard",

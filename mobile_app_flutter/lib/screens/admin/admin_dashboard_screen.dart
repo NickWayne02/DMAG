@@ -23,6 +23,7 @@ import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../providers/shift_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/admin_state_provider.dart';
 import '../../theme/app_theme.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -76,6 +77,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   void initState() {
     super.initState();
     _loadTab();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminStateProvider>().fetchPresets();
+    });
   }
 
   Future<void> _loadTab() async {
@@ -127,47 +131,39 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               context.read<ShiftProvider>().setAdminView(false);
             },
           ),
-          PopupMenuButton<String>(
-            icon: Icon(LucideIcons.palette, color: colors.foreground.withValues(alpha: 0.54), size: 20),
-            tooltip: 'Смена брендинга',
-            onSelected: (brand) async {
-              try {
-                const brands = ['samsung', 'xiaomi', 'poco', 'redmi', 'oneplus', 'oppo', 'vivo', 'realme', 'motorola', 'google', 'nokia', 'sony', 'asus', 'huawei', 'honor', 'meizu', 'zte', 'lenovo'];
-                if (brand == 'Brand1') {
-                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG Stark');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand1' : 'Brand1', blacklistBrands: brands);
-                } else if (brand == 'Brand2') {
-                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG Wayne');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand2' : 'Brand2', blacklistBrands: brands);
-                } else if (brand == 'Brand3') {
-                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG Corp');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.Brand3' : 'Brand3', blacklistBrands: brands);
-                } else {
-                  context.read<SettingsProvider>().updateSettings(appName: 'DMAG');
-                  await FlutterDynamicIconPlus.setAlternateIconName(iconName: Platform.isAndroid ? 'com.factory.app.DefaultAlias' : null, blacklistBrands: brands); // default
-                }
-              } on PlatformException {
-                 // ignore
-              }
+          Consumer<AdminStateProvider>(
+            builder: (context, adminState, _) {
+              if (adminState.presets.isEmpty) return const SizedBox();
+              return Row(
+                children: [
+                  Text('Фирма:', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground.withValues(alpha: 0.54))),
+                  const SizedBox(width: 8),
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: adminState.selectedFirmId,
+                      dropdownColor: colors.card,
+                      icon: Icon(LucideIcons.chevron_down, color: colors.foreground.withValues(alpha: 0.54), size: 16),
+                      style: GoogleFonts.inter(color: colors.foreground, fontSize: 14),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'all',
+                          child: Text(context.watch<LocaleProvider>().t('admin.allFirms') ?? 'Все фирмы'),
+                        ),
+                        ...adminState.presets.map((p) => DropdownMenuItem(
+                          value: p['id'].toString(),
+                          child: Text(p['app_name']),
+                        )),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          adminState.setSelectedFirmId(val);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              );
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'default',
-                child: Text('DMAG (По умолчанию)'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Brand1',
-                child: Text('DMAG Stark'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Brand2',
-                child: Text('DMAG Wayne'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'Brand3',
-                child: Text('DMAG Corp'),
-              ),
-            ],
           ),
           IconButton(
             icon: Icon(LucideIcons.settings, color: colors.foreground.withValues(alpha: 0.54), size: 20),

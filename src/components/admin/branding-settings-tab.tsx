@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSettings, useUpdateAppSettings } from "@/hooks/use-app-settings";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, Trash2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 
-export function BrandingSettingsTab() {
+export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: () => void, onApplyPreset?: (id: string) => void }) {
   const { t } = useLanguage();
   const { data: settings, isLoading } = useAppSettings();
   const updateSettings = useUpdateAppSettings();
@@ -34,9 +34,13 @@ export function BrandingSettingsTab() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['app_branding_presets'] });
       toast.success("Пресет сохранен в галерею");
+      onUpdate?.();
+      if (data?.id) {
+        onApplyPreset?.(data.id);
+      }
     },
     onError: (e: any) => toast.error(e.message || "Ошибка сохранения пресета")
   });
@@ -49,14 +53,33 @@ export function BrandingSettingsTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['app_branding_presets'] });
       toast.success("Пресет удален");
+      onUpdate?.();
     },
     onError: (e: any) => toast.error(e.message || "Ошибка удаления пресета")
   });
 
+  const updatePresetMutation = useMutation({
+    mutationFn: async (data: { id: string; app_name: string; app_logo_url: string | null }) => {
+      const { error } = await supabase.from('app_branding_presets').update({
+        app_name: data.app_name,
+        app_logo_url: data.app_logo_url
+      }).eq('id', data.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app_branding_presets'] });
+      toast.success("Пресет обновлен");
+      onUpdate?.();
+    },
+    onError: (e: any) => toast.error(e.message || "Ошибка обновления пресета")
+  });
+
   // Sync state when settings load
-  if (!isLoading && settings && name === "DMAG" && settings.app_name !== "DMAG") {
-    setName(settings.app_name);
-  }
+  useEffect(() => {
+    if (settings?.app_name) {
+      setName(settings.app_name);
+    }
+  }, [settings?.app_name]);
 
   const handleSaveName = async () => {
     try {
@@ -67,14 +90,11 @@ export function BrandingSettingsTab() {
     }
   };
 
-  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>, presetToEdit?: {id: string, app_name: string, app_logo_url: string | null}) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Файл слишком большой. Максимальный размер: 2 МБ");
-      return;
-    }
+    // file size limit removed as requested
 
     try {
       setUploading(true);
@@ -94,9 +114,10 @@ export function BrandingSettingsTab() {
         .getPublicUrl(filePath);
 
       // Удаляем старый логотип из Storage, если он был
-      if (settings?.app_logo_url) {
+      const oldUrl = presetToEdit ? presetToEdit.app_logo_url : settings?.app_logo_url;
+      if (oldUrl) {
         try {
-          const oldUrlParts = settings.app_logo_url.split('/assets/');
+          const oldUrlParts = oldUrl.split('/assets/');
           if (oldUrlParts.length > 1) {
             const oldFilePath = oldUrlParts[1];
             await supabase.storage.from("assets").remove([oldFilePath]);
@@ -106,7 +127,15 @@ export function BrandingSettingsTab() {
         }
       }
 
-      await updateSettings.mutateAsync({ app_logo_url: publicUrlData.publicUrl });
+      if (presetToEdit) {
+        await updatePresetMutation.mutateAsync({
+          id: presetToEdit.id,
+          app_name: presetToEdit.app_name,
+          app_logo_url: publicUrlData.publicUrl
+        });
+      } else {
+        await updateSettings.mutateAsync({ app_logo_url: publicUrlData.publicUrl });
+      }
       toast.success("Логотип обновлен");
     } catch (e: any) {
       toast.error(e.message || "Ошибка загрузки логотипа");
@@ -229,6 +258,7 @@ export function BrandingSettingsTab() {
                         try {
                           await updateSettings.mutateAsync({ app_name: preset.app_name, app_logo_url: preset.app_logo_url });
                           toast.success("Бренд применен");
+                          onApplyPreset?.(preset.id);
                         } catch (e: any) {
                           toast.error(e.message || "Ошибка");
                         }
@@ -237,6 +267,20 @@ export function BrandingSettingsTab() {
                     >
                       {t("admin.branding.apply")}
                     </Button>
+                    <Label 
+                      htmlFor={`upload-preset-${preset.id}`}
+                      className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      title="Изменить логотип"
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Label>
+                    <Input
+                      id={`upload-preset-${preset.id}`}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleUploadLogo(e, preset)}
+                    />
                     <Button 
                       variant="destructive" 
                       size="icon" 

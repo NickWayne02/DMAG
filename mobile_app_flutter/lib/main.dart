@@ -10,7 +10,7 @@ import 'providers/shift_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/settings_provider.dart';
-
+import 'providers/admin_state_provider.dart';
 import 'providers/translation_provider.dart';
 
 void main() async {
@@ -33,6 +33,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => AdminStateProvider()),
         ChangeNotifierProvider(create: (_) => TranslationProvider()),
       ],
       child: const DMAGApp(),

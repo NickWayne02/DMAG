@@ -16,6 +16,7 @@ import { Route as EmployeeRouteImport } from './routes/employee'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin-dashboard'
 import { Route as AuthenticatedEmployeeDashboardRouteImport } from './routes/_authenticated/employee-dashboard'
+import { Route as ApiUsersCreateRouteImport } from './routes/api/users/create'
 import { Route as ApiUsersDeleteRouteImport } from './routes/api/users/delete'
 import { Route as ApiUsersUpdateRouteImport } from './routes/api/users/update'
 
@@ -55,6 +56,11 @@ const AuthenticatedEmployeeDashboardRoute =
     path: '/employee-dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiUsersCreateRoute = ApiUsersCreateRouteImport.update({
+  id: '/api/users/create',
+  path: '/api/users/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUsersDeleteRoute = ApiUsersDeleteRouteImport.update({
   id: '/api/users/delete',
   path: '/api/users/delete',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/employee': typeof EmployeeRoute
   '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/employee-dashboard': typeof AuthenticatedEmployeeDashboardRoute
+  '/api/users/create': typeof ApiUsersCreateRoute
   '/api/users/delete': typeof ApiUsersDeleteRoute
   '/api/users/update': typeof ApiUsersUpdateRoute
 }
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/employee-dashboard': typeof AuthenticatedEmployeeDashboardRoute
   '/': typeof AuthenticatedIndexRoute
+  '/api/users/create': typeof ApiUsersCreateRoute
   '/api/users/delete': typeof ApiUsersDeleteRoute
   '/api/users/update': typeof ApiUsersUpdateRoute
 }
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/_authenticated/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/employee-dashboard': typeof AuthenticatedEmployeeDashboardRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/api/users/create': typeof ApiUsersCreateRoute
   '/api/users/delete': typeof ApiUsersDeleteRoute
   '/api/users/update': typeof ApiUsersUpdateRoute
 }
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/employee'
     | '/admin-dashboard'
     | '/employee-dashboard'
+    | '/api/users/create'
     | '/api/users/delete'
     | '/api/users/update'
   fileRoutesByTo: FileRoutesByTo
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/admin-dashboard'
     | '/employee-dashboard'
     | '/'
+    | '/api/users/create'
     | '/api/users/delete'
     | '/api/users/update'
   id:
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin-dashboard'
     | '/_authenticated/employee-dashboard'
     | '/_authenticated/'
+    | '/api/users/create'
     | '/api/users/delete'
     | '/api/users/update'
   fileRoutesById: FileRoutesById
@@ -137,6 +149,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   EmployeeRoute: typeof EmployeeRoute
+  ApiUsersCreateRoute: typeof ApiUsersCreateRoute
   ApiUsersDeleteRoute: typeof ApiUsersDeleteRoute
   ApiUsersUpdateRoute: typeof ApiUsersUpdateRoute
 }
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEmployeeDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/users/create': {
+      id: '/api/users/create'
+      path: '/api/users/create'
+      fullPath: '/api/users/create'
+      preLoaderRoute: typeof ApiUsersCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/users/delete': {
       id: '/api/users/delete'
       path: '/api/users/delete'
@@ -229,6 +249,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   EmployeeRoute: EmployeeRoute,
+  ApiUsersCreateRoute: ApiUsersCreateRoute,
   ApiUsersDeleteRoute: ApiUsersDeleteRoute,
   ApiUsersUpdateRoute: ApiUsersUpdateRoute,
 }

@@ -1,18 +1,19 @@
-import '../../../providers/translation_provider.dart';
-import 'package:mobile_app_flutter/utils/transliteration.dart';
-import 'package:provider/provider.dart';
-import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import '../dialogs/create_user_dialog.dart';
-import '../dialogs/change_credentials_dialog.dart';
-import '../dialogs/change_name_dialog.dart';
-import '../../../theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_app_flutter/utils/transliteration.dart';
+import '../../../../providers/locale_provider.dart';
+import '../../../../providers/translation_provider.dart';
+import '../../../../providers/admin_state_provider.dart';
+import '../../../../theme/app_theme.dart';
+import '../dialogs/create_user_dialog.dart';
+import '../dialogs/change_credentials_dialog.dart';
+import '../dialogs/change_name_dialog.dart';
 
 class UsersTab extends StatefulWidget {
   const UsersTab({super.key});
@@ -442,8 +443,11 @@ class _UsersTabState extends State<UsersTab> {
                       ),
                       icon: const Icon(LucideIcons.plus, size: 16, color: Colors.black),
                       label: Text(context.watch<LocaleProvider>().t('users.create') ?? 'Создать', style: GoogleFonts.inter(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        CreateUserDialog.show(context);
+                      onPressed: () async {
+                        final res = await CreateUserDialog.show(context);
+                        if (res == true && mounted) {
+                          _fetchUsers();
+                        }
                       },
                     ),
                   ),
@@ -475,7 +479,11 @@ class _UsersTabState extends State<UsersTab> {
                 ? const Center(child: CircularProgressIndicator())
                 : Builder(
                     builder: (context) {
+                      final adminState = context.watch<AdminStateProvider>();
                       final filteredUsers = _users.where((u) {
+                        final matchesFirm = adminState.selectedFirmId == 'all' || u['label'] == adminState.selectedFirmId;
+                        if (!matchesFirm) return false;
+                        if (_searchQuery.isEmpty) return true;
                         final name = (u['full_name'] ?? u['email'] ?? u['phone'] ?? '').toString().toLowerCase();
                         return name.contains(_searchQuery.toLowerCase());
                       }).toList();

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../providers/settings_provider.dart';
+import '../../../../providers/admin_state_provider.dart';
 import '../../../../theme/app_theme.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../../providers/locale_provider.dart';
@@ -70,7 +71,7 @@ class _BrandingTabState extends State<BrandingTab> {
     }
   }
 
-  Future<void> _pickAndUploadLogo() async {
+  Future<void> _pickAndUploadLogo([Map<String, dynamic>? presetToEdit]) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 500, maxHeight: 500);
 
@@ -83,7 +84,7 @@ class _BrandingTabState extends State<BrandingTab> {
       final fileName = 'logo_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
       // Получаем текущий URL, чтобы удалить старый файл
-      final currentLogoUrl = mounted ? context.read<SettingsProvider>().settings.appLogoUrl : null;
+      final currentLogoUrl = presetToEdit != null ? presetToEdit['app_logo_url'] : (mounted ? context.read<SettingsProvider>().settings.appLogoUrl : null);
       if (currentLogoUrl != null && currentLogoUrl.contains('/assets/')) {
         try {
           final parts = currentLogoUrl.split('/assets/');
@@ -107,16 +108,31 @@ class _BrandingTabState extends State<BrandingTab> {
       final logoUrl = _supabase.storage.from('assets').getPublicUrl(fileName);
 
       // Update Database
-      await _supabase
-          .from('app_settings')
-          .update({'app_logo_url': logoUrl})
-          .eq('id', 1);
+      if (presetToEdit != null) {
+        await _supabase
+            .from('app_branding_presets')
+            .update({'app_logo_url': logoUrl})
+            .eq('id', presetToEdit['id']);
+        if (mounted) {
+          setState(() {
+            _presetsFuture = _fetchPresets();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Логотип пресета успешно обновлен')),
+          );
+        }
+      } else {
+        await _supabase
+            .from('app_settings')
+            .update({'app_logo_url': logoUrl})
+            .eq('id', 1);
 
-      if (mounted) {
-        context.read<SettingsProvider>().updateSettings(appLogoUrl: logoUrl);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Логотип успешно обновлен')),
-        );
+        if (mounted) {
+          context.read<SettingsProvider>().updateSettings(appLogoUrl: logoUrl);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Логотип успешно обновлен')),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -143,6 +159,7 @@ class _BrandingTabState extends State<BrandingTab> {
         setState(() {
           _presetsFuture = _fetchPresets();
         });
+        context.read<AdminStateProvider>().fetchPresets(); // refresh admin presets
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Текущий бренд сохранен в галерею')));
       }
     } catch (e) {
@@ -167,6 +184,7 @@ class _BrandingTabState extends State<BrandingTab> {
           appName: preset['app_name'], 
           appLogoUrl: preset['app_logo_url']
         );
+        context.read<AdminStateProvider>().setSelectedFirmId(preset['id'].toString());
         _appNameController.text = preset['app_name'];
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Бренд применен!')));
       }
@@ -238,6 +256,15 @@ class _BrandingTabState extends State<BrandingTab> {
                   ),
                   child: Text(t('admin.branding.apply') ?? 'Применить', style: const TextStyle(fontSize: 11)),
                 ),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                onPressed: () => _pickAndUploadLogo(preset),
+                icon: const Icon(LucideIcons.image_plus, size: 16),
+                color: colors.foreground.withValues(alpha: 0.7),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                tooltip: 'Изменить лого',
               ),
               const SizedBox(width: 4),
               IconButton(

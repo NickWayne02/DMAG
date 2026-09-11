@@ -303,6 +303,9 @@ export function AdminDashboard({
     "all",
   );
 
+  const [adminSelectedFirmId, setAdminSelectedFirmId] = useSessionState("dmag_admin_firm", "all");
+  const [presets, setPresets] = useSessionState<{ id: string; app_name: string; app_logo_url: string | null }[]>("dmag_admin_presets", []);
+
   const [sitesSearch, setSitesSearch] = useSessionState("dmag_admin_sitesSearch", "");
   const [adminSearch, setAdminSearch] = useSessionState("dmag_admin_adminSearch", "");
 
@@ -428,17 +431,25 @@ export function AdminDashboard({
       const { data } = await supabase
         .from("shifts")
         .select(
-          "id, site_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id",
+          "id, site_id, site_name, preset_id, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id",
         )
         .eq("user_id", calEmpId)
         .gte("started_at", start.toISOString())
         .lte("started_at", end.toISOString())
         .order("started_at", { ascending: true });
-      setCalShifts((data as any) || []);
+      
+      const emp = employees.find(e => e.id === calEmpId);
+      const filtered = (data as any[] || []).filter(s => {
+        const shFirm = s.preset_id || emp?.label || presets[0]?.id;
+        if (adminSelectedFirmId !== "all" && shFirm !== adminSelectedFirmId) return false;
+        return true;
+      });
+      
+      setCalShifts(filtered);
       setCalLoading(false);
     }
     loadCal();
-  }, [activeTab, calEmpId, calCursor, calRefresh]);
+  }, [activeTab, calEmpId, calCursor, calRefresh, adminSelectedFirmId, employees, presets]);
 
   const calWEEKDAYS = useMemo(() => {
     const fmt = new Intl.DateTimeFormat(lang, { weekday: "short" });
@@ -561,6 +572,7 @@ export function AdminDashboard({
       { data: siteData },
       { data: reportData },
       { data: shiftData },
+      { data: presetsData },
     ] = await Promise.all([
       supabase
         .from("profiles")
@@ -593,11 +605,14 @@ export function AdminDashboard({
       supabase
         .from("shifts")
         .select(
-          "id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city",
+          "id, user_id, site_name, preset_id, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city",
         )
         .gte("started_at", sinceMidnight.toISOString())
         .order("started_at", { ascending: false }),
+      supabase.from("app_branding_presets").select("*").order("created_at"),
     ]);
+
+    if (presetsData) setPresets(presetsData);
 
     const roleMap = new Map<string, AppRole>();
     (userRoles ?? []).forEach((r) => {
@@ -627,7 +642,11 @@ export function AdminDashboard({
       .filter((p) => {
         const r = roleMap.get(p.id) ?? "employee";
         if (role === "admin" && r === "super_admin") return false;
-        if (role === "admin" && p.label !== myLabel) return false;
+        
+        const sh = latestShiftByUser.get(p.id);
+        const empFirmId = sh?.preset_id || p.label || presetsData?.[0]?.id;
+        if (adminSelectedFirmId !== "all" && empFirmId !== adminSelectedFirmId) return false;
+        
         return true;
       })
       .map((p) => {
@@ -725,10 +744,6 @@ export function AdminDashboard({
     }
 
     let siteRows: SiteRow[] = (siteData ?? [])
-      .filter((s: any) => {
-        if (role === "admin" && s.label !== myLabel) return false;
-        return true;
-      })
       .map((s) => ({
         id: s.id,
         name: s.name,
@@ -765,6 +780,11 @@ export function AdminDashboard({
     let repRows: ReportRow[] = reportsRaw
       .filter((r) => {
         if (role === "admin" && (!r.author_id || !allowedEmpIds.has(r.author_id))) return false;
+        if (adminSelectedFirmId !== "all") {
+          const author = (profiles ?? []).find((p) => p.id === r.author_id);
+          const repFirm = author?.label || presetsData?.[0]?.id;
+          if (repFirm !== adminSelectedFirmId) return false;
+        }
         return true;
       })
       .map((r) => ({
@@ -817,12 +837,18 @@ export function AdminDashboard({
     const { data: histData } = await supabase
       .from("shifts")
       .select(
-        "id, user_id, site_name, status, started_at, ended_at, lunch_total_ms, lunch_intervals, lunch_started_at, start_city, end_city",
+        "id, user_id, site_name, preset_id, status, started_at, ended_at, lunch_total_ms, lunch_intervals, lunch_started_at, start_city, end_city",
       )
       .gte("started_at", since30.toISOString())
       .order("started_at", { ascending: false });
     const nameById = new Map(emps.map((e) => [e.id, e.name]));
-    const history: ShiftDetail[] = (histData ?? []).map((s: any) => ({
+    const history: ShiftDetail[] = (histData ?? [])
+      .filter((s: any) => {
+        const shFirm = s.preset_id || (profiles ?? []).find((p) => p.id === s.user_id)?.label || presetsData?.[0]?.id;
+        if (adminSelectedFirmId !== "all" && shFirm !== adminSelectedFirmId) return false;
+        return true;
+      })
+      .map((s: any) => ({
       id: s.id,
       user_id: s.user_id,
       user_name: nameById.get(s.user_id) ?? "—",
@@ -922,18 +948,24 @@ export function AdminDashboard({
 
       if (data && data.length > 0) {
         const siteNameMap = new Map(sites.map((s) => [s.id, s.name]));
+        const allowedEmpIds = new Set(employees.map((e) => e.id));
 
-        const newRepRows = data.map((r: any) => ({
-          id: r.id,
-          description: r.description,
-          criticality: r.criticality,
-          created_at: r.created_at,
-          site_name: siteNameMap.get(r.site_id) ?? "—",
-          thumb: r.photo_url
-            ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
-            : null,
-          photo_url: r.photo_url || null,
-        }));
+        const newRepRows = data
+          .filter((r: any) => {
+            if (role === "admin" && (!r.author_id || !allowedEmpIds.has(r.author_id))) return false;
+            return true;
+          })
+          .map((r: any) => ({
+            id: r.id,
+            description: r.description,
+            criticality: r.criticality,
+            created_at: r.created_at,
+            site_name: siteNameMap.get(r.site_id) ?? "—",
+            thumb: r.photo_url
+              ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
+              : null,
+            photo_url: r.photo_url || null,
+          }));
 
         setReports((prev) => (reset ? newRepRows : [...prev, ...newRepRows]));
         setReportsHasMore(data.length === 20);
@@ -1089,8 +1121,12 @@ export function AdminDashboard({
         .eq("id", shiftEdit.id);
       err = error as any;
     } else {
+      const emp = employees.find(e => e.id === shiftEdit.user_id);
+      const presetId = adminSelectedFirmId !== "all" ? adminSelectedFirmId : (emp?.label || null);
+
       const { error } = await supabase.from("shifts").insert({
         user_id: shiftEdit.user_id,
+        preset_id: presetId,
         started_at: started,
         ended_at: ended,
         lunch_total_ms,
@@ -1683,6 +1719,21 @@ export function AdminDashboard({
               </p>
             </div>
           </div>
+          {presets.length > 0 && (
+            <div className="hidden md:flex flex-1 mx-4 justify-end items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{t("admin.firm")}</span>
+              <select
+                className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-50"
+                value={adminSelectedFirmId}
+                onChange={(e) => setAdminSelectedFirmId(e.target.value)}
+              >
+                <option value="all">{t("admin.allFirms")}</option>
+                {presets.map(p => (
+                  <option key={p.id} value={p.id}>{p.app_name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
@@ -1745,7 +1796,7 @@ export function AdminDashboard({
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
                   <Loader2 className="h-4 w-4 animate-spin" />{" "}
-                  {t("admin.loading", { defaultValue: "Loading data..." })}…
+                  {t("admin.loading")}…
                 </div>
               ) : activities.length === 0 ? (
                 <div className="flex-1 mt-6 flex flex-col items-center justify-center py-20 px-6 text-center border-2 border-dashed rounded-2xl border-muted bg-card/30">
@@ -1753,13 +1804,10 @@ export function AdminDashboard({
                     <FolderSearch className="h-10 w-10 text-muted-foreground/40" />
                   </div>
                   <h4 className="text-lg font-semibold text-foreground mb-2">
-                    {t("admin.activity.emptyTitle", { defaultValue: "Активности пока нет" })}
+                    {t("admin.activity.emptyTitle")}
                   </h4>
                   <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                    {t("admin.activity.emptyDesc", {
-                      defaultValue:
-                        "События, новые смены и инциденты будут появляться здесь в реальном времени.",
-                    })}
+                    {t("admin.activity.emptyDesc")}
                   </p>
                 </div>
               ) : (
@@ -2526,7 +2574,10 @@ export function AdminDashboard({
 
           {/* BRANDING TAB */}
           {activeTab === "branding" && superMode && (
-            <BrandingSettingsTab />
+            <BrandingSettingsTab 
+              onUpdate={() => loadAll()} 
+              onApplyPreset={(id) => setAdminSelectedFirmId(id)}
+            />
           )}
 
           {/* SECURITY TAB */}
@@ -2646,7 +2697,11 @@ export function AdminDashboard({
                 <Button
                   size="sm"
                   className="rounded-xl w-full sm:w-auto"
-                  onClick={() => setCreateForm((f) => ({ ...f, open: true }))}
+                  onClick={() => setCreateForm((f) => ({ 
+                    ...f, 
+                    open: true,
+                    label: adminSelectedFirmId !== "all" ? adminSelectedFirmId : "" 
+                  }))}
                 >
                   <Plus className="h-4 w-4 mr-1.5" />
                   {t("admin.users.create")}

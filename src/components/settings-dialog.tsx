@@ -291,7 +291,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                           <Check className="h-5 w-5 absolute top-1 right-1 drop-shadow text-white" />
                         )}
                         <span className="absolute bottom-1 left-2 text-[10px] font-semibold drop-shadow text-white/90">
-                          {p.label}
+                          {t(`theme.${p.id}`) || p.label}
                         </span>
                       </button>
                     );

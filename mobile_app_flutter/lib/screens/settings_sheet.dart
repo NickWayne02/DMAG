@@ -753,7 +753,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
             Align(
               alignment: Alignment.bottomLeft,
               child: Text(
-                preset.label,
+                context.read<LocaleProvider>().t('theme.${preset.id}') ?? preset.label,
                 style: GoogleFonts.inter(
                   color: Colors.white,
                   fontSize: 10,

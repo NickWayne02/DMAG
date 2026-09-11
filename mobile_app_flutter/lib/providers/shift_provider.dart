@@ -23,6 +23,7 @@ class ShiftProvider extends ChangeNotifier {
   Map<String, dynamic>? _userProfile;
   bool _isProfileLoading = false;
   Map<String, dynamic>? _selectedSite;
+  Map<String, dynamic>? _selectedPreset;
   Timer? _timer;
   DateTime _now = DateTime.now();
   RealtimeChannel? _shiftSubscription;
@@ -32,6 +33,7 @@ class ShiftProvider extends ChangeNotifier {
   Map<String, dynamic>? get userProfile => _userProfile;
   bool get isProfileLoading => _isProfileLoading;
   Map<String, dynamic>? get selectedSite => _selectedSite;
+  Map<String, dynamic>? get selectedPreset => _selectedPreset;
   String? get shiftId => _shiftId;
   bool get autoLunchApplied => _autoLunchApplied;
   String? get travelTime => _travelTime;
@@ -67,7 +69,7 @@ class ShiftProvider extends ChangeNotifier {
         _isAdminView = false;
         resetShift();
         _userProfile = null;
-        // Keep _selectedSite — user wants the site to persist across logouts
+        // Keep _selectedSite and _selectedPreset — user wants them to persist across logouts
         if (_shiftSubscription != null) {
           Supabase.instance.client.removeChannel(_shiftSubscription!);
           _shiftSubscription = null;
@@ -134,6 +136,24 @@ class ShiftProvider extends ChangeNotifier {
     await prefs.remove('selected_site_address');
   }
 
+  void setSelectedPreset(Map<String, dynamic> preset) async {
+    _selectedPreset = preset;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_preset_id', preset['id']);
+    await prefs.setString('selected_preset_name', preset['app_name'] ?? '');
+    await prefs.setString('selected_preset_logo', preset['app_logo_url'] ?? '');
+  }
+
+  void clearSelectedPreset() async {
+    _selectedPreset = null;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selected_preset_id');
+    await prefs.remove('selected_preset_name');
+    await prefs.remove('selected_preset_logo');
+  }
+
   Future<void> _loadState() async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -145,7 +165,18 @@ class ShiftProvider extends ChangeNotifier {
         'name': prefs.getString('selected_site_name'),
         'address': prefs.getString('selected_site_address'),
       };
+    }
 
+    final presetId = prefs.getString('selected_preset_id');
+    if (presetId != null && presetId.isNotEmpty) {
+      _selectedPreset = {
+        'id': presetId,
+        'app_name': prefs.getString('selected_preset_name'),
+        'app_logo_url': prefs.getString('selected_preset_logo'),
+      };
+    }
+
+    if (siteId != null && siteId.isNotEmpty) {
       try {
         final exists = await Supabase.instance.client
             .from('sites')
@@ -397,6 +428,7 @@ class ShiftProvider extends ChangeNotifier {
           'user_id': user.id,
           'site_id': siteId,
           'site_name': siteName,
+          'preset_id': _selectedPreset?['id'],
           'status': 'working',
           'started_at': DateTime.now().toUtc().toIso8601String(),
           'lunch_total_ms': 0,

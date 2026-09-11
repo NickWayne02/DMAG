@@ -3,13 +3,18 @@ import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../../theme/app_theme.dart';
+import '../../../../providers/admin_state_provider.dart';
 
 class CreateUserDialog extends StatefulWidget {
   const CreateUserDialog({super.key});
 
-  static Future<void> show(BuildContext context) {
-    return showDialog(
+  static Future<bool?> show(BuildContext context) {
+    return showDialog<bool>(
       context: context,
       barrierDismissible: true,
       builder: (_) => const CreateUserDialog(),
@@ -23,8 +28,71 @@ class CreateUserDialog extends StatefulWidget {
 class _CreateUserDialogState extends State<CreateUserDialog> {
   String _selectedRole = 'employee';
   final List<String> _roles = ['employee', 'brigadier', 'admin', 'super_admin'];
+  
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  Widget _buildTextField(String label) {
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _createUser() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Email и пароль обязательны')));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final session = Supabase.instance.client.auth.currentSession;
+      if (session == null) throw Exception('No session');
+
+      final adminState = context.read<AdminStateProvider>();
+      final String? label = adminState.selectedFirmId == 'all' ? null : adminState.selectedFirmId;
+
+      final String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/users/create'),
+        headers: {
+          'Authorization': 'Bearer ${session.accessToken}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'full_name': name,
+          'role': _selectedRole,
+          'label': label,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed: ${response.body}");
+      }
+      
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {bool obscureText = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,6 +106,8 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
+          obscureText: obscureText,
           style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
@@ -105,9 +175,9 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               ),
               const SizedBox(height: 24),
               
-              _buildTextField(context.watch<LocaleProvider>().t('create_user.name') ?? 'Полное имя'),
-              _buildTextField(context.watch<LocaleProvider>().t('create_user.email') ?? 'Email (логин)'),
-              _buildTextField(context.watch<LocaleProvider>().t('create_user.password') ?? 'Пароль'),
+              _buildTextField(context.watch<LocaleProvider>().t('create_user.name') ?? 'Полное имя', _nameController),
+              _buildTextField(context.watch<LocaleProvider>().t('create_user.email') ?? 'Email (логин)', _emailController),
+              _buildTextField(context.watch<LocaleProvider>().t('create_user.password') ?? 'Пароль', _passwordController, obscureText: true),
               
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,10 +227,10 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 0,
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(context.watch<LocaleProvider>().t('users.create') ?? 'Создать', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
+                  onPressed: _isLoading ? null : _createUser,
+                  child: _isLoading 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(context.watch<LocaleProvider>().t('users.create') ?? 'Создать', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 8),

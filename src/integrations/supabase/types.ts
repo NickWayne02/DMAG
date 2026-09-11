@@ -177,6 +177,7 @@ export type Database = {
           lunch_intervals: Json;
           lunch_started_at: string | null;
           lunch_total_ms: number;
+          preset_id: string | null;
           site_id: string | null;
           site_name: string | null;
           start_city: string | null;
@@ -197,6 +198,7 @@ export type Database = {
           lunch_intervals?: Json;
           lunch_started_at?: string | null;
           lunch_total_ms?: number;
+          preset_id?: string | null;
           site_id?: string | null;
           site_name?: string | null;
           start_city?: string | null;
@@ -217,6 +219,7 @@ export type Database = {
           lunch_intervals?: Json;
           lunch_started_at?: string | null;
           lunch_total_ms?: number;
+          preset_id?: string | null;
           site_id?: string | null;
           site_name?: string | null;
           start_city?: string | null;

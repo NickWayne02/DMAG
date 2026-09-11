@@ -52,8 +52,8 @@
             android:name=".Brand1"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="DMAG Stark"
+            android:icon="@mipmap/ic_brand1"
+            android:label="E&amp;R"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -65,8 +65,8 @@
             android:name=".Brand2"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="DMAG Wayne"
+            android:icon="@mipmap/ic_brand2"
+            android:label="O&amp;D"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -78,8 +78,8 @@
             android:name=".Brand3"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="DMAG Corp"
+            android:icon="@mipmap/ic_brand3"
+            android:label="DMAG"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

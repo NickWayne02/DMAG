@@ -261,8 +261,10 @@ export function AdminEditableCalendarDialog({
           })
           .eq("id", shiftEdit.id);
       } else {
+        const { data: prof } = await supabase.from("profiles").select("label").eq("id", shiftEdit.user_id).single();
         await supabase.from("shifts").insert({
           user_id: shiftEdit.user_id,
+          preset_id: prof?.label || null,
           started_at: started,
           ended_at: ended,
           lunch_total_ms,

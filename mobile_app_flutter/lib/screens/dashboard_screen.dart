@@ -15,6 +15,7 @@ import '../services/storage_service.dart';
 // Keep for now to avoid breaking other files if any
 import 'chat_screen.dart';
 import 'site_selector_sheet.dart';
+import '../widgets/preset_selector_sheet.dart';
 import 'language_sheet.dart';
 import 'settings_sheet.dart';
 import '../utils/app_toast.dart';
@@ -350,6 +351,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
 
+                        const SizedBox(height: 16),
+
+                        // Firm Selector
+                        BounceButton(
+                          onTap: () => PresetSelectorSheet.show(context, shift),
+                          child: NeonCard(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            child: Row(
+                              children: [
+                                Icon(LucideIcons.briefcase, color: colors.foreground.withValues(alpha: 0.7), size: 20),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(t('dashboard.firm') ?? 'Фирма', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
+                                      Text(
+                                        shift.selectedPreset != null
+                                            ? (shift.selectedPreset!['app_name'] ?? 'DMAG')
+                                            : t('dashboard.firm_not_selected') ?? 'Не выбрана — нажмите, чтобы выбрать',
+                                        style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 11),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
 
                         // Site Selector

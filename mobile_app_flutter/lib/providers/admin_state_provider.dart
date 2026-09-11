@@ -38,27 +38,27 @@ class AdminStateProvider extends ChangeNotifier {
       // Change app icon dynamically
       if (!kIsWeb && Platform.isAndroid) {
         try {
-          final brands = ['Brand1', 'Brand2', 'Brand3'];
+          const brands = ['samsung', 'xiaomi', 'poco', 'redmi', 'oneplus', 'oppo', 'vivo', 'realme', 'motorola', 'google', 'nokia', 'sony', 'asus', 'huawei', 'honor', 'meizu', 'zte', 'lenovo'];
           
           if (id == 'all') {
-             await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'DefaultAlias', blacklistBrands: brands);
+             await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.DefaultAlias', blacklistBrands: brands);
              return;
           }
 
-          final preset = _presets.firstWhere((p) => p['id'].toString() == id, orElse: () => {});
+          final preset = _presets.firstWhere((p) => p['id'].toString() == id, orElse: () => <String, dynamic>{});
           final appName = (preset['app_name'] ?? '').toString().toLowerCase();
 
           if (appName.contains('e&r')) {
-            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand1', blacklistBrands: brands);
+            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand1', blacklistBrands: brands);
           } else if (appName.contains('o&d')) {
-            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand2', blacklistBrands: brands);
+            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand2', blacklistBrands: brands);
           } else if (appName.contains('dmag')) {
-            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'Brand3', blacklistBrands: brands);
+            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand3', blacklistBrands: brands);
           } else {
-             await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'DefaultAlias', blacklistBrands: brands);
+             await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.DefaultAlias', blacklistBrands: brands);
           }
-        } on PlatformException {
-          // ignore
+        } on PlatformException catch (e) {
+          debugPrint('Icon change failed: $e');
         }
       }
     }

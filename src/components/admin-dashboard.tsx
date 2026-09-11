@@ -138,6 +138,7 @@ type EmployeeRow = {
   siteName: string | null;
   lastShiftAt: string | null; // ISO
   is_active: boolean;
+  label?: string | null;
   updated_at?: string;
 };
 
@@ -147,6 +148,7 @@ type SiteRow = {
   address: string | null;
   customer: string | null;
   comment: string | null;
+  label?: string | null;
   created_at: string;
 };
 
@@ -562,11 +564,11 @@ export function AdminDashboard({
     ] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, full_name, email, phone, is_active, avatar_url, updated_at"),
+        .select("id, full_name, email, phone, is_active, avatar_url, updated_at, label"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")
-        .select("id, name, address, customer, created_at")
+        .select("id, name, address, customer, created_at, label")
         .order("created_at", { ascending: false }),
       (function () {
         let q = supabase
@@ -611,6 +613,9 @@ export function AdminDashboard({
       }
     });
 
+    const myProfile = (profiles ?? []).find((p) => p.id === user?.id);
+    const myLabel = myProfile?.label ?? null;
+
     // Keep only the latest shift per user for today
     const latestShiftByUser = new Map<string, NonNullable<typeof shiftData>[number]>();
     (shiftData ?? []).forEach((s) => {
@@ -622,6 +627,7 @@ export function AdminDashboard({
       .filter((p) => {
         const r = roleMap.get(p.id) ?? "employee";
         if (role === "admin" && r === "super_admin") return false;
+        if (role === "admin" && p.label !== myLabel) return false;
         return true;
       })
       .map((p) => {
@@ -718,14 +724,20 @@ export function AdminDashboard({
       ];
     }
 
-    let siteRows: SiteRow[] = (siteData ?? []).map((s) => ({
-      id: s.id,
-      name: s.name,
-      address: s.address,
-      customer: s.customer,
-      comment: (s as any).comment ?? null,
-      created_at: s.created_at,
-    }));
+    let siteRows: SiteRow[] = (siteData ?? [])
+      .filter((s: any) => {
+        if (role === "admin" && s.label !== myLabel) return false;
+        return true;
+      })
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        address: s.address,
+        customer: s.customer,
+        comment: (s as any).comment ?? null,
+        label: (s as any).label ?? null,
+        created_at: s.created_at,
+      }));
     if (devMode && siteRows.length === 0) {
       siteRows = [
         {
@@ -749,17 +761,23 @@ export function AdminDashboard({
     const siteNameMap = new Map(siteRows.map((s) => [s.id, s.name]));
 
     const reportsRaw = reportData ?? [];
-    let repRows: ReportRow[] = reportsRaw.map((r) => ({
-      id: r.id,
-      description: r.description,
-      criticality: r.criticality as Crit,
-      created_at: r.created_at,
-      site_name: siteNameMap.get(r.site_id) ?? "—",
-      thumb: r.photo_url
-        ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
-        : null,
-      photo_url: r.photo_url || null,
-    }));
+    const allowedEmpIds = new Set(emps.map(e => e.id));
+    let repRows: ReportRow[] = reportsRaw
+      .filter((r) => {
+        if (role === "admin" && (!r.author_id || !allowedEmpIds.has(r.author_id))) return false;
+        return true;
+      })
+      .map((r) => ({
+        id: r.id,
+        description: r.description,
+        criticality: r.criticality as Crit,
+        created_at: r.created_at,
+        site_name: r.site_id ? (siteNameMap.get(r.site_id) ?? "—") : "—",
+        thumb: r.photo_url
+          ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
+          : null,
+        photo_url: r.photo_url || null,
+      }));
     if (devMode && repRows.length === 0) {
       repRows = [
         {
@@ -1204,12 +1222,14 @@ export function AdminDashboard({
     password: string;
     full_name: string;
     role: AppRole;
-  }>({ open: false, email: "", password: "", full_name: "", role: "employee" });
+    label: string;
+  }>({ open: false, email: "", password: "", full_name: "", role: "employee", label: "" });
   
   const [nameEdit, setNameEdit] = useState<{
     user_id: string;
     user_name: string;
     current_name: string;
+    current_label: string;
     open: boolean;
   } | null>(null);
 
@@ -1234,10 +1254,11 @@ export function AdminDashboard({
           password: createForm.password,
           full_name: createForm.full_name.trim(),
           role: createForm.role,
+          label: createForm.label.trim() || null,
         },
       });
       toast.success(`Пользователь ${createForm.email} создан`);
-      setCreateForm({ open: false, email: "", password: "", full_name: "", role: "employee" });
+      setCreateForm({ open: false, email: "", password: "", full_name: "", role: "employee", label: "" });
       loadAll();
     } catch (e: any) {
       toast.error(e?.message ?? "Не удалось создать");
@@ -1254,9 +1275,10 @@ export function AdminDashboard({
         data: {
           user_id: nameEdit.user_id,
           full_name: nameEdit.current_name,
+          label: nameEdit.current_label.trim() || null,
         },
       });
-      toast.success("Имя успешно обновлено");
+      toast.success("Данные успешно обновлены");
       setNameEdit(null);
       loadAll();
     } catch (e: any) {
@@ -1911,7 +1933,12 @@ export function AdminDashboard({
                                           {e.name.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                       </Avatar>
-                                      <span>{tName(e.name)}</span>
+                                      <div className="flex flex-col">
+                                        <span>{tName(e.name)}</span>
+                                        {superMode && e.label && (
+                                          <span className="text-xs text-muted-foreground">{e.label}</span>
+                                        )}
+                                      </div>
                                     </div>
                                   </TableCell>
                                   <TableCell className="text-muted-foreground text-sm">
@@ -1985,6 +2012,7 @@ export function AdminDashboard({
                                   <h4 className="font-semibold">{tName(e.name)}</h4>
                                   <p className="text-xs text-muted-foreground mt-0.5">
                                     {t(roleLabel[e.role])}
+                                    {superMode && e.label && ` · ${e.label}`}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-1">
@@ -2684,7 +2712,12 @@ export function AdminDashboard({
                                       {e.name.substring(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span>{tName(e.name)}</span>
+                                  <div className="flex flex-col">
+                                    <span>{tName(e.name)}</span>
+                                    {superMode && e.label && (
+                                      <span className="text-xs text-muted-foreground">{e.label}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -2792,6 +2825,7 @@ export function AdminDashboard({
                                       user_id: e.id,
                                       user_name: e.name,
                                       current_name: e.name,
+                                      current_label: e.label ?? "",
                                       open: true,
                                     })
                                   }
@@ -2964,6 +2998,7 @@ export function AdminDashboard({
                                     user_id: e.id,
                                     user_name: e.name,
                                     current_name: e.name,
+                                    current_label: e.label ?? "",
                                     open: true,
                                   })
                                 }
@@ -3403,6 +3438,16 @@ export function AdminDashboard({
                 </SelectContent>
               </Select>
             </div>
+            {superMode && (
+              <div>
+                <Label>Лейбл / Группа (опционально)</Label>
+                <Input
+                  value={createForm.label}
+                  onChange={(e) => setCreateForm({ ...createForm, label: e.target.value })}
+                  placeholder="Название компании/филиала"
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -3478,6 +3523,16 @@ export function AdminDashboard({
                   placeholder="Иван Иванов"
                 />
               </div>
+              {superMode && (
+                <div>
+                  <Label>Лейбл / Группа</Label>
+                  <Input
+                    value={nameEdit.current_label}
+                    onChange={(e) => setNameEdit({ ...nameEdit, current_label: e.target.value })}
+                    placeholder="Название компании/филиала"
+                  />
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>

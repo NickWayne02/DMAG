@@ -135,6 +135,7 @@ export type Database = {
           avatar_url: string | null;
           id: string;
           is_active: boolean;
+          label: string | null;
           language: string;
           phone: string | null;
           updated_at: string;
@@ -146,6 +147,7 @@ export type Database = {
           avatar_url?: string | null;
           id: string;
           is_active?: boolean;
+          label?: string | null;
           language?: string;
           phone?: string | null;
           updated_at?: string;
@@ -157,6 +159,7 @@ export type Database = {
           avatar_url?: string | null;
           id?: string;
           is_active?: boolean;
+          label?: string | null;
           language?: string;
           phone?: string | null;
           updated_at?: string;
@@ -242,6 +245,7 @@ export type Database = {
           created_by: string | null;
           customer: string | null;
           id: string;
+          label: string | null;
           name: string;
           updated_at: string;
         };
@@ -252,6 +256,7 @@ export type Database = {
           created_by?: string | null;
           customer?: string | null;
           id?: string;
+          label?: string | null;
           name: string;
           updated_at?: string;
         };
@@ -262,6 +267,7 @@ export type Database = {
           created_by?: string | null;
           customer?: string | null;
           id?: string;
+          label?: string | null;
           name?: string;
           updated_at?: string;
         };

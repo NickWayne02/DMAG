@@ -70,7 +70,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       // Parallel fetch
       final results = await Future.wait([
-        Supabase.instance.client.from('profiles').select('id, full_name, email, phone, avatar_url'),
+        Supabase.instance.client.from('profiles').select('id, full_name, email, phone, avatar_url, label'),
         Supabase.instance.client.from('user_roles').select('user_id, role'),
         Supabase.instance.client.from('shifts')
             .select('id, user_id, site_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city')
@@ -91,6 +91,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
         roleMap[r['user_id']] = r['role']; // In reality might need priority logic if multiple roles, but simple here
       }
 
+      String? myLabel;
+      final myId = Supabase.instance.client.auth.currentUser?.id;
+      if (myId != null) {
+        final myProf = profiles.firstWhere((p) => p['id'] == myId, orElse: () => {});
+        if (myProf.isNotEmpty) myLabel = myProf['label'] as String?;
+      }
+      final isAdmin = myId != null && roleMap[myId] == 'admin';
+
       final latestShiftByUser = <String, Map<String, dynamic>>{};
       for (var s in shifts) {
         if (!latestShiftByUser.containsKey(s['user_id'])) {
@@ -103,8 +111,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       for (var p in profiles) {
         final id = p['id'] as String;
-        final name = context.watch<TranslationProvider>().translate(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
         final role = roleMap[id] ?? 'employee';
+
+        if (isAdmin) {
+          if (role == 'super_admin') continue;
+          if (p['label'] != myLabel) continue;
+        }
+
+        final name = context.watch<TranslationProvider>().translate(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
         final sh = latestShiftByUser[id];
 
         String status = 'offline';

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
-import 'package:flutter/services.dart';
-import 'dart:io' show Platform;
+
 import 'tabs/dashboard_tab.dart';
 import 'tabs/calendar_tab.dart';
 import 'tabs/personnel_tab.dart';

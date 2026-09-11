@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:mobile_app_flutter/utils/transliteration.dart';
+
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/translation_provider.dart';
 import '../../../../providers/admin_state_provider.dart';

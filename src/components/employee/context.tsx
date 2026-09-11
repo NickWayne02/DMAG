@@ -446,19 +446,26 @@ export function EmployeeProvider({
       if (!isMounted) return;
 
       if (data && !error) {
-        setStatus(data.status as ShiftStatus);
-        setShiftStart(data.started_at ? new Date(data.started_at).getTime() : null);
-        setShiftId(data.id);
-        
-        if (data.site_id && data.site_name) {
-          setSelectedSite({ id: data.site_id, name: data.site_name, address: null, customer: null, comment: null });
-        }
-        
-        setLunchAccumMs(data.lunch_total_ms ?? 0);
-        setLunchStart(data.lunch_started_at ? new Date(data.lunch_started_at).getTime() : null);
-        if (data.lunch_intervals && Array.isArray(data.lunch_intervals)) {
-          setLunchIntervals(data.lunch_intervals as any);
-        }
+        setStatus((s) => {
+          if (s === "finished") return s; // Do not downgrade from finished to working due to stale fetch
+          
+          setTimeout(() => {
+            setShiftStart(data.started_at ? new Date(data.started_at).getTime() : null);
+            setShiftId(data.id);
+            
+            if (data.site_id && data.site_name) {
+              setSelectedSite({ id: data.site_id, name: data.site_name, address: null, customer: null, comment: null });
+            }
+            
+            setLunchAccumMs(data.lunch_total_ms ?? 0);
+            setLunchStart(data.lunch_started_at ? new Date(data.lunch_started_at).getTime() : null);
+            if (data.lunch_intervals && Array.isArray(data.lunch_intervals)) {
+              setLunchIntervals(data.lunch_intervals as any);
+            }
+          }, 0);
+          
+          return data.status as ShiftStatus;
+        });
       } else {
         // If server says no active shift, make sure we reflect that
         // BUT don't overwrite "finished" — that state should persist until

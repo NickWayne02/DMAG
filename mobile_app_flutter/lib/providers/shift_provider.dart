@@ -235,6 +235,10 @@ class ShiftProvider extends ChangeNotifier {
           .maybeSingle();
 
       if (data != null) {
+        if (_status == ShiftStatus.finished) {
+          // Do not downgrade from finished to working due to stale fetch
+          return;
+        }
         _status = data['status'] == 'working' ? ShiftStatus.working : ShiftStatus.lunch;
         _shiftStart = data['started_at'] != null ? DateTime.parse(data['started_at']).toLocal() : null;
         _shiftId = data['id'];

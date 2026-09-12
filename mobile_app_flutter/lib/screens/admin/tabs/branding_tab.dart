@@ -224,6 +224,27 @@ class _BrandingTabState extends State<BrandingTab> {
   }
 
   Future<void> _deletePreset(Map<String, dynamic> preset) async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text(context.read<LocaleProvider>().t('sites.delete_title') ?? 'Удаление', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+        content: Text(context.read<LocaleProvider>().t('admin.branding.delete_msg') ?? 'Вы уверены, что хотите удалить этот сохраненный бренд (фирму)?', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.watch<LocaleProvider>().t('calendar.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(context.watch<LocaleProvider>().t('calendar.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     try {
       await _supabase.from('app_branding_presets').delete().eq('id', preset['id']);
       

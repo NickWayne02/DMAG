@@ -237,6 +237,17 @@ const DICT: Dict = {
     uz: "Firmani tanlang",
     tg: "Фирмаро интихоб кунед",
   },
+  "admin.dashboard.allFirms": {
+    ru: "Все фирмы",
+    en: "All Firms",
+    de: "Alle Firmen",
+    ro: "Toate Firmele",
+    bg: "Всички фирми",
+    pl: "Wszystkie firmy",
+    uk: "Всі фірми",
+    uz: "Barcha firmalar",
+    tg: "Ҳамаи ширкатҳо",
+  },
   "admin.tab.dashboard": {
     ru: "Дашборд",
     en: "Dashboard",

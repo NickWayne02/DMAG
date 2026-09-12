@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 
 class AdminStateProvider extends ChangeNotifier {
@@ -14,6 +15,19 @@ class AdminStateProvider extends ChangeNotifier {
   List<Map<String, dynamic>> get presets => _presets;
   String get selectedFirmId => _selectedFirmId;
   bool get isLoading => _isLoading;
+
+  AdminStateProvider() {
+    _loadSelectedFirmId();
+  }
+
+  Future<void> _loadSelectedFirmId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedId = prefs.getString('admin_selected_firm_id');
+    if (savedId != null) {
+      _selectedFirmId = savedId;
+      notifyListeners();
+    }
+  }
 
   Future<void> fetchPresets() async {
     _isLoading = true;
@@ -47,6 +61,8 @@ class AdminStateProvider extends ChangeNotifier {
   Future<void> setSelectedFirmId(String id) async {
     if (_selectedFirmId != id) {
       _selectedFirmId = id;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('admin_selected_firm_id', id);
       notifyListeners();
 
       // Change app icon dynamically

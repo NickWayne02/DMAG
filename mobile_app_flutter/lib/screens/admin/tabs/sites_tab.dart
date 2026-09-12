@@ -121,10 +121,18 @@ class _SitesTabState extends State<SitesTab> {
     final adminState = context.watch<AdminStateProvider>();
     final firmId = adminState.selectedFirmId;
     
-    final firmSites = _sites.where((s) => firmId == 'all' || s['label'] == firmId).toList();
+    final firstFirmId = adminState.presets.isNotEmpty ? adminState.presets.first['id'].toString() : null;
+
+    final firmSites = _sites.where((s) {
+      if (firmId == 'all') return true;
+      if (firmId == firstFirmId) return s['label'] == firmId || s['label'] == null;
+      return s['label'] == firmId;
+    }).toList();
     
     final displaySites = _filteredSites.where((s) {
-      return firmId == 'all' || s['label'] == firmId;
+      if (firmId == 'all') return true;
+      if (firmId == firstFirmId) return s['label'] == firmId || s['label'] == null;
+      return s['label'] == firmId;
     }).toList();
 
     return Column(

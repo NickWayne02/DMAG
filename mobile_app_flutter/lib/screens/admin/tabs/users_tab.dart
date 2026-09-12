@@ -481,7 +481,10 @@ class _UsersTabState extends State<UsersTab> {
                     builder: (context) {
                       final adminState = context.watch<AdminStateProvider>();
                       final filteredUsers = _users.where((u) {
-                        final matchesFirm = adminState.selectedFirmId == 'all' || u['label'] == adminState.selectedFirmId;
+                        final firstFirmId = adminState.presets.isNotEmpty ? adminState.presets.first['id'].toString() : null;
+                        final matchesFirm = adminState.selectedFirmId == 'all' || 
+                            u['label'] == adminState.selectedFirmId || 
+                            (adminState.selectedFirmId == firstFirmId && u['label'] == null);
                         if (!matchesFirm) return false;
                         if (_searchQuery.isEmpty) return true;
                         final name = (u['full_name'] ?? u['email'] ?? u['phone'] ?? '').toString().toLowerCase();

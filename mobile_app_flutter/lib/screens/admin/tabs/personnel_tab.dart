@@ -86,7 +86,12 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, email, phone, avatar_url, label');
       if (firmId != 'all') {
-         profQuery = profQuery.eq('label', firmId);
+         final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
+         if (firmId == firstFirmId) {
+           profQuery = profQuery.or('label.eq.$firmId,label.is.null');
+         } else {
+           profQuery = profQuery.eq('label', firmId);
+         }
       }
 
       var shiftQuery = Supabase.instance.client.from('shifts')
@@ -94,12 +99,22 @@ class _PersonnelTabState extends State<PersonnelTab> {
             .gte('started_at', sinceMidnight);
             
       if (firmId != 'all') {
-         shiftQuery = shiftQuery.eq('preset_id', firmId);
+         final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
+         if (firmId == firstFirmId) {
+           shiftQuery = shiftQuery.or('preset_id.eq.$firmId,preset_id.is.null');
+         } else {
+           shiftQuery = shiftQuery.eq('preset_id', firmId);
+         }
       }
 
       var siteQuery = Supabase.instance.client.from('sites').select('id, name, label');
       if (firmId != 'all') {
-         siteQuery = siteQuery.eq('label', firmId);
+         final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
+         if (firmId == firstFirmId) {
+           siteQuery = siteQuery.or('label.eq.$firmId,label.is.null');
+         } else {
+           siteQuery = siteQuery.eq('label', firmId);
+         }
       }
 
       // Parallel fetch

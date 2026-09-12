@@ -79,7 +79,12 @@ class _DashboardTabState extends State<DashboardTab> {
           .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city, site_id, preset_id');
           
       if (firmId != 'all') {
-         query = query.eq('preset_id', firmId);
+         final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
+         if (firmId == firstFirmId) {
+           query = query.or('preset_id.eq.$firmId,preset_id.is.null');
+         } else {
+           query = query.eq('preset_id', firmId);
+         }
       }
           
       final resp = await query.order('started_at', ascending: false).limit(100);
@@ -90,7 +95,12 @@ class _DashboardTabState extends State<DashboardTab> {
       
       var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, label');
       if (firmId != 'all') {
-         profQuery = profQuery.eq('label', firmId);
+         final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
+         if (firmId == firstFirmId) {
+           profQuery = profQuery.or('label.eq.$firmId,label.is.null');
+         } else {
+           profQuery = profQuery.eq('label', firmId);
+         }
       }
       final profilesResp = await profQuery;
       final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};

@@ -184,11 +184,11 @@ export function ModerationTab() {
       return (
         <div className="flex flex-col gap-2 mt-2">
           {photoUrl && (
-            <img src={photoUrl} alt="Report" className="w-48 h-48 object-cover rounded-xl border bg-muted" />
+            <img src={photoUrl} alt="Report" className="w-full h-48 object-cover rounded-xl border bg-muted" />
           )}
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-[10px] uppercase">{t(`crit.${criticality || "info"}`) || (criticality || "info")}</Badge>
+              <Badge variant="secondary" className="text-[10px] uppercase">{t(`crit.${(criticality || "info").toLowerCase()}`) || (criticality || "info")}</Badge>
               <span className="text-sm font-medium">{desc}</span>
             </div>
             {translatedDesc && (

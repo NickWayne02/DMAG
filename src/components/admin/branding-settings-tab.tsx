@@ -251,7 +251,7 @@ export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: ()
           </div>
         </div>
 
-        <div className="flex gap-4 pt-4 border-t border-border">
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
           <Button 
             variant="outline"
             className="text-primary border-primary/50 hover:bg-primary/10"

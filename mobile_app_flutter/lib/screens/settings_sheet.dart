@@ -642,7 +642,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
               pickerAreaHeightPercent: 0.7,
               enableAlpha: false,
               displayThumbColor: true,
-              labelTypes: const [ColorPickerLabelType.hex, ColorPickerLabelType.rgb],
+              labelTypes: [ColorPickerLabelType.hex, ColorPickerLabelType.rgb],
               paletteType: PaletteType.hsvWithHue,
               pickerAreaBorderRadius: BorderRadius.circular(12),
               hexInputBar: true,

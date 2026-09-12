@@ -9,6 +9,7 @@ import '../widgets/bounce_button.dart';
 import 'language_sheet.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/translation_provider.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SettingsSheet extends StatefulWidget {
   const SettingsSheet({super.key});
@@ -622,76 +623,49 @@ class _SettingsSheetState extends State<SettingsSheet> {
     final colors = Theme.of(context).appColors;
     final primary = Theme.of(context).primaryColor;
     
-    String hex = provider.customColors[key]?.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase() 
-                 ?? initialColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
-                 
-    TextEditingController controller = TextEditingController(text: '#$hex');
     Color previewColor = initialColor;
 
     await showDialog(
       context: context,
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setState) {
-            return AlertDialog(
-              backgroundColor: colors.card,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: colors.border)),
-              title: Text(label, style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 80,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: previewColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colors.border),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: colors.border),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TextField(
-                      controller: controller,
-                      style: GoogleFonts.inter(color: colors.foreground, fontSize: 16),
-                      decoration: const InputDecoration(border: InputBorder.none, isDense: true),
-                      onChanged: (val) {
-                        String h = val.replaceAll('#', '');
-                        if (h.length == 6) {
-                          try {
-                            setState(() {
-                              previewColor = Color(int.parse('FF$h', radix: 16));
-                            });
-                          } catch (e) {}
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    provider.setCustomColor(key, null);
-                    Navigator.pop(ctx);
-                  },
-                  child: Text(context.read<LocaleProvider>().t('settings.reset') ?? 'Сброс', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5))),
-                ),
-                TextButton(
-                  onPressed: () {
-                    provider.setCustomColor(key, previewColor);
-                    Navigator.pop(ctx);
-                  },
-                  child: Text(context.read<LocaleProvider>().t('settings.done') ?? 'Сохранить', style: GoogleFonts.inter(color: primary, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            );
-          },
+        return AlertDialog(
+          backgroundColor: colors.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: colors.border)),
+          title: Text(label, style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: previewColor,
+              onColorChanged: (color) {
+                previewColor = color;
+              },
+              colorPickerWidth: 300,
+              pickerAreaHeightPercent: 0.7,
+              enableAlpha: false,
+              displayThumbColor: true,
+              labelTypes: const [ColorPickerLabelType.hex, ColorPickerLabelType.rgb],
+              paletteType: PaletteType.hsvWithHue,
+              pickerAreaBorderRadius: BorderRadius.circular(12),
+              hexInputBar: true,
+              colorHistory: provider.customColors.values.where((c) => c != null).cast<Color>().toList(),
+              onHistoryChanged: (List<Color> colors) {},
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                provider.setCustomColor(key, null);
+                Navigator.pop(ctx);
+              },
+              child: Text(context.read<LocaleProvider>().t('settings.reset') ?? 'Сброс', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5))),
+            ),
+            TextButton(
+              onPressed: () {
+                provider.setCustomColor(key, previewColor);
+                Navigator.pop(ctx);
+              },
+              child: Text(context.read<LocaleProvider>().t('settings.done') ?? 'Сохранить', style: GoogleFonts.inter(color: primary, fontWeight: FontWeight.bold)),
+            ),
+          ],
         );
       },
     );

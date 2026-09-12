@@ -21,6 +21,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -298,37 +300,43 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                   })}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="color"
-                    value={customHex}
-                    onChange={(e) => {
-                      setCustomHex(e.target.value);
-                      setSettings({ customAccent: e.target.value });
-                    }}
-                    className="h-10 w-14 p-1 rounded-lg cursor-pointer"
-                  />
-                  <Input
-                    value={customHex}
-                    onChange={(e) => setCustomHex(e.target.value)}
-                    onBlur={() => {
-                      if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(customHex)) {
-                        setSettings({ customAccent: customHex });
-                      }
-                    }}
-                    placeholder="#0D47A1"
-                    className="h-10 flex-1 rounded-lg"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal flex items-center gap-3 h-12"
+                      >
+                        <div 
+                          className="w-6 h-6 rounded border shadow-sm" 
+                          style={{ backgroundColor: customHex }} 
+                        />
+                        <span className="font-mono uppercase">{customHex}</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 border-none" align="start">
+                      <ColorPicker
+                        color={customHex}
+                        onChange={(c) => {
+                          setCustomHex(c);
+                          setSettings({ customAccent: c });
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
                   {settings.customAccent && (
                     <Button
                       type="button"
                       variant="ghost"
-                      size="sm"
+                      size="icon"
+                      className="shrink-0"
                       onClick={() => {
                         setSettings({ customAccent: null });
                         setCustomHex(activeAccent.primary);
                       }}
+                      title={t("settings.clearCustom")}
                     >
-                      {t("settings.clearCustom")}
+                      <RotateCcw className="h-4 w-4" />
                     </Button>
                   )}
                 </div>

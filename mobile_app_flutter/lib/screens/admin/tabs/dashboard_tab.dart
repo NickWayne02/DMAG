@@ -31,8 +31,19 @@ class _DashboardTabState extends State<DashboardTab> {
   @override
   void initState() {
     super.initState();
-    _fetchActivity();
     _setupRealtime();
+  }
+
+  String _lastFirmId = 'none';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final currentFirmId = context.watch<AdminStateProvider>().selectedFirmId;
+    if (currentFirmId != _lastFirmId) {
+       _lastFirmId = currentFirmId;
+       _fetchActivity();
+    }
   }
 
   void _setupRealtime() {
@@ -57,19 +68,30 @@ class _DashboardTabState extends State<DashboardTab> {
 
   Future<void> _fetchActivity() async {
     try {
-      final now = DateTime.now();
+      if (!mounted) return;
+      setState(() => _isLoading = true);
+      
+      final firmId = context.read<AdminStateProvider>().selectedFirmId;
 
-      final resp = await Supabase.instance.client
+      var query = Supabase.instance.client
           .from('shifts')
-          .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city, site_id')
-          .order('started_at', ascending: false)
-          .limit(100);
+          .select('id, user_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_intervals, start_city, end_city, site_id, preset_id');
+          
+      if (firmId != 'all') {
+         query = query.eq('preset_id', firmId);
+      }
+          
+      final resp = await query.order('started_at', ascending: false).limit(100);
           
       final activeSitesSet = <String>{};
       int onShift = 0;
       int onLunch = 0;
       
-      final profilesResp = await Supabase.instance.client.from('profiles').select('id, full_name');
+      var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, label');
+      if (firmId != 'all') {
+         profQuery = profQuery.eq('label', firmId);
+      }
+      final profilesResp = await profQuery;
       final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};
       
       final List<Map<String, dynamic>> enriched = [];

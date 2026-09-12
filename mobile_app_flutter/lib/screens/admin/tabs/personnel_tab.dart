@@ -60,23 +60,54 @@ class _PersonnelTabState extends State<PersonnelTab> {
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    // _fetchData is now called from didChangeDependencies
+  }
+
+  String _lastFirmId = 'none';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final currentFirmId = context.watch<AdminStateProvider>().selectedFirmId;
+    if (currentFirmId != _lastFirmId) {
+       _lastFirmId = currentFirmId;
+       _fetchData();
+    }
   }
 
   Future<void> _fetchData() async {
-    setState(() => _isLoading = true);
     try {
+      if (!mounted) return;
+      setState(() => _isLoading = true);
+      
+      final firmId = context.read<AdminStateProvider>().selectedFirmId;
       final sinceMidnight = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toUtc().toIso8601String();
+
+      var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, email, phone, avatar_url, label');
+      if (firmId != 'all') {
+         profQuery = profQuery.eq('label', firmId);
+      }
+
+      var shiftQuery = Supabase.instance.client.from('shifts')
+            .select('id, user_id, site_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city, preset_id')
+            .gte('started_at', sinceMidnight)
+            .order('started_at', ascending: false);
+            
+      if (firmId != 'all') {
+         shiftQuery = shiftQuery.eq('preset_id', firmId);
+      }
+
+      var siteQuery = Supabase.instance.client.from('sites').select('id, name, label');
+      if (firmId != 'all') {
+         siteQuery = siteQuery.eq('label', firmId);
+      }
 
       // Parallel fetch
       final results = await Future.wait([
-        Supabase.instance.client.from('profiles').select('id, full_name, email, phone, avatar_url, label'),
+        profQuery,
         Supabase.instance.client.from('user_roles').select('user_id, role'),
-        Supabase.instance.client.from('shifts')
-            .select('id, user_id, site_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city')
-            .gte('started_at', sinceMidnight)
-            .order('started_at', ascending: false),
-        Supabase.instance.client.from('sites').select('id, name'),
+        shiftQuery,
+        siteQuery,
       ]);
 
       if (!mounted) return;

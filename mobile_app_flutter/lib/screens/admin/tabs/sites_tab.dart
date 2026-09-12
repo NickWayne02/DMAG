@@ -117,6 +117,15 @@ class _SitesTabState extends State<SitesTab> {
 
   @override
   Widget build(BuildContext context) {
+    final adminState = context.watch<AdminStateProvider>();
+    final firmId = adminState.selectedFirmId;
+    
+    final firmSites = _sites.where((s) => firmId == 'all' || s['label'] == firmId).toList();
+    
+    final displaySites = _filteredSites.where((s) {
+      return firmId == 'all' || s['label'] == firmId;
+    }).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -147,7 +156,7 @@ class _SitesTabState extends State<SitesTab> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                '${_sites.length}',
+                                '${firmSites.length}',
                                 style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold),
                               ),
                             )
@@ -207,15 +216,15 @@ class _SitesTabState extends State<SitesTab> {
         Expanded(
           child: _isLoading
               ? Center(child: CircularProgressIndicator(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54)))
-              : _filteredSites.isEmpty
+              : displaySites.isEmpty
                   ? Center(
                       child: Text(context.watch<LocaleProvider>().t('sites.empty') ?? 'Нет объектов', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      itemCount: _filteredSites.length,
+                      itemCount: displaySites.length,
                       itemBuilder: (context, index) {
-                        final site = _filteredSites[index];
+                        final site = displaySites[index];
                         final address = site['address']?.toString() ?? '';
                         final isGpsAuto = address.toUpperCase().startsWith('GPS:');
                         

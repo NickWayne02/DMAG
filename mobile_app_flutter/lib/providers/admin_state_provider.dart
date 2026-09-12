@@ -21,7 +21,16 @@ class AdminStateProvider extends ChangeNotifier {
 
     try {
       final response = await _supabase.from('app_branding_presets').select().order('created_at');
-      _presets = List<Map<String, dynamic>>.from(response);
+      final list = List<Map<String, dynamic>>.from(response);
+      list.sort((a, b) {
+        final order = {'DMAG': 1, 'E&R': 2, 'O&D': 3};
+        final aName = (a['app_name'] ?? '').toString().toUpperCase().trim();
+        final bName = (b['app_name'] ?? '').toString().toUpperCase().trim();
+        final aVal = order[aName] ?? 99;
+        final bVal = order[bName] ?? 99;
+        return aVal.compareTo(bVal);
+      });
+      _presets = list;
     } catch (e) {
       debugPrint('Failed to fetch presets: $e');
     } finally {

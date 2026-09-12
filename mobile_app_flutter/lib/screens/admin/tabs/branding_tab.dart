@@ -186,11 +186,41 @@ class _BrandingTabState extends State<BrandingTab> {
         );
         context.read<AdminStateProvider>().setSelectedFirmId(preset['id'].toString());
         _appNameController.text = preset['app_name'];
+        _logoUrlController.text = preset['app_logo_url'] ?? '';
+        _uploadedLogoUrl = preset['app_logo_url'];
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Бренд применен!')));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка применения: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _resetToDefault() async {
+    setState(() => _isLoading = true);
+    try {
+      await _supabase.from('app_settings').update({
+        'app_name': 'DMAG',
+        'app_logo_url': null,
+      }).eq('id', 1);
+      
+      if (mounted) {
+        context.read<SettingsProvider>().updateSettings(
+          appName: 'DMAG', 
+          appLogoUrl: null
+        );
+        context.read<AdminStateProvider>().setSelectedFirmId('all');
+        _appNameController.text = 'DMAG';
+        _logoUrlController.text = '';
+        _uploadedLogoUrl = null;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Возвращены настройки по умолчанию (DMAG)!')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -420,6 +450,17 @@ class _BrandingTabState extends State<BrandingTab> {
                 Text(
                   t('admin.branding.gallery') ?? 'Галерея брендов',
                   style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _resetToDefault,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.card,
+                    foregroundColor: colors.primary,
+                    side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(LucideIcons.rotate_ccw, size: 16),
+                  label: Text(t('admin.branding.resetDefault') ?? 'По умолчанию (DMAG)', style: const TextStyle(fontSize: 13)),
                 ),
                 ElevatedButton.icon(
                   onPressed: _isUploading ? null : _saveCurrentAsPreset,

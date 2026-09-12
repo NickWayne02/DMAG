@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Upload, Trash2 } from "lucide-react";
+import { Loader2, Upload, Trash2, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 
 export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: () => void, onApplyPreset?: (id: string) => void }) {
@@ -153,6 +153,17 @@ export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: ()
     }
   };
 
+  const handleResetToDefault = async () => {
+    try {
+      await updateSettings.mutateAsync({ app_name: 'DMAG', app_logo_url: null });
+      setName('DMAG');
+      onUpdate?.();
+      toast.success(t("admin.branding.resetDefaultSuccess") || "Возвращены настройки по умолчанию (DMAG)");
+    } catch (e: any) {
+      toast.error(e.message || "Ошибка сброса настроек");
+    }
+  };
+
   if (isLoading) {
     return <div className="p-6 flex items-center gap-2"><Loader2 className="animate-spin" /> Загрузка настроек...</div>;
   }
@@ -218,6 +229,16 @@ export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: ()
         </div>
 
         <div className="flex gap-4 pt-4 border-t border-border">
+          <Button 
+            variant="outline"
+            className="text-primary border-primary/50 hover:bg-primary/10"
+            onClick={handleResetToDefault}
+            disabled={updateSettings.isPending}
+          >
+            <RotateCcw className="mr-2 h-4 w-4" />
+            {t("admin.branding.resetDefault") || "По умолчанию (DMAG)"}
+          </Button>
+
           <Button 
             variant="secondary" 
             onClick={() => savePresetMutation.mutate({ app_name: name, app_logo_url: settings?.app_logo_url || null })}

@@ -186,8 +186,6 @@ class _BrandingTabState extends State<BrandingTab> {
         );
         context.read<AdminStateProvider>().setSelectedFirmId(preset['id'].toString());
         _appNameController.text = preset['app_name'];
-        _logoUrlController.text = preset['app_logo_url'] ?? '';
-        _uploadedLogoUrl = preset['app_logo_url'];
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Бренд применен!')));
       }
     } catch (e) {
@@ -214,8 +212,6 @@ class _BrandingTabState extends State<BrandingTab> {
         );
         context.read<AdminStateProvider>().setSelectedFirmId('all');
         _appNameController.text = 'DMAG';
-        _logoUrlController.text = '';
-        _uploadedLogoUrl = null;
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Возвращены настройки по умолчанию (DMAG)!')));
       }
     } catch (e) {

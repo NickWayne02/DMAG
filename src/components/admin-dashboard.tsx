@@ -1657,6 +1657,10 @@ export function AdminDashboard({
     return <div className="min-h-screen bg-muted/30" />;
   }
 
+  const currentFirm = firmPresets.find(f => f.id === adminSelectedFirmId);
+  const displayLogo = currentFirm?.app_logo_url || appSettings?.app_logo_url || dmagLogo;
+  const displayName = currentFirm?.app_name || appSettings?.app_name || "DMAG";
+
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Mobile overlay */}
@@ -1674,9 +1678,9 @@ export function AdminDashboard({
         }`}
       >
         <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
-          <img src={appSettings?.app_logo_url || dmagLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow" />
+          <img src={displayLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow" />
           <div>
-            <p className="font-bold leading-tight">{appSettings?.app_name || "DMAG"}</p>
+            <p className="font-bold leading-tight">{displayName}</p>
             <p className="text-xs opacity-75">Admin Console</p>
           </div>
         </div>

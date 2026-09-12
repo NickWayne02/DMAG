@@ -31,7 +31,9 @@ class AdminStateProvider extends ChangeNotifier {
         return aVal.compareTo(bVal);
       });
       _presets = list;
-      if (_selectedFirmId == 'all' && _presets.isNotEmpty) {
+      _presets = list;
+      // Do not overwrite 'all'. Only default to the first firm if no firm is selected and 'all' is somehow not the default.
+      if (_selectedFirmId != 'all' && !_presets.any((p) => p['id'].toString() == _selectedFirmId) && _presets.isNotEmpty) {
         _selectedFirmId = _presets[0]['id'].toString();
       }
     } catch (e) {

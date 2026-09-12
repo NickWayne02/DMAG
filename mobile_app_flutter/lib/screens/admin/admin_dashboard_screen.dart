@@ -143,6 +143,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       icon: Icon(LucideIcons.chevron_down, color: colors.foreground.withValues(alpha: 0.54), size: 16),
                       style: GoogleFonts.inter(color: colors.foreground, fontSize: 14),
                       items: [
+                        DropdownMenuItem(
+                          value: 'all',
+                          child: Text(context.watch<LocaleProvider>().t('admin.dashboard.all_firms') ?? 'Все фирмы'),
+                        ),
                         ...adminState.presets.map((p) => DropdownMenuItem(
                           value: p['id'].toString(),
                           child: Text(p['app_name']),

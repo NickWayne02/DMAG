@@ -200,40 +200,6 @@ class _BrandingTabState extends State<BrandingTab> {
   }
 
   Future<void> _resetToDefault() async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).appColors.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          context.read<LocaleProvider>().t('admin.branding.resetConfirmTitle') ?? 'Сбросить настройки?',
-          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          context.read<LocaleProvider>().t('admin.branding.resetConfirmDesc') ?? 'Это вернет стандартную иконку (DMAG) на рабочем столе и уберет кастомный логотип. Продолжить?',
-          style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.8)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              context.read<LocaleProvider>().t('common.cancel') ?? 'Отмена',
-              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.6)),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              context.read<LocaleProvider>().t('common.reset') ?? 'Сбросить',
-              style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
     setState(() => _isLoading = true);
     try {
       await _supabase.from('app_settings').update({

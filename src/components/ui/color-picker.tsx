@@ -37,7 +37,8 @@ export function ColorPicker({ color, onChange, className }: ColorPickerProps) {
   }, [color]);
 
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+    let val = e.target.value;
+    if (!val.startsWith('#')) val = '#' + val;
     setHexInput(val);
     if (/^#[0-9A-Fa-f]{6}$/i.test(val)) {
       onChange(val);
@@ -55,59 +56,46 @@ export function ColorPicker({ color, onChange, className }: ColorPickerProps) {
   };
 
   return (
-    <div className={`flex flex-col gap-4 p-4 bg-card rounded-xl border border-border shadow-lg ${className || ''}`}>
+    <div className={`flex flex-col gap-3 p-3 bg-card rounded-xl border border-border shadow-lg ${className || ''}`}>
       {/* react-colorful HexPicker provides SV area + Hue slider */}
       <div className="w-full flex justify-center">
-        <div className="custom-color-picker-wrapper w-full max-w-50">
-          <HexColorPicker color={color} onChange={onChange} style={{ width: '100%', height: '200px' }} />
+        <div className="custom-color-picker-wrapper w-full max-w-48">
+          <HexColorPicker color={color} onChange={onChange} style={{ width: '100%', height: '160px' }} />
         </div>
       </div>
 
-      <div className="flex gap-4">
-        {/* RGB Inputs */}
-        <div className="flex-1 space-y-2">
-          <Label className="text-xs text-muted-foreground">RGB</Label>
-          <div className="flex gap-2">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] text-muted-foreground text-center">R</span>
-              <Input 
-                value={rgb.r.toString()} 
-                onChange={(e) => handleRgbChange('r', e.target.value)}
-                className="h-8 px-2 text-center"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] text-muted-foreground text-center">G</span>
-              <Input 
-                value={rgb.g.toString()} 
-                onChange={(e) => handleRgbChange('g', e.target.value)}
-                className="h-8 px-2 text-center"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] text-muted-foreground text-center">B</span>
-              <Input 
-                value={rgb.b.toString()} 
-                onChange={(e) => handleRgbChange('b', e.target.value)}
-                className="h-8 px-2 text-center"
-              />
-            </div>
-          </div>
+      <div className="flex gap-2 items-center justify-between">
+        <div className="flex gap-1 items-center">
+          <span className="text-[10px] font-semibold text-muted-foreground w-3 text-center">R</span>
+          <Input 
+            value={rgb.r.toString()} 
+            onChange={(e) => handleRgbChange('r', e.target.value)}
+            className="h-7 w-9 px-1 text-xs text-center"
+          />
         </div>
-
-        {/* HEX Input */}
-        <div className="w-24 space-y-2">
-          <Label className="text-xs text-muted-foreground">Hex</Label>
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] text-transparent">H</span> {/* Spacer */}
-            <Input 
-              value={hexInput} 
-              onChange={handleHexChange}
-              className="h-8 px-2 font-mono uppercase"
-              maxLength={7}
-            />
-          </div>
+        <div className="flex gap-1 items-center">
+          <span className="text-[10px] font-semibold text-muted-foreground w-3 text-center">G</span>
+          <Input 
+            value={rgb.g.toString()} 
+            onChange={(e) => handleRgbChange('g', e.target.value)}
+            className="h-7 w-9 px-1 text-xs text-center"
+          />
         </div>
+        <div className="flex gap-1 items-center">
+          <span className="text-[10px] font-semibold text-muted-foreground w-3 text-center">B</span>
+          <Input 
+            value={rgb.b.toString()} 
+            onChange={(e) => handleRgbChange('b', e.target.value)}
+            className="h-7 w-9 px-1 text-xs text-center"
+          />
+        </div>
+        <div className="w-px h-6 bg-border mx-1" />
+        <Input 
+          value={hexInput} 
+          onChange={handleHexChange}
+          className="h-7 w-16 px-1 text-xs text-center font-mono uppercase"
+          maxLength={7}
+        />
       </div>
     </div>
   );

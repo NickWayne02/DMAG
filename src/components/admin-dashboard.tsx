@@ -612,7 +612,17 @@ export function AdminDashboard({
       supabase.from("app_branding_presets").select("*").order("created_at"),
     ]);
 
-    if (presetsData) setPresets(presetsData);
+    if (presetsData) {
+      const sorted = [...presetsData].sort((a, b) => {
+        const order: Record<string, number> = { "DMAG": 1, "E&R": 2, "O&D": 3 };
+        const aName = a.app_name.toUpperCase().trim();
+        const bName = b.app_name.toUpperCase().trim();
+        const aVal = order[aName] || 99;
+        const bVal = order[bName] || 99;
+        return aVal - bVal;
+      });
+      setPresets(sorted);
+    }
 
     const roleMap = new Map<string, AppRole>();
     (userRoles ?? []).forEach((r) => {
@@ -744,6 +754,11 @@ export function AdminDashboard({
     }
 
     let siteRows: SiteRow[] = (siteData ?? [])
+      .filter((s) => {
+        const sFirm = s.label || presetsData?.[0]?.id;
+        if (adminSelectedFirmId !== "all" && sFirm !== adminSelectedFirmId) return false;
+        return true;
+      })
       .map((s) => ({
         id: s.id,
         name: s.name,
@@ -1001,7 +1016,17 @@ export function AdminDashboard({
       clearInterval(id);
       supabase.removeChannel(sub);
     };
-  }, []);
+  }, [
+    adminSelectedFirmId,
+    reportsSite,
+    reportsCrit,
+    reportsSearch,
+    reportsPeriod,
+    role,
+    user?.id,
+    devMode,
+    t
+  ]);
 
   const stats = useMemo(() => {
     const workers = employees.filter((e) => e.role === "employee" || e.role === "brigadier");

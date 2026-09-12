@@ -267,10 +267,49 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
 
               {/* Accent color cluster */}
               <section className="space-y-3">
-                <Label className="text-sm font-semibold flex items-center gap-2">
-                  <Palette className="h-4 w-4" />
-                  {t("settings.accent")}
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    {t("settings.accent")}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    {settings.customAccent && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full"
+                        onClick={() => {
+                          setSettings({ customAccent: null });
+                          setCustomHex(activeAccent.primary);
+                        }}
+                        title={t("settings.clearCustom")}
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                      </Button>
+                    )}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 w-7 p-0 rounded-full border border-border shadow-sm"
+                          style={{ backgroundColor: settings.customAccent || activeAccent.primary }}
+                          title={t("settings.customColor") || "Свой цвет"}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 border-none shadow-xl" align="end">
+                        <ColorPicker
+                          color={customHex}
+                          onChange={(c) => {
+                            setCustomHex(c);
+                            setSettings({ customAccent: c });
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   {ACCENT_PRESETS.map((p) => {
                     const active = settings.accentId === p.id && !settings.customAccent;
@@ -298,47 +337,6 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                       </button>
                     );
                   })}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal flex items-center gap-3 h-12"
-                      >
-                        <div 
-                          className="w-6 h-6 rounded border shadow-sm" 
-                          style={{ backgroundColor: customHex }} 
-                        />
-                        <span className="font-mono uppercase">{customHex}</span>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 border-none" align="start">
-                      <ColorPicker
-                        color={customHex}
-                        onChange={(c) => {
-                          setCustomHex(c);
-                          setSettings({ customAccent: c });
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-
-                  {settings.customAccent && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0"
-                      onClick={() => {
-                        setSettings({ customAccent: null });
-                        setCustomHex(activeAccent.primary);
-                      }}
-                      title={t("settings.clearCustom")}
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               </section>
             </>

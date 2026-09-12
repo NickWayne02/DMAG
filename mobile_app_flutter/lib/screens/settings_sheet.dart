@@ -372,10 +372,45 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     _buildCustomColorGrid(context, themeProvider),
                   ] else ...[
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(LucideIcons.paint_bucket, color: colors.foreground, size: 18),
-                        const SizedBox(width: 8),
-                        Text(context.read<LocaleProvider>().t('settings.accent') ?? 'Цветовой акцент', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                        Row(
+                          children: [
+                            Icon(LucideIcons.paint_bucket, color: colors.foreground, size: 18),
+                            const SizedBox(width: 8),
+                            Text(context.read<LocaleProvider>().t('settings.accent') ?? 'Цветовой акцент', style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            if (themeProvider.customColors['primary'] != null)
+                              BounceButton(
+                                onTap: () {
+                                  themeProvider.setCustomColor('primary', null);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  child: Icon(LucideIcons.rotate_ccw, size: 14, color: colors.foreground.withValues(alpha: 0.5)),
+                                ),
+                              ),
+                            if (themeProvider.customColors['primary'] != null)
+                              const SizedBox(width: 4),
+                            BounceButton(
+                              onTap: () {
+                                _showColorPicker(context, themeProvider, 'primary', context.read<LocaleProvider>().t('settings.customColor') ?? 'Свой цвет', primary);
+                              },
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: themeProvider.customColors['primary'] ?? primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: colors.border),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -387,41 +422,6 @@ class _SettingsSheetState extends State<SettingsSheet> {
                       mainAxisSpacing: 12,
                       childAspectRatio: 2,
                       children: ThemeProvider.presets.map((preset) => _buildColorBox(context, themeProvider, preset)).toList(),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Hex Input Box
-                    Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: colors.border),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: primary,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: TextField(
-                              controller: _hexController,
-                              style: GoogleFonts.inter(color: colors.foreground, fontSize: 16),
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                              onChanged: (val) => _onHexChanged(val, themeProvider),
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
 
@@ -642,7 +642,6 @@ class _SettingsSheetState extends State<SettingsSheet> {
               pickerAreaHeightPercent: 0.7,
               enableAlpha: false,
               displayThumbColor: true,
-              labelTypes: [ColorPickerLabelType.hex, ColorPickerLabelType.rgb],
               paletteType: PaletteType.hsvWithHue,
               pickerAreaBorderRadius: BorderRadius.circular(12),
               hexInputBar: true,

@@ -285,6 +285,18 @@
     "uz": "Kirish xatosi",
     "tg": "Хатои воридшавӣ"
   },
+  "admin.users.makeAdmin": {
+    "ru": "Сделать админом",
+    "en": "Make Admin",
+    "de": "Zum Admin machen",
+    "ro": "Faceți administrator",
+    "bg": "Направи администратор",
+    "pl": "Ustaw jako administrator",
+    "uk": "Зробити адміном",
+    "uz": "Admin qilish",
+    "tg": "Админ кардан",
+    "es": "Hacer administrador"
+  },
   "role.super_admin": {
     "ru": "Супер-админ",
     "en": "Super admin",

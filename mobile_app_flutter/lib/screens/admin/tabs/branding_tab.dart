@@ -472,37 +472,52 @@ class _BrandingTabState extends State<BrandingTab> {
             const SizedBox(height: 32),
             const Divider(),
             const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 16,
-              runSpacing: 16,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   t('admin.branding.gallery') ?? 'Галерея брендов',
                   style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _resetToDefault,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.card,
-                    foregroundColor: colors.primary,
-                    side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  icon: const Icon(LucideIcons.rotate_ccw, size: 16),
-                  label: Text(t('admin.branding.resetDefault') ?? 'По умолчанию (DMAG)', style: const TextStyle(fontSize: 13)),
-                ),
-                ElevatedButton.icon(
-                  onPressed: _isUploading ? null : _saveCurrentAsPreset,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.card,
-                    foregroundColor: colors.foreground,
-                    side: BorderSide(color: colors.border),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  icon: const Icon(LucideIcons.save, size: 16),
-                  label: Text(t('admin.branding.saveCurrent') ?? 'Сохранить как пресет', style: const TextStyle(fontSize: 13)),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _resetToDefault,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.card,
+                          foregroundColor: colors.primary,
+                          side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                        ),
+                        icon: const Icon(LucideIcons.rotate_ccw, size: 16),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(t('admin.branding.resetDefault') ?? 'По умолчанию', style: const TextStyle(fontSize: 12)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isUploading ? null : _saveCurrentAsPreset,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.card,
+                          foregroundColor: colors.foreground,
+                          side: BorderSide(color: colors.border),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                        ),
+                        icon: const Icon(LucideIcons.save, size: 16),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(t('admin.branding.saveCurrent') ?? 'Как пресет', style: const TextStyle(fontSize: 12)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

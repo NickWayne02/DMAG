@@ -158,10 +158,10 @@ class _ModerationTabState extends State<ModerationTab> {
           photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
         }
         
-        String critLang = criticality;
-        if (criticality == 'INFO') critLang = t('crit.info') ?? 'INFO';
-        if (criticality == 'WARNING') critLang = t('crit.warning') ?? 'WARNING';
-        if (criticality == 'URGENT') critLang = t('crit.urgent') ?? 'URGENT';
+        String critLang = criticality.toUpperCase();
+        if (criticality.toLowerCase() == 'info') critLang = t('crit.info') ?? 'ИНФОРМАЦИЯ';
+        if (criticality.toLowerCase() == 'important') critLang = t('crit.important') ?? 'ВАЖНО';
+        if (criticality.toLowerCase() == 'urgent') critLang = t('crit.urgent') ?? 'СРОЧНО';
 
         mainWidget = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,8 +173,8 @@ class _ModerationTabState extends State<ModerationTab> {
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
                     photoUrl,
-                    height: 120,
-                    width: 120,
+                    height: 200,
+                    width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
                   ),

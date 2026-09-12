@@ -58,7 +58,7 @@ export function ColorPicker({ color, onChange, className }: ColorPickerProps) {
     <div className={`flex flex-col gap-4 p-4 bg-card rounded-xl border border-border shadow-lg ${className || ''}`}>
       {/* react-colorful HexPicker provides SV area + Hue slider */}
       <div className="w-full flex justify-center">
-        <div className="custom-color-picker-wrapper w-full max-w-[200px]">
+        <div className="custom-color-picker-wrapper w-full max-w-50">
           <HexColorPicker color={color} onChange={onChange} style={{ width: '100%', height: '200px' }} />
         </div>
       </div>

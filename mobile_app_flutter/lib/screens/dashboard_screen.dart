@@ -353,37 +353,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                         const SizedBox(height: 16),
 
-                        // Firm Selector
-                        BounceButton(
-                          onTap: () => PresetSelectorSheet.show(context, shift),
-                          child: NeonCard(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            child: Row(
-                              children: [
-                                Icon(LucideIcons.briefcase, color: colors.foreground.withValues(alpha: 0.7), size: 20),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(t('dashboard.firm') ?? 'Фирма', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
-                                      Text(
-                                        shift.selectedPreset != null
-                                            ? (shift.selectedPreset!['app_name'] ?? 'DMAG')
-                                            : t('dashboard.firm_not_selected') ?? 'Не выбрана — нажмите, чтобы выбрать',
-                                        style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 11),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(LucideIcons.chevron_right, color: Colors.white30, size: 20),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
 
                         // Site Selector
                         BounceButton(
@@ -401,11 +370,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       Text(t('dashboard.site') ?? 'Объект', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                       Text(
                                         (shift.selectedSite != null && shift.selectedSite!['id'] != null && shift.selectedSite!['id'].toString().isNotEmpty)
-                                            ? context.watch<TranslationProvider>().translate(
+                                            ? (shift.selectedSite!['id'] == 'gps' ? (context.watch<LocaleProvider>().t('site_selector.gps_only') ?? 'Не выбран (GPS)') :
+                                              context.watch<TranslationProvider>().translate(
                                                 (shift.selectedSite!['address']?.toString().isNotEmpty == true) ? shift.selectedSite!['address'] : 
                                                 (shift.selectedSite!['name']?.toString().isNotEmpty == true) ? shift.selectedSite!['name'] : 
                                                 (context.watch<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия'),
-                                                context.watch<LocaleProvider>().currentLang)
+                                                context.watch<LocaleProvider>().currentLang))
                                             : context.watch<LocaleProvider>().t('dashboard.site_not_selected') ?? 'Не выбран — нажмите, чтобы выбрать',
                                         style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 11),
                                         maxLines: 1,
@@ -423,11 +393,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         if (shift.selectedSite != null && shift.selectedSite!['id'] != null && shift.selectedSite!['id'].toString().isNotEmpty) ...[
                           const SizedBox(height: 12),
                           _buildMapCard(context, shift),
-                        ],
-
-                        if (shift.status == ShiftStatus.finished) ...[
-                          const SizedBox(height: 12),
-                          _buildFinishedShiftCard(context, shift),
                         ],
 
                         const SizedBox(height: 12),

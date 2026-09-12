@@ -615,13 +615,16 @@ export function AdminDashboard({
     if (presetsData) {
       const sorted = [...presetsData].sort((a, b) => {
         const order: Record<string, number> = { "DMAG": 1, "E&R": 2, "O&D": 3 };
-        const aName = a.app_name.toUpperCase().trim();
-        const bName = b.app_name.toUpperCase().trim();
+        const aName = (a.app_name || "").toUpperCase().trim();
+        const bName = (b.app_name || "").toUpperCase().trim();
         const aVal = order[aName] || 99;
         const bVal = order[bName] || 99;
         return aVal - bVal;
       });
       setPresets(sorted);
+      if (adminSelectedFirmId === "all" && sorted.length > 0) {
+        setAdminSelectedFirmId(sorted[0].id);
+      }
     }
 
     const roleMap = new Map<string, AppRole>();
@@ -1243,6 +1246,7 @@ export function AdminDashboard({
         address: siteEdit.address.trim() || null,
         customer: siteEdit.customer.trim() || null,
         created_by: user?.id ?? null,
+        label: adminSelectedFirmId === "all" ? null : adminSelectedFirmId,
       });
       err = error as any;
     }
@@ -1257,7 +1261,8 @@ export function AdminDashboard({
   }
 
   async function deleteSite(id: string, name: string) {
-    if (!confirm(`Удалить объект «${name}»?`)) return;
+    if (!confirm(`Удалить объект «${name}»? Внимание: все смены и отработанное время на этом объекте также будут удалены.`)) return;
+    await supabase.from("shifts").delete().eq("site_id", id);
     const { error } = await supabase.from("sites").delete().eq("id", id);
     if (error) {
       toast.error(error.message);
@@ -1657,7 +1662,8 @@ export function AdminDashboard({
     return <div className="min-h-screen bg-muted/30" />;
   }
 
-  const currentFirm = presets.find((f: any) => f.id === adminSelectedFirmId);
+  const activeFirmId = adminSelectedFirmId === "all" && presets.length > 0 ? presets[0].id : adminSelectedFirmId;
+  const currentFirm = presets.find((f: any) => f.id === activeFirmId);
   const displayLogo = currentFirm?.app_logo_url || appSettings?.app_logo_url || dmagLogo;
   const displayName = currentFirm?.app_name || appSettings?.app_name || "DMAG";
 
@@ -1753,12 +1759,11 @@ export function AdminDashboard({
               <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{t("admin.firm")}</span>
               <select
                 className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-50"
-                value={adminSelectedFirmId}
+                value={adminSelectedFirmId === "all" && presets.length > 0 ? presets[0].id : adminSelectedFirmId}
                 onChange={(e) => setAdminSelectedFirmId(e.target.value)}
               >
-                <option value="all">{t("admin.allFirms")}</option>
                 {presets.map(p => (
-                  <option key={p.id} value={p.id}>{p.app_name}</option>
+                  <option key={p.id} value={p.id}>{p.app_name || "Без названия"}</option>
                 ))}
               </select>
             </div>

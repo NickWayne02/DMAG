@@ -132,11 +132,23 @@ class LocationService {
       final existing = await supabase.from('sites').select('id, name, address').ilike('name', city).limit(1).maybeSingle();
       if (existing != null) return existing;
       
+      String? userLabel;
+      final userId = supabase.auth.currentUser?.id;
+      if (userId != null) {
+        try {
+          final profile = await supabase.from('profiles').select('label').eq('id', userId).maybeSingle();
+          if (profile != null) {
+            userLabel = profile['label'] as String?;
+          }
+        } catch (_) {}
+      }
+      
       final created = await supabase.from('sites').insert({
         'name': city,
         'address': 'GPS: ${lat.toStringAsFixed(5)}, ${lon.toStringAsFixed(5)}',
         'customer': 'GPS Auto',
-        'created_by': supabase.auth.currentUser?.id,
+        'created_by': userId,
+        'label': userLabel,
       }).select('id, name, address').single();
       
       return created;

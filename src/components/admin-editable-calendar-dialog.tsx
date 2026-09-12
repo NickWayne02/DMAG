@@ -290,9 +290,9 @@ export function AdminEditableCalendarDialog({
       setShiftDeleteConfirm(shiftEdit.id);
       return;
     }
-    setShiftSaving(true);
     try {
-      await supabase.from("shifts").delete().eq("id", shiftEdit.id);
+      setShiftSaving(true);
+      const { error } = await supabase.from("shifts").delete().eq("id", shiftEdit.id);
       toast.success("Смена удалена");
       setShiftDeleteConfirm(null);
       setShiftEdit(null);

@@ -31,6 +31,9 @@ class AdminStateProvider extends ChangeNotifier {
         return aVal.compareTo(bVal);
       });
       _presets = list;
+      if (_selectedFirmId == 'all' && _presets.isNotEmpty) {
+        _selectedFirmId = _presets[0]['id'].toString();
+      }
     } catch (e) {
       debugPrint('Failed to fetch presets: $e');
     } finally {

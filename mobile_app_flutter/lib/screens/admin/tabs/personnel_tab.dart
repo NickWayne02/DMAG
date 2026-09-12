@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import '../../../providers/admin_state_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -90,8 +91,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
 
       var shiftQuery = Supabase.instance.client.from('shifts')
             .select('id, user_id, site_id, site_name, status, started_at, ended_at, lunch_started_at, lunch_total_ms, start_city, end_city, preset_id')
-            .gte('started_at', sinceMidnight)
-            .order('started_at', ascending: false);
+            .gte('started_at', sinceMidnight);
             
       if (firmId != 'all') {
          shiftQuery = shiftQuery.eq('preset_id', firmId);
@@ -106,7 +106,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
       final results = await Future.wait([
         profQuery,
         Supabase.instance.client.from('user_roles').select('user_id, role'),
-        shiftQuery,
+        shiftQuery.order('started_at', ascending: false),
         siteQuery,
       ]);
 

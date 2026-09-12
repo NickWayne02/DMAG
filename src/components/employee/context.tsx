@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, createContext, useContext } from "react";
+import { useEffect, useMemo, useState, createContext, useContext, useRef } from "react";
 
 export const EmployeeContext = createContext<any>(null);
 
@@ -184,6 +184,12 @@ export function EmployeeProvider({
     persisted?.lunchIntervals ?? [],
   );
   const [shiftId, setShiftId] = useState<string | null>(persisted?.shiftId ?? null);
+  const shiftIdRef = useRef<string | null>(shiftId);
+
+  useEffect(() => {
+    shiftIdRef.current = shiftId;
+  }, [shiftId]);
+
   const [autoLunchApplied, setAutoLunchApplied] = useState(persisted?.autoLunchApplied ?? false);
   const [autoLunchAsk, setAutoLunchAsk] = useState(false);
   const [travelTime, setTravelTime] = useState("");
@@ -260,22 +266,48 @@ export function EmployeeProvider({
       return null;
     }
   });
+  const selectedSiteRef = useRef<Site | null>(selectedSite);
+
+  useEffect(() => {
+    selectedSiteRef.current = selectedSite;
+  }, [selectedSite]);
 
   useEffect(() => {
     if (!selectedSite?.id) return;
-    async function checkSite() {
-      const { data, error } = await supabase
-        .from("sites")
-        .select("id")
-        .eq("id", selectedSite!.id)
-        .maybeSingle();
-      if (!data && !error) {
-        setSelectedSite(null);
-        window.localStorage.removeItem(SITE_STORAGE_KEY);
-      }
-    }
-    void checkSite();
+    supabase
+      .from("sites")
+      .select("id")
+      .eq("id", selectedSite!.id)
+      .single()
+      .then(({ error }) => {
+        if (error) {
+          setSelectedSite(null);
+          window.localStorage.removeItem(SITE_STORAGE_KEY);
+        }
+      });
   }, [selectedSite?.id]);
+
+  useEffect(() => {
+    if (!shiftId) return;
+    supabase
+      .from("shifts")
+      .select("id")
+      .eq("id", shiftId)
+      .single()
+      .then(({ error }) => {
+        if (error) {
+          setStatus("idle");
+          setShiftStart(null);
+          setShiftEnd(null);
+          setLunchStart(null);
+          setLunchAccumMs(0);
+          setLunchIntervals([]);
+          setAutoLunchApplied(false);
+          setTravelTime("");
+          setShiftId(null);
+        }
+      });
+  }, [shiftId]);
 
   type SiteReport = {
     id: string;
@@ -437,8 +469,6 @@ export function EmployeeProvider({
         .from("shifts")
         .select("*")
         .eq("user_id", user.id)
-        .in("status", ["working", "lunch"])
-        .is("ended_at", null)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -447,10 +477,14 @@ export function EmployeeProvider({
 
       if (data && !error) {
         setStatus((s) => {
-          if (s === "finished") return s; // Do not downgrade from finished to working due to stale fetch
+          // Do not downgrade from finished to working due to stale fetch OF THE SAME SHIFT
+          if (s === "finished" && data.status !== "finished" && data.id === shiftIdRef.current) {
+            return s; 
+          }
           
           setTimeout(() => {
             setShiftStart(data.started_at ? new Date(data.started_at).getTime() : null);
+            setShiftEnd(data.ended_at ? new Date(data.ended_at).getTime() : null);
             setShiftId(data.id);
             
             if (data.site_id && data.site_name) {
@@ -464,8 +498,19 @@ export function EmployeeProvider({
             }
           }, 0);
           
-          return data.status as ShiftStatus;
+          return data.status === "working" ? "working" : data.status === "lunch" ? "lunch" : "finished";
         });
+      } else if (!data && !error) {
+        // If there are no shifts at all in the database, we MUST reset the state
+        // to clear out any stale 'finished' state from localStorage.
+        setStatus("idle");
+        setShiftStart(null);
+        setShiftEnd(null);
+        setShiftId(null);
+        setLunchAccumMs(0);
+        setLunchStart(null);
+        setLunchIntervals([]);
+        setAutoLunchApplied(false);
       } else {
         // If server says no active shift, make sure we reflect that
         // BUT don't overwrite "finished" — that state should persist until
@@ -487,17 +532,83 @@ export function EmployeeProvider({
     void fetchActiveShift();
 
     const channel = supabase
-      .channel(`public:shifts:user=${user.id}`)
+      .channel(`public:shifts:all`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "shifts",
-          filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          void fetchActiveShift();
+        (payload) => {
+          if (payload.eventType === 'DELETE') {
+            const checkAndReset = () => {
+              setStatus("idle");
+              setShiftStart(null);
+              setShiftEnd(null);
+              setLunchStart(null);
+              setLunchAccumMs(0);
+              setLunchIntervals([]);
+              setAutoLunchApplied(false);
+              setTravelTime("");
+              setShiftId(null);
+            };
+
+            if (payload.old && payload.old.id === shiftIdRef.current) {
+              checkAndReset();
+            } else if (!payload.old || !payload.old.id) {
+              // Fallback if replica identity doesn't send old_record
+              if (shiftIdRef.current) {
+                supabase.from("shifts").select("id").eq("id", shiftIdRef.current).single().then(({ error }) => {
+                  if (error) checkAndReset();
+                });
+              }
+            }
+          }
+          
+          // For INSERT and UPDATE, check if it's our user
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            if (payload.new && payload.new.user_id === user.id) {
+              void fetchActiveShift();
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    const siteChannel = supabase
+      .channel(`public:sites:all`)
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "sites",
+        },
+        (payload) => {
+          const checkAndResetSite = () => {
+            setSelectedSite(null);
+            setStatus("idle");
+            setShiftStart(null);
+            setShiftEnd(null);
+            setLunchStart(null);
+            setLunchAccumMs(0);
+            setLunchIntervals([]);
+            setAutoLunchApplied(false);
+            setTravelTime("");
+            setShiftId(null);
+          };
+
+          if (selectedSiteRef.current && payload.old && payload.old.id === selectedSiteRef.current.id) {
+            checkAndResetSite();
+          } else if (!payload.old || !payload.old.id) {
+            // Fallback if replica identity doesn't send old_record
+            if (selectedSiteRef.current?.id) {
+              supabase.from("sites").select("id").eq("id", selectedSiteRef.current.id).single().then(({ error }) => {
+                if (error) checkAndResetSite();
+              });
+            }
+          }
         }
       )
       .subscribe();
@@ -505,6 +616,7 @@ export function EmployeeProvider({
     return () => {
       isMounted = false;
       void supabase.removeChannel(channel);
+      void supabase.removeChannel(siteChannel);
     };
   }, [user]);
 
@@ -642,6 +754,13 @@ export function EmployeeProvider({
       .limit(1)
       .maybeSingle();
     if (existing) return existing;
+    
+    let empLabel = null;
+    if (user) {
+      const { data: p } = await supabase.from("profiles").select("label").eq("id", user.id).single();
+      empLabel = p?.label;
+    }
+
     const address = coords
       ? `GPS: ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
       : null;
@@ -652,6 +771,7 @@ export function EmployeeProvider({
         address,
         customer: "GPS Auto",
         created_by: user?.id ?? null,
+        label: empLabel,
       })
       .select("id, name")
       .single();
@@ -700,15 +820,6 @@ export function EmployeeProvider({
 
   async function commitStartWork(coords: any | null) {
     const t = Date.now();
-    setShiftStart(t);
-    setShiftEnd(null);
-    setLunchAccumMs(0);
-    setLunchStart(null);
-    setLunchIntervals([]);
-    setAutoLunchApplied(false);
-    setStatus("working");
-    toast.success(`${tr("shift.start")}: ${formatClock(t)}`);
-
     let siteId = selectedSite?.id ?? null;
     let siteName = selectedSite?.name ?? null;
     let city = siteName;
@@ -753,7 +864,20 @@ export function EmployeeProvider({
         })
         .select("id")
         .single();
-      if (!error && data) setShiftId(data.id);
+      
+      if (!error && data) {
+        setShiftId(data.id);
+        setShiftStart(t);
+        setShiftEnd(null);
+        setLunchAccumMs(0);
+        setLunchStart(null);
+        setLunchIntervals([]);
+        setAutoLunchApplied(false);
+        setStatus("working");
+        toast.success(`${tr("shift.start")}: ${formatClock(t)}`);
+      } else {
+        toast.error("Ошибка при старте смены в базе данных");
+      }
     }
   }
 
@@ -770,10 +894,11 @@ export function EmployeeProvider({
       setLunchStart(null);
     }
     const endTs = Date.now();
-    setShiftEnd(endTs);
-    setStatus("finished");
-    toast.success(tr("status.finished"));
-    const city = await reverseGeocodeCity(coords);
+      
+    const city = await Promise.race([
+      reverseGeocodeCity(coords),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3-second timeout
+    ]);
     if (city) toast.info(city);
     // Ensure a Site exists for the end-of-shift GPS city as well
     let extraSite: { site_id: string; site_name: string } | null = null;
@@ -796,8 +921,13 @@ export function EmployeeProvider({
           ...(extraSite && !selectedSite ? extraSite : {}),
         })
         .eq("id", shiftId);
-      setShiftId(null);
+      // We DO NOT setShiftId(null) here, so that if the finished shift is deleted from DB,
+      // the realtime listener can catch it and reset the UI to 'idle'.
     }
+      
+    setShiftEnd(endTs);
+    setStatus("finished");
+    toast.success(tr("status.finished"));
   }
 
   async function handleGpsAllow() {

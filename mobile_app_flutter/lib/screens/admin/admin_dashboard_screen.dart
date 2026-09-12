@@ -143,10 +143,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       icon: Icon(LucideIcons.chevron_down, color: colors.foreground.withValues(alpha: 0.54), size: 16),
                       style: GoogleFonts.inter(color: colors.foreground, fontSize: 14),
                       items: [
-                        DropdownMenuItem(
-                          value: 'all',
-                          child: Text(context.watch<LocaleProvider>().t('admin.allFirms') ?? 'Все фирмы'),
-                        ),
                         ...adminState.presets.map((p) => DropdownMenuItem(
                           value: p['id'].toString(),
                           child: Text(p['app_name']),
@@ -201,39 +197,51 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Container(
               padding: const EdgeInsets.only(top: 60, bottom: 20, left: 24, right: 24),
               alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: colors.border),
+                    child: Builder(
+                      builder: (context) {
+                        final adminState = context.watch<AdminStateProvider>();
+                        final currentPreset = adminState.presets.firstWhere(
+                          (p) => p['id'].toString() == adminState.selectedFirmId, 
+                          orElse: () => <String, dynamic>{},
+                        );
+                        final appLogoUrl = currentPreset['app_logo_url'] ?? context.watch<SettingsProvider>().settings.appLogoUrl;
+                        final appName = currentPreset['app_name'] ?? context.watch<SettingsProvider>().settings.appName;
+
+                        return Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              clipBehavior: Clip.hardEdge,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: colors.border),
+                              ),
+                              child: appLogoUrl != null
+                                  ? Image.network(
+                                      appLogoUrl,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/dmag_logo.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  appName, 
+                                  style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)
+                                ),
+                                Text('Admin Console', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 12)),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
                     ),
-                    child: context.watch<SettingsProvider>().settings.appLogoUrl != null
-                        ? Image.network(
-                            context.watch<SettingsProvider>().settings.appLogoUrl!,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'assets/dmag_logo.png',
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.watch<SettingsProvider>().settings.appName, 
-                        style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold)
-                      ),
-                      Text('Admin Console', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 12)),
-                    ],
-                  ),
-                ],
-              ),
             ),
             Divider(color: colors.border, height: 1),
             const SizedBox(height: 16),

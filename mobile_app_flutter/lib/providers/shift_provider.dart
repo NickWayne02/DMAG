@@ -8,7 +8,7 @@ import '../services/location_service.dart';
 
 enum ShiftStatus { idle, working, lunch, finished }
 
-class ShiftProvider extends ChangeNotifier {
+class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   ShiftStatus _status = ShiftStatus.idle;
   DateTime? _shiftStart;
   DateTime? _shiftEnd;
@@ -55,6 +55,7 @@ class ShiftProvider extends ChangeNotifier {
   int get totalMs => workMs + lunchMs;
 
   ShiftProvider() {
+    WidgetsBinding.instance.addObserver(this);
     _loadState();
     _startTimer();
     reloadProfile();
@@ -190,6 +191,7 @@ class ShiftProvider extends ChangeNotifier {
           await prefs.remove('selected_site_id');
           await prefs.remove('selected_site_name');
           await prefs.remove('selected_site_address');
+          notifyListeners();
         }
       } catch (_) {
         // If offline or RLS error, keep the cached site
@@ -219,8 +221,12 @@ class ShiftProvider extends ChangeNotifier {
           final List<dynamic> decoded = jsonDecode(intervalsStr);
           _lunchIntervals = decoded.map((e) => e as Map<String, dynamic>).toList();
         }
+        _shiftId = prefs.getString('shift_id');
         _now = DateTime.now();
         notifyListeners();
+        
+        _syncActiveShiftFromServer();
+        _setupShiftSubscription();
         return;
       }
 
@@ -255,23 +261,56 @@ class ShiftProvider extends ChangeNotifier {
     if (user == null) return;
     
     try {
+      // 1. Verify if the currently selected site still exists (in case it was deleted while app was backgrounded)
+      if (_selectedSite != null) {
+        try {
+          final checkSite = await Supabase.instance.client
+              .from('sites')
+              .select('id')
+              .eq('id', _selectedSite!['id'])
+              .maybeSingle();
+              
+          if (checkSite == null) {
+            // Site was deleted!
+            _status = ShiftStatus.idle;
+            _shiftStart = null;
+            _shiftEnd = null;
+            _lunchStart = null;
+            _lunchAccumMs = 0;
+            _lunchIntervals = [];
+            _autoLunchApplied = false;
+            _shiftId = null;
+            await _saveState();
+            clearSelectedSite();
+          }
+        } catch (_) {}
+      }
+
+      // 2. Fetch the latest shift
       final data = await Supabase.instance.client
           .from('shifts')
           .select()
           .eq('user_id', user.id)
-          .inFilter('status', ['working', 'lunch'])
-          .isFilter('ended_at', null)
           .order('created_at', ascending: false)
           .limit(1)
           .maybeSingle();
 
       if (data != null) {
-        if (_status == ShiftStatus.finished) {
-          // Do not downgrade from finished to working due to stale fetch
+        if (_status == ShiftStatus.finished && _shiftId == data['id'] && data['status'] == 'finished') {
+          // Already synced the finished state for this shift
           return;
         }
-        _status = data['status'] == 'working' ? ShiftStatus.working : ShiftStatus.lunch;
+        
+        if (data['status'] == 'working') {
+          _status = ShiftStatus.working;
+        } else if (data['status'] == 'lunch') {
+          _status = ShiftStatus.lunch;
+        } else {
+          _status = ShiftStatus.finished;
+        }
+        
         _shiftStart = data['started_at'] != null ? DateTime.parse(data['started_at']).toLocal() : null;
+        _shiftEnd = data['ended_at'] != null ? DateTime.parse(data['ended_at']).toLocal() : null;
         _shiftId = data['id'];
         
         if (data['site_id'] != null) {
@@ -303,18 +342,41 @@ class ShiftProvider extends ChangeNotifier {
         _lunchAccumMs = data['lunch_total_ms'] ?? 0;
         _lunchStart = data['lunch_started_at'] != null ? DateTime.parse(data['lunch_started_at']).toLocal() : null;
         
-        if (data['lunch_intervals'] != null && data['lunch_intervals'] is List) {
-          _lunchIntervals = List<Map<String, dynamic>>.from(data['lunch_intervals']);
-        }
-      } else {
-        // Don't overwrite 'finished' — that state persists until user starts a new shift
-        if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
-          _status = ShiftStatus.idle;
-          _shiftStart = null;
-          _shiftId = null;
-          _lunchAccumMs = 0;
-          _lunchStart = null;
+        final intervals = data['lunch_intervals'];
+        if (intervals != null && intervals is List) {
+          _lunchIntervals = intervals.map((e) => e as Map<String, dynamic>).toList();
+        } else {
           _lunchIntervals = [];
+        }
+        
+        if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
+          _startTimer();
+        } else if (_status == ShiftStatus.finished) {
+          _timer?.cancel();
+          if (_shiftId != null) {
+            // Check if it was deleted
+            try {
+              final check = await Supabase.instance.client.from('shifts').select('id').eq('id', _shiftId!).maybeSingle();
+              if (check == null) {
+                _status = ShiftStatus.idle;
+                _shiftStart = null;
+                _shiftEnd = null;
+                _shiftId = null;
+                _lunchAccumMs = 0;
+                _lunchStart = null;
+                _lunchIntervals = [];
+              }
+            } catch (_) {}
+          } else {
+            // Invalid state: finished shift without an ID. This was caused by a previous bug.
+            // Reset to idle.
+            _status = ShiftStatus.idle;
+            _shiftStart = null;
+            _shiftEnd = null;
+            _lunchAccumMs = 0;
+            _lunchStart = null;
+            _lunchIntervals = [];
+          }
         }
       }
       _saveState();
@@ -333,22 +395,47 @@ class ShiftProvider extends ChangeNotifier {
       _shiftSubscription = null;
     }
     _shiftSubscription = Supabase.instance.client
-        .channel('public:shifts:user=${user.id}')
+        .channel('public:mobile_sync_${user.id}')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'shifts',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'user_id',
-            value: user.id,
-          ),
           callback: (payload) {
+            // Simply trigger a sync on any shift event. 
+            // The sync function is now bulletproof and will reset state if the shift was deleted.
             _syncActiveShiftFromServer();
+          },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.delete,
+          schema: 'public',
+          table: 'sites',
+          callback: (payload) {
+            void checkAndResetSite() async {
+              _status = ShiftStatus.idle;
+              _shiftStart = null;
+              _shiftEnd = null;
+              _lunchStart = null;
+              _lunchAccumMs = 0;
+              _lunchIntervals = [];
+              _autoLunchApplied = false;
+              _shiftId = null;
+              await _saveState();
+              clearSelectedSite();
+            }
+
+            if (_selectedSite != null && payload.oldRecord['id'] == _selectedSite!['id']) {
+              checkAndResetSite();
+            } else if (payload.oldRecord['id'] == null && _selectedSite != null) {
+               Supabase.instance.client.from('sites').select('id').eq('id', _selectedSite!['id']).maybeSingle().then((data) {
+                  if (data == null) checkAndResetSite();
+               });
+            }
           },
         )
         .subscribe();
   }
+
 
   Future<void> _saveState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -547,7 +634,6 @@ class ShiftProvider extends ChangeNotifier {
           'end_lng': pos?.longitude,
           'end_city': city,
         }).eq('id', _shiftId!);
-        _shiftId = null;
         _saveState();
       } catch (_) {}
     }
@@ -568,7 +654,17 @@ class ShiftProvider extends ChangeNotifier {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Re-sync with server when app comes to foreground, 
+      // in case we missed realtime events while suspended.
+      _syncActiveShiftFromServer();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     super.dispose();
   }

@@ -223,9 +223,23 @@ class _BrandingTabState extends State<BrandingTab> {
     }
   }
 
-  Future<void> _deletePreset(String id) async {
+  Future<void> _deletePreset(Map<String, dynamic> preset) async {
     try {
-      await _supabase.from('app_branding_presets').delete().eq('id', id);
+      await _supabase.from('app_branding_presets').delete().eq('id', preset['id']);
+      
+      final String? logoUrl = preset['app_logo_url'];
+      if (logoUrl != null) {
+        try {
+          final parts = logoUrl.split('/assets/');
+          if (parts.length > 1) {
+            final filePath = parts[1];
+            await _supabase.storage.from('assets').remove([filePath]);
+          }
+        } catch (e) {
+          debugPrint('Failed to delete logo from storage: $e');
+        }
+      }
+
       if (mounted) {
         setState(() {
           _presetsFuture = _fetchPresets();
@@ -294,7 +308,7 @@ class _BrandingTabState extends State<BrandingTab> {
               ),
               const SizedBox(width: 4),
               IconButton(
-                onPressed: () => _deletePreset(preset['id']),
+                onPressed: () => _deletePreset(preset),
                 icon: const Icon(LucideIcons.trash_2, size: 16),
                 color: Colors.red,
                 padding: EdgeInsets.zero,

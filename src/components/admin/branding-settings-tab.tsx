@@ -46,9 +46,21 @@ export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: ()
   });
 
   const deletePresetMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('app_branding_presets').delete().eq('id', id);
+    mutationFn: async (preset: { id: string; app_logo_url: string | null }) => {
+      const { error } = await supabase.from('app_branding_presets').delete().eq('id', preset.id);
       if (error) throw error;
+
+      if (preset.app_logo_url) {
+        try {
+          const oldUrlParts = preset.app_logo_url.split('/assets/');
+          if (oldUrlParts.length > 1) {
+            const oldFilePath = oldUrlParts[1];
+            await supabase.storage.from("assets").remove([oldFilePath]);
+          }
+        } catch (err) {
+          console.error("Failed to delete logo from storage", err);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['app_branding_presets'] });
@@ -146,6 +158,17 @@ export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: ()
 
   const handleRemoveLogo = async () => {
     try {
+      if (settings?.app_logo_url) {
+        try {
+          const oldUrlParts = settings.app_logo_url.split('/assets/');
+          if (oldUrlParts.length > 1) {
+            const oldFilePath = oldUrlParts[1];
+            await supabase.storage.from("assets").remove([oldFilePath]);
+          }
+        } catch (err) {
+          console.error("Failed to delete logo from storage", err);
+        }
+      }
       await updateSettings.mutateAsync({ app_logo_url: null });
       toast.success("Логотип удален");
     } catch (e: any) {
@@ -306,7 +329,7 @@ export function BrandingSettingsTab({ onUpdate, onApplyPreset }: { onUpdate?: ()
                       variant="destructive" 
                       size="icon" 
                       className="shrink-0 h-9 w-9"
-                      onClick={() => deletePresetMutation.mutate(preset.id)}
+                      onClick={() => deletePresetMutation.mutate({ id: preset.id, app_logo_url: preset.app_logo_url })}
                       disabled={deletePresetMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />

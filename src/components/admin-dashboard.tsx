@@ -1657,7 +1657,7 @@ export function AdminDashboard({
     return <div className="min-h-screen bg-muted/30" />;
   }
 
-  const currentFirm = firmPresets.find(f => f.id === adminSelectedFirmId);
+  const currentFirm = presets.find((f: any) => f.id === adminSelectedFirmId);
   const displayLogo = currentFirm?.app_logo_url || appSettings?.app_logo_url || dmagLogo;
   const displayName = currentFirm?.app_name || appSettings?.app_name || "DMAG";
 

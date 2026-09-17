@@ -1,11 +1,11 @@
-const fs = require('fs');
+const fs = require("fs");
 
 // Load React Dict
-const reactDict = require('./extracted_dict.json');
+const reactDict = require("./extracted_dict.json");
 
 // Load Flutter Dict
-const flutterI18nPath = './mobile_app_flutter/assets/i18n.json';
-const flutterDict = JSON.parse(fs.readFileSync(flutterI18nPath, 'utf-8'));
+const flutterI18nPath = "./mobile_app_flutter/assets/i18n.json";
+const flutterDict = JSON.parse(fs.readFileSync(flutterI18nPath, "utf-8"));
 
 let added = 0;
 let merged = 0;
@@ -27,9 +27,9 @@ for (const key in reactDict) {
   }
 }
 
-if (!flutterDict['settings.save'] && flutterDict['calendar.save']) {
-    flutterDict['settings.save'] = flutterDict['calendar.save'];
-    console.log('Added settings.save from calendar.save');
+if (!flutterDict["settings.save"] && flutterDict["calendar.save"]) {
+  flutterDict["settings.save"] = flutterDict["calendar.save"];
+  console.log("Added settings.save from calendar.save");
 }
 
 fs.writeFileSync(flutterI18nPath, JSON.stringify(flutterDict, null, 2));

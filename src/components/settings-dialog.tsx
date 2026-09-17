@@ -86,7 +86,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
     setIsUpdatingName(true);
     try {
       const { error: authError } = await supabase.auth.updateUser({
-        data: { full_name: newName.trim() }
+        data: { full_name: newName.trim() },
       });
       if (authError) throw authError;
 
@@ -154,16 +154,20 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                       disabled={isUpdatingName}
                       className="h-9 text-sm"
                     />
-                    <Button 
-                      size="sm" 
-                      onClick={handleUpdateName} 
+                    <Button
+                      size="sm"
+                      onClick={handleUpdateName}
                       disabled={isUpdatingName || !newName.trim()}
                     >
-                      {isUpdatingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      {isUpdatingName ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       onClick={() => {
                         setNewName(user.user_metadata?.full_name || "");
                         setEditingName(false);
@@ -175,8 +179,17 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                   </div>
                 ) : (
                   <div className="flex items-center justify-between bg-black/5 dark:bg-white/5 rounded-lg p-2 px-3 border border-border">
-                    <span className="text-sm font-medium">{user.user_metadata?.full_name ? tName(user.user_metadata.full_name) : t("admin.moderation.unknown")}</span>
-                    <Button variant="ghost" size="sm" onClick={() => setEditingName(true)} className="h-7 text-xs">
+                    <span className="text-sm font-medium">
+                      {user.user_metadata?.full_name
+                        ? tName(user.user_metadata.full_name)
+                        : t("admin.moderation.unknown")}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingName(true)}
+                      className="h-7 text-xs"
+                    >
                       {t("admin.moderation.edit") || "Редактировать"}
                     </Button>
                   </div>

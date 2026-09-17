@@ -479,26 +479,36 @@ export function EmployeeProvider({
         setStatus((s) => {
           // Do not downgrade from finished to working due to stale fetch OF THE SAME SHIFT
           if (s === "finished" && data.status !== "finished" && data.id === shiftIdRef.current) {
-            return s; 
+            return s;
           }
-          
+
           setTimeout(() => {
             setShiftStart(data.started_at ? new Date(data.started_at).getTime() : null);
             setShiftEnd(data.ended_at ? new Date(data.ended_at).getTime() : null);
             setShiftId(data.id);
-            
+
             if (data.site_id && data.site_name) {
-              setSelectedSite({ id: data.site_id, name: data.site_name, address: null, customer: null, comment: null });
+              setSelectedSite({
+                id: data.site_id,
+                name: data.site_name,
+                address: null,
+                customer: null,
+                comment: null,
+              });
             }
-            
+
             setLunchAccumMs(data.lunch_total_ms ?? 0);
             setLunchStart(data.lunch_started_at ? new Date(data.lunch_started_at).getTime() : null);
             if (data.lunch_intervals && Array.isArray(data.lunch_intervals)) {
               setLunchIntervals(data.lunch_intervals as any);
             }
           }, 0);
-          
-          return data.status === "working" ? "working" : data.status === "lunch" ? "lunch" : "finished";
+
+          return data.status === "working"
+            ? "working"
+            : data.status === "lunch"
+              ? "lunch"
+              : "finished";
         });
       } else if (!data && !error) {
         // If there are no shifts at all in the database, we MUST reset the state
@@ -541,7 +551,7 @@ export function EmployeeProvider({
           table: "shifts",
         },
         (payload) => {
-          if (payload.eventType === 'DELETE') {
+          if (payload.eventType === "DELETE") {
             const checkAndReset = () => {
               setStatus("idle");
               setShiftStart(null);
@@ -559,20 +569,25 @@ export function EmployeeProvider({
             } else if (!payload.old || !payload.old.id) {
               // Fallback if replica identity doesn't send old_record
               if (shiftIdRef.current) {
-                supabase.from("shifts").select("id").eq("id", shiftIdRef.current).single().then(({ error }) => {
-                  if (error) checkAndReset();
-                });
+                supabase
+                  .from("shifts")
+                  .select("id")
+                  .eq("id", shiftIdRef.current)
+                  .single()
+                  .then(({ error }) => {
+                    if (error) checkAndReset();
+                  });
               }
             }
           }
-          
+
           // For INSERT and UPDATE, check if it's our user
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
             if (payload.new && payload.new.user_id === user.id) {
               void fetchActiveShift();
             }
           }
-        }
+        },
       )
       .subscribe();
 
@@ -599,17 +614,26 @@ export function EmployeeProvider({
             setShiftId(null);
           };
 
-          if (selectedSiteRef.current && payload.old && payload.old.id === selectedSiteRef.current.id) {
+          if (
+            selectedSiteRef.current &&
+            payload.old &&
+            payload.old.id === selectedSiteRef.current.id
+          ) {
             checkAndResetSite();
           } else if (!payload.old || !payload.old.id) {
             // Fallback if replica identity doesn't send old_record
             if (selectedSiteRef.current?.id) {
-              supabase.from("sites").select("id").eq("id", selectedSiteRef.current.id).single().then(({ error }) => {
-                if (error) checkAndResetSite();
-              });
+              supabase
+                .from("sites")
+                .select("id")
+                .eq("id", selectedSiteRef.current.id)
+                .single()
+                .then(({ error }) => {
+                  if (error) checkAndResetSite();
+                });
             }
           }
-        }
+        },
       )
       .subscribe();
 
@@ -637,7 +661,7 @@ export function EmployeeProvider({
     window.sessionStorage.removeItem("dmag_chat_open");
     // Reset shift time but keep selected site (SITE_STORAGE_KEY stays)
     window.localStorage.removeItem(SHIFT_STORAGE_KEY);
-    await supabase.auth.signOut({ scope: 'local' });
+    await supabase.auth.signOut({ scope: "local" });
     navigate({ to: "/auth" });
   }
 
@@ -754,10 +778,14 @@ export function EmployeeProvider({
       .limit(1)
       .maybeSingle();
     if (existing) return existing;
-    
+
     let empLabel = null;
     if (user) {
-      const { data: p } = await supabase.from("profiles").select("label").eq("id", user.id).single();
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("label")
+        .eq("id", user.id)
+        .single();
       empLabel = p?.label;
     }
 
@@ -864,7 +892,7 @@ export function EmployeeProvider({
         })
         .select("id")
         .single();
-      
+
       if (!error && data) {
         setShiftId(data.id);
         setShiftStart(t);
@@ -894,10 +922,10 @@ export function EmployeeProvider({
       setLunchStart(null);
     }
     const endTs = Date.now();
-      
+
     const city = await Promise.race([
       reverseGeocodeCity(coords),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3-second timeout
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)), // 3-second timeout
     ]);
     if (city) toast.info(city);
     // Ensure a Site exists for the end-of-shift GPS city as well
@@ -924,7 +952,7 @@ export function EmployeeProvider({
       // We DO NOT setShiftId(null) here, so that if the finished shift is deleted from DB,
       // the realtime listener can catch it and reset the UI to 'idle'.
     }
-      
+
     setShiftEnd(endTs);
     setStatus("finished");
     toast.success(tr("status.finished"));

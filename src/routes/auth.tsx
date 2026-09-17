@@ -39,7 +39,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const t = useT();
   const { data: appSettings } = useAppSettings();
-  
+
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -131,7 +131,11 @@ function AuthPage() {
       </div>
       <Card className="w-full max-w-md p-8 rounded-2xl shadow-xl border-0 relative mt-8">
         <div className="flex flex-col items-center mb-6">
-          <img src={appSettings?.app_logo_url || dmagLogo} alt="Logo" className="w-35 h-auto rounded-xl shadow-md" />
+          <img
+            src={appSettings?.app_logo_url || dmagLogo}
+            alt="Logo"
+            className="w-35 h-auto rounded-xl shadow-md"
+          />
         </div>
 
         <Tabs value={mode} onValueChange={(v) => setMode(v as "login" | "signup")}>

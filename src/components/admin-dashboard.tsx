@@ -304,7 +304,9 @@ export function AdminDashboard({
   );
 
   const [adminSelectedFirmId, setAdminSelectedFirmId] = useSessionState("dmag_admin_firm", "all");
-  const [presets, setPresets] = useSessionState<{ id: string; app_name: string; app_logo_url: string | null }[]>("dmag_admin_presets", []);
+  const [presets, setPresets] = useSessionState<
+    { id: string; app_name: string; app_logo_url: string | null }[]
+  >("dmag_admin_presets", []);
 
   const [sitesSearch, setSitesSearch] = useSessionState("dmag_admin_sitesSearch", "");
   const [adminSearch, setAdminSearch] = useSessionState("dmag_admin_adminSearch", "");
@@ -437,14 +439,14 @@ export function AdminDashboard({
         .gte("started_at", start.toISOString())
         .lte("started_at", end.toISOString())
         .order("started_at", { ascending: true });
-      
-      const emp = employees.find(e => e.id === calEmpId);
-      const filtered = (data as any[] || []).filter(s => {
+
+      const emp = employees.find((e) => e.id === calEmpId);
+      const filtered = ((data as any[]) || []).filter((s) => {
         const shFirm = s.preset_id || emp?.label || presets[0]?.id;
         if (adminSelectedFirmId !== "all" && shFirm !== adminSelectedFirmId) return false;
         return true;
       });
-      
+
       setCalShifts(filtered);
       setCalLoading(false);
     }
@@ -554,7 +556,7 @@ export function AdminDashboard({
       navigate({ to: "/auth" });
       return;
     }
-    await supabase.auth.signOut({ scope: 'local' });
+    await supabase.auth.signOut({ scope: "local" });
     navigate({ to: "/auth" });
   }
 
@@ -615,7 +617,7 @@ export function AdminDashboard({
     let sortedPresets = presetsData || [];
     if (presetsData) {
       sortedPresets = [...presetsData].sort((a, b) => {
-        const order: Record<string, number> = { "DMAG": 1, "E&R": 2, "O&D": 3 };
+        const order: Record<string, number> = { DMAG: 1, "E&R": 2, "O&D": 3 };
         const aName = (a.app_name || "").toUpperCase().trim();
         const bName = (b.app_name || "").toUpperCase().trim();
         const aVal = order[aName] || 99;
@@ -653,11 +655,11 @@ export function AdminDashboard({
       .filter((p) => {
         const r = roleMap.get(p.id) ?? "employee";
         if (role === "admin" && r === "super_admin") return false;
-        
+
         const sh = latestShiftByUser.get(p.id);
         const empFirmId = sh?.preset_id || p.label || sortedPresets?.[0]?.id;
         if (adminSelectedFirmId !== "all" && empFirmId !== adminSelectedFirmId) return false;
-        
+
         return true;
       })
       .map((p) => {
@@ -792,7 +794,7 @@ export function AdminDashboard({
     const siteNameMap = new Map(siteRows.map((s) => [s.id, s.name]));
 
     const reportsRaw = reportData ?? [];
-    const allowedEmpIds = new Set(emps.map(e => e.id));
+    const allowedEmpIds = new Set(emps.map((e) => e.id));
     let repRows: ReportRow[] = reportsRaw
       .filter((r) => {
         if (role === "admin" && (!r.author_id || !allowedEmpIds.has(r.author_id))) return false;
@@ -860,24 +862,27 @@ export function AdminDashboard({
     const nameById = new Map(emps.map((e) => [e.id, e.name]));
     const history: ShiftDetail[] = (histData ?? [])
       .filter((s: any) => {
-        const shFirm = s.preset_id || (profiles ?? []).find((p) => p.id === s.user_id)?.label || sortedPresets?.[0]?.id;
+        const shFirm =
+          s.preset_id ||
+          (profiles ?? []).find((p) => p.id === s.user_id)?.label ||
+          sortedPresets?.[0]?.id;
         if (adminSelectedFirmId !== "all" && shFirm !== adminSelectedFirmId) return false;
         return true;
       })
       .map((s: any) => ({
-      id: s.id,
-      user_id: s.user_id,
-      user_name: nameById.get(s.user_id) ?? "—",
-      site_name: s.site_name ?? null,
-      started_at: s.started_at,
-      ended_at: s.ended_at,
-      lunch_started_at: s.lunch_started_at ?? null,
-      start_city: tName(s.start_city) ?? null,
-      end_city: tName(s.end_city) ?? null,
-      lunch_intervals: Array.isArray(s.lunch_intervals) ? s.lunch_intervals : [],
-      lunch_total_ms: Number(s.lunch_total_ms ?? 0),
-      status: s.status,
-    }));
+        id: s.id,
+        user_id: s.user_id,
+        user_name: nameById.get(s.user_id) ?? "—",
+        site_name: s.site_name ?? null,
+        started_at: s.started_at,
+        ended_at: s.ended_at,
+        lunch_started_at: s.lunch_started_at ?? null,
+        start_city: tName(s.start_city) ?? null,
+        end_city: tName(s.end_city) ?? null,
+        lunch_intervals: Array.isArray(s.lunch_intervals) ? s.lunch_intervals : [],
+        lunch_total_ms: Number(s.lunch_total_ms ?? 0),
+        status: s.status,
+      }));
     setShiftHistory(history);
 
     setLoading(false);
@@ -1026,7 +1031,7 @@ export function AdminDashboard({
     role,
     user?.id,
     devMode,
-    t
+    t,
   ]);
 
   const stats = useMemo(() => {
@@ -1147,8 +1152,8 @@ export function AdminDashboard({
         .eq("id", shiftEdit.id);
       err = error as any;
     } else {
-      const emp = employees.find(e => e.id === shiftEdit.user_id);
-      const presetId = adminSelectedFirmId !== "all" ? adminSelectedFirmId : (emp?.label || null);
+      const emp = employees.find((e) => e.id === shiftEdit.user_id);
+      const presetId = adminSelectedFirmId !== "all" ? adminSelectedFirmId : emp?.label || null;
 
       const { error } = await supabase.from("shifts").insert({
         user_id: shiftEdit.user_id,
@@ -1259,7 +1264,12 @@ export function AdminDashboard({
   }
 
   async function deleteSite(id: string, name: string) {
-    if (!confirm(`Удалить объект «${name}»? Внимание: все смены и отработанное время на этом объекте также будут удалены.`)) return;
+    if (
+      !confirm(
+        `Удалить объект «${name}»? Внимание: все смены и отработанное время на этом объекте также будут удалены.`,
+      )
+    )
+      return;
     await supabase.from("shifts").delete().eq("site_id", id);
     const { error } = await supabase.from("sites").delete().eq("id", id);
     if (error) {
@@ -1288,7 +1298,7 @@ export function AdminDashboard({
     role: AppRole;
     label: string;
   }>({ open: false, email: "", password: "", full_name: "", role: "employee", label: "" });
-  
+
   const [nameEdit, setNameEdit] = useState<{
     user_id: string;
     user_name: string;
@@ -1322,7 +1332,14 @@ export function AdminDashboard({
         },
       });
       toast.success(`Пользователь ${createForm.email} создан`);
-      setCreateForm({ open: false, email: "", password: "", full_name: "", role: "employee", label: "" });
+      setCreateForm({
+        open: false,
+        email: "",
+        password: "",
+        full_name: "",
+        role: "employee",
+        label: "",
+      });
       loadAll();
     } catch (e: any) {
       toast.error(e?.message ?? "Не удалось создать");
@@ -1698,7 +1715,12 @@ export function AdminDashboard({
             { id: "branding", icon: Palette, label: t("admin.tab.branding"), super: true },
             { id: "security", icon: ShieldCheck, label: t("admin.tab.security"), super: true },
             { id: "admin-management", icon: Users, label: t("admin.tab.users"), super: false },
-            { id: "moderation", icon: ShieldAlert, label: t("admin.tab.moderation", { defaultValue: "Модерация" }), super: false },
+            {
+              id: "moderation",
+              icon: ShieldAlert,
+              label: t("admin.tab.moderation", { defaultValue: "Модерация" }),
+              super: false,
+            },
             { id: "chat", icon: MessageSquare, label: t("tile.chat"), super: false },
           ]
             .filter((item) => !item.super || superMode)
@@ -1754,15 +1776,21 @@ export function AdminDashboard({
           </div>
           {presets.length > 0 && (
             <div className="flex flex-1 mx-4 justify-end items-center gap-2">
-              <span className="hidden sm:inline text-sm font-medium text-muted-foreground whitespace-nowrap">{t("admin.firm")}</span>
+              <span className="hidden sm:inline text-sm font-medium text-muted-foreground whitespace-nowrap">
+                {t("admin.firm")}
+              </span>
               <select
                 className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-50"
                 value={adminSelectedFirmId}
                 onChange={(e) => setAdminSelectedFirmId(e.target.value)}
               >
-                <option value="all">{t("admin.dashboard.allFirms", { defaultValue: "Все фирмы" })}</option>
-                {presets.map(p => (
-                  <option key={p.id} value={p.id}>{p.app_name || "Без названия"}</option>
+                <option value="all">
+                  {t("admin.dashboard.allFirms", { defaultValue: "Все фирмы" })}
+                </option>
+                {presets.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.app_name || "Без названия"}
+                  </option>
                 ))}
               </select>
             </div>
@@ -1828,8 +1856,7 @@ export function AdminDashboard({
 
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
-                  <Loader2 className="h-4 w-4 animate-spin" />{" "}
-                  {t("admin.loading")}…
+                  <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.loading")}…
                 </div>
               ) : activities.length === 0 ? (
                 <div className="flex-1 mt-6 flex flex-col items-center justify-center py-20 px-6 text-center border-2 border-dashed rounded-2xl border-muted bg-card/30">
@@ -2017,7 +2044,9 @@ export function AdminDashboard({
                                       <div className="flex flex-col">
                                         <span>{tName(e.name)}</span>
                                         {superMode && e.label && (
-                                          <span className="text-xs text-muted-foreground">{e.label}</span>
+                                          <span className="text-xs text-muted-foreground">
+                                            {e.label}
+                                          </span>
                                         )}
                                       </div>
                                     </div>
@@ -2607,8 +2636,8 @@ export function AdminDashboard({
 
           {/* BRANDING TAB */}
           {activeTab === "branding" && superMode && (
-            <BrandingSettingsTab 
-              onUpdate={() => loadAll()} 
+            <BrandingSettingsTab
+              onUpdate={() => loadAll()}
               onApplyPreset={(id) => setAdminSelectedFirmId(id)}
             />
           )}
@@ -2730,11 +2759,13 @@ export function AdminDashboard({
                 <Button
                   size="sm"
                   className="rounded-xl w-full sm:w-auto"
-                  onClick={() => setCreateForm((f) => ({ 
-                    ...f, 
-                    open: true,
-                    label: adminSelectedFirmId !== "all" ? adminSelectedFirmId : "" 
-                  }))}
+                  onClick={() =>
+                    setCreateForm((f) => ({
+                      ...f,
+                      open: true,
+                      label: adminSelectedFirmId !== "all" ? adminSelectedFirmId : "",
+                    }))
+                  }
                 >
                   <Plus className="h-4 w-4 mr-1.5" />
                   {t("admin.users.create")}
@@ -2803,7 +2834,9 @@ export function AdminDashboard({
                                   <div className="flex flex-col">
                                     <span>{tName(e.name)}</span>
                                     {superMode && e.label && (
-                                      <span className="text-xs text-muted-foreground">{e.label}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {e.label}
+                                      </span>
                                     )}
                                   </div>
                                 </div>
@@ -3151,9 +3184,7 @@ export function AdminDashboard({
           )}
 
           {/* MODERATION TAB */}
-          {activeTab === "moderation" && (
-            <ModerationTab />
-          )}
+          {activeTab === "moderation" && <ModerationTab />}
 
           {/* CALENDAR TAB */}
           {activeTab === "calendar" && (

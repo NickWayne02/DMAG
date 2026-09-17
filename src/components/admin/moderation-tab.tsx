@@ -52,7 +52,7 @@ export function ModerationTab() {
             const updated = payload.new as DbMessage;
             setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
           }
-        }
+        },
       )
       .subscribe();
 
@@ -83,7 +83,9 @@ export function ModerationTab() {
       setLoading(true);
       const { data, error } = await supabase
         .from("chat_messages")
-        .select("id, channel_type, channel_id, author_id, author_name, content, created_at, source_lang")
+        .select(
+          "id, channel_type, channel_id, author_id, author_name, content, created_at, source_lang",
+        )
         .in("channel_type", ["general", "direct"])
         .order("created_at", { ascending: false })
         .limit(100);
@@ -94,7 +96,7 @@ export function ModerationTab() {
       const { data: profData } = await supabase.from("profiles").select("id, full_name");
       if (profData) {
         const map: Record<string, string> = {};
-        profData.forEach(p => map[p.id] = p.full_name || t("admin.moderation.unknown")!);
+        profData.forEach((p) => (map[p.id] = p.full_name || t("admin.moderation.unknown")!));
         setProfiles(map);
       }
     } catch (err: any) {
@@ -117,7 +119,10 @@ export function ModerationTab() {
 
   async function saveEdit(id: string) {
     try {
-      const { error } = await supabase.from("chat_messages").update({ content: editContent }).eq("id", id);
+      const { error } = await supabase
+        .from("chat_messages")
+        .update({ content: editContent })
+        .eq("id", id);
       if (error) throw error;
       toast.success("Сообщение обновлено");
       setEditingId(null);
@@ -130,9 +135,9 @@ export function ModerationTab() {
     if (editingId === msg.id) {
       return (
         <div className="mt-2 flex flex-col gap-2">
-          <Textarea 
-            value={editContent} 
-            onChange={(e) => setEditContent(e.target.value)} 
+          <Textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
             className="min-h-25 text-sm"
           />
           <div className="flex justify-end gap-2">
@@ -152,9 +157,13 @@ export function ModerationTab() {
     if (isPhotoReport) {
       let textToSplit = content;
       if (content.includes("[ФОТО_ОТЧЕТ]")) {
-        textToSplit = content.substring(content.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length).trim();
+        textToSplit = content
+          .substring(content.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length)
+          .trim();
       } else if (content.includes("[PHOTO_REPORT]")) {
-        textToSplit = content.substring(content.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length).trim();
+        textToSplit = content
+          .substring(content.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length)
+          .trim();
       }
       const parts = textToSplit.split(" | ");
       const photoPath = parts[0] || "";
@@ -170,9 +179,18 @@ export function ModerationTab() {
       if (msg.source_lang && msg.source_lang !== lang && translatedTexts[msg.id]) {
         const trText = translatedTexts[msg.id];
         let trTextToSplit = trText;
-        if (trText.includes("[ФОТО_ОТЧЕТ]")) trTextToSplit = trText.substring(trText.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length).trim();
-        else if (trText.includes("[PHOTO_REPORT]")) trTextToSplit = trText.substring(trText.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length).trim();
-        else if (trText.includes("[PHOTO REPORT]")) trTextToSplit = trText.substring(trText.indexOf("[PHOTO REPORT]") + "[PHOTO REPORT]".length).trim();
+        if (trText.includes("[ФОТО_ОТЧЕТ]"))
+          trTextToSplit = trText
+            .substring(trText.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length)
+            .trim();
+        else if (trText.includes("[PHOTO_REPORT]"))
+          trTextToSplit = trText
+            .substring(trText.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length)
+            .trim();
+        else if (trText.includes("[PHOTO REPORT]"))
+          trTextToSplit = trText
+            .substring(trText.indexOf("[PHOTO REPORT]") + "[PHOTO REPORT]".length)
+            .trim();
         const trParts = trTextToSplit.split(" | ");
         if (trParts.length >= 3) {
           translatedDesc = trParts.slice(2).join(" | ");
@@ -184,11 +202,17 @@ export function ModerationTab() {
       return (
         <div className="flex flex-col gap-2 mt-2">
           {photoUrl && (
-            <img src={photoUrl} alt="Report" className="w-full h-48 object-cover rounded-xl border bg-muted" />
+            <img
+              src={photoUrl}
+              alt="Report"
+              className="w-full h-48 object-cover rounded-xl border bg-muted"
+            />
           )}
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-[10px] uppercase">{t(`crit.${(criticality || "info").toLowerCase()}`) || (criticality || "info")}</Badge>
+              <Badge variant="secondary" className="text-[10px] uppercase">
+                {t(`crit.${(criticality || "info").toLowerCase()}`) || criticality || "info"}
+              </Badge>
               <span className="text-sm font-medium">{desc}</span>
             </div>
             {translatedDesc && (
@@ -200,13 +224,15 @@ export function ModerationTab() {
         </div>
       );
     }
-    
+
     const translated = msg.source_lang && msg.source_lang !== lang ? translatedTexts[msg.id] : null;
     return (
       <div className="mt-1">
         <p className="text-sm whitespace-pre-wrap">{content}</p>
         {translated && (
-          <p className="text-sm whitespace-pre-wrap text-muted-foreground italic border-l-2 pl-2 mt-2">{translated}</p>
+          <p className="text-sm whitespace-pre-wrap text-muted-foreground italic border-l-2 pl-2 mt-2">
+            {translated}
+          </p>
         )}
       </div>
     );
@@ -224,7 +250,7 @@ export function ModerationTab() {
   }
 
   const renderMessageList = (filterType: "general" | "direct") => {
-    let filtered = messages.filter(m => m.channel_type === filterType);
+    let filtered = messages.filter((m) => m.channel_type === filterType);
 
     if (loading) {
       return (
@@ -235,8 +261,8 @@ export function ModerationTab() {
     }
 
     if (filterType === "direct" && !selectedChatId) {
-      const chatIds = Array.from(new Set(filtered.map(m => m.channel_id)));
-      
+      const chatIds = Array.from(new Set(filtered.map((m) => m.channel_id)));
+
       if (chatIds.length === 0) {
         return (
           <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground">
@@ -248,11 +274,11 @@ export function ModerationTab() {
 
       return (
         <div className="space-y-3 p-1">
-          {chatIds.map(chatId => {
-            const lastMsg = filtered.find(m => m.channel_id === chatId);
+          {chatIds.map((chatId) => {
+            const lastMsg = filtered.find((m) => m.channel_id === chatId);
             return (
-              <div 
-                key={chatId} 
+              <div
+                key={chatId}
                 className="p-4 rounded-2xl border bg-background hover:bg-muted/30 transition-colors cursor-pointer flex justify-between items-center group"
                 onClick={() => setSelectedChatId(chatId)}
               >
@@ -262,7 +288,11 @@ export function ModerationTab() {
                     {lastMsg?.content}
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                >
                   Смотреть
                 </Button>
               </div>
@@ -273,7 +303,7 @@ export function ModerationTab() {
     }
 
     if (filterType === "direct" && selectedChatId) {
-      filtered = filtered.filter(m => m.channel_id === selectedChatId);
+      filtered = filtered.filter((m) => m.channel_id === selectedChatId);
     }
 
     if (filtered.length === 0) {
@@ -301,52 +331,62 @@ export function ModerationTab() {
           </div>
         )}
         <div className="space-y-3 p-1">
-        {filtered.map((msg) => (
-          <div key={msg.id} className="p-4 rounded-2xl border bg-background hover:bg-muted/30 transition-colors group">
-            <div className="flex justify-between items-start gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm truncate">{tName(msg.author_name || t("admin.moderation.unknown")!)}</span>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(msg.created_at))}
-                  </span>
-                  {filterType === "direct" && (
-                    <Badge variant="outline" className="text-[10px] ml-2 shrink-0">
-                      {t("admin.moderation.chat")}: {getChatName(msg.channel_id)}
-                    </Badge>
-                  )}
+          {filtered.map((msg) => (
+            <div
+              key={msg.id}
+              className="p-4 rounded-2xl border bg-background hover:bg-muted/30 transition-colors group"
+            >
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-sm truncate">
+                      {tName(msg.author_name || t("admin.moderation.unknown")!)}
+                    </span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {new Intl.DateTimeFormat(lang, {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }).format(new Date(msg.created_at))}
+                    </span>
+                    {filterType === "direct" && (
+                      <Badge variant="outline" className="text-[10px] ml-2 shrink-0">
+                        {t("admin.moderation.chat")}: {getChatName(msg.channel_id)}
+                      </Badge>
+                    )}
+                  </div>
+                  {renderContent(msg)}
                 </div>
-                {renderContent(msg)}
-              </div>
-              <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                {editingId !== msg.id && (
+                <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {editingId !== msg.id && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-blue-500 hover:text-blue-600 hover:bg-blue-50/10"
+                      onClick={() => {
+                        setEditContent(msg.content);
+                        setEditingId(msg.id);
+                      }}
+                      title={t("admin.moderation.edit")}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-blue-500 hover:text-blue-600 hover:bg-blue-50/10"
-                    onClick={() => {
-                      setEditContent(msg.content);
-                      setEditingId(msg.id);
-                    }}
-                    title={t("admin.moderation.edit")}
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50/10"
+                    onClick={() => deleteMessage(msg.id)}
+                    title={t("admin.moderation.delete")}
                   >
-                    <Edit2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50/10"
-                  onClick={() => deleteMessage(msg.id)}
-                  title={t("admin.moderation.delete")}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -362,8 +402,12 @@ export function ModerationTab() {
         <Tabs defaultValue="general" className="flex-1 flex flex-col h-full w-full">
           <div className="px-4 pt-4 border-b">
             <TabsList className="grid w-100 grid-cols-2">
-              <TabsTrigger value="general" onClick={() => setSelectedChatId(null)}>{t("admin.moderation.general")}</TabsTrigger>
-              <TabsTrigger value="direct" onClick={() => setSelectedChatId(null)}>{t("admin.moderation.direct")}</TabsTrigger>
+              <TabsTrigger value="general" onClick={() => setSelectedChatId(null)}>
+                {t("admin.moderation.general")}
+              </TabsTrigger>
+              <TabsTrigger value="direct" onClick={() => setSelectedChatId(null)}>
+                {t("admin.moderation.direct")}
+              </TabsTrigger>
             </TabsList>
           </div>
           <div className="flex-1 overflow-y-auto p-4">

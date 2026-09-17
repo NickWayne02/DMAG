@@ -255,10 +255,14 @@ export function SiteSelectorDialog({
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm truncate">{tName(s.name)}</p>
                         {s.address && (
-                          <p className="text-xs text-muted-foreground truncate">{tName(s.address)}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {tName(s.address)}
+                          </p>
                         )}
                         {s.customer && (
-                          <p className="text-xs text-muted-foreground truncate">{tName(s.customer)}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {tName(s.customer)}
+                          </p>
                         )}
                       </div>
                       {active && <Check className="h-5 w-5 text-primary shrink-0" />}

@@ -507,13 +507,16 @@ export function FullChatApp({
             .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
             .split(" | ");
           const oldPhotoPath = oldParts[0] || data.photoPath;
-          
+
           if (oldPhotoPath) {
-            await supabase.from("photo_reports").update({
-              description: data.description || null,
-              criticality: data.criticality as "info" | "important" | "urgent",
-              photo_url: data.photoPath
-            }).eq("photo_url", oldPhotoPath);
+            await supabase
+              .from("photo_reports")
+              .update({
+                description: data.description || null,
+                criticality: data.criticality as "info" | "important" | "urgent",
+                photo_url: data.photoPath,
+              })
+              .eq("photo_url", oldPhotoPath);
           }
           if (!updatedData || updatedData.length === 0) {
             throw new Error(
@@ -801,7 +804,11 @@ function ChannelContent({
 
     const { error } = await supabase.from("chat_messages").delete().eq("id", id);
 
-    if (!error && (/^\[PHOTO_REPORT\]\s*/i.test(msg?.content || "") || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg?.content || ""))) {
+    if (
+      !error &&
+      (/^\[PHOTO_REPORT\]\s*/i.test(msg?.content || "") ||
+        /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg?.content || ""))
+    ) {
       const parts = (msg?.content || "")
         .replace(/^\[PHOTO_REPORT\]\s*/i, "")
         .replace(/^\[ФОТО_ОТЧЕТ\]\s*/i, "")
@@ -839,7 +846,10 @@ function ChannelContent({
               m={m}
               onDelete={deleteMessage}
               onEdit={(msg) => {
-                if (/^\[PHOTO_REPORT\]\s*/i.test(msg.content) || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg.content)) {
+                if (
+                  /^\[PHOTO_REPORT\]\s*/i.test(msg.content) ||
+                  /^\[ФОТО_ОТЧЕТ\]\s*/i.test(msg.content)
+                ) {
                   onEditPhotoReport?.(msg);
                 } else {
                   setEditingMessage(msg);
@@ -962,7 +972,8 @@ function MessageBubble({
     };
   }, [m.id, m.content, m.source_lang, lang, needsTranslate]);
 
-  const isPhotoReport = /^\[PHOTO_REPORT\]\s*/i.test(m.content) || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(m.content);
+  const isPhotoReport =
+    /^\[PHOTO_REPORT\]\s*/i.test(m.content) || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(m.content);
   let photoPath = "";
   let criticality = "";
   let description = m.content;

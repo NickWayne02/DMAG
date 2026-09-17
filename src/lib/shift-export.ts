@@ -194,7 +194,7 @@ function triggerDownloadSync(blob: Blob, filename: string) {
           data: base64,
           directory: Directory.Cache,
         });
-        
+
         await Share.share({
           title: filename,
           url: result.uri,

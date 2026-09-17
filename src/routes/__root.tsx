@@ -13,8 +13,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/lib/i18n";
 import { SettingsProvider } from "@/lib/settings";
 
-if (typeof window !== 'undefined') {
-  import('@ionic/pwa-elements/loader').then(({ defineCustomElements }) => {
+if (typeof window !== "undefined") {
+  import("@ionic/pwa-elements/loader").then(({ defineCustomElements }) => {
     defineCustomElements(window);
   });
 }
@@ -139,7 +139,7 @@ function AppBranding() {
   useEffect(() => {
     if (settings) {
       document.title = settings.app_name;
-      
+
       if (settings.app_logo_url) {
         let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
         if (!link) {
@@ -148,7 +148,7 @@ function AppBranding() {
           document.head.appendChild(link);
         }
         link.href = settings.app_logo_url;
-        
+
         let appleLink = document.querySelector("link[rel~='apple-touch-icon']") as HTMLLinkElement;
         if (!appleLink) {
           appleLink = document.createElement("link");

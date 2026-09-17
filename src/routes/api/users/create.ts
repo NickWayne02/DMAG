@@ -34,7 +34,10 @@ export const Route = createFileRoute("/api/users/create")({
             },
           });
 
-          const { data: { user }, error: userError } = await userClient.auth.getUser();
+          const {
+            data: { user },
+            error: userError,
+          } = await userClient.auth.getUser();
           if (userError || !user) {
             return new Response(JSON.stringify({ error: "Invalid token" }), {
               status: 401,
@@ -100,7 +103,7 @@ export const Route = createFileRoute("/api/users/create")({
           const { error: rErr } = await supabaseAdmin
             .from("user_roles")
             .insert({ user_id: created.user.id, role: role });
-            
+
           if (rErr) throw new Error(rErr.message);
 
           return new Response(JSON.stringify({ success: true, id: created.user.id }), {

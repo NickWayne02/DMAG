@@ -26,7 +26,13 @@ async function assertAdminOrSuper(supabase: any, userId: string) {
 export const adminCreateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (data: { email: string; password: string; full_name?: string; role: AppRole; label?: string | null }) => data,
+    (data: {
+      email: string;
+      password: string;
+      full_name?: string;
+      role: AppRole;
+      label?: string | null;
+    }) => data,
   )
   .handler(async ({ data, context }) => {
     await assertAdminOrSuper(context.supabase, context.userId);
@@ -193,17 +199,17 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    
+
     // Update Auth Metadata
     const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
-      user_metadata: { full_name: data.full_name }
+      user_metadata: { full_name: data.full_name },
     });
     if (authError) throw new Error(authError.message);
 
     // Update Profile
     const patch: any = { full_name: data.full_name };
     if (data.label !== undefined) {
-       patch.label = data.label;
+      patch.label = data.label;
     }
     const { error: dbError } = await supabaseAdmin
       .from("profiles")

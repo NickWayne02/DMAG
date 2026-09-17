@@ -191,17 +191,127 @@ const DICT: Dict = {
   },
 
   // Branding Tab
-  "admin.branding.title": { ru: "Брендирование приложения", en: "App Branding", de: "App-Branding", ro: "Brandingul aplicației", bg: "Брандиране на приложението", pl: "Branding aplikacji", uk: "Брендування додатку", uz: "Ilova brendingi", tg: "Брендинги барнома" },
-  "admin.branding.nameDesc": { ru: "Название приложения (отображается в меню и заголовках)", en: "Application Name (shown in menu and headers)", de: "Anwendungsname (wird in Menüs und Kopfzeilen angezeigt)", ro: "Numele aplicației (afișat în meniuri și anteturi)", bg: "Име на приложението (показва се в менюто и заглавките)", pl: "Nazwa aplikacji (wyświetlana w menu i nagłówkach)", uk: "Назва додатку (відображається в меню та заголовках)", uz: "Ilova nomi (menyu va sarlavhalarda ko'rsatiladi)", tg: "Номи барнома (дар меню ва сарлавҳаҳо нишон дода мешавад)" },
-  "admin.branding.logoDesc": { ru: "Логотип приложения (используется в меню и как иконка сайта)", en: "Application Logo (used in menu and as site icon)", de: "Anwendungslogo (in Menüs und als Website-Symbol verwendet)", ro: "Logo aplicație (utilizat în meniuri și ca pictogramă a site-ului)", bg: "Лого на приложението (използва се в менюто и като икона на сайта)", pl: "Logo aplikacji (używane w menu i jako ikona witryny)", uk: "Логотип додатку (використовується в меню та як іконка сайту)", uz: "Ilova logotipi (menyu va sayt ikonchasi sifatida ishlatiladi)", tg: "Логотипи барнома (дар меню ва ҳамчун нишонаи сайт истифода мешавад)" },
-  "admin.branding.noLogo": { ru: "Нет лого", en: "No logo", de: "Kein Logo", ro: "Niciun logo", bg: "Няма лого", pl: "Brak logo", uk: "Немає логотипу", uz: "Logotip yo'q", tg: "Логотип нест" },
-  "admin.branding.uploadNew": { ru: "Загрузить новый", en: "Upload new", de: "Neu hochladen", ro: "Încărcați nou", bg: "Качи ново", pl: "Prześlij nowe", uk: "Завантажити новий", uz: "Yangi yuklash", tg: "Боркунии нав" },
-  "admin.branding.logoHint": { ru: "Рекомендуется квадратное изображение (PNG, JPG) размером от 256x256.", en: "Recommended square image (PNG, JPG) 256x256 or larger.", de: "Empfohlen quadratisches Bild (PNG, JPG) 256x256 oder größer.", ro: "Imagine pătrată recomandată (PNG, JPG) 256x256 sau mai mare.", bg: "Препоръчително квадратно изображение (PNG, JPG) 256x256 или по-голямо.", pl: "Zalecany obraz kwadratowy (PNG, JPG) 256x256 lub większy.", uk: "Рекомендується квадратне зображення (PNG, JPG) розміром від 256x256.", uz: "Tavsiya etiladi kvadrat tasvir (PNG, JPG) 256x256 yoki undan kattaroq.", tg: "Тавсия дода мешавад тасвири мураббаъ (PNG, JPG) 256x256 ё калонтар." },
-  "admin.branding.gallery": { ru: "Галерея брендов (Пресеты)", en: "Brand Gallery (Presets)", de: "Markengalerie (Voreinstellungen)", ro: "Galeria de mărci (Presetări)", bg: "Галерия на марки (Предварителни настройки)", pl: "Galeria marek (Ustawienia domyślne)", uk: "Галерея брендів (Пресети)", uz: "Brend galereyasi (Oldindan o'rnatilganlar)", tg: "Галереяи брендҳо (Танзимоти пешакӣ)" },
-  "admin.branding.saveCurrent": { ru: "Сохранить как пресет в галерею", en: "Save as preset to gallery", de: "Als Voreinstellung in Galerie speichern", ro: "Salvează ca presetare în galerie", bg: "Запази като предварителна настройка в галерията", pl: "Zapisz jako ustawienie domyślne w galerii", uk: "Зберегти як пресет в галерею", uz: "Galereyaga oldindan o'rnatilgan sifatida saqlash", tg: "Ҳамчун танзимоти пешакӣ дар галерея захира кардан" },
-  "admin.branding.galleryEmpty": { ru: "Пусто", en: "Empty", de: "Leer", ro: "Gol", bg: "Празно", pl: "Pusto", uk: "Пусто", uz: "Bo'sh", tg: "Холӣ" },
-  "admin.branding.noName": { ru: "Без названия", en: "Unnamed", de: "Ohne Namen", ro: "Fără nume", bg: "Без име", pl: "Bez nazwy", uk: "Без назви", uz: "Nomsiz", tg: "Бе ном" },
-  "admin.branding.apply": { ru: "Применить", en: "Apply", de: "Anwenden", ro: "Aplică", bg: "Приложи", pl: "Zastosuj", uk: "Застосувати", uz: "Qo'llash", tg: "Татбиқ кардан" },
+  "admin.branding.title": {
+    ru: "Брендирование приложения",
+    en: "App Branding",
+    de: "App-Branding",
+    ro: "Brandingul aplicației",
+    bg: "Брандиране на приложението",
+    pl: "Branding aplikacji",
+    uk: "Брендування додатку",
+    uz: "Ilova brendingi",
+    tg: "Брендинги барнома",
+  },
+  "admin.branding.nameDesc": {
+    ru: "Название приложения (отображается в меню и заголовках)",
+    en: "Application Name (shown in menu and headers)",
+    de: "Anwendungsname (wird in Menüs und Kopfzeilen angezeigt)",
+    ro: "Numele aplicației (afișat în meniuri și anteturi)",
+    bg: "Име на приложението (показва се в менюто и заглавките)",
+    pl: "Nazwa aplikacji (wyświetlana w menu i nagłówkach)",
+    uk: "Назва додатку (відображається в меню та заголовках)",
+    uz: "Ilova nomi (menyu va sarlavhalarda ko'rsatiladi)",
+    tg: "Номи барнома (дар меню ва сарлавҳаҳо нишон дода мешавад)",
+  },
+  "admin.branding.logoDesc": {
+    ru: "Логотип приложения (используется в меню и как иконка сайта)",
+    en: "Application Logo (used in menu and as site icon)",
+    de: "Anwendungslogo (in Menüs und als Website-Symbol verwendet)",
+    ro: "Logo aplicație (utilizat în meniuri și ca pictogramă a site-ului)",
+    bg: "Лого на приложението (използва се в менюто и като икона на сайта)",
+    pl: "Logo aplikacji (używane w menu i jako ikona witryny)",
+    uk: "Логотип додатку (використовується в меню та як іконка сайту)",
+    uz: "Ilova logotipi (menyu va sayt ikonchasi sifatida ishlatiladi)",
+    tg: "Логотипи барнома (дар меню ва ҳамчун нишонаи сайт истифода мешавад)",
+  },
+  "admin.branding.noLogo": {
+    ru: "Нет лого",
+    en: "No logo",
+    de: "Kein Logo",
+    ro: "Niciun logo",
+    bg: "Няма лого",
+    pl: "Brak logo",
+    uk: "Немає логотипу",
+    uz: "Logotip yo'q",
+    tg: "Логотип нест",
+  },
+  "admin.branding.uploadNew": {
+    ru: "Загрузить новый",
+    en: "Upload new",
+    de: "Neu hochladen",
+    ro: "Încărcați nou",
+    bg: "Качи ново",
+    pl: "Prześlij nowe",
+    uk: "Завантажити новий",
+    uz: "Yangi yuklash",
+    tg: "Боркунии нав",
+  },
+  "admin.branding.logoHint": {
+    ru: "Рекомендуется квадратное изображение (PNG, JPG) размером от 256x256.",
+    en: "Recommended square image (PNG, JPG) 256x256 or larger.",
+    de: "Empfohlen quadratisches Bild (PNG, JPG) 256x256 oder größer.",
+    ro: "Imagine pătrată recomandată (PNG, JPG) 256x256 sau mai mare.",
+    bg: "Препоръчително квадратно изображение (PNG, JPG) 256x256 или по-голямо.",
+    pl: "Zalecany obraz kwadratowy (PNG, JPG) 256x256 lub większy.",
+    uk: "Рекомендується квадратне зображення (PNG, JPG) розміром від 256x256.",
+    uz: "Tavsiya etiladi kvadrat tasvir (PNG, JPG) 256x256 yoki undan kattaroq.",
+    tg: "Тавсия дода мешавад тасвири мураббаъ (PNG, JPG) 256x256 ё калонтар.",
+  },
+  "admin.branding.gallery": {
+    ru: "Галерея брендов (Пресеты)",
+    en: "Brand Gallery (Presets)",
+    de: "Markengalerie (Voreinstellungen)",
+    ro: "Galeria de mărci (Presetări)",
+    bg: "Галерия на марки (Предварителни настройки)",
+    pl: "Galeria marek (Ustawienia domyślne)",
+    uk: "Галерея брендів (Пресети)",
+    uz: "Brend galereyasi (Oldindan o'rnatilganlar)",
+    tg: "Галереяи брендҳо (Танзимоти пешакӣ)",
+  },
+  "admin.branding.saveCurrent": {
+    ru: "Сохранить как пресет в галерею",
+    en: "Save as preset to gallery",
+    de: "Als Voreinstellung in Galerie speichern",
+    ro: "Salvează ca presetare în galerie",
+    bg: "Запази като предварителна настройка в галерията",
+    pl: "Zapisz jako ustawienie domyślne w galerii",
+    uk: "Зберегти як пресет в галерею",
+    uz: "Galereyaga oldindan o'rnatilgan sifatida saqlash",
+    tg: "Ҳамчун танзимоти пешакӣ дар галерея захира кардан",
+  },
+  "admin.branding.galleryEmpty": {
+    ru: "Пусто",
+    en: "Empty",
+    de: "Leer",
+    ro: "Gol",
+    bg: "Празно",
+    pl: "Pusto",
+    uk: "Пусто",
+    uz: "Bo'sh",
+    tg: "Холӣ",
+  },
+  "admin.branding.noName": {
+    ru: "Без названия",
+    en: "Unnamed",
+    de: "Ohne Namen",
+    ro: "Fără nume",
+    bg: "Без име",
+    pl: "Bez nazwy",
+    uk: "Без назви",
+    uz: "Nomsiz",
+    tg: "Бе ном",
+  },
+  "admin.branding.apply": {
+    ru: "Применить",
+    en: "Apply",
+    de: "Anwenden",
+    ro: "Aplică",
+    bg: "Приложи",
+    pl: "Zastosuj",
+    uk: "Застосувати",
+    uz: "Qo'llash",
+    tg: "Татбиқ кардан",
+  },
 
   // Admin Tabs
   "admin.tab.branding": {
@@ -294,8 +404,16 @@ const DICT: Dict = {
   },
   "admin.firm": { ru: "Фирма:", en: "Firm:", de: "Firma:" },
   "admin.allFirms": { ru: "Все фирмы", en: "All firms", de: "Alle Firmen" },
-  "admin.activity.emptyTitle": { ru: "Активности пока нет", en: "No activity yet", de: "Noch keine Aktivität" },
-  "admin.activity.emptyDesc": { ru: "События, новые смены и инциденты будут появляться здесь в реальном времени.", en: "Events, new shifts and incidents will appear here in real time.", de: "Ereignisse, neue Schichten und Vorfälle werden hier in Echtzeit angezeigt." },
+  "admin.activity.emptyTitle": {
+    ru: "Активности пока нет",
+    en: "No activity yet",
+    de: "Noch keine Aktivität",
+  },
+  "admin.activity.emptyDesc": {
+    ru: "События, новые смены и инциденты будут появляться здесь в реальном времени.",
+    en: "Events, new shifts and incidents will appear here in real time.",
+    de: "Ereignisse, neue Schichten und Vorfälle werden hier in Echtzeit angezeigt.",
+  },
   "admin.tab.security": {
     ru: "Активные сеансы",
     en: "Active sessions",
@@ -329,7 +447,7 @@ const DICT: Dict = {
     uz: "Taqvim",
     tg: "Тақвим",
   },
-    "admin.moderation.title": {
+  "admin.moderation.title": {
     ru: "Модерация",
     en: "Moderation",
     de: "Moderation",
@@ -406,7 +524,7 @@ const DICT: Dict = {
     uz: "Orqaga qaytish",
     tg: "Бозгашт",
   },
-    "admin.moderation.chat": {
+  "admin.moderation.chat": {
     ru: "Чат",
     en: "Chat",
     de: "Chat",
@@ -472,7 +590,7 @@ const DICT: Dict = {
     uz: "Saqlash",
     tg: "Захира кардан",
   },
-    "admin.moderation.and": {
+  "admin.moderation.and": {
     ru: "и",
     en: "and",
     de: "und",
@@ -3613,7 +3731,7 @@ const DICT: Dict = {
     uz: "Qurilish maydonchasi manzili",
     tg: "Суроғаи майдончаи сохтмон",
   },
-  
+
   // Chat Photo
   "chat.photo.willBeSent": {
     ru: "Фотоотчет будет отправлен в чат объекта",
@@ -4528,7 +4646,7 @@ const DICT: Dict = {
     uz: "Ishonch telefoni (24/7)",
     tg: "Телефони боварӣ (24/7)",
   },
-  'settings.custom_colors_title': {
+  "settings.custom_colors_title": {
     ru: "Конструктор темы",
     en: "Theme Builder",
     de: "Themen-Baukasten",
@@ -4539,7 +4657,7 @@ const DICT: Dict = {
     uz: "Mavzu konstruktori",
     tg: "Конструктори мавзӯъ",
   },
-  'settings.custom_colors_hint': {
+  "settings.custom_colors_hint": {
     ru: "Выберите цвет для каждой панели интерфейса.",
     en: "Choose a color for each interface panel.",
     de: "Wählen Sie eine Farbe für jedes Schnittstellenpanel.",
@@ -4550,7 +4668,7 @@ const DICT: Dict = {
     uz: "Har bir interfeys paneli uchun rang tanlang.",
     tg: "Рангро барои ҳар як панели интерфейс интихоб кунед.",
   },
-  'settings.colors.background': {
+  "settings.colors.background": {
     ru: "Фон страницы",
     en: "Page Background",
     de: "Seitenhintergrund",
@@ -4561,7 +4679,7 @@ const DICT: Dict = {
     uz: "Sahifa foni",
     tg: "Заминаи саҳифа",
   },
-  'settings.colors.foreground': {
+  "settings.colors.foreground": {
     ru: "Основной текст",
     en: "Main Text",
     de: "Haupttext",
@@ -4572,7 +4690,7 @@ const DICT: Dict = {
     uz: "Asosiy matn",
     tg: "Матни асосӣ",
   },
-  'settings.colors.card': {
+  "settings.colors.card": {
     ru: "Карточки",
     en: "Cards",
     de: "Karten",
@@ -4583,7 +4701,7 @@ const DICT: Dict = {
     uz: "Kartalar",
     tg: "Кортҳо",
   },
-  'settings.colors.card_text': {
+  "settings.colors.card_text": {
     ru: "Текст на карточках",
     en: "Card Text",
     de: "Kartentext",
@@ -4594,7 +4712,7 @@ const DICT: Dict = {
     uz: "Kartadagi matn",
     tg: "Матн дар кортҳо",
   },
-  'settings.colors.primary': {
+  "settings.colors.primary": {
     ru: "Акцент",
     en: "Accent",
     de: "Akzent",
@@ -4605,7 +4723,7 @@ const DICT: Dict = {
     uz: "Urg'u",
     tg: "Заминаи асосӣ",
   },
-  'settings.colors.primary_text': {
+  "settings.colors.primary_text": {
     ru: "Текст на акценте",
     en: "Accent Text",
     de: "Akzenttext",
@@ -4616,7 +4734,7 @@ const DICT: Dict = {
     uz: "Urg'udagi matn",
     tg: "Матни асосӣ",
   },
-  'settings.colors.muted': {
+  "settings.colors.muted": {
     ru: "Второстепенные",
     en: "Secondary",
     de: "Sekundär",
@@ -4627,7 +4745,7 @@ const DICT: Dict = {
     uz: "Ikkilamchi",
     tg: "Иловагӣ",
   },
-  'settings.colors.border': {
+  "settings.colors.border": {
     ru: "Границы",
     en: "Borders",
     de: "Rahmen",
@@ -4638,7 +4756,7 @@ const DICT: Dict = {
     uz: "Chegaralar",
     tg: "Сарҳадҳо",
   },
-  'settings.colors.reset': {
+  "settings.colors.reset": {
     ru: "Сброс",
     en: "Reset",
     de: "Zurücksetzen",
@@ -4818,47 +4936,49 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const t = (key: string, vars?: Record<string, string | number>) => {
     const entry = DICT[key];
-    
+
     // Determine target translation
     const val = entry ? (entry[lang] ?? entry.ru ?? key) : key;
-    
+
     // If we have an exact translation for the selected language, or language is Russian, return it
     if (lang === "ru" || (entry && entry[lang])) {
       return format(val, vars);
     }
-    
+
     // Otherwise, we are falling back to Russian. Let's try to translate it dynamically.
     // The Russian fallback text is `val`
     let apiLang = lang.toLowerCase();
     if (apiLang === "gb") apiLang = "en";
     if (apiLang === "ua") apiLang = "uk";
-    
+
     const w = window as any;
     w.__dmag_ui_cache = w.__dmag_ui_cache || {};
     w.__dmag_ui_pending = w.__dmag_ui_pending || new Set();
-    
+
     if (w.__dmag_ui_cache[val]?.[apiLang]) {
       return format(w.__dmag_ui_cache[val][apiLang], vars);
     }
-    
+
     const cacheKey = `${val}_${apiLang}`;
     if (!w.__dmag_ui_pending.has(cacheKey)) {
       w.__dmag_ui_pending.add(cacheKey);
-      
-      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(val)}&langpair=ru|${apiLang}`)
-        .then(r => r.json())
-        .then(data => {
+
+      fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(val)}&langpair=ru|${apiLang}`,
+      )
+        .then((r) => r.json())
+        .then((data) => {
           const translated = data.responseData?.translatedText;
           if (translated && translated.trim() !== "" && !translated.includes("MYMEMORY WARNING")) {
             if (!w.__dmag_ui_cache[val]) w.__dmag_ui_cache[val] = {};
             w.__dmag_ui_cache[val][apiLang] = translated;
-            setTick(t => t + 1); // trigger re-render
+            setTick((t) => t + 1); // trigger re-render
           }
         })
-        .catch(e => console.error("Translation error", e))
+        .catch((e) => console.error("Translation error", e))
         .finally(() => w.__dmag_ui_pending.delete(cacheKey));
     }
-    
+
     // Return fallback while waiting
     return format(val, vars);
   };
@@ -4880,43 +5000,125 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const CYRILLIC_TO_LATIN: Record<string, string> = {
-    'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'E', 'Ж': 'Zh', 'З': 'Z',
-    'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R',
-    'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch',
-    'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya',
-    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z',
-    'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-    'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
-    'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
-    'Є': 'Ye', 'І': 'I', 'Ї': 'Yi', 'Ґ': 'G',
-    'є': 'ye', 'і': 'i', 'ї': 'yi', 'ґ': 'g',
+    А: "A",
+    Б: "B",
+    В: "V",
+    Г: "G",
+    Д: "D",
+    Е: "E",
+    Ё: "E",
+    Ж: "Zh",
+    З: "Z",
+    И: "I",
+    Й: "Y",
+    К: "K",
+    Л: "L",
+    М: "M",
+    Н: "N",
+    О: "O",
+    П: "P",
+    Р: "R",
+    С: "S",
+    Т: "T",
+    У: "U",
+    Ф: "F",
+    Х: "Kh",
+    Ц: "Ts",
+    Ч: "Ch",
+    Ш: "Sh",
+    Щ: "Shch",
+    Ъ: "",
+    Ы: "Y",
+    Ь: "",
+    Э: "E",
+    Ю: "Yu",
+    Я: "Ya",
+    а: "a",
+    б: "b",
+    в: "v",
+    г: "g",
+    д: "d",
+    е: "e",
+    ё: "e",
+    ж: "zh",
+    з: "z",
+    и: "i",
+    й: "y",
+    к: "k",
+    л: "l",
+    м: "m",
+    н: "n",
+    о: "o",
+    п: "p",
+    р: "r",
+    с: "s",
+    т: "t",
+    у: "u",
+    ф: "f",
+    х: "kh",
+    ц: "ts",
+    ч: "ch",
+    ш: "sh",
+    щ: "shch",
+    ъ: "",
+    ы: "y",
+    ь: "",
+    э: "e",
+    ю: "yu",
+    я: "ya",
+    Є: "Ye",
+    І: "I",
+    Ї: "Yi",
+    Ґ: "G",
+    є: "ye",
+    і: "i",
+    ї: "yi",
+    ґ: "g",
   };
 
   const UK_TO_RU: Record<string, string> = {
-    'Є': 'Е', 'І': 'И', 'Ї': 'И', 'Ґ': 'Г',
-    'є': 'е', 'і': 'и', 'ї': 'и', 'ґ': 'г',
+    Є: "Е",
+    І: "И",
+    Ї: "И",
+    Ґ: "Г",
+    є: "е",
+    і: "и",
+    ї: "и",
+    ґ: "г",
   };
 
   const RU_TO_UK: Record<string, string> = {
-    'Ы': 'И', 'Э': 'Е', 'Ъ': '', 'Ё': 'Е',
-    'ы': 'и', 'э': 'е', 'ъ': '', 'ё': 'е',
+    Ы: "И",
+    Э: "Е",
+    Ъ: "",
+    Ё: "Е",
+    ы: "и",
+    э: "е",
+    ъ: "",
+    ё: "е",
   };
 
   const transliterate = (text: string, map: Record<string, string>) => {
-    return text.split('').map(char => map[char] !== undefined ? map[char] : char).join('');
+    return text
+      .split("")
+      .map((char) => (map[char] !== undefined ? map[char] : char))
+      .join("");
   };
 
   // tName formats data (TitleCase) and applies transliteration
   const tName = (name: string) => {
     if (!name || name.trim() === "") return name;
-    
+
     let processedName = name;
-    
+
     // Auto TitleCase if the name is ALL CAPS
     if (processedName === processedName.toUpperCase() && processedName.match(/[A-ZА-ЯЁІЇЄ]/)) {
-      processedName = processedName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+      processedName = processedName
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
     }
-    
+
     // Manual specific overrides based on language
     if (lang === "uk") {
       processedName = transliterate(processedName, RU_TO_UK);
@@ -4926,7 +5128,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // Latin script languages (en, de, ro, pl, uz, etc.)
       processedName = transliterate(processedName, CYRILLIC_TO_LATIN);
     }
-    
+
     return processedName;
   };
 

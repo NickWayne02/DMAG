@@ -126,7 +126,7 @@ export function PhotoReportDialog({
         }
       } catch (e: any) {
         console.error("Camera error:", e);
-        toast.error(`Ошибка камеры: ${e?.message || 'Нет доступа'}`);
+        toast.error(`Ошибка камеры: ${e?.message || "Нет доступа"}`);
       }
       return; // Never fall back to web input if native!
     }

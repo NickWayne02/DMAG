@@ -34,7 +34,10 @@ export const Route = createFileRoute("/api/users/delete")({
             },
           });
 
-          const { data: { user }, error: userError } = await userClient.auth.getUser();
+          const {
+            data: { user },
+            error: userError,
+          } = await userClient.auth.getUser();
           if (userError || !user) {
             return new Response(JSON.stringify({ error: "Invalid token" }), {
               status: 401,

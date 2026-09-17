@@ -561,8 +561,15 @@ class _ChatScreenState extends State<ChatScreen> {
             ..._dmChannelIds.map((cid) {
               final profile = dmChannelsMap[cid];
               final name = profile?['full_name'] ?? context.watch<LocaleProvider>().t('chat.dm') ?? 'Личный чат';
+              final avatarUrl = profile?['avatar_url'];
+              
               return _buildDrawerItem(
-                icon: LucideIcons.user,
+                leadingWidget: CircleAvatar(
+                  radius: 12,
+                  backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.1),
+                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                  child: avatarUrl == null ? Text(name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'U', style: TextStyle(fontSize: 10, color: Theme.of(context).appColors.foreground)) : null,
+                ),
                 title: name,
                 isActive: _activeChannelId == cid,
                 onDelete: () => _deleteDmChat(cid),
@@ -603,9 +610,33 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           },
         ),
-        title: Text(
-          _activeChannelTitle,
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
+        title: Row(
+          children: [
+            if (_activeChannelType == 'direct') ...[
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.1),
+                backgroundImage: dmChannelsMap[_activeChannelId]?['avatar_url'] != null 
+                    ? NetworkImage(dmChannelsMap[_activeChannelId]!['avatar_url']) 
+                    : null,
+                child: dmChannelsMap[_activeChannelId]?['avatar_url'] == null 
+                    ? Text(
+                        _activeChannelTitle.isNotEmpty ? _activeChannelTitle.substring(0, 1).toUpperCase() : 'U', 
+                        style: TextStyle(fontSize: 14, color: Theme.of(context).appColors.foreground)
+                      ) 
+                    : null,
+              ),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Text(
+                _activeChannelTitle,
+                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
         actions: [
           PopupMenuButton<String>(
@@ -662,7 +693,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildDrawerItem({required IconData icon, required String title, required bool isActive, VoidCallback? onDelete, required VoidCallback onTap}) {
+  Widget _buildDrawerItem({IconData? icon, Widget? leadingWidget, required String title, required bool isActive, VoidCallback? onDelete, required VoidCallback onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
@@ -670,7 +701,7 @@ class _ChatScreenState extends State<ChatScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 18),
+        leading: leadingWidget ?? (icon != null ? Icon(icon, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 18) : null),
         title: Text(
           title,
           style: GoogleFonts.inter(
@@ -1138,7 +1169,18 @@ class _ChatContentState extends State<ChatContent> {
             ),
           ),
           
-          if (isMe) const SizedBox(width: 8), // Gap for the right side
+          if (isMe) ...[
+            const SizedBox(width: 8),
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.12),
+              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+              child: avatarUrl == null ? Text(
+                authorName.isNotEmpty ? authorName[0].toUpperCase() : 'U',
+                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).appColors.foreground),
+              ) : null,
+            ),
+          ],
         ],
       ),
     );

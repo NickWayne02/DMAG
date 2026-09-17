@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -13,8 +15,21 @@ import 'providers/settings_provider.dart';
 import 'providers/admin_state_provider.dart';
 import 'providers/translation_provider.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  debugPrint("Handling a background message: ${message.messageId}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  } catch (e) {
+    debugPrint('Firebase init failed: $e');
+  }
   
   await Supabase.initialize(
     url: 'https://mqhdajaefuyifuqeudyh.supabase.co',
@@ -79,6 +94,54 @@ class _AuthWrapperState extends State<AuthWrapper> {
   void initState() {
     super.initState();
     _checkAuth();
+    _setupPushNotifications();
+  }
+  
+  void _setupPushNotifications() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint('Got a message whilst in the foreground!');
+      debugPrint('Message data: ${message.data}');
+      if (message.notification != null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(message.notification?.title ?? 'Уведомление', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(message.notification?.body ?? ''),
+              ],
+            ),
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(top: 50, left: 16, right: 16),
+            dismissDirection: DismissDirection.up,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          )
+        );
+      }
+    });
+  }
+  
+  Future<void> _registerFcmToken() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true, badge: true, sound: true,
+      );
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        final token = await messaging.getToken();
+        if (token != null) {
+          final session = Supabase.instance.client.auth.currentSession;
+          if (session != null) {
+            await Supabase.instance.client.from('profiles').update({'fcm_token': token}).eq('id', session.user.id);
+          }
+        }
+      }
+    } catch(e) {
+      debugPrint('FCM Token error: $e');
+    }
   }
 
   void _checkAuth() {
@@ -87,12 +150,17 @@ class _AuthWrapperState extends State<AuthWrapper> {
       _isAuthenticated = session != null;
       _isLoading = false;
     });
+    
+    if (session != null) {
+      _registerFcmToken();
+    }
 
     // Listen for auth changes
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final AuthChangeEvent event = data.event;
       if (event == AuthChangeEvent.signedIn) {
         if (mounted) setState(() => _isAuthenticated = true);
+        _registerFcmToken();
       } else if (event == AuthChangeEvent.signedOut) {
         if (mounted) {
           context.read<ShiftProvider>().resetShift();

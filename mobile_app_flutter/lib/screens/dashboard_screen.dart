@@ -480,7 +480,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
+          colors: provider.customColors['primary'] != null ? [
+            provider.activePrimaryColor.withValues(alpha: 0.7),
+            provider.activePrimaryColor,
+            provider.activePrimaryColor.withValues(alpha: 0.7),
+          ] : [
             provider.activeAccent.violet,
             provider.activeAccent.primary,
             provider.activeAccent.cyan,
@@ -489,7 +493,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: provider.activeAccent.violet.withValues(alpha: 0.55),
+            color: (provider.customColors['primary'] != null ? provider.activePrimaryColor : provider.activeAccent.violet).withValues(alpha: 0.55),
             blurRadius: 30,
             spreadRadius: -10,
             offset: const Offset(0, 20),

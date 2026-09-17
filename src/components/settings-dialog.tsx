@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Settings as SettingsIcon,
   RotateCcw,
@@ -58,6 +58,7 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
   const { t, tName } = useLanguage();
   const { settings, setSettings, setPanelColor, reset, activeAccent, resolvedPanels } =
     useSettings();
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const [open, setOpen] = useState(false);
   const getValidHex = (hex: string) => (hex === "AccentColor" ? "#0D47A1" : hex);
   const [customHex, setCustomHex] = useState<string>(
@@ -273,21 +274,19 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                     {t("settings.accent")}
                   </Label>
                   <div className="flex items-center gap-2">
-                    {settings.customAccent && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 rounded-full"
-                        onClick={() => {
-                          setSettings({ customAccent: null });
-                          setCustomHex(activeAccent.primary);
-                        }}
-                        title={t("settings.clearCustom")}
-                      >
-                        <RotateCcw className="h-3 w-3" />
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className={`h-7 w-7 rounded-full transition-opacity ${settings.customAccent ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                      onClick={() => {
+                        setSettings({ customAccent: null });
+                        setCustomHex(activeAccent.primary);
+                      }}
+                      title={t("settings.clearCustom")}
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                    </Button>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -303,7 +302,10 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
                           color={customHex}
                           onChange={(c) => {
                             setCustomHex(c);
-                            setSettings({ customAccent: c });
+                            if (debounceRef.current) clearTimeout(debounceRef.current);
+                            debounceRef.current = setTimeout(() => {
+                              setSettings({ customAccent: c });
+                            }, 50);
                           }}
                         />
                       </PopoverContent>

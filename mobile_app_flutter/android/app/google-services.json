@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "48873415968",
+    "project_id": "dmag-cfbd4",
+    "storage_bucket": "dmag-cfbd4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48873415968:android:9e23a0323d44ed1d962345",
+        "android_client_info": {
+          "package_name": "com.factory.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0XrPyZCR5kG3fN8gErQgwvR5iek2sUsQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -33,7 +33,6 @@ dist-ssr
 .vercel
 
 # Secrets and Temp
-mobile_app_flutter/android/app/google-services.json
 supabase/.env
 supabase/.temp/
 scratch/

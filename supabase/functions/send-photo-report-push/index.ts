@@ -14,7 +14,7 @@ if (serviceAccountStr && !admin.apps.length) {
   }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   try {
     const payload = await req.json();
     const { type, record } = payload;

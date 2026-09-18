@@ -96,6 +96,8 @@ export function SettingsDialog({ variant = "icon", className }: Props) {
         .eq("id", user.id);
       if (dbError) throw dbError;
 
+      await supabase.auth.refreshSession();
+
       toast.success(t("settings.nameUpdated") || "Имя обновлено");
       setEditingName(false);
     } catch (e) {

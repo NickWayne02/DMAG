@@ -1451,8 +1451,15 @@ const DICT: Dict = {
     bg: "Возврат с перерыва",
     pl: "Кoniec przerwy",
     uk: "Кінець перерви",
-    uz: "Возврат с перерыва",
-    tg: "Возврат с перерыва",
+    uz: "Tanaffusdan qaytish",
+    tg: "Бозгашт аз танаффус",
+  },
+  "admin.activity.newPhotoReport": {
+    ru: "Новый фотоотчёт",
+    en: "New photo report",
+    de: "Neuer Fotobericht",
+    uz: "Yangi foto hisobot",
+    tg: "Ҳисоботи аксҳои нав",
   },
   "admin.calendar.desc": {
     ru: "Просмотр и редактирование смен сотрудников",
@@ -3387,6 +3394,7 @@ const DICT: Dict = {
   "chat.media.cancel": {
     ru: "Отмена",
     en: "Cancel",
+    de: "Abbrechen",
     ro: "Отмена",
     bg: "Отмена",
     uz: "Отмена",
@@ -3396,6 +3404,7 @@ const DICT: Dict = {
   "chat.media.delete": {
     ru: "Удалить",
     en: "Delete",
+    de: "Löschen",
     ro: "Удалить",
     bg: "Удалить",
     uz: "Удалить",
@@ -3585,6 +3594,20 @@ const DICT: Dict = {
     uk: "Видалити всю переписку?",
     uz: "Butun yozishmalarni o'chirilsinmi?",
     tg: "Тамоми сӯҳбатро нест кунем?",
+  },
+  "settings.nameUpdated": {
+    ru: "Имя обновлено",
+    en: "Name updated",
+    de: "Name aktualisiert",
+    uz: "Ism yangilandi",
+    tg: "Ном навсозӣ шуд",
+  },
+  "settings.nameUpdateFailed": {
+    ru: "Ошибка обновления имени",
+    en: "Failed to update name",
+    de: "Fehler beim Aktualisieren des Namens",
+    uz: "Ismni yangilab bo'lmadi",
+    tg: "Хатогӣ ҳангоми навсозии ном",
   },
   "chat.clearAllConfirmText": {
     ru: "Все сообщения в этом канале будут удалены без возможности восстановления.",

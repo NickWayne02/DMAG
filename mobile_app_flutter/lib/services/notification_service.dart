@@ -66,7 +66,7 @@ class NotificationService {
     );
 
     await _notificationsPlugin.initialize(
-      initializationSettings,
+      initializationSettings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
         // App is in foreground or opened from background
         debugPrint('Notification tapped! Action: ${notificationResponse.actionId}');
@@ -143,10 +143,10 @@ class NotificationService {
     );
 
     await _notificationsPlugin.show(
-      id,
-      senderName,
-      message,
-      platformDetails,
+      id: id,
+      title: senderName,
+      body: message,
+      notificationDetails: platformDetails,
       payload: payload ?? 'chat_payload',
     );
   }

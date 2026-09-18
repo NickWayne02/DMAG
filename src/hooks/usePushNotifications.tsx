@@ -3,7 +3,7 @@ import { requestFirebaseToken, onMessageListener } from "../lib/firebase";
 import { supabase } from '../integrations/supabase/client';
 import { toast } from "sonner";
 import { PushToast } from "../components/push-toast";
-import { useLanguage } from "../providers/translation_provider";
+import { useLanguage } from "../lib/i18n";
 
 export const usePushNotifications = () => {
   const { tName, t } = useLanguage();

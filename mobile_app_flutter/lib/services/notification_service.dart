@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../main.dart' as importMain;
+import '../screens/chat_screen.dart' as importChat;
 
 @pragma('vm:entry-point')
 Future<void> notificationTapBackground(NotificationResponse notificationResponse) async {
@@ -68,10 +70,30 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
-        // App is in foreground or opened from background
         debugPrint('Notification tapped! Action: ${notificationResponse.actionId}');
-        // We can navigate to ChatScreen from here via global navigator
-        // Handled in main.dart or here
+        
+        final payload = notificationResponse.payload;
+        if (payload != null && notificationResponse.actionId != 'reply' && notificationResponse.actionId != 'mark_read') {
+          final parts = payload.split('|');
+          if (parts.length >= 2) {
+            final channelId = parts[0];
+            final channelType = parts[1];
+            // Post event to navigate
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              importMain.navigatorKey.currentState?.push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => importChat.ChatScreen(
+                    initialChannelId: channelId,
+                    initialChannelType: channelType,
+                  ),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+                )
+              );
+            });
+          }
+        }
       },
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
@@ -100,26 +122,13 @@ class NotificationService {
       }
     }
 
-    final Person person = Person(
-      name: senderName,
-      icon: localAvatarPath != null ? BitmapFilePathAndroidIcon(localAvatarPath) : null,
-    );
-
-    final MessagingStyleInformation messagingStyle = MessagingStyleInformation(
-      person,
-      messages: [
-        Message(message, DateTime.now(), person),
-      ],
-      groupConversation: false,
-    );
-
     final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'chat_channel',
       'Chat Messages',
       channelDescription: 'Notifications for new chat messages',
       importance: Importance.max,
       priority: Priority.high,
-      styleInformation: messagingStyle,
+      largeIcon: localAvatarPath != null ? FilePathAndroidBitmap(localAvatarPath) : null,
       actions: <AndroidNotificationAction>[
         const AndroidNotificationAction(
           'reply',

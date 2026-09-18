@@ -5,8 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../main.dart' as importMain;
-import '../screens/chat_screen.dart' as importChat;
+import '../main.dart' as import_main;
+import '../screens/chat_screen.dart' as import_chat;
 
 @pragma('vm:entry-point')
 Future<void> notificationTapBackground(NotificationResponse notificationResponse) async {
@@ -80,9 +80,9 @@ class NotificationService {
             final channelType = parts[1];
             // Post event to navigate
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              importMain.navigatorKey.currentState?.push(
+              import_main.navigatorKey.currentState?.push(
                 PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) => importChat.ChatScreen(
+                  pageBuilder: (context, animation, secondaryAnimation) => import_chat.ChatScreen(
                     initialChannelId: channelId,
                     initialChannelType: channelType,
                   ),

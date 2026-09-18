@@ -3399,7 +3399,6 @@ const DICT: Dict = {
     bg: "Отмена",
     uz: "Отмена",
     tg: "Отмена",
-    de: "Abbrechen",
   },
   "chat.media.delete": {
     ru: "Удалить",
@@ -3409,7 +3408,6 @@ const DICT: Dict = {
     bg: "Удалить",
     uz: "Удалить",
     tg: "Удалить",
-    de: "Löschen",
   },
   "chat.media.deleteConfirm": {
     ru: "Удалить {{count}} фото? Это удалит и соответствующие сообщения из чата.",

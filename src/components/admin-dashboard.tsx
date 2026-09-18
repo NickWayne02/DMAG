@@ -3583,8 +3583,6 @@ export function AdminDashboard({
                 </SelectContent>
               </Select>
             </div>
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button

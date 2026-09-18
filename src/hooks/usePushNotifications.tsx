@@ -3,8 +3,10 @@ import { requestFirebaseToken, onMessageListener } from "../lib/firebase";
 import { supabase } from '../integrations/supabase/client';
 import { toast } from "sonner";
 import { PushToast } from "../components/push-toast";
+import { useLanguage } from "../providers/translation_provider";
 
 export const usePushNotifications = () => {
+  const { tName, t } = useLanguage();
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const currentUserIdRef = useRef<string | null>(null);
 
@@ -40,7 +42,7 @@ export const usePushNotifications = () => {
 
       // If data-only message (like our chat push)
       if (!title && data) {
-        title = data.title || data.sender_name || 'Новое сообщение';
+        title = data.title || data.sender_name || (t("chat.newMessage") || 'Новое сообщение');
         body = data.body || '';
       }
 
@@ -62,14 +64,14 @@ export const usePushNotifications = () => {
       }
 
       if (title) {
-        toast.custom((t) => (
+        toast.custom((t_toast) => (
           <PushToast
-            title={title}
+            title={tName(title)}
             body={body}
             avatarUrl={avatarUrl}
             photoUrl={data?.photo_url}
             onClick={() => {
-              toast.dismiss(t as string | number);
+              toast.dismiss(t_toast as string | number);
               
               if (data?.channel_type && data?.channel_id) {
                 window.sessionStorage.setItem("dmag_jump_to_chat", JSON.stringify({

@@ -224,6 +224,12 @@ export function EmployeeProvider({
     if (typeof window !== "undefined") window.sessionStorage.setItem("dmag_chat_open", String(val));
   };
 
+  useEffect(() => {
+    const handleOpenChat = () => setChatOpenRaw(true);
+    window.addEventListener("dmag_open_chat", handleOpenChat);
+    return () => window.removeEventListener("dmag_open_chat", handleOpenChat);
+  }, []);
+
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);
 

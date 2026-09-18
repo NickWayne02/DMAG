@@ -101,6 +101,24 @@ export function FullChatApp({
         console.error(e);
       }
     }
+    
+    // Check jump to chat immediately on mount
+    const checkJumpToChat = () => {
+      const jump = sessionStorage.getItem("dmag_jump_to_chat");
+      if (jump) {
+        try {
+          const data = JSON.parse(jump);
+          setActiveChannelType(data.type);
+          setActiveChannelId(data.id);
+          sessionStorage.removeItem("dmag_jump_to_chat");
+        } catch (e) {}
+      }
+    };
+    checkJumpToChat();
+    
+    // Also listen in case it happens while already mounted
+    window.addEventListener("storage", checkJumpToChat);
+    return () => window.removeEventListener("storage", checkJumpToChat);
   }, []);
 
   function toggleMute() {

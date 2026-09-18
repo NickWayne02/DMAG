@@ -196,6 +196,22 @@ function useSessionState<T>(
     }
   }, [key, state]);
 
+  useEffect(() => {
+    const handleStorage = () => {
+      try {
+        const stored = window.sessionStorage.getItem(key);
+        if (stored !== null) {
+          const parsed = JSON.parse(stored);
+          if (JSON.stringify(parsed) !== JSON.stringify(state)) {
+            setState(parsed);
+          }
+        }
+      } catch (e) {}
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [key, state]);
+
   return [state, setState];
 }
 

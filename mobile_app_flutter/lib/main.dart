@@ -14,15 +14,40 @@ import 'providers/locale_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/admin_state_provider.dart';
 import 'providers/translation_provider.dart';
+import 'screens/chat_screen.dart';
+import 'utils/fade_page_route.dart';
+import 'services/notification_service.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint("Handling a background message: ${message.messageId}");
+  
+  if (message.data.isNotEmpty && message.notification == null) {
+    // Handling data-only message in background
+    final title = message.data['title'] ?? 'Новое сообщение';
+    final body = message.data['body'] ?? '';
+    final senderName = message.data['sender_name'] ?? 'АЛЛО'; // fallback
+    final senderAvatar = message.data['sender_avatar'];
+    
+    final payload = '${message.data['channel_id']}|${message.data['channel_type']}';
+    
+    await NotificationService.showChatNotification(
+      id: message.hashCode, 
+      senderName: senderName, 
+      message: body,
+      payload: payload,
+      avatarUrl: senderAvatar,
+    );
+  }
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await NotificationService.initialize();
   
   try {
     await Firebase.initializeApp();
@@ -63,6 +88,7 @@ class DMAGApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'DMAG Mobile',
       theme: AppTheme.getTheme(themeProvider),
       home: const AuthWrapper(),
@@ -120,8 +146,49 @@ class _AuthWrapperState extends State<AuthWrapper> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           )
         );
+      } else if (message.data.isNotEmpty) {
+        // Foreground data message handling
+        final body = message.data['body'] ?? '';
+        final senderName = message.data['sender_name'] ?? 'Уведомление';
+        final senderAvatar = message.data['sender_avatar'];
+        
+        final payload = '${message.data['channel_id']}|${message.data['channel_type']}';
+        
+        NotificationService.showChatNotification(
+          id: message.hashCode,
+          senderName: senderName,
+          message: body,
+          payload: payload,
+          avatarUrl: senderAvatar,
+        );
       }
     });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      debugPrint('A new onMessageOpenedApp event was published!');
+      _handleNotificationTap(message);
+    });
+
+    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+      if (message != null) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _handleNotificationTap(message);
+        });
+      }
+    });
+  }
+
+  void _handleNotificationTap(RemoteMessage message) {
+    if (navigatorKey.currentState != null) {
+      final channelId = message.data['channel_id'];
+      final channelType = message.data['channel_type'];
+      navigatorKey.currentState!.push(FadePageRoute(
+        page: ChatScreen(
+          initialChannelId: channelId,
+          initialChannelType: channelType,
+        )
+      ));
+    }
   }
   
   Future<void> _registerFcmToken() async {

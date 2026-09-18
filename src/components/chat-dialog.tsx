@@ -48,6 +48,26 @@ export function ChatDialog({ open, onOpenChange, site }: ChatDialogProps) {
   const [tab, setTab] = useState<ChannelType>("general");
   const t = useT();
 
+  useEffect(() => {
+    if (!open) return;
+    const checkJumpToChat = () => {
+      const jump = sessionStorage.getItem("dmag_jump_to_chat");
+      if (jump) {
+        try {
+          const data = JSON.parse(jump);
+          // Only change tab if we support that type here
+          if (data.type === "general" || data.type === "direct" || data.type === "site") {
+            setTab(data.type);
+          }
+          sessionStorage.removeItem("dmag_jump_to_chat");
+        } catch (e) {}
+      }
+    };
+    checkJumpToChat();
+    window.addEventListener("dmag_open_chat", checkJumpToChat);
+    return () => window.removeEventListener("dmag_open_chat", checkJumpToChat);
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-2xl max-w-md p-0 gap-0 overflow-hidden h-[85vh] flex flex-col">
@@ -408,7 +428,7 @@ function MessageBubble({
               : "bg-muted text-foreground rounded-bl-sm"
           }`}
         >
-          <p className="whitespace-pre-wrap break-words">{m.content}</p>
+          <p className="whitespace-pre-wrap wrap-break-word">{m.content}</p>
           {needsTranslate && (
             <div
               className={`mt-1.5 pt-1.5 border-t ${
@@ -428,7 +448,7 @@ function MessageBubble({
                   <Loader2 className="h-3 w-3 animate-spin" />…
                 </span>
               ) : (
-                <p className="whitespace-pre-wrap break-words text-xs opacity-90">
+                <p className="whitespace-pre-wrap wrap-break-word text-xs opacity-90">
                   {translated ?? ""}
                 </p>
               )}

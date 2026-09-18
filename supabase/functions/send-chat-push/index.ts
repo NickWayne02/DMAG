@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import admin from "npm:firebase-admin@11.11.0";
@@ -60,6 +61,15 @@ serve(async (req) => {
       return new Response(JSON.stringify({ message: "No targets" }), { status: 200 });
     }
 
+    // Fetch author avatar
+    const { data: authorData } = await supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", authorId)
+      .single();
+    
+    const avatarUrl = authorData?.avatar_url || "";
+
     if (!admin.apps.length) {
       return new Response(JSON.stringify({ error: "Firebase not configured" }), { status: 500 });
     }
@@ -76,21 +86,17 @@ serve(async (req) => {
 
     const response = await admin.messaging().sendEachForMulticast({
       tokens: targetTokens,
-      notification: {
-        title: title,
-        body: record.content,
-      },
       data: {
         channel_id: record.channel_id,
         channel_type: record.channel_type,
         click_action: "FLUTTER_NOTIFICATION_CLICK",
+        title: title,
+        body: record.content,
+        sender_name: record.author_name || "Уведомление",
+        sender_avatar: avatarUrl,
       },
       android: {
         priority: "high",
-        notification: {
-          channelId: "chat_messages",
-          sound: "default",
-        },
       },
       apns: {
         payload: {

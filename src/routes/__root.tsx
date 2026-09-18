@@ -132,6 +132,12 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 import { useAppSettings } from "@/hooks/use-app-settings";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+
+function PushNotificationManager() {
+  usePushNotifications();
+  return null;
+}
 
 function AppBranding() {
   const { data: settings } = useAppSettings();
@@ -171,11 +177,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppBranding />
+      <PushNotificationManager />
       <LanguageProvider>
         <SettingsProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
-          <Toaster position="top-center" richColors />
+          <Toaster position="bottom-right" richColors />
         </SettingsProvider>
       </LanguageProvider>
     </QueryClientProvider>

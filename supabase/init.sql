@@ -8,6 +8,7 @@ CREATE TABLE public.profiles (
   full_name TEXT,
   phone TEXT,
   email TEXT,
+  fcm_token TEXT,
   language TEXT NOT NULL DEFAULT 'ru',
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

@@ -170,13 +170,15 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
              .eq('photo_url', _existingPhotoUrl!);
         }
       } else {
-        await Supabase.instance.client.from('photo_reports').insert({
-          'site_id': widget.site?['id'],
-          'author_id': user.id,
-          'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
-          'criticality': _criticality,
-          'photo_url': photoUrl,
-        });
+        if (widget.site != null) {
+          await Supabase.instance.client.from('photo_reports').insert({
+            'site_id': widget.site?['id'],
+            'author_id': user.id,
+            'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+            'criticality': _criticality,
+            'photo_url': photoUrl,
+          });
+        }
 
         final desc = _descController.text.trim().isEmpty ? '' : _descController.text.trim();
         await Supabase.instance.client.from('chat_messages').insert({

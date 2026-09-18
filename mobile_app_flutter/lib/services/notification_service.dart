@@ -105,6 +105,7 @@ class NotificationService {
     required String message,
     String? payload,
     String? avatarUrl,
+    String? photoUrl,
   }) async {
     String? localAvatarPath;
     if (avatarUrl != null && avatarUrl.isNotEmpty) {
@@ -122,13 +123,40 @@ class NotificationService {
       }
     }
 
+    String? localPhotoPath;
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      try {
+        final response = await http.get(Uri.parse(photoUrl));
+        if (response.statusCode == 200) {
+          final directory = await getTemporaryDirectory();
+          final filePath = '${directory.path}/photo_$id.png';
+          final file = File(filePath);
+          await file.writeAsBytes(response.bodyBytes);
+          localPhotoPath = filePath;
+        }
+      } catch (e) {
+        debugPrint('Failed to download photo report: $e');
+      }
+    }
+
+    StyleInformation? styleInformation;
+    if (localPhotoPath != null) {
+      styleInformation = BigPictureStyleInformation(
+        FilePathAndroidBitmap(localPhotoPath),
+        largeIcon: localAvatarPath != null ? FilePathAndroidBitmap(localAvatarPath) : null,
+        contentTitle: senderName,
+        summaryText: message,
+      );
+    }
+
     final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'chat_channel',
       'Chat Messages',
       channelDescription: 'Notifications for new chat messages',
       importance: Importance.max,
       priority: Priority.high,
-      largeIcon: localAvatarPath != null ? FilePathAndroidBitmap(localAvatarPath) : null,
+      styleInformation: styleInformation,
+      largeIcon: styleInformation == null && localAvatarPath != null ? FilePathAndroidBitmap(localAvatarPath) : null,
       actions: <AndroidNotificationAction>[
         const AndroidNotificationAction(
           'reply',

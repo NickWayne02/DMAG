@@ -84,6 +84,20 @@ serve(async (req) => {
       title = `Чат объекта: ${title}`;
     }
 
+    let body = record.content;
+    let photoUrl = "";
+
+    if (body.includes("[ФОТО_ОТЧЕТ]") || body.includes("[PHOTO_REPORT]")) {
+      const token = body.includes("[ФОТО_ОТЧЕТ]") ? "[ФОТО_ОТЧЕТ]" : "[PHOTO_REPORT]";
+      const splitText = body.substring(body.indexOf(token) + token.length).trim();
+      const parts = splitText.split(" | ");
+      if (parts.length > 0 && parts[0]) {
+        photoUrl = `${supabaseUrl}/storage/v1/object/public/photo-reports/${parts[0]}`;
+      }
+      // Clean up body for the push notification
+      body = "📷 Фотоотчет";
+    }
+
     const response = await admin.messaging().sendEachForMulticast({
       tokens: targetTokens,
       data: {
@@ -91,7 +105,8 @@ serve(async (req) => {
         channel_type: record.channel_type,
         click_action: "FLUTTER_NOTIFICATION_CLICK",
         title: title,
-        body: record.content,
+        body: body,
+        photo_url: photoUrl,
         sender_name: record.author_name || "Уведомление",
         sender_avatar: avatarUrl,
         sender_id: record.author_id,

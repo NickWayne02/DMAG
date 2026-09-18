@@ -31,6 +31,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     final body = message.data['body'] ?? '';
     final senderName = message.data['sender_name'] ?? 'АЛЛО'; // fallback
     final senderAvatar = message.data['sender_avatar'];
+    final photoUrl = message.data['photo_url'];
     
     final payload = '${message.data['channel_id']}|${message.data['channel_type']}';
     
@@ -40,6 +41,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       message: body,
       payload: payload,
       avatarUrl: senderAvatar,
+      photoUrl: photoUrl,
     );
   }
 }
@@ -151,6 +153,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         final body = message.data['body'] ?? '';
         final senderName = message.data['sender_name'] ?? 'Уведомление';
         final senderAvatar = message.data['sender_avatar'];
+        final photoUrl = message.data['photo_url'];
         
         final payload = '${message.data['channel_id']}|${message.data['channel_type']}';
         
@@ -160,6 +163,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
           message: body,
           payload: payload,
           avatarUrl: senderAvatar,
+          photoUrl: photoUrl,
         );
       }
     });

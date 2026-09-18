@@ -1,31 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 class TranslationProvider extends ChangeNotifier {
-  // cache: original text -> { targetLang -> translatedText }
-  Map<String, Map<String, String>> _cache = {};
-
-  TranslationProvider() {
-    _loadCache();
-  }
-
-  Future<void> _loadCache() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cacheStr = prefs.getString('translation_cache');
-      if (cacheStr != null) {
-        final Map<String, dynamic> decoded = json.decode(cacheStr);
-        _cache = decoded.map((key, value) => 
-          MapEntry(key, Map<String, String>.from(value as Map))
-        );
-        notifyListeners();
-      }
-    } catch (e) {
-      debugPrint('Error loading translation cache: $e');
-    }
-  }
-
+  TranslationProvider();
 
 
   static const Map<String, String> _cyrillicToLatin = {

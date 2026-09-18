@@ -28,7 +28,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   
   if (message.data.isNotEmpty && message.notification == null) {
     // Handling data-only message in background
-    final title = message.data['title'] ?? 'Новое сообщение';
     final body = message.data['body'] ?? '';
     final senderName = message.data['sender_name'] ?? 'АЛЛО'; // fallback
     final senderAvatar = message.data['sender_avatar'];

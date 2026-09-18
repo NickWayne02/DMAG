@@ -65,7 +65,7 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
       final session = Supabase.instance.client.auth.currentSession;
       if (session == null) throw Exception("No active session");
 
-      final String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
+      const String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
       final response = await http.post(
         Uri.parse('$baseUrl/api/users/update'),
         headers: {

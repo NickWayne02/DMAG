@@ -1,5 +1,4 @@
 import '../providers/translation_provider.dart';
-import 'package:mobile_app_flutter/utils/transliteration.dart';
 import '../theme/app_theme.dart';
 import '../providers/locale_provider.dart';
 import '../providers/settings_provider.dart';

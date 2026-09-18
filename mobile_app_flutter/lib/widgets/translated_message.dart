@@ -13,7 +13,7 @@ class TranslatedMessageContent extends StatefulWidget {
   final String translatingText;
 
   const TranslatedMessageContent({
-    Key? key,
+    super.key,
     required this.id,
     required this.content,
     this.sourceLang,
@@ -21,7 +21,7 @@ class TranslatedMessageContent extends StatefulWidget {
     required this.isMine,
     required this.translatingText,
     this.isPhotoReport = false,
-  }) : super(key: key);
+  });
 
   @override
   State<TranslatedMessageContent> createState() => _TranslatedMessageContentState();

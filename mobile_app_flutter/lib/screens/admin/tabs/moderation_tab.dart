@@ -66,7 +66,7 @@ class _ModerationTabState extends State<ModerationTab> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
         title: Text('Удалить?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
-        content: Text('Удалить это сообщение навсегда?', style: TextStyle(color: Theme.of(context).appColors.foreground.withOpacity(0.7))),
+        content: Text('Удалить это сообщение навсегда?', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text('Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Удалить', style: TextStyle(color: Colors.red))),
@@ -247,7 +247,7 @@ class _ModerationTabState extends State<ModerationTab> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withOpacity(0.2)),
+              Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withValues(alpha: 0.2)),
               const SizedBox(height: 16),
               Text(t('admin.moderation.no_direct_chats') ?? 'Нет активных личных чатов', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.5))),
             ],
@@ -274,7 +274,7 @@ class _ModerationTabState extends State<ModerationTab> {
               decoration: BoxDecoration(
                 color: colors.card,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.foreground.withOpacity(0.05)),
+                border: Border.all(color: colors.foreground.withValues(alpha: 0.05)),
               ),
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -289,12 +289,12 @@ class _ModerationTabState extends State<ModerationTab> {
                           lastMsg['content']?.toString() ?? '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(color: colors.foreground.withOpacity(0.7), fontSize: 12),
+                          style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.7), fontSize: 12),
                         ),
                       ],
                     ),
                   ),
-                  Icon(LucideIcons.chevron_right, color: colors.foreground.withOpacity(0.3), size: 20),
+                  Icon(LucideIcons.chevron_right, color: colors.foreground.withValues(alpha: 0.3), size: 20),
                 ],
               ),
             ),
@@ -313,7 +313,7 @@ class _ModerationTabState extends State<ModerationTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withOpacity(0.2)),
+            Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
             Text(t('admin.moderation.no_messages') ?? 'Нет сообщений в этой категории', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.5))),
             if (_selectedChatId != null)
@@ -338,7 +338,7 @@ class _ModerationTabState extends State<ModerationTab> {
           decoration: BoxDecoration(
             color: colors.card,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colors.foreground.withOpacity(0.05)),
+            border: Border.all(color: colors.foreground.withValues(alpha: 0.05)),
           ),
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -357,11 +357,11 @@ class _ModerationTabState extends State<ModerationTab> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: colors.foreground.withOpacity(0.05),
+                                color: colors.foreground.withValues(alpha: 0.05),
                                 borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: colors.foreground.withOpacity(0.1)),
+                                border: Border.all(color: colors.foreground.withValues(alpha: 0.1)),
                               ),
-                              child: Text('${t('admin.moderation.chat') ?? 'Чат'}: ${_getChatName(msg['channel_id'].toString())}', overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withOpacity(0.7))),
+                              child: Text('${t('admin.moderation.chat') ?? 'Чат'}: ${_getChatName(msg['channel_id'].toString())}', overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withValues(alpha: 0.7))),
                             ),
                           ),
                         ]
@@ -441,7 +441,7 @@ class _ModerationTabState extends State<ModerationTab> {
           ),
           TabBar(
             labelColor: colors.primary,
-            unselectedLabelColor: colors.foreground.withOpacity(0.5),
+            unselectedLabelColor: colors.foreground.withValues(alpha: 0.5),
             indicatorColor: colors.primary,
             onTap: (index) {
               if (index == 1) {

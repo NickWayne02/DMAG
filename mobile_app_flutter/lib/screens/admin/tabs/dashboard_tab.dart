@@ -95,6 +95,7 @@ class _DashboardTabState extends State<DashboardTab> {
       
       var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, label');
       if (firmId != 'all') {
+         if (!mounted) return;
          final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
          if (firmId == firstFirmId) {
            profQuery = profQuery.or('label.eq.$firmId,label.is.null');

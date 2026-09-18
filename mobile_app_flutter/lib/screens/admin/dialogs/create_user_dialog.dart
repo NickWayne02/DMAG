@@ -61,7 +61,7 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
       final adminState = context.read<AdminStateProvider>();
       final String? label = adminState.selectedFirmId == 'all' ? null : adminState.selectedFirmId;
 
-      final String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
+      const String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
       final response = await http.post(
         Uri.parse('$baseUrl/api/users/create'),
         headers: {

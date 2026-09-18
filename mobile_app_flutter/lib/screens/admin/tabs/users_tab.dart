@@ -139,7 +139,7 @@ class _UsersTabState extends State<UsersTab> {
     setState(() => _isLoading = true);
 
     try {
-      final String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
+      const String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
       final response = await http.post(
         Uri.parse('$baseUrl/api/users/delete'),
         headers: {

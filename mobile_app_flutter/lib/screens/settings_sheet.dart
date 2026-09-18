@@ -116,17 +116,6 @@ class _SettingsSheetState extends State<SettingsSheet> {
     super.dispose();
   }
 
-  void _onHexChanged(String value, ThemeProvider provider) {
-    String hex = value.replaceAll('#', '');
-    if (hex.length == 6) {
-      try {
-        Color c = Color(int.parse('FF$hex', radix: 16));
-        provider.setCustomColor('primary', c);
-      } catch (e) {
-        // invalid hex
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

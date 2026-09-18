@@ -8,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/neon_widgets.dart';
-import '../../../utils/transliteration.dart';
 import '../../../services/shift_export_service.dart';
 import '../admin_calendar_dialog.dart';
 import '../admin_shift_edit_sheet.dart';

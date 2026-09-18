@@ -1,7 +1,6 @@
 import '../providers/translation_provider.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:mobile_app_flutter/utils/transliteration.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +14,6 @@ import '../services/storage_service.dart';
 // Keep for now to avoid breaking other files if any
 import 'chat_screen.dart';
 import 'site_selector_sheet.dart';
-import '../widgets/preset_selector_sheet.dart';
 import 'language_sheet.dart';
 import 'settings_sheet.dart';
 import '../utils/app_toast.dart';
@@ -65,22 +63,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) setState(() => _isShiftLoading = false);
   }
 
-  String _formatHM(int ms) {
-    final totalMin = (ms / 60000).floor();
-    final h = (totalMin / 60).floor();
-    final m = totalMin % 60;
-    
-    // Use localized suffixes if available
-    String hStr = 'ч';
-    String mStr = 'м';
-    if (mounted) {
-      final loc = context.read<LocaleProvider>();
-      hStr = loc.t('time.hours_short') ?? 'ч';
-      mStr = loc.t('time.minutes_short') ?? 'м';
-    }
-    
-    return '$h$hStr ${m.toString().padLeft(2, '0')}$mStr';
-  }
 
   String _formatHMS(int ms) {
     if (ms < 0) ms = 0;
@@ -695,55 +677,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildFinishedShiftCard(BuildContext context, ShiftProvider shift) {
-    final t = context.watch<LocaleProvider>().t;
-    final provider = context.watch<ThemeProvider>();
-    final cyan = provider.activeAccent.cyan;
-    
-    return NeonCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      glowColor: cyan,
-      child: Row(
-        children: [
-          Icon(LucideIcons.check, color: cyan, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t('dashboard.shiftFinished') ?? 'Смена завершена',
-                  style: GoogleFonts.inter(
-                    color: Theme.of(context).appColors.foreground,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '${context.watch<LocaleProvider>().t('dashboard.commercial_hours') ?? 'Коммерческие часы: '}${_formatHM(shift.workMs)}',
-                  style: GoogleFonts.inter(
-                    color: Theme.of(context).appColors.muted,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: cyan.withValues(alpha: 0.15),
-              side: BorderSide(color: cyan),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              minimumSize: Size.zero,
-            ),
-            onPressed: () => shift.resetShift(),
-            child: Text(t('dashboard.new_shift') ?? 'Новая', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildMapCard(BuildContext context, ShiftProvider shift) {
     final colors = Theme.of(context).appColors;

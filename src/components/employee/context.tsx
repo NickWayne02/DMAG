@@ -671,7 +671,7 @@ export function EmployeeProvider({
     // Clear FCM token before signing out
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user?.id) {
-      await supabase.from("profiles").update({ fcm_token: null }).eq("id", session.user.id);
+      await supabase.from("profiles").update({ fcm_token: null } as any).eq("id", session.user.id);
     }
     
     await supabase.auth.signOut({ scope: "local" });

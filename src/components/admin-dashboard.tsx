@@ -1384,6 +1384,9 @@ export function AdminDashboard({
       });
       toast.success("Данные успешно обновлены");
       setNameEdit(null);
+      if (nameEdit.user_id === user?.id) {
+        await supabase.auth.refreshSession();
+      }
       loadAll();
     } catch (e: any) {
       toast.error(e?.message ?? "Не удалось обновить имя");
@@ -3580,14 +3583,6 @@ export function AdminDashboard({
                 </SelectContent>
               </Select>
             </div>
-            {superMode && (
-              <div>
-                <Label>Лейбл / Группа (опционально)</Label>
-                <Input
-                  value={createForm.label}
-                  onChange={(e) => setCreateForm({ ...createForm, label: e.target.value })}
-                  placeholder="Название компании/филиала"
-                />
               </div>
             )}
           </div>
@@ -3665,16 +3660,6 @@ export function AdminDashboard({
                   placeholder="Иван Иванов"
                 />
               </div>
-              {superMode && (
-                <div>
-                  <Label>Лейбл / Группа</Label>
-                  <Input
-                    value={nameEdit.current_label}
-                    onChange={(e) => setNameEdit({ ...nameEdit, current_label: e.target.value })}
-                    placeholder="Название компании/филиала"
-                  />
-                </div>
-              )}
             </div>
           )}
           <DialogFooter>

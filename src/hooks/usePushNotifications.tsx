@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { requestFirebaseToken, onMessageListener } from "../lib/firebase";
 import { supabase } from '../integrations/supabase/client';
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import { PushToast } from "../components/push-toast";
 
 export const usePushNotifications = () => {
   const [fcmToken, setFcmToken] = useState<string | null>(null);
+  const currentUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     // We request the token
@@ -19,6 +20,7 @@ export const usePushNotifications = () => {
           data: { session },
         } = await supabase.auth.getSession();
         if (session?.user?.id) {
+          currentUserIdRef.current = session.user.id;
           await supabase
             .from("profiles")
             .update({ fcm_token: token } as any)
@@ -40,6 +42,12 @@ export const usePushNotifications = () => {
       if (!title && data) {
         title = data.title || data.sender_name || 'Новое сообщение';
         body = data.body || '';
+      }
+
+      // Ignore messages sent by the current user
+      const currentUserId = currentUserIdRef.current;
+      if (data?.sender_id && currentUserId && data.sender_id === currentUserId) {
+        return;
       }
 
       if (title) {

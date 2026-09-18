@@ -667,6 +667,13 @@ export function EmployeeProvider({
     window.sessionStorage.removeItem("dmag_chat_open");
     // Reset shift time but keep selected site (SITE_STORAGE_KEY stays)
     window.localStorage.removeItem(SHIFT_STORAGE_KEY);
+    
+    // Clear FCM token before signing out
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id) {
+      await supabase.from("profiles").update({ fcm_token: null }).eq("id", session.user.id);
+    }
+    
     await supabase.auth.signOut({ scope: "local" });
     navigate({ to: "/auth" });
   }

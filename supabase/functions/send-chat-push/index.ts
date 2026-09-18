@@ -94,6 +94,7 @@ serve(async (req) => {
         body: record.content,
         sender_name: record.author_name || "Уведомление",
         sender_avatar: avatarUrl,
+        sender_id: record.author_id,
       },
       android: {
         priority: "high",

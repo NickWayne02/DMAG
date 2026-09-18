@@ -170,7 +170,8 @@ class NotificationService {
         const AndroidNotificationAction(
           'mark_read',
           'Прочитано',
-          showsUserInterface: true,
+          showsUserInterface: false,
+          cancelNotification: true,
         ),
       ],
     );

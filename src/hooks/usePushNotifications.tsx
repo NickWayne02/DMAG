@@ -56,6 +56,7 @@ export const usePushNotifications = () => {
             title={title}
             body={body}
             avatarUrl={avatarUrl}
+            photoUrl={data?.photo_url}
             onClick={() => {
               toast.dismiss(t as string | number);
               

@@ -8,6 +8,7 @@ interface PushToastProps {
   title: string;
   body: string;
   avatarUrl?: string;
+  photoUrl?: string;
   onReply?: (text: string) => void;
   onClick?: () => void;
   onClose?: () => void;
@@ -17,6 +18,7 @@ export const PushToast: React.FC<PushToastProps> = ({
   title, 
   body, 
   avatarUrl, 
+  photoUrl,
   onReply, 
   onClick,
   onClose
@@ -59,6 +61,12 @@ export const PushToast: React.FC<PushToastProps> = ({
           <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{body}</p>
         </div>
       </div>
+      
+      {photoUrl && (
+        <div className="px-4 pb-3" onClick={() => { if (!isReplying && onClick) onClick(); }}>
+          <img src={photoUrl} alt="Фотоотчет" className="w-full h-auto max-h-[160px] object-cover rounded-lg border shadow-sm cursor-pointer" />
+        </div>
+      )}
 
       {onReply && (
         <div className="px-4 pb-3 pt-1 bg-muted/20">

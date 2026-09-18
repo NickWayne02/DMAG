@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import 'photo_report_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -47,7 +48,14 @@ class _ChatScreenState extends State<ChatScreen> {
     _isShowingChannelsList = widget.initialChannelType == null;
     _activeChannelType = widget.initialChannelType ?? 'general';
     _activeChannelId = widget.initialChannelId ?? 'general';
+    NotificationService.activeChatChannelId = _isShowingChannelsList ? null : _activeChannelId;
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    NotificationService.activeChatChannelId = null;
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -107,6 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _activeChannelId = id;
       _activeChannelTitle = title;
       _isShowingChannelsList = false;
+      NotificationService.activeChatChannelId = _activeChannelId;
     });
   }
 
@@ -179,7 +188,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _dmChannelIds.remove(cid);
       if (_activeChannelId == cid) {
-        _isShowingChannelsList = true;
+        _isShowingChannelsList = true; NotificationService.activeChatChannelId = null;
       }
     });
 
@@ -630,7 +639,7 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: Icon(LucideIcons.arrow_left, color: Theme.of(context).appColors.foreground),
           onPressed: () {
             setState(() {
-              _isShowingChannelsList = true;
+              _isShowingChannelsList = true; NotificationService.activeChatChannelId = null;
             });
           },
         ),

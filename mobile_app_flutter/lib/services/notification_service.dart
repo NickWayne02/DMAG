@@ -57,6 +57,7 @@ Future<void> notificationTapBackground(NotificationResponse notificationResponse
 }
 
 class NotificationService {
+  static String? activeChatChannelId;
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {

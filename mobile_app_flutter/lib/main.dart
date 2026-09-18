@@ -35,6 +35,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     
     final payload = '${message.data['channel_id']}|${message.data['channel_type']}';
     
+    // Attempt to get current user to prevent self-notifications
+    try {
+      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+      final senderId = message.data['sender_id'];
+      if (senderId != null && currentUserId != null && senderId == currentUserId) {
+        debugPrint('Ignored background message from self');
+        return;
+      }
+    } catch (_) {}
+    
     await NotificationService.showChatNotification(
       id: message.hashCode, 
       senderName: senderName, 
@@ -156,6 +166,20 @@ class _AuthWrapperState extends State<AuthWrapper> {
         final photoUrl = message.data['photo_url'];
         
         final payload = '${message.data['channel_id']}|${message.data['channel_type']}';
+        
+        final senderId = message.data['sender_id'];
+        final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+        
+        if (senderId != null && currentUserId != null && senderId == currentUserId) {
+          debugPrint('Ignored foreground message from self');
+          return;
+        }
+
+        final channelId = message.data['channel_id'];
+        if (NotificationService.activeChatChannelId != null && NotificationService.activeChatChannelId == channelId) {
+          debugPrint('Ignored foreground message for active chat');
+          return;
+        }
         
         NotificationService.showChatNotification(
           id: message.hashCode,

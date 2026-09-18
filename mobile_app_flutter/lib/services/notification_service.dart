@@ -66,7 +66,7 @@ class NotificationService {
     );
 
     await _notificationsPlugin.initialize(
-      initializationSettings: initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
         // App is in foreground or opened from background
         debugPrint('Notification tapped! Action: ${notificationResponse.actionId}');

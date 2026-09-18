@@ -101,9 +101,9 @@ export const usePushNotifications = () => {
                   });
                 }
               }
-              toast.dismiss(t as string | number);
+              toast.dismiss(t_toast as string | number);
             }}
-            onClose={() => toast.dismiss(t as string | number)}
+            onClose={() => toast.dismiss(t_toast as string | number)}
           />
         ), {
           duration: 5000,

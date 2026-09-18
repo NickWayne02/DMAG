@@ -68,6 +68,12 @@ export function FullChatApp({
 
   const [activeChannelType, setActiveChannelType] = useState<ChannelType>(initialChannelType);
   const [activeChannelId, setActiveChannelId] = useState<string>(initialChannelId);
+  
+  useEffect(() => {
+    window.sessionStorage.setItem("dmag_active_channel_type", activeChannelType);
+    window.sessionStorage.setItem("dmag_active_channel_id", activeChannelId);
+  }, [activeChannelType, activeChannelId]);
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -120,6 +126,13 @@ export function FullChatApp({
     window.addEventListener("storage", checkJumpToChat);
     return () => window.removeEventListener("storage", checkJumpToChat);
   }, []);
+
+  useEffect(() => {
+    window.sessionStorage.setItem("dmag_active_chat_channel", activeChannelId);
+    return () => {
+      window.sessionStorage.removeItem("dmag_active_chat_channel");
+    };
+  }, [activeChannelId]);
 
   function toggleMute() {
     const cid = activeChannelId;

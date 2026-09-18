@@ -92,7 +92,11 @@ serve(async (req) => {
       const splitText = body.substring(body.indexOf(token) + token.length).trim();
       const parts = splitText.split(" | ");
       if (parts.length > 0 && parts[0]) {
-        photoUrl = `${supabaseUrl}/storage/v1/object/public/photo-reports/${parts[0]}`;
+        if (parts[0].startsWith("http")) {
+          photoUrl = parts[0];
+        } else {
+          photoUrl = `${supabaseUrl}/storage/v1/object/public/photo-reports/${parts[0]}`;
+        }
       }
       // Clean up body for the push notification
       body = "📷 Фотоотчет";

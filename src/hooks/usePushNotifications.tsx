@@ -50,6 +50,17 @@ export const usePushNotifications = () => {
         return;
       }
 
+      // Ignore messages if we are currently viewing this chat
+      const activeChannelType = window.sessionStorage.getItem("dmag_active_channel_type");
+      const activeChannelId = window.sessionStorage.getItem("dmag_active_channel_id");
+      if (data?.channel_type && data?.channel_id && activeChannelType === data.channel_type && activeChannelId === data.channel_id) {
+        // Also ensure the chat modal/view is actually open (if on desktop app or if on mobile layout)
+        const inAdminChat = window.location.pathname.includes('/admin') && window.sessionStorage.getItem("dmag_admin_activeTab") === '"chat"';
+        if (window.sessionStorage.getItem("dmag_chat_open") === "true" || window.location.pathname.includes('/chat') || inAdminChat) {
+           return;
+        }
+      }
+
       if (title) {
         toast.custom((t) => (
           <PushToast

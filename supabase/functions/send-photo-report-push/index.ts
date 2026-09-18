@@ -98,6 +98,7 @@ serve(async (req: Request) => {
         click_action: "FLUTTER_NOTIFICATION_CLICK",
         type: "photo_report",
         report_id: record.id,
+        sender_id: record.author_id,
       },
       android: {
         priority: "high",

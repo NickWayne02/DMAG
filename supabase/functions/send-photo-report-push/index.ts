@@ -64,7 +64,13 @@ serve(async (req) => {
       return new Response(JSON.stringify({ message: "No admins to notify" }), { status: 200 });
     }
 
-    const adminUserIds = adminRoles.map((r: any) => r.user_id);
+    const adminUserIds = adminRoles
+      .map((r: any) => r.user_id)
+      .filter((id: string) => id !== record.author_id);
+
+    if (adminUserIds.length === 0) {
+      return new Response(JSON.stringify({ message: "No other admins to notify" }), { status: 200 });
+    }
 
     // Get fcm tokens for admins
     const { data: adminProfiles } = await supabase

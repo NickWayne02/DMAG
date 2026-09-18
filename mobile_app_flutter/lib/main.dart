@@ -136,6 +136,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
   
   void _setupPushNotifications() {
+    if (Firebase.apps.isEmpty) return;
+    
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('Got a message whilst in the foreground!');
       debugPrint('Message data: ${message.data}');
@@ -220,6 +222,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
   
   Future<void> _registerFcmToken() async {
+    if (Firebase.apps.isEmpty) return;
     try {
       final messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission(

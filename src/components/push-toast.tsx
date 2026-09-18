@@ -64,7 +64,7 @@ export const PushToast: React.FC<PushToastProps> = ({
       
       {photoUrl && (
         <div className="px-4 pb-3" onClick={() => { if (!isReplying && onClick) onClick(); }}>
-          <img src={photoUrl} alt="Фотоотчет" className="w-full h-auto max-h-[160px] object-cover rounded-lg border shadow-sm cursor-pointer" />
+          <img src={photoUrl} alt="Фотоотчет" className="w-full h-auto max-h-40 object-cover rounded-lg border shadow-sm cursor-pointer" />
         </div>
       )}
 

@@ -13,7 +13,14 @@ import '../services/auth_service.dart';
 import 'photo_report_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String? initialChannelType;
+  final String? initialChannelId;
+
+  const ChatScreen({
+    super.key,
+    this.initialChannelType,
+    this.initialChannelId,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -22,9 +29,9 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _supabase = Supabase.instance.client;
   
-  bool _isShowingChannelsList = true;
-  String _activeChannelType = 'general';
-  String _activeChannelId = 'general';
+  late bool _isShowingChannelsList;
+  late String _activeChannelType;
+  late String _activeChannelId;
   String _activeChannelTitle = 'Общий чат команды';
 
   List<Map<String, dynamic>> _sites = [];
@@ -38,6 +45,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    _isShowingChannelsList = widget.initialChannelType == null;
+    _activeChannelType = widget.initialChannelType ?? 'general';
+    _activeChannelId = widget.initialChannelId ?? 'general';
     _loadData();
   }
 
@@ -73,6 +83,21 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (mounted) {
+      if (!_isShowingChannelsList && widget.initialChannelType != null) {
+        if (widget.initialChannelType == 'direct') {
+          final parts = widget.initialChannelId!.split('_');
+          if (parts.length == 3) {
+            final otherId = parts[1] == user.id ? parts[2] : parts[1];
+            final otherUser = _profiles.firstWhere((p) => p['id'] == otherId, orElse: () => {'full_name': 'Пользователь'});
+            _activeChannelTitle = otherUser['full_name'] as String;
+          }
+        } else if (widget.initialChannelType == 'site') {
+          final site = _sites.firstWhere((s) => s['id'] == widget.initialChannelId, orElse: () => {'name': 'Объект'});
+          _activeChannelTitle = site['name'] as String;
+        } else {
+          _activeChannelTitle = 'Общий чат команды';
+        }
+      }
       setState(() => _isLoading = false);
     }
   }

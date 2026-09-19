@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/translation_provider.dart';
-import '../../../../providers/admin_state_provider.dart';
+
 import '../../../../providers/shift_provider.dart';
 import '../../../../theme/app_theme.dart';
 import '../dialogs/create_user_dialog.dart';

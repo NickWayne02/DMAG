@@ -568,6 +568,9 @@ export function AdminDashboard({
     clearAdminSession();
     window.sessionStorage.removeItem("dmag_dev_admin");
     window.sessionStorage.removeItem("dmag_super_admin");
+    window.localStorage.removeItem("dmag_shift_state");
+    window.localStorage.removeItem("dmag_selected_site");
+    window.localStorage.removeItem("dmag_selected_preset");
     if (devMode) {
       navigate({ to: "/auth" });
       return;

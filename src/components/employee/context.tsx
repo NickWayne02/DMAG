@@ -665,8 +665,10 @@ export function EmployeeProvider({
     window.sessionStorage.removeItem("dmag_site_open");
     window.sessionStorage.removeItem("dmag_report_open");
     window.sessionStorage.removeItem("dmag_chat_open");
-    // Reset shift time but keep selected site (SITE_STORAGE_KEY stays)
+    // Reset shift time and selected site
     window.localStorage.removeItem(SHIFT_STORAGE_KEY);
+    window.localStorage.removeItem(SITE_STORAGE_KEY);
+    window.localStorage.removeItem("dmag_selected_preset");
     
     // Clear FCM token before signing out
     const { data: { session } } = await supabase.auth.getSession();

@@ -58,9 +58,6 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
       final session = Supabase.instance.client.auth.currentSession;
       if (session == null) throw Exception('No session');
 
-      final adminState = context.read<AdminStateProvider>();
-      final String? label = adminState.selectedFirmId == 'all' ? null : adminState.selectedFirmId;
-
       const String baseUrl = kIsWeb ? 'http://127.0.0.1:5174' : 'http://10.0.2.2:5174';
       final response = await http.post(
         Uri.parse('$baseUrl/api/users/create'),
@@ -73,7 +70,6 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
           'password': password,
           'full_name': name,
           'role': _selectedRole,
-          'label': label,
         }),
       );
 

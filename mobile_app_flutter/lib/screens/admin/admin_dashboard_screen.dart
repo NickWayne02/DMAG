@@ -134,7 +134,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               if (adminState.presets.isEmpty) return const SizedBox();
               return Row(
                 children: [
-                  Text('Фирма:', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground.withValues(alpha: 0.54))),
+                  Text('${context.watch<LocaleProvider>().t('dashboard.firm') ?? 'Фирма'}:', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground.withValues(alpha: 0.54))),
                   const SizedBox(width: 8),
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(

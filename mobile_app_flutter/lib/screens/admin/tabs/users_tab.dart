@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/translation_provider.dart';
 import '../../../../providers/admin_state_provider.dart';
+import '../../../../providers/shift_provider.dart';
 import '../../../../theme/app_theme.dart';
 import '../dialogs/create_user_dialog.dart';
 import '../dialogs/change_credentials_dialog.dart';
@@ -164,6 +165,27 @@ class _UsersTabState extends State<UsersTab> {
     }
   }
 
+  Future<void> _changeRole(String targetUserId, String newRole) async {
+    try {
+      setState(() => _isLoading = true);
+      final response = await Supabase.instance.client.functions.invoke(
+        'change-user-role',
+        body: {'targetUserId': targetUserId, 'newRole': newRole},
+      );
+      if (response.status != 200) {
+        throw Exception("Failed to change role");
+      }
+      _fetchUsers();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка смены роли: $e')),
+        );
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   Widget _buildUserCard({
     required String name,
     required String role,
@@ -290,7 +312,10 @@ class _UsersTabState extends State<UsersTab> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      role,
+                      role == 'super_admin' ? (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ') :
+                      role == 'admin' ? (context.watch<LocaleProvider>().t('role.admin') ?? 'Админ') :
+                      role == 'brigadier' ? (context.watch<LocaleProvider>().t('role.brigadier') ?? 'Бригадир') :
+                      (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник'),
                       style: GoogleFonts.inter(color: const Color(0xFF64748b), fontSize: 14),
                     ),
                   ],
@@ -319,18 +344,54 @@ class _UsersTabState extends State<UsersTab> {
           const SizedBox(height: 16),
           
           // Action Buttons
-          if (role != (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ') || isSelf) // If it's super-admin but not self, maybe show it? In the screenshot it's shown for Evgeny Kostin (dimmed) and Ruslan (normal). Wait, for Ruslan (Супер-админ) the buttons are normal! For Evgeny Kostin (Супер-админ) they are dimmed. So they are shown for all, but dimmed if isSelf.
+          if (isSelf)
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.05) : Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
+                  side: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  foregroundColor: isSelf ? Theme.of(context).appColors.foreground.withValues(alpha: 0.30) : Theme.of(context).appColors.foreground,
+                  foregroundColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.30),
                 ),
-                onPressed: isSelf ? null : () {},
-                child: Text(context.watch<LocaleProvider>().t('users.make_admin') ?? 'Сделать Админ', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
+                onPressed: null,
+                child: Text(
+                  role == 'super_admin' ? (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ') :
+                  role == 'admin' ? (context.watch<LocaleProvider>().t('role.admin') ?? 'Админ') :
+                  role == 'brigadier' ? (context.watch<LocaleProvider>().t('role.brigadier') ?? 'Бригадир') :
+                  (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник'),
+                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)
+                ),
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: role,
+                  dropdownColor: Theme.of(context).cardColor,
+                  isExpanded: true,
+                  icon: Icon(LucideIcons.chevron_down, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 16),
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold),
+                  items: [
+                    DropdownMenuItem(value: 'employee', child: Text(context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник')),
+                    DropdownMenuItem(value: 'brigadier', child: Text(context.watch<LocaleProvider>().t('role.brigadier') ?? 'Бригадир')),
+                    DropdownMenuItem(value: 'admin', child: Text(context.watch<LocaleProvider>().t('role.admin') ?? 'Админ')),
+                    if (context.watch<ShiftProvider>().userProfile?['role'] == 'super_admin')
+                      DropdownMenuItem(value: 'super_admin', child: Text(context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null && val != role) {
+                      _changeRole(userId, val);
+                    }
+                  },
+                ),
               ),
             ),
           const SizedBox(height: 8),
@@ -479,13 +540,7 @@ class _UsersTabState extends State<UsersTab> {
                 ? const Center(child: CircularProgressIndicator())
                 : Builder(
                     builder: (context) {
-                      final adminState = context.watch<AdminStateProvider>();
                       final filteredUsers = _users.where((u) {
-                        final firstFirmId = adminState.presets.isNotEmpty ? adminState.presets.first['id'].toString() : null;
-                        final matchesFirm = adminState.selectedFirmId == 'all' || 
-                            u['label'] == adminState.selectedFirmId || 
-                            (adminState.selectedFirmId == firstFirmId && u['label'] == null);
-                        if (!matchesFirm) return false;
                         if (_searchQuery.isEmpty) return true;
                         final name = (u['full_name'] ?? u['email'] ?? u['phone'] ?? '').toString().toLowerCase();
                         return name.contains(_searchQuery.toLowerCase());
@@ -507,10 +562,6 @@ class _UsersTabState extends State<UsersTab> {
                           } else if (nameParts.isNotEmpty) {
                             initials = nameParts[0].substring(0, 1).toUpperCase();
                           }
-                          
-                          final role = (u['role'] == 'super_admin' || u['role'] == 'admin') 
-                              ? (context.watch<LocaleProvider>().t('role.super_admin') ?? 'Супер-админ')
-                              : (context.watch<LocaleProvider>().t('calendar.employee') ?? 'Сотрудник');
                               
                           String lastLoginStr = '—';
                           bool isOnline = _onlineUserIds.contains(u['id']);
@@ -525,7 +576,7 @@ class _UsersTabState extends State<UsersTab> {
                           
                           return _buildUserCard(
                             name: name,
-                            role: role,
+                            role: u['role'],
                             initials: initials,
                             userId: u['id'],
                             userEmail: u['email'] ?? '',

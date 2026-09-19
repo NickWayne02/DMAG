@@ -56,6 +56,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
   String _roleFilter = 'all';
   final String _statusFilter = 'all';
   List<Map<String, dynamic>> _sites = [];
+  String? _errorMsg;
 
   @override
   void initState() {
@@ -78,7 +79,10 @@ class _PersonnelTabState extends State<PersonnelTab> {
   Future<void> _fetchData() async {
     try {
       if (!mounted) return;
-      setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+        _errorMsg = null;
+      });
       
       final firmId = context.read<AdminStateProvider>().selectedFirmId;
       final sinceMidnight = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toUtc().toIso8601String();
@@ -132,8 +136,14 @@ class _PersonnelTabState extends State<PersonnelTab> {
       final sites = List<Map<String, dynamic>>.from(results[3]);
 
       final roleMap = <String, String>{};
+      final prio = {'super_admin': 4, 'admin': 3, 'brigadier': 2, 'employee': 1};
       for (var r in roles) {
-        roleMap[r['user_id']] = r['role']; // In reality might need priority logic if multiple roles, but simple here
+        final uid = r['user_id'] as String;
+        final cur = roleMap[uid] ?? 'employee';
+        final newRole = r['role'] as String;
+        if ((prio[newRole] ?? 1) > (prio[cur] ?? 1)) {
+          roleMap[uid] = newRole;
+        }
       }
 
       String? myLabel;
@@ -163,7 +173,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
           if (p['label'] != myLabel) continue;
         }
 
-        final name = context.watch<TranslationProvider>().translate(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
+        final name = context.read<TranslationProvider>().translate(p['full_name'] ?? p['email'] ?? p['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени', context.read<LocaleProvider>().currentLang);
         final sh = latestShiftByUser[id];
 
         String status = 'offline';
@@ -221,7 +231,11 @@ class _PersonnelTabState extends State<PersonnelTab> {
         _applyFilters();
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      print('Error in personnel_tab _fetchData: $e');
+      setState(() {
+         _isLoading = false;
+         _errorMsg = e.toString();
+      });
     }
   }
 
@@ -454,15 +468,17 @@ class _PersonnelTabState extends State<PersonnelTab> {
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: Colors.cyan))
-              : _filteredEmployees.isEmpty
-                  ? Center(child: Text(context.watch<LocaleProvider>().t('shift_history.empty') ?? 'Нет данных', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))))
-                  : ListView.builder(
-                      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-                      itemCount: _filteredEmployees.length,
-                      itemBuilder: (context, index) {
-                        return _buildEmployeeCard(_filteredEmployees[index]);
-                      },
-                    ),
+              : _errorMsg != null
+                  ? Center(child: Text('Error: $_errorMsg', style: GoogleFonts.inter(color: Colors.red)))
+                  : _filteredEmployees.isEmpty
+                      ? Center(child: Text(context.watch<LocaleProvider>().t('shift_history.empty') ?? 'Нет данных', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))))
+                      : ListView.builder(
+                          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+                          itemCount: _filteredEmployees.length,
+                          itemBuilder: (context, index) {
+                            return _buildEmployeeCard(_filteredEmployees[index]);
+                          },
+                        ),
         ),
       ],
     );

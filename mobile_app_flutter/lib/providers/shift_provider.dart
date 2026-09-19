@@ -73,7 +73,8 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
         _isAdminView = false;
         resetShift();
         _userProfile = null;
-        // Keep _selectedSite and _selectedPreset — user wants them to persist across logouts
+        clearSelectedSite();
+        clearSelectedPreset();
         if (_shiftSubscription != null) {
           Supabase.instance.client.removeChannel(_shiftSubscription!);
           _shiftSubscription = null;

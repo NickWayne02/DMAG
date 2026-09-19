@@ -354,8 +354,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         (shift.selectedSite != null && shift.selectedSite!['id'] != null && shift.selectedSite!['id'].toString().isNotEmpty)
                                             ? (shift.selectedSite!['id'] == 'gps' ? (context.watch<LocaleProvider>().t('site_selector.gps_only') ?? 'Не выбран (GPS)') :
                                               context.watch<TranslationProvider>().translate(
-                                                (shift.selectedSite!['address']?.toString().isNotEmpty == true) ? shift.selectedSite!['address'] : 
                                                 (shift.selectedSite!['name']?.toString().isNotEmpty == true) ? shift.selectedSite!['name'] : 
+                                                (shift.selectedSite!['address']?.toString().isNotEmpty == true) ? shift.selectedSite!['address'] : 
                                                 (context.watch<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия'),
                                                 context.watch<LocaleProvider>().currentLang))
                                             : context.watch<LocaleProvider>().t('dashboard.site_not_selected') ?? 'Не выбран — нажмите, чтобы выбрать',

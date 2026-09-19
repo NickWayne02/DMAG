@@ -1800,27 +1800,7 @@ export function AdminDashboard({
               </p>
             </div>
           </div>
-          {presets.length > 0 && (
-            <div className="flex flex-1 mx-4 justify-end items-center gap-2">
-              <span className="hidden sm:inline text-sm font-medium text-muted-foreground whitespace-nowrap">
-                {t("admin.firm")}
-              </span>
-              <select
-                className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring max-w-50"
-                value={adminSelectedFirmId}
-                onChange={(e) => setAdminSelectedFirmId(e.target.value)}
-              >
-                <option value="all">
-                  {t("admin.dashboard.allFirms", { defaultValue: "Все фирмы" })}
-                </option>
-                {presets.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.app_name || "Без названия"}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+
           <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
@@ -2221,36 +2201,7 @@ export function AdminDashboard({
                 )}
               </Card>
 
-              <Card className="p-6 rounded-2xl">
-                <h3 className="font-semibold mb-1">{t("admin.personnel.distTitle")}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("admin.personnel.distDesc")}
-                </p>
-                <div className="space-y-3">
-                  {(Object.keys(EMP_STATUS) as EmpStatus[]).map((k) => {
-                    const count = employees.filter((e) => e.status === k).length;
-                    const total = Math.max(employees.length, 1);
-                    const pct = Math.round((count / total) * 100);
-                    const st = EMP_STATUS[k];
-                    return (
-                      <div key={k}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>{t(st.labelKey)}</span>
-                          <span className="text-muted-foreground tabular-nums">
-                            {count} · {pct}%
-                          </span>
-                        </div>
-                        <div className="h-2 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all"
-                            style={{ width: `${pct}%`, backgroundColor: st.color }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
+
             </section>
           )}
 
@@ -3082,28 +3033,32 @@ export function AdminDashboard({
                           </div>
 
                           <div className="flex flex-wrap gap-2 mt-2 pt-3 border-t">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 rounded-lg"
+                            <Select
                               disabled={
                                 userBusy ||
                                 e.id === user?.id ||
                                 (!superMode && (e.role === "super_admin" || e.role === "admin"))
                               }
-                              onClick={async () => {
+                              value={e.role}
+                              onValueChange={async (val) => {
                                 setUserBusy(true);
                                 try {
-                                  await changeRole(e, e.role === "admin" ? "super_admin" : "admin");
+                                  await changeRole(e, val as AppRole);
                                 } finally {
                                   setUserBusy(false);
                                 }
                               }}
                             >
-                              {e.role === "admin"
-                                ? t("admin.users.makeSuper", { defaultValue: "Сделать Супер" })
-                                : t("admin.users.makeAdmin", { defaultValue: "Сделать Админ" })}
-                            </Button>
+                              <SelectTrigger className="flex-1 h-8 text-xs rounded-lg">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="employee">{t("admin.users.employee")}</SelectItem>
+                                <SelectItem value="brigadier">{t("admin.users.brigadier", { defaultValue: "Бригадир" })}</SelectItem>
+                                <SelectItem value="admin">{t("admin.users.admin")}</SelectItem>
+                                {superMode && <SelectItem value="super_admin">{t("admin.users.superAdmin", { defaultValue: "Супер-админ" })}</SelectItem>}
+                              </SelectContent>
+                            </Select>
                             {!e.is_active && (
                               <Button
                                 size="sm"

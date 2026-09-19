@@ -198,12 +198,15 @@ class _DashboardTabState extends State<DashboardTab> {
       // Sort all synthesized events by timestamp descending
       enriched.sort((a, b) => DateTime.parse(b['ts']).compareTo(DateTime.parse(a['ts'])));
       
+      final sitesResp = await Supabase.instance.client.from('sites').select('id');
+      final int totalSites = (sitesResp as List).length;
+
       if (mounted) {
         setState(() {
           _activities = enriched.take(50).toList();
           _employeesOnShift = onShift;
           _employeesOnLunch = onLunch;
-          _activeSitesCount = activeSitesSet.length;
+          _activeSitesCount = totalSites;
           _isLoading = false;
           _errorMessage = null;
         });

@@ -27,6 +27,8 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _timer;
   DateTime _now = DateTime.now();
   RealtimeChannel? _shiftSubscription;
+  RealtimeChannel? _presenceChannel;
+  Timer? _presenceTimer;
 
   ShiftStatus get status => _status;
   DateTime? get shiftStart => _shiftStart;
@@ -66,6 +68,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
         reloadProfile();
         _syncActiveShiftFromServer();
         _setupShiftSubscription();
+        _setupPresence();
       } else if (data.event == AuthChangeEvent.signedOut) {
         _isAdminView = false;
         resetShift();
@@ -75,6 +78,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           Supabase.instance.client.removeChannel(_shiftSubscription!);
           _shiftSubscription = null;
         }
+        _cleanupPresence();
         notifyListeners();
       }
     });
@@ -383,6 +387,41 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
     } catch (_) {
       // Ignore network errors, fallback to local state
+    }
+  }
+
+  void _setupPresence() {
+    final user = AuthService.currentUser;
+    if (user == null) return;
+    _cleanupPresence();
+
+    _presenceChannel = Supabase.instance.client.channel('global-online-users', 
+        opts: const RealtimeChannelConfig(ack: false, self: true));
+        
+    _presenceChannel!.subscribe((status, [error]) async {
+      if (status == RealtimeSubscribeStatus.subscribed) {
+        final presenceData = {
+          'online_at': DateTime.now().toIso8601String(),
+          'device_type': 'app',
+          'ip': 'Unknown IP', // Mobile app does not need to send IP, React falls back to Unknown
+        };
+        await _presenceChannel!.track(presenceData);
+        
+        _presenceTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+          Supabase.instance.client.from('profiles').update({'updated_at': DateTime.now().toIso8601String()}).eq('id', user.id).then((_) {}).catchError((_) {});
+        });
+      }
+    });
+  }
+
+  void _cleanupPresence() {
+    if (_presenceTimer != null) {
+      _presenceTimer!.cancel();
+      _presenceTimer = null;
+    }
+    if (_presenceChannel != null) {
+      Supabase.instance.client.removeChannel(_presenceChannel!);
+      _presenceChannel = null;
     }
   }
 

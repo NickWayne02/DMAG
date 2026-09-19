@@ -789,6 +789,7 @@ class _ChatContentState extends State<ChatContent> {
   final ScrollController _scrollController = ScrollController();
   final _supabase = Supabase.instance.client;
   bool _isSending = false;
+  final Set<String> _optimisticDeletedIds = {};
 
   void _sendMessage() async {
     final text = _messageController.text.trim();
@@ -856,6 +857,9 @@ class _ChatContentState extends State<ChatContent> {
     );
 
     if (confirm == true) {
+      setState(() {
+        _optimisticDeletedIds.add(id);
+      });
       try {
         await _supabase.from('chat_messages').delete().eq('id', id);
       } catch (e) {
@@ -939,7 +943,15 @@ class _ChatContentState extends State<ChatContent> {
                 return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor));
               }
 
-              final messages = snapshot.data!;
+              var messages = snapshot.data!;
+              
+              // Filter out optimistic deletes
+              messages = messages.where((m) => !_optimisticDeletedIds.contains(m['id'].toString())).toList();
+              
+              // Deduplicate by ID
+              final seen = <String>{};
+              messages = messages.where((m) => seen.add(m['id'].toString())).toList();
+
               if (messages.isEmpty) {
                 return Center(child: Text(context.watch<LocaleProvider>().t('chat.no_msgs') ?? 'Нет сообщений', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))));
               }
@@ -1013,7 +1025,18 @@ class _ChatContentState extends State<ChatContent> {
   }
 
   Widget _buildMessageBubble(Map<String, dynamic> msg, bool isMe) {
-    final authorName = context.watch<TranslationProvider>().translate(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang).isEmpty ? (context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним') : context.watch<TranslationProvider>().translate(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang); //context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним';
+    String authorName = context.watch<TranslationProvider>().translate(msg['author_name'] as String? ?? '', context.read<LocaleProvider>().currentLang);
+    if (authorName.isEmpty || authorName.toLowerCase() == 'unknown' || authorName == 'Неизвестный') {
+      final profile = widget.profiles.firstWhere((p) => p['id'] == msg['author_id'], orElse: () => {});
+      if (profile.isNotEmpty) {
+        String roleStr = 'Сотрудник';
+        if (profile['role'] == 'super-admin') { roleStr = 'Супер-админ'; }
+        else if (profile['role'] == 'admin') { roleStr = 'Админ'; }
+        authorName = '${profile['full_name'] ?? 'Без имени'} ($roleStr)';
+      } else {
+        authorName = context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним';
+      }
+    }
     final content = msg['content'] as String? ?? '';
     final createdAt = DateTime.tryParse(msg['created_at'].toString())?.toLocal() ?? DateTime.now();
     final timeString = '${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';

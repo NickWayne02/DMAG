@@ -104,6 +104,10 @@ serve(async (req) => {
 
     const response = await admin.messaging().sendEachForMulticast({
       tokens: targetTokens,
+      notification: {
+        title: title,
+        body: body,
+      },
       data: {
         channel_id: record.channel_id,
         channel_type: record.channel_type,

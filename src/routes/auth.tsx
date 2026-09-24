@@ -28,11 +28,13 @@ export const Route = createFileRoute("/auth")({
 // Hidden super-admin secret. Never shown in UI.
 const SUPER_ADMIN_SECRET = "Evgen-Ruslan-2026";
 
-// Map a username to an internal email used by Supabase Auth.
-// If the user typed a real email, use it as is.
-function loginToEmail(login: string): string {
-  const v = login.trim().toLowerCase();
-  return v.includes("@") ? v : `${v}@dmag.de`;
+function isEmailString(str: string) {
+  return str.includes("@");
+}
+
+function isPhoneString(str: string) {
+  const digits = str.replace(/[^0-9]/g, "");
+  return digits.length >= 7 && /^\+?[0-9\s\-()]+$/.test(str);
 }
 
 function AuthPage() {
@@ -41,10 +43,18 @@ function AuthPage() {
   const { data: appSettings } = useAppSettings();
 
   const [mode, setMode] = useState<"login" | "signup">("login");
+  
+  // Form fields
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [fullName, setFullName] = useState("");
+  
+  // New fields for signup
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -68,11 +78,11 @@ function AuthPage() {
     }
 
     // -------- Hidden super-admin handling --------
-    // Any login + own password + secret code in confirm field → super_admin.
     if (confirm === SUPER_ADMIN_SECRET) {
       setBusy(true);
       try {
-        const email = loginToEmail(trimmedLogin);
+        let email = trimmedLogin;
+        if (!isEmailString(email)) email = `${email}@dmag.de`;
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         window.sessionStorage.setItem("dmag_dev_admin", "true");
@@ -87,7 +97,6 @@ function AuthPage() {
       }
     }
 
-    // -------- Standard flow (employee login: confirm === password) --------
     if (mode === "signup" && password !== confirm) {
       toast.error(t("auth.errMismatch"));
       return;
@@ -99,21 +108,54 @@ function AuthPage() {
 
     setBusy(true);
     try {
-      const email = loginToEmail(trimmedLogin);
+      const isEmail = isEmailString(trimmedLogin);
+      const isPhone = isPhoneString(trimmedLogin);
+
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
+        if (!isEmail && !isPhone) {
+          throw new Error("Введите корректный Email или номер телефона");
+        }
+        
+        const signUpOpts: any = {
           password,
-          options: { data: { full_name: fullName || trimmedLogin } },
-        });
+          options: { 
+            data: { 
+              first_name: firstName, 
+              last_name: lastName, 
+              username: username,
+              birth_date: birthDate,
+              full_name: `${firstName} ${lastName}`.trim()
+            } 
+          },
+        };
+        
+        if (isEmail) signUpOpts.email = trimmedLogin;
+        if (isPhone) signUpOpts.phone = trimmedLogin;
+
+        const { error } = await supabase.auth.signUp(signUpOpts);
         if (error) throw error;
-        toast.success(t("auth.created"));
+        toast.success(t("auth.created") || "Аккаунт создан! Проверьте почту/СМС для подтверждения.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
+        // Login mode
+        if (isEmail) {
+          const { error } = await supabase.auth.signInWithPassword({ email: trimmedLogin, password });
+          if (error) throw error;
+        } else if (isPhone) {
+          const { error } = await supabase.auth.signInWithPassword({ phone: trimmedLogin, password });
+          if (error) throw error;
+        } else {
+          // Assume it's a username
+          const { data: userEmail, error: rpcError } = await supabase.rpc("get_email_by_username", { p_username: trimmedLogin });
+          let emailToUse = userEmail;
+          
+          if (!emailToUse) {
+            // Legacy fallback
+            emailToUse = `${trimmedLogin}@dmag.de`;
+          }
+          
+          const { error } = await supabase.auth.signInWithPassword({ email: emailToUse, password });
+          if (error) throw error;
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : t("auth.errGeneric");
@@ -147,28 +189,71 @@ function AuthPage() {
           <TabsContent value={mode}>
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "signup" && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="name">{t("auth.fullName")}</Label>
-                  <Input
-                    id="name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder={t("auth.fullNamePh")}
-                    className="h-12 rounded-xl"
-                    required
-                  />
-                </div>
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="firstName">{t("auth.firstName") || "Имя"}</Label>
+                      <Input
+                        id="firstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Имя"
+                        className="h-12 rounded-xl"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="lastName">{t("auth.lastName") || "Фамилия"}</Label>
+                      <Input
+                        id="lastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Фамилия"
+                        className="h-12 rounded-xl"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <Label htmlFor="username">{t("auth.username") || "Имя пользователя"}</Label>
+                    <Input
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Имя пользователя"
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="birthDate">{t("auth.birthDate") || "Дата рождения"}</Label>
+                    <Input
+                      id="birthDate"
+                      type="date"
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      className="h-12 rounded-xl"
+                      required
+                    />
+                  </div>
+                </>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="login">{t("auth.login")}</Label>
+                <Label htmlFor="login">
+                  {mode === "login" 
+                    ? (t("auth.loginOrEmailOrPhone") || "Имя пользователя, Телефон или Email")
+                    : (t("auth.emailOrPhone") || "Телефон или Email")}
+                </Label>
                 <Input
                   id="login"
                   type="text"
                   autoComplete="username"
                   value={login}
                   onChange={(e) => setLogin(e.target.value)}
-                  placeholder="ivanov"
+                  placeholder={mode === "login" ? "Имя пользователя, Email или Телефон" : "Email или телефон"}
                   className="h-12 rounded-xl"
                   required
                 />

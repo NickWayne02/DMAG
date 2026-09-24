@@ -27,6 +27,8 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   final _formKey = GlobalKey<FormState>();
   
   late TextEditingController _nameCtrl;
+  late TextEditingController _nameRuCtrl;
+  late TextEditingController _nameUkCtrl;
   late TextEditingController _addressCtrl;
   late TextEditingController _customerCtrl;
   late TextEditingController _commentCtrl;
@@ -38,6 +40,11 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.site?['name'] ?? '');
+    
+    final trans = widget.site?['name_translations'] as Map<String, dynamic>?;
+    _nameRuCtrl = TextEditingController(text: trans?['ru'] ?? '');
+    _nameUkCtrl = TextEditingController(text: trans?['uk'] ?? '');
+    
     _addressCtrl = TextEditingController(text: widget.site?['address'] ?? '');
     _customerCtrl = TextEditingController(text: widget.site?['customer'] ?? '');
     _commentCtrl = TextEditingController(text: widget.site?['comment'] ?? '');
@@ -46,6 +53,8 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _nameRuCtrl.dispose();
+    _nameUkCtrl.dispose();
     _addressCtrl.dispose();
     _customerCtrl.dispose();
     _commentCtrl.dispose();
@@ -92,8 +101,13 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) throw Exception(context.read<LocaleProvider>().t('auth.error_unauthorized') ?? 'Пользователь не авторизован');
 
+      final trans = <String, String>{};
+      if (_nameRuCtrl.text.trim().isNotEmpty) trans['ru'] = _nameRuCtrl.text.trim();
+      if (_nameUkCtrl.text.trim().isNotEmpty) trans['uk'] = _nameUkCtrl.text.trim();
+
       final data = {
         'name': _nameCtrl.text.trim(),
+        'name_translations': trans.isNotEmpty ? trans : null,
         'address': _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
         'customer': _customerCtrl.text.trim().isEmpty ? null : _customerCtrl.text.trim(),
       };
@@ -213,13 +227,48 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                   ),
                 ),
 
-                Text(context.watch<LocaleProvider>().t('add_site.name_lbl') ?? 'Название *', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text('${context.watch<LocaleProvider>().t('add_site.name_lbl') ?? 'Название *'} (Default/EN)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameCtrl,
                   style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16),
                   decoration: _inputDeco(context.watch<LocaleProvider>().t('add_site.name_hint') ?? 'Название объекта'),
                   validator: (v) => v == null || v.isEmpty ? context.read<LocaleProvider>().t('add_site.required') ?? 'Обязательное поле' : null,
+                ),
+                const SizedBox(height: 16),
+                
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Название (RU)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _nameRuCtrl,
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
+                            decoration: _inputDeco('На русском'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Название (UK)', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 13, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _nameUkCtrl,
+                            style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14),
+                            decoration: _inputDeco('На украинском'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
 

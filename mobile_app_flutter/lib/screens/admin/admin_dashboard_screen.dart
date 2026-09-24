@@ -16,6 +16,7 @@ import 'tabs/moderation_tab.dart';
 import '../../services/auth_service.dart';
 
 import '../settings_sheet.dart';
+import '../language_sheet.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
@@ -129,36 +130,38 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               context.read<ShiftProvider>().setAdminView(false);
             },
           ),
-          Consumer<AdminStateProvider>(
-            builder: (context, adminState, _) {
-              if (adminState.presets.isEmpty) return const SizedBox();
-              return Row(
-                children: [
-                  Text('${context.watch<LocaleProvider>().t('dashboard.firm') ?? 'Фирма'}:', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground.withValues(alpha: 0.54))),
-                  const SizedBox(width: 8),
-                  DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: adminState.selectedFirmId,
-                      dropdownColor: colors.card,
-                      icon: Icon(LucideIcons.chevron_down, color: colors.foreground.withValues(alpha: 0.54), size: 16),
-                      style: GoogleFonts.inter(color: colors.foreground, fontSize: 14),
-                      items: [
-                        DropdownMenuItem(
-                          value: 'all',
-                          child: Text(context.watch<LocaleProvider>().t('admin.dashboard.all_firms') ?? 'Все фирмы'),
-                        ),
-                        ...adminState.presets.map((p) => DropdownMenuItem(
-                          value: p['id'].toString(),
-                          child: Text(p['app_name']),
-                        )),
-                      ],
-                      onChanged: (val) {
-                        if (val != null) {
-                          adminState.setSelectedFirmId(val);
-                        }
-                      },
+          Builder(
+            builder: (context) {
+              final adminState = context.watch<AdminStateProvider>();
+              return PopupMenuButton<String>(
+                tooltip: 'Выбор фирмы',
+                icon: Icon(LucideIcons.building_2, color: colors.foreground.withValues(alpha: 0.54), size: 20),
+                color: colors.card,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onSelected: (val) {
+                  adminState.setSelectedFirmId(val);
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'all',
+                    child: Text(
+                      context.read<LocaleProvider>().t('admin.dashboard.all_firms') ?? 'Все фирмы',
+                      style: GoogleFonts.inter(
+                        color: adminState.selectedFirmId == 'all' ? colors.primary : colors.foreground,
+                        fontWeight: adminState.selectedFirmId == 'all' ? FontWeight.bold : FontWeight.normal,
+                      ),
                     ),
                   ),
+                  ...adminState.presets.map((p) => PopupMenuItem(
+                        value: p['id'].toString(),
+                        child: Text(
+                          p['app_name'] ?? 'DMAG',
+                          style: GoogleFonts.inter(
+                            color: adminState.selectedFirmId == p['id'].toString() ? colors.primary : colors.foreground,
+                            fontWeight: adminState.selectedFirmId == p['id'].toString() ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      )),
                 ],
               );
             },

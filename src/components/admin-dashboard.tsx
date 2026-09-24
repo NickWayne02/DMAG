@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,6 +73,9 @@ import {
   MessageSquare,
   Palette,
   ShieldAlert,
+  Merge,
+  MoreHorizontal,
+  AlertCircle,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -84,7 +88,7 @@ import {
   type ShiftDetail,
 } from "@/lib/shift-export";
 import { FullChatApp } from "@/components/full-chat-app";
-import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
+import { AdminEditableCalendarView } from "@/components/admin-editable-calendar";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { BrandingSettingsTab } from "@/components/admin/branding-settings-tab";
 import { ModerationTab } from "@/components/admin/moderation-tab";
@@ -129,6 +133,10 @@ type EmpStatus = keyof typeof EMP_STATUS;
 type EmployeeRow = {
   id: string;
   name: string;
+  first_name: string | null;
+  last_name: string | null;
+  username: string | null;
+  birth_date: string | null;
   avatar_url?: string | null;
   role: AppRole;
   status: "working" | "lunch" | "finished" | "offline";
@@ -145,6 +153,7 @@ type EmployeeRow = {
 type SiteRow = {
   id: string;
   name: string;
+  name_translations?: Record<string, string>;
   address: string | null;
   customer: string | null;
   comment: string | null;
@@ -303,6 +312,7 @@ export function AdminDashboard({
     id: string;
     description: string;
     criticality: Crit;
+    thumb: string | null;
   } | null>(null);
 
   // Pagination states
@@ -427,140 +437,9 @@ export function AdminDashboard({
     "dmag_admin_cached_shiftHist",
     [],
   );
-  const [calendarFor, setCalendarFor] = useState<EmployeeRow | null>(null);
-
-  const [calCursor, setCalCursor] = useState(() => {
-    const d = new Date();
-    d.setDate(1);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
+  
   const [calEmpId, setCalEmpId] = useState<string>("__none__");
-  const [calShifts, setCalShifts] = useState<ShiftDetail[]>([]);
-  const [calLoading, setCalLoading] = useState(false);
   const [calRefresh, setCalRefresh] = useState(0);
-
-  useEffect(() => {
-    if (activeTab !== "calendar" || calEmpId === "__none__") return;
-    async function loadCal() {
-      if (calShifts.length === 0) setCalLoading(true);
-      const start = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1, 0, 0, 0, 0);
-      const end = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0, 23, 59, 59, 999);
-      const { data } = await supabase
-        .from("shifts")
-        .select(
-          "id, site_id, site_name, preset_id, status, started_at, ended_at, lunch_total_ms, lunch_intervals, start_city, end_city, user_id",
-        )
-        .eq("user_id", calEmpId)
-        .gte("started_at", start.toISOString())
-        .lte("started_at", end.toISOString())
-        .order("started_at", { ascending: true });
-
-      const emp = employees.find((e) => e.id === calEmpId);
-      const filtered = ((data as any[]) || []).filter((s) => {
-        const shFirm = s.preset_id || emp?.label || presets[0]?.id;
-        if (adminSelectedFirmId !== "all" && shFirm !== adminSelectedFirmId) return false;
-        return true;
-      });
-
-      setCalShifts(filtered);
-      setCalLoading(false);
-    }
-    loadCal();
-  }, [activeTab, calEmpId, calCursor, calRefresh, adminSelectedFirmId, employees, presets]);
-
-  const calWEEKDAYS = useMemo(() => {
-    const fmt = new Intl.DateTimeFormat(lang, { weekday: "short" });
-    const days = [];
-    for (let i = 1; i <= 7; i++) {
-      const d = new Date(2024, 0, i);
-      const str = fmt.format(d).replace(/\./g, "");
-      days.push(str.charAt(0).toUpperCase() + str.slice(1));
-    }
-    return days;
-  }, [lang]);
-
-  const calMonthName = useMemo(() => {
-    const fmt = new Intl.DateTimeFormat(lang, { month: "long" });
-    const str = fmt.format(calCursor);
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }, [lang, calCursor]);
-
-  const calRowsByDate = useMemo(() => {
-    const map = new Map<string, ReturnType<typeof toExportRows>>();
-    const exported = toExportRows(calShifts);
-    exported.forEach((r) => {
-      const arr = map.get(r.date) ?? [];
-      arr.push(r);
-      map.set(r.date, arr);
-    });
-    return map;
-  }, [calShifts]);
-
-  const calGrid = useMemo(() => {
-    const firstDay = new Date(calCursor);
-    const jsDay = firstDay.getDay();
-    const offset = (jsDay + 6) % 7;
-    const daysInMonth = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0).getDate();
-    const cells: Array<{ day: number | null; key: string }> = [];
-    for (let i = 0; i < offset; i++) cells.push({ day: null, key: `e${i}` });
-    for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, key: `d${d}` });
-    while (cells.length % 7 !== 0) cells.push({ day: null, key: `t${cells.length}` });
-    return cells;
-  }, [calCursor]);
-
-  const [shiftEditList, setShiftEditList] = useState<ShiftDetail[]>([]);
-  const [shiftEditIndex, setShiftEditIndex] = useState(0);
-
-  function loadShiftIntoEdit(shift: ShiftDetail, emp: EmployeeRow) {
-    setShiftEdit({
-      id: shift.id,
-      user_id: emp.id,
-      user_name: emp.name,
-      site_id: (shift as any).site_id ?? null,
-      site_name: shift.site_name ?? null,
-      started_at: toLocalInput(shift.started_at) || "",
-      ended_at: toLocalInput(shift.ended_at) || "",
-      lunch_minutes: shift.lunch_total_ms ? Math.round(Number(shift.lunch_total_ms) / 60000) : 0,
-      start_city: (shift as any).start_city ?? "",
-      end_city: (shift as any).end_city ?? "",
-    });
-  }
-
-  function onCalDayClick(day: number) {
-    const dateKey = `${String(day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}`;
-    const entries = calRowsByDate.get(dateKey);
-    const emp = employees.find((e) => e.id === calEmpId);
-    if (!emp) return;
-
-    if (entries && entries.length > 0) {
-      const shifts = calShifts.filter((s) => {
-        const d = new Date(s.started_at);
-        return d.getDate() === day;
-      });
-      if (shifts.length > 0) {
-        setShiftEditList(shifts);
-        setShiftEditIndex(0);
-        loadShiftIntoEdit(shifts[0], emp);
-      }
-    } else {
-      setShiftEditList([]);
-      setShiftEditIndex(0);
-      const d = new Date(calCursor.getFullYear(), calCursor.getMonth(), day, 8, 0, 0);
-      const d2 = new Date(calCursor.getFullYear(), calCursor.getMonth(), day, 17, 0, 0);
-      setShiftEdit({
-        user_id: emp.id,
-        user_name: emp.name,
-        site_id: null,
-        site_name: null,
-        started_at: toLocalInput(d.toISOString()) || "",
-        ended_at: toLocalInput(d2.toISOString()) || "",
-        lunch_minutes: 0,
-        start_city: "",
-        end_city: "",
-      });
-    }
-  }
 
   const name = user?.user_metadata?.full_name || user?.email || "Администратор";
 
@@ -604,18 +483,19 @@ export function AdminDashboard({
     ] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, full_name, email, phone, is_active, avatar_url, updated_at, label"),
+        .select("id, full_name, first_name, last_name, username, birth_date, email, phone, is_active, avatar_url, updated_at, label"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")
-        .select("id, name, address, customer, created_at, label")
+        .select("id, name, name_translations, address, customer, created_at, label")
         .order("created_at", { ascending: false }),
       (function () {
         let q = supabase
           .from("photo_reports")
           .select("id, description, criticality, photo_url, created_at, site_id, author_id")
           .order("created_at", { ascending: false });
-        if (reportsSite !== "all") q = q.eq("site_id", reportsSite);
+        if (reportsSite === "general_chat") q = q.is("site_id", null);
+        else if (reportsSite !== "all") q = q.eq("site_id", reportsSite);
         if (reportsCrit !== "all")
           q = q.eq("criticality", reportsCrit as "info" | "important" | "urgent");
         if (reportsSearch) q = q.ilike("description", `%${reportsSearch}%`);
@@ -716,6 +596,10 @@ export function AdminDashboard({
         return {
           id: p.id,
           name: p.full_name || p.email || p.phone || "Без имени",
+          first_name: p.first_name,
+          last_name: p.last_name,
+          username: p.username,
+          birth_date: p.birth_date,
           avatar_url: p.avatar_url ?? null,
           role: r,
           status,
@@ -742,6 +626,10 @@ export function AdminDashboard({
           siteName: null,
           lastShiftAt: null,
           is_active: true,
+          first_name: null,
+          last_name: null,
+          username: null,
+          birth_date: null,
         },
         {
           id: "dev-2",
@@ -754,6 +642,10 @@ export function AdminDashboard({
           siteName: "DMAG Werkhalle Nord",
           lastShiftAt: new Date().toISOString(),
           is_active: true,
+          first_name: null,
+          last_name: null,
+          username: null,
+          birth_date: null,
         },
         {
           id: "dev-3",
@@ -766,6 +658,10 @@ export function AdminDashboard({
           siteName: "Bauprojekt Hafen Ost",
           lastShiftAt: new Date().toISOString(),
           is_active: true,
+          first_name: null,
+          last_name: null,
+          username: null,
+          birth_date: null,
         },
         {
           id: "dev-4",
@@ -778,6 +674,10 @@ export function AdminDashboard({
           siteName: "DMAG Werkhalle Nord",
           lastShiftAt: new Date().toISOString(),
           is_active: true,
+          first_name: null,
+          last_name: null,
+          username: null,
+          birth_date: null,
         },
       ];
     }
@@ -791,6 +691,7 @@ export function AdminDashboard({
       .map((s) => ({
         id: s.id,
         name: s.name,
+        name_translations: (s.name_translations as Record<string, string>) || {},
         address: s.address,
         customer: s.customer,
         comment: (s as any).comment ?? null,
@@ -836,7 +737,7 @@ export function AdminDashboard({
         description: r.description,
         criticality: r.criticality as Crit,
         created_at: r.created_at,
-        site_name: r.site_id ? (siteNameMap.get(r.site_id) ?? "—") : "—",
+        site_name: r.site_id ? (siteNameMap.get(r.site_id) ?? "—") : t("chat.generalChannel", { defaultValue: "Общий чат" }),
         thumb: r.photo_url
           ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
           : null,
@@ -914,7 +815,7 @@ export function AdminDashboard({
     setLoading(false);
   }
 
-  async function deletePhotoReport(id: string, photo_url: string | null) {
+  async function deletePhotoReport(id: string, photo_url: string | null | undefined) {
     if (!confirm("Удалить фотоотчёт?")) return;
 
     setReports((prev) => prev.filter((x) => x.id !== id));
@@ -976,7 +877,8 @@ export function AdminDashboard({
         .select("id, description, criticality, photo_url, created_at, site_id, author_id")
         .order("created_at", { ascending: false });
 
-      if (reportsSite !== "all") query = query.eq("site_id", reportsSite);
+      if (reportsSite === "general_chat") query = query.is("site_id", null);
+      else if (reportsSite !== "all") query = query.eq("site_id", reportsSite);
       if (reportsCrit !== "all")
         query = query.eq("criticality", reportsCrit as "info" | "important" | "urgent");
       if (reportsSearch) query = query.ilike("description", `%${reportsSearch}%`);
@@ -1007,7 +909,7 @@ export function AdminDashboard({
             description: r.description,
             criticality: r.criticality,
             created_at: r.created_at,
-            site_name: siteNameMap.get(r.site_id) ?? "—",
+            site_name: r.site_id ? (siteNameMap.get(r.site_id) ?? "—") : t("chat.generalChannel", { defaultValue: "Общий чат" }),
             thumb: r.photo_url
               ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
               : null,
@@ -1070,162 +972,45 @@ export function AdminDashboard({
     };
   }, [employees, sites, reports]);
 
-  // ===== Shift editor (admin + super_admin) =====
-  type ShiftEdit = {
-    id?: string;
-    user_id: string;
-    user_name: string;
-    site_id: string | null;
-    site_name: string | null;
-    started_at: string; // local datetime-local value
-    ended_at: string;
-    lunch_minutes: number;
-    start_city: string;
-    end_city: string;
-  };
-  const [shiftEdit, setShiftEdit] = useState<ShiftEdit | null>(null);
-  const [shiftSaving, setShiftSaving] = useState(false);
-
-  function toLocalInput(iso: string | null): string {
-    if (!iso) return "";
-    const d = new Date(iso);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-  function fromLocalInput(v: string): string | null {
-    if (!v) return null;
-    return new Date(v).toISOString();
-  }
-
-  async function openEditShift(emp: EmployeeRow) {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
-
-    const { data } = await supabase
-      .from("shifts")
-      .select("id, site_id, site_name, started_at, ended_at, lunch_total_ms, start_city, end_city")
-      .eq("user_id", emp.id)
-      .gte("started_at", startOfMonth)
-      .lte("started_at", endOfMonth)
-      .order("started_at", { ascending: false });
-
-    if (data && data.length > 0) {
-      setShiftEditList(data as any[]);
-      setShiftEditIndex(0);
-      loadShiftIntoEdit(data[0] as any, emp);
-    } else {
-      setShiftEditList([]);
-      setShiftEditIndex(0);
-      setShiftEdit({
-        id: undefined,
-        user_id: emp.id,
-        user_name: emp.name,
-        site_id: null,
-        site_name: null,
-        started_at: toLocalInput(new Date().toISOString()),
-        ended_at: "",
-        lunch_minutes: 0,
-        start_city: "",
-        end_city: "",
-      });
-    }
-  }
-
-  function openAddShift() {
-    setShiftEdit({
-      user_id: "",
-      user_name: "",
-      site_id: null,
-      site_name: null,
-      started_at: toLocalInput(new Date().toISOString()),
-      ended_at: "",
-      lunch_minutes: 0,
-      start_city: "",
-      end_city: "",
-    });
-  }
-
-  async function saveShift() {
-    if (!shiftEdit) return;
-    if (!shiftEdit.user_id) {
-      toast.error(t("admin.calendar.selectEmp"));
-      return;
-    }
-    const started = fromLocalInput(shiftEdit.started_at);
-    if (!started) {
-      toast.error("Укажите время начала");
-      return;
-    }
-    const ended = fromLocalInput(shiftEdit.ended_at);
-    const lunch_total_ms = Math.max(0, shiftEdit.lunch_minutes) * 60_000;
-    const status = ended ? "finished" : "working";
-    setShiftSaving(true);
-    let err: { message: string } | null = null;
-    if (shiftEdit.id) {
-      const { error } = await supabase
-        .from("shifts")
-        .update({
-          started_at: started,
-          ended_at: ended,
-          lunch_total_ms,
-          status,
-          site_id: shiftEdit.site_id,
-          site_name: shiftEdit.site_name,
-          start_city: shiftEdit.start_city.trim() || null,
-          end_city: shiftEdit.end_city.trim() || null,
-        })
-        .eq("id", shiftEdit.id);
-      err = error as any;
-    } else {
-      const emp = employees.find((e) => e.id === shiftEdit.user_id);
-      const presetId = adminSelectedFirmId !== "all" ? adminSelectedFirmId : emp?.label || null;
-
-      const { error } = await supabase.from("shifts").insert({
-        user_id: shiftEdit.user_id,
-        preset_id: presetId,
-        started_at: started,
-        ended_at: ended,
-        lunch_total_ms,
-        status,
-        site_id: shiftEdit.site_id,
-        site_name: shiftEdit.site_name,
-        start_city: shiftEdit.start_city.trim() || null,
-        end_city: shiftEdit.end_city.trim() || null,
-      });
-      err = error as any;
-    }
-    setShiftSaving(false);
-    if (err) {
-      toast.error(err.message);
-      return;
-    }
-    toast.success("Смена сохранена");
-    setShiftEdit(null);
-    loadAll();
-  }
-
-  async function deleteShift() {
-    if (!shiftEdit?.id) return;
-    if (!confirm("Удалить эту смену?")) return;
-    const { error } = await supabase.from("shifts").delete().eq("id", shiftEdit.id);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Смена удалена");
-    setShiftEdit(null);
-    loadAll();
-  }
-
   // ===== Site editor (admin + super_admin) =====
   type SiteEdit = {
     id?: string;
     name: string;
+    name_translations: Record<string, string>;
     address: string;
     customer: string;
   };
-  const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
+const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
+  const [siteMergeSource, setSiteMergeSource] = useState<{ id: string; name: string } | null>(null);
+  const [siteMergeTarget, setSiteMergeTarget] = useState<string>("");
+  const [siteMergeBusy, setSiteMergeBusy] = useState(false);
+
+  async function mergeSites() {
+    if (!siteMergeSource || !siteMergeTarget) return;
+    if (siteMergeSource.id === siteMergeTarget) {
+      toast.error("Нельзя объединить объект с самим собой");
+      return;
+    }
+    const targetSite = sites.find(s => s.id === siteMergeTarget);
+    if (!confirm(`Вы уверены, что хотите объединить "${siteMergeSource.name}" с "${targetSite?.name}"?`)) return;
+    
+    setSiteMergeBusy(true);
+    try {
+      const { error } = await (supabase.rpc as any)('merge_sites', { 
+        source_id: siteMergeSource.id, 
+        target_id: siteMergeTarget 
+      });
+      if (error) throw error;
+      toast.success("Объекты успешно объединены");
+      setSiteMergeSource(null);
+      setSiteMergeTarget("");
+      loadAll();
+    } catch (e: any) {
+      toast.error("Ошибка при объединении: " + e.message);
+    } finally {
+      setSiteMergeBusy(false);
+    }
+  }
   const [siteSaving, setSiteSaving] = useState(false);
   const [siteGpsBusy, setSiteGpsBusy] = useState(false);
 
@@ -1248,7 +1033,7 @@ export function AdminDashboard({
   }
 
   function openAddSite() {
-    setSiteEdit({ name: "", address: "", customer: "" });
+    setSiteEdit({ name: "", name_translations: {}, address: "", customer: "" });
   }
 
   async function saveSite() {
@@ -1264,6 +1049,7 @@ export function AdminDashboard({
         .from("sites")
         .update({
           name: siteEdit.name.trim(),
+          name_translations: siteEdit.name_translations as any,
           address: siteEdit.address.trim() || null,
           customer: siteEdit.customer.trim() || null,
         })
@@ -1272,6 +1058,7 @@ export function AdminDashboard({
     } else {
       const { error } = await supabase.from("sites").insert({
         name: siteEdit.name.trim(),
+        name_translations: siteEdit.name_translations as any,
         address: siteEdit.address.trim() || null,
         customer: siteEdit.customer.trim() || null,
         created_by: user?.id ?? null,
@@ -1320,15 +1107,21 @@ export function AdminDashboard({
     open: boolean;
     email: string;
     password: string;
-    full_name: string;
+    first_name: string;
+    last_name: string;
+    username: string;
+    birth_date: string;
     role: AppRole;
     label: string;
-  }>({ open: false, email: "", password: "", full_name: "", role: "employee", label: "" });
+  }>({ open: false, email: "", password: "", first_name: "", last_name: "", username: "", birth_date: "", role: "employee", label: "" });
 
   const [nameEdit, setNameEdit] = useState<{
     user_id: string;
     user_name: string;
-    current_name: string;
+    first_name: string;
+    last_name: string;
+    username: string;
+    birth_date: string;
     current_label: string;
     open: boolean;
   } | null>(null);
@@ -1352,7 +1145,10 @@ export function AdminDashboard({
         data: {
           email: createForm.email.trim(),
           password: createForm.password,
-          full_name: createForm.full_name.trim(),
+          first_name: createForm.first_name.trim(),
+          last_name: createForm.last_name.trim(),
+          username: createForm.username.trim(),
+          birth_date: createForm.birth_date,
           role: createForm.role,
           label: createForm.label.trim() || null,
         },
@@ -1362,7 +1158,10 @@ export function AdminDashboard({
         open: false,
         email: "",
         password: "",
-        full_name: "",
+        first_name: "",
+        last_name: "",
+        username: "",
+        birth_date: "",
         role: "employee",
         label: "",
       });
@@ -1381,7 +1180,10 @@ export function AdminDashboard({
       await updateUserFn({
         data: {
           user_id: nameEdit.user_id,
-          full_name: nameEdit.current_name,
+          first_name: nameEdit.first_name,
+          last_name: nameEdit.last_name,
+          username: nameEdit.username,
+          birth_date: nameEdit.birth_date,
           label: nameEdit.current_label.trim() || null,
         },
       });
@@ -1727,13 +1529,26 @@ export function AdminDashboard({
           mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
-        <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
-          <img src={displayLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow" />
-          <div>
-            <p className="font-bold leading-tight">{displayName}</p>
-            <p className="text-xs opacity-75">Admin Console</p>
+          <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
+            <img src={displayLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow shrink-0" />
+            <div className="min-w-0">
+              <Select
+                value={adminSelectedFirmId}
+                onValueChange={(val) => setAdminSelectedFirmId(val)}
+              >
+                <SelectTrigger className="h-7 px-0 py-0 border-none bg-transparent shadow-none w-full justify-start font-bold hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:ring-0 truncate [&>svg]:opacity-50">
+                  <SelectValue placeholder={t("admin.allFirms")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("admin.dashboard.all_firms", { defaultValue: "Все фирмы" })}</SelectItem>
+                  {presets.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id.toString()}>{p.app_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs opacity-75 pl-0">Admin Console</p>
+            </div>
           </div>
-        </div>
         <nav className="px-3 py-4 flex-1 space-y-1">
           {[
             { id: "dashboard", icon: Activity, label: t("admin.tab.dashboard"), super: false },
@@ -1922,15 +1737,6 @@ export function AdminDashboard({
                     <p className="text-sm text-muted-foreground">{t("admin.personnel.desc")}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={openAddShift}
-                      className="rounded-xl"
-                    >
-                      <Plus className="h-3.5 w-3.5 mr-1.5" />
-                      {t("admin.personnel.addShift")}
-                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button size="sm" variant="outline" className="rounded-xl">
@@ -2030,9 +1836,7 @@ export function AdminDashboard({
                             <TableHead className="text-right">
                               {t("admin.personnel.colPause")}
                             </TableHead>
-                            <TableHead className="text-right">
-                              {t("admin.personnel.colActions")}
-                            </TableHead>
+                            <TableHead></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -2087,28 +1891,7 @@ export function AdminDashboard({
                                   <TableCell className="text-right tabular-nums text-sm text-muted-foreground">
                                     {formatHM(e.lunchMs, t)}
                                   </TableCell>
-                                  <TableCell className="text-right">
-                                    <div className="flex justify-end gap-1">
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="rounded-lg"
-                                        onClick={() => setCalendarFor(e)}
-                                        title={t("admin.personnel.calTooltip")}
-                                      >
-                                        <CalendarDays className="h-3.5 w-3.5" />
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        className="rounded-lg"
-                                        onClick={() => openEditShift(e)}
-                                        title={t("admin.personnel.editTooltip")}
-                                      >
-                                        <Pencil className="h-3.5 w-3.5" />
-                                      </Button>
-                                    </div>
-                                  </TableCell>
+                                  <TableCell></TableCell>
                                 </TableRow>
                               );
                             })}
@@ -2134,24 +1917,7 @@ export function AdminDashboard({
                                     {superMode && e.label && ` · ${e.label}`}
                                   </p>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-8 w-8 rounded-lg"
-                                    onClick={() => setCalendarFor(e)}
-                                  >
-                                    <CalendarDays className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-8 w-8 rounded-lg"
-                                    onClick={() => openEditShift(e)}
-                                  >
-                                    <Pencil className="h-4 w-4" />
-                                  </Button>
-                                </div>
+                                
                               </div>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 <span
@@ -2276,7 +2042,7 @@ export function AdminDashboard({
                               ).length;
                               return (
                                 <TableRow key={s.id}>
-                                  <TableCell className="font-medium">{tName(s.name)}</TableCell>
+                                  <TableCell className="font-medium">{tName(s.name, s.name_translations)}</TableCell>
                                   <TableCell className="text-sm text-muted-foreground">
                                     {s.address || "—"}
                                   </TableCell>
@@ -2301,6 +2067,7 @@ export function AdminDashboard({
                                           setSiteEdit({
                                             id: s.id,
                                             name: s.name,
+                                            name_translations: s.name_translations || {},
                                             address: s.address ?? "",
                                             customer: s.customer ?? "",
                                           })
@@ -2309,6 +2076,16 @@ export function AdminDashboard({
                                       >
                                         <Pencil className="h-3.5 w-3.5" />
                                       </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="rounded-lg"
+                                        onClick={() => setSiteMergeSource({ id: s.id, name: s.name })}
+                                        title={t("admin.sites.merge") || "Объединить"}
+                                      >
+                                        <Merge className="h-3.5 w-3.5" />
+                                      </Button>
+
                                       <Button
                                         size="sm"
                                         variant="ghost"
@@ -2339,7 +2116,7 @@ export function AdminDashboard({
                             >
                               <div className="flex justify-between items-start gap-2">
                                 <div>
-                                  <h4 className="font-semibold text-base">{tName(s.name)}</h4>
+                                  <h4 className="font-semibold text-base">{tName(s.name, s.name_translations)}</h4>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Button
@@ -2350,6 +2127,7 @@ export function AdminDashboard({
                                       setSiteEdit({
                                         id: s.id,
                                         name: s.name,
+                                        name_translations: s.name_translations || {},
                                         address: s.address ?? "",
                                         customer: s.customer ?? "",
                                       })
@@ -2357,6 +2135,16 @@ export function AdminDashboard({
                                   >
                                     <Pencil className="h-4 w-4" />
                                   </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-8 w-8 rounded-lg"
+                                    onClick={() => setSiteMergeSource({ id: s.id, name: s.name })}
+                                    title={t("admin.sites.merge") || "Объединить"}
+                                  >
+                                    <Merge className="h-4 w-4" />
+                                  </Button>
+
                                   <Button
                                     size="icon"
                                     variant="ghost"
@@ -2403,6 +2191,46 @@ export function AdminDashboard({
                 )}
               </Card>
 
+              {/* Site merge dialog */}
+              <Dialog open={!!siteMergeSource} onOpenChange={(o) => !o && setSiteMergeSource(null)}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Объединение объектов</DialogTitle>
+                    <DialogDescription>
+                      Перенос всех смен и отчётов из объекта <b>{tName(siteMergeSource?.name || "")}</b> в другой объект. Исходный объект будет удалён.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Целевой объект</Label>
+                      <Select value={siteMergeTarget} onValueChange={setSiteMergeTarget}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Выберите объект..." />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60">
+                          {sites
+                            .filter(s => s.id !== siteMergeSource?.id)
+                            .map((s) => (
+                              <SelectItem key={s.id} value={s.id}>
+                                {tName(s.name, s.name_translations)}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setSiteMergeSource(null)}>
+                      Отмена
+                    </Button>
+                    <Button onClick={mergeSites} disabled={!siteMergeTarget || siteMergeBusy}>
+                      {siteMergeBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Merge className="h-4 w-4 mr-2" />}
+                      Объединить
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
               {/* Site editor dialog */}
               <Dialog open={!!siteEdit} onOpenChange={(o) => !o && setSiteEdit(null)}>
                 <DialogContent className="sm:max-w-md">
@@ -2430,12 +2258,30 @@ export function AdminDashboard({
                       </Button>
 
                       <div className="space-y-1.5">
-                        <Label>{t("admin.sites.dlgName")}</Label>
+                        <Label>{t("admin.sites.dlgName")} (Default/EN)</Label>
                         <Input
                           value={siteEdit.name}
                           onChange={(e) => setSiteEdit({ ...siteEdit, name: e.target.value })}
                           placeholder={t("admin.sites.dlgNamePl")}
                         />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label>Название (RU)</Label>
+                          <Input
+                            value={siteEdit.name_translations?.ru || ""}
+                            onChange={(e) => setSiteEdit({ ...siteEdit, name_translations: { ...siteEdit.name_translations, ru: e.target.value } })}
+                            placeholder="На русском"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>Название (UK)</Label>
+                          <Input
+                            value={siteEdit.name_translations?.uk || ""}
+                            onChange={(e) => setSiteEdit({ ...siteEdit, name_translations: { ...siteEdit.name_translations, uk: e.target.value } })}
+                            placeholder="На украинском"
+                          />
+                        </div>
                       </div>
                       <div className="space-y-1.5">
                         <Label>{t("admin.sites.dlgAddress")}</Label>
@@ -2502,13 +2348,25 @@ export function AdminDashboard({
                     </SelectTrigger>
                     <SelectContent className="rounded-xl max-h-64">
                       <SelectItem value="all">{t("admin.reports.allSites")}</SelectItem>
-                      {sites.map((s) => (
-                        <SelectItem key={`rs-${s.id}`} value={s.id}>
-                          {tName(s.name)}
-                        </SelectItem>
-                      ))}
+                      {sites
+                        .slice()
+                        .sort((a, b) => tName(a.name).localeCompare(tName(b.name)))
+                        .map((s) => (
+                          <SelectItem key={`rs-${s.id}`} value={s.id}>
+                            {tName(s.name, s.name_translations)}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
+                  
+                  <Button
+                    variant={reportsSite === "general_chat" ? "default" : "outline"}
+                    className="rounded-xl w-full sm:w-auto shrink-0"
+                    onClick={() => setReportsSite(prev => prev === "general_chat" ? "all" : "general_chat")}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    {t("chat.generalChannel")}
+                  </Button>
 
                   <Select value={reportsPeriod} onValueChange={setReportsPeriod}>
                     <SelectTrigger className="w-full sm:w-40 rounded-xl bg-background">
@@ -2533,61 +2391,107 @@ export function AdminDashboard({
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-6 max-w-2xl mx-auto w-full">
                       {reports.map((r) => {
                         return (
                           <div
                             key={r.id}
-                            className="flex gap-3 rounded-2xl border bg-card p-3 relative group"
+                            className="flex flex-col rounded-2xl border bg-card overflow-hidden shadow-sm"
                           >
-                            <div className="h-20 w-20 rounded-xl bg-muted overflow-hidden grid place-items-center shrink-0">
-                              {r.thumb ? (
-                                <img src={r.thumb} alt="" className="h-full w-full object-cover" />
+                            {/* Feed Header */}
+                            <div className="flex items-center justify-between p-4 pb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                  <Camera className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-semibold text-sm line-clamp-1">
+                                    {tName(r.site_name)}
+                                  </span>
+                                  <span className="text-[11px] text-muted-foreground">
+                                    {new Date(r.created_at).toLocaleString(langToLocale(lang), {
+                                      day: "numeric",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-40 rounded-xl">
+                                  <DropdownMenuItem 
+                                    onClick={() => setEditingReport({
+                                      id: r.id,
+                                      description: r.description || "",
+                                      criticality: r.criticality,
+                                      thumb: r.thumb || null,
+                                    })}
+                                    className="rounded-lg cursor-pointer"
+                                  >
+                                    <Pencil className="h-4 w-4 mr-2" />
+                                    {t("admin.reports.edit", { defaultValue: "Редактировать" })}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => deletePhotoReport(r.id, r.photo_url)}
+                                    className="rounded-lg cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    {t("admin.reports.delete", { defaultValue: "Удалить" })}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+
+                            {/* Feed Image */}
+                            <div 
+                              className="w-full bg-muted aspect-square sm:aspect-4/3 flex items-center justify-center cursor-pointer overflow-hidden relative"
+                              onClick={() => r.thumb && window.open(r.thumb, '_blank')}
+                            >
+                              {r.photo_url ? (
+                                <img 
+                                  src={r.thumb || undefined} 
+                                  alt="Report" 
+                                  className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" 
+                                />
                               ) : (
-                                <Camera className="h-5 w-5 text-muted-foreground" />
+                                <div className="flex flex-col items-center text-muted-foreground opacity-50">
+                                  <Camera className="h-10 w-10 mb-2" />
+                                  <span className="text-sm">Нет фото</span>
+                                </div>
+                              )}
+                              
+                              {/* Criticality Badge on top of image */}
+                              {r.criticality === "important" && (
+                                <div className="absolute top-3 left-3 bg-amber-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-sm">
+                                  {t("admin.reports.critImportant", { defaultValue: "Важно" })}
+                                </div>
+                              )}
+                              {r.criticality === "urgent" && (
+                                <div className="absolute top-3 left-3 bg-destructive/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-sm flex items-center gap-1">
+                                  <AlertCircle className="h-3 w-3" />
+                                  {t("admin.reports.critUrgent", { defaultValue: "Критично" })}
+                                </div>
                               )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] text-muted-foreground truncate">
-                                  {tName(r.site_name)}
-                                </span>
-                              </div>
-                              <p className="text-xs line-clamp-2">
-                                {r.description || t("admin.reports.noDesc")}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground mt-1">
-                                {new Date(r.created_at).toLocaleString(langToLocale(lang), {
-                                  day: "numeric",
-                                  month: "short",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </p>
-                            </div>
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                                onClick={() =>
-                                  setEditingReport({
-                                    id: r.id,
-                                    description: r.description || "",
-                                    criticality: r.criticality,
-                                  })
-                                }
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => deletePhotoReport(r.id, r.photo_url)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+
+                            {/* Feed Footer */}
+                            <div className="p-4 pt-3">
+                              {r.description ? (
+                                <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                                  <span className="font-medium mr-2">{tName(r.site_name)}</span>
+                                  {r.description}
+                                </p>
+                              ) : (
+                                <p className="text-sm italic text-muted-foreground">
+                                  {t("admin.reports.noDesc")}
+                                </p>
+                              )}
                             </div>
                           </div>
                         );
@@ -2925,7 +2829,10 @@ export function AdminDashboard({
                                     setNameEdit({
                                       user_id: e.id,
                                       user_name: e.name,
-                                      current_name: e.name,
+                                      first_name: e.first_name || "",
+                                      last_name: e.last_name || "",
+                                      username: e.username || "",
+                                      birth_date: e.birth_date || "",
                                       current_label: e.label ?? "",
                                       open: true,
                                     })
@@ -3100,12 +3007,15 @@ export function AdminDashboard({
                                 }
                                 onClick={() =>
                                   setNameEdit({
-                                    user_id: e.id,
-                                    user_name: e.name,
-                                    current_name: e.name,
-                                    current_label: e.label ?? "",
-                                    open: true,
-                                  })
+                                      user_id: e.id,
+                                      user_name: e.name,
+                                      first_name: e.first_name || "",
+                                      last_name: e.last_name || "",
+                                      username: e.username || "",
+                                      birth_date: e.birth_date || "",
+                                      current_label: e.label ?? "",
+                                      open: true,
+                                    })
                                 }
                               >
                                 <Pencil className="h-4 w-4 mr-1.5" />
@@ -3172,7 +3082,7 @@ export function AdminDashboard({
 
           {/* CALENDAR TAB */}
           {activeTab === "calendar" && (
-            <div className="space-y-6">
+            <div className="space-y-6 flex flex-col h-full max-h-[85vh]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold tracking-tight">{t("admin.tab.calendar")}</h3>
@@ -3180,14 +3090,14 @@ export function AdminDashboard({
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Select value={calEmpId} onValueChange={setCalEmpId}>
-                    <SelectTrigger className="w-full sm:w-62.5 bg-background">
+                    <SelectTrigger className="w-full sm:w-64 bg-background">
                       <SelectValue placeholder={t("admin.calendar.selectEmp")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__none__">{t("admin.calendar.selectEmp")}</SelectItem>
                       {employees.map((e) => (
                         <SelectItem key={`cal-${e.id}`} value={e.id}>
-                          {tName(e.name)}
+                          {e.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -3196,486 +3106,237 @@ export function AdminDashboard({
               </div>
 
               {calEmpId !== "__none__" && (
-                <Card className="p-6 rounded-2xl shadow-sm border border-primary/10">
-                  <div className="flex items-center justify-between mb-6 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1))
-                      }
-                    >
-                      <ChevronLeft className="h-4 w-4 mr-1" />{" "}
-                      {t("admin.pagination.prev", { defaultValue: "Пред." })}
-                    </Button>
-                    <div className="text-lg font-semibold text-center whitespace-nowrap">
-                      {calMonthName} {calCursor.getFullYear()}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCalCursor(new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1))
-                      }
-                    >
-                      {t("admin.pagination.next", { defaultValue: "След." })}{" "}
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
+                <Card className="flex-1 overflow-hidden p-0 border shadow-sm flex flex-col min-h-150">
+                  <div className="p-4 sm:p-6 h-full flex flex-col">
+                    <AdminEditableCalendarView 
+                      employeeId={calEmpId} 
+                      employeeName={employees.find((e) => e.id === calEmpId)?.name || ""} 
+                    />
                   </div>
-
-                  {calLoading ? (
-                    <div className="py-20 flex items-center justify-center text-muted-foreground">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" />{" "}
-                      {t("admin.loading", { defaultValue: "Загрузка..." })}
-                    </div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-7 gap-2 text-sm font-semibold text-muted-foreground text-center mb-2">
-                        {calWEEKDAYS.map((w) => (
-                          <div key={w} className="py-2">
-                            {w}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-7 gap-2">
-                        {calGrid.map((c) => {
-                          const dateKey = c.day
-                            ? `${String(c.day).padStart(2, "0")}.${String(calCursor.getMonth() + 1).padStart(2, "0")}.${calCursor.getFullYear()}`
-                            : "";
-                          const entries = c.day ? calRowsByDate.get(dateKey) : undefined;
-
-                          return (
-                            <div
-                              key={c.key}
-                              onClick={() => (c.day ? onCalDayClick(c.day) : undefined)}
-                              className={`min-h-16 sm:min-h-20 md:min-h-25 rounded-xl p-1 md:p-2 text-sm border transition-all ${
-                                c.day
-                                  ? entries
-                                    ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10 hover:shadow-sm"
-                                    : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50 hover:border-primary/20"
-                                  : "border-transparent opacity-50"
-                              }`}
-                            >
-                              {c.day && (
-                                <div className="flex flex-col h-full">
-                                  <div className="font-semibold text-muted-foreground">{c.day}</div>
-                                  {entries && (
-                                    <div className="mt-auto space-y-0.5">
-                                      {entries.slice(0, 2).map((e, idx) => (
-                                        <div
-                                          key={idx}
-                                          className="tabular-nums text-[10px] text-primary truncate"
-                                          title={`${e.site} - ${e.workedHM}`}
-                                        >
-                                          {e.workStart}–{e.workEnd}
-                                        </div>
-                                      ))}
-                                      {entries.length > 2 && (
-                                        <div className="text-[10px] text-muted-foreground">
-                                          +{entries.length - 2}
-                                        </div>
-                                      )}
-                                      <div className="text-[10px] font-semibold text-foreground mt-1">
-                                        {(() => {
-                                          const totalMin = entries.reduce((acc, e) => {
-                                            const [h, mRaw] = e.workedHM
-                                              .replace("ч", "")
-                                              .replace("м", "")
-                                              .split(" ");
-                                            return (
-                                              acc +
-                                              (parseInt(h || "0") * 60 + parseInt(mRaw || "0"))
-                                            );
-                                          }, 0);
-                                          return `${Math.floor(totalMin / 60)}ч ${String(totalMin % 60).padStart(2, "0")}м`;
-                                        })()}
-                                      </div>
-                                    </div>
-                                  )}
-                                  {!entries && (
-                                    <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity text-center">
-                                      {t("admin.personnel.addShift", { defaultValue: "+ Смена" })}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
                 </Card>
               )}
             </div>
           )}
-        </main>
-      </div>
 
-      {/* ===== Shift editor dialog ===== */}
-      <Dialog open={!!shiftEdit} onOpenChange={(o) => !o && setShiftEdit(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle>
-                {shiftEdit?.id ? t("admin.calendar.editShift") : t("admin.calendar.addShift")}
-              </DialogTitle>
-              {shiftEditList.length > 1 && (
-                <div className="flex items-center space-x-2 mr-6 text-sm">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => {
-                      const n =
-                        shiftEditIndex - 1 < 0 ? shiftEditList.length - 1 : shiftEditIndex - 1;
-                      setShiftEditIndex(n);
-                      loadShiftIntoEdit(
-                        shiftEditList[n],
-                        employees.find((e) => e.id === calEmpId)!,
-                      );
-                    }}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-muted-foreground">
-                    {shiftEditIndex + 1} / {shiftEditList.length}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => {
-                      const n = (shiftEditIndex + 1) % shiftEditList.length;
-                      setShiftEditIndex(n);
-                      loadShiftIntoEdit(
-                        shiftEditList[n],
-                        employees.find((e) => e.id === calEmpId)!,
-                      );
-                    }}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+          {/* EDIT PHOTO REPORT DIALOG */}
+          <Dialog open={!!editingReport} onOpenChange={(v) => !v && setEditingReport(null)}>
+            <DialogContent className="sm:max-w-md rounded-2xl">
+              <DialogHeader>
+                <DialogTitle>Редактирование</DialogTitle>
+              </DialogHeader>
+              {editingReport && (
+                <div className="flex flex-col gap-4 py-2">
+                  {editingReport.thumb && (
+                    <div className="rounded-xl overflow-hidden border border-border">
+                      <img 
+                        src={editingReport.thumb} 
+                        alt="Preview" 
+                        className="w-full max-h-64 object-contain bg-muted"
+                      />
+                    </div>
+                  )}
+                  <Textarea 
+                    value={editingReport.description}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditingReport({ ...editingReport, description: e.target.value })}
+                    placeholder="Описание..."
+                    className="min-h-16 resize-none"
+                  />
                 </div>
               )}
-            </div>
-            <DialogDescription>
-              {shiftEdit?.user_name
-                ? `${t("admin.personnel.employee")}: ${tName(shiftEdit.user_name || "")}`
-                : t("admin.calendar.fillTime")}
-            </DialogDescription>
-          </DialogHeader>
-          {shiftEdit && (
-            <div className="space-y-3">
-              {!shiftEdit.id && (
-                <div>
-                  <Label>{t("admin.personnel.employee")}</Label>
-                  <Select
-                    value={shiftEdit.user_id}
-                    onValueChange={(v) => {
-                      const emp = employees.find((x) => x.id === v);
-                      setShiftEdit({
-                        ...shiftEdit,
-                        user_id: v,
-                        user_name: emp?.name ?? "",
-                      });
-                    }}
-                  >
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setEditingReport(null)}>
+                  Отмена
+                </Button>
+                <Button onClick={savePhotoReportEdit}>
+                  Сохранить
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+
+
+          {/* CREATE USER DIALOG */}
+          <Dialog open={createForm.open} onOpenChange={(v) => !v && setCreateForm((f) => ({ ...f, open: false }))}>
+            <DialogContent className="sm:max-w-md rounded-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{t("admin.users.create")}</DialogTitle>
+                <DialogDescription>Новый профиль сотрудника</DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col gap-4 py-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>{t("auth.firstName") || "Имя"}</Label>
+                    <Input 
+                      value={createForm.first_name} 
+                      onChange={(e) => setCreateForm({ ...createForm, first_name: e.target.value })} 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>{t("auth.lastName") || "Фамилия"}</Label>
+                    <Input 
+                      value={createForm.last_name} 
+                      onChange={(e) => setCreateForm({ ...createForm, last_name: e.target.value })} 
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <Label>{t("auth.username") || "Имя пользователя"}</Label>
+                  <Input 
+                    value={createForm.username} 
+                    onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })} 
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>{t("auth.birthDate") || "Дата рождения"}</Label>
+                  <Input 
+                    type="date"
+                    value={createForm.birth_date} 
+                    onChange={(e) => setCreateForm({ ...createForm, birth_date: e.target.value })} 
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Email</Label>
+                  <Input 
+                    type="email"
+                    value={createForm.email} 
+                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} 
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Пароль</Label>
+                  <Input 
+                    type="text"
+                    value={createForm.password} 
+                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} 
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label>Роль</Label>
+                  <Select value={createForm.role} onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}>
                     <SelectTrigger>
-                      <SelectValue placeholder={t("admin.calendar.select")} />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          {tName(emp.name)} · {t(roleLabel[emp.role])}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="employee">{t("admin.users.employee")}</SelectItem>
+                      <SelectItem value="brigadier">Бригадир</SelectItem>
+                      <SelectItem value="admin">Администратор</SelectItem>
+                      {superMode && <SelectItem value="super_admin">Супер-админ</SelectItem>}
                     </SelectContent>
                   </Select>
                 </div>
+
+                
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setCreateForm((f) => ({ ...f, open: false }))}>Отмена</Button>
+                <Button onClick={submitCreateUser} disabled={userBusy}>
+                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Сохранить
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* EDIT PROFILE DIALOG */}
+          <Dialog open={!!nameEdit?.open} onOpenChange={(v) => !v && setNameEdit(null)}>
+            <DialogContent className="sm:max-w-md rounded-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{t("admin.moderation.edit") || "Редактировать профиль"}</DialogTitle>
+                <DialogDescription>{nameEdit?.user_name}</DialogDescription>
+              </DialogHeader>
+              {nameEdit && (
+                <div className="flex flex-col gap-4 py-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.firstName") || "Имя"}</Label>
+                      <Input 
+                        value={nameEdit.first_name} 
+                        onChange={(e) => setNameEdit({ ...nameEdit, first_name: e.target.value })} 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.lastName") || "Фамилия"}</Label>
+                      <Input 
+                        value={nameEdit.last_name} 
+                        onChange={(e) => setNameEdit({ ...nameEdit, last_name: e.target.value })} 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <Label>{t("auth.username") || "Имя пользователя"}</Label>
+                    <Input 
+                      value={nameEdit.username} 
+                      onChange={(e) => setNameEdit({ ...nameEdit, username: e.target.value })} 
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>{t("auth.birthDate") || "Дата рождения"}</Label>
+                    <Input 
+                      type="date"
+                      value={nameEdit.birth_date} 
+                      onChange={(e) => setNameEdit({ ...nameEdit, birth_date: e.target.value })} 
+                    />
+                  </div>
+
+                  
+                </div>
               )}
-              <div>
-                <Label>{t("admin.calendar.site")}</Label>
-                <Select
-                  value={shiftEdit.site_id ?? "__none__"}
-                  onValueChange={(v) => {
-                    if (v === "__none__")
-                      setShiftEdit({ ...shiftEdit, site_id: null, site_name: null });
-                    else {
-                      const s = sites.find((x) => x.id === v);
-                      setShiftEdit({ ...shiftEdit, site_id: v, site_name: s?.name ?? null });
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">{t("admin.calendar.noSite")}</SelectItem>
-                    {sites.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {tName(s.name)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>{t("admin.calendar.start")}</Label>
-                  <Input
-                    type="datetime-local"
-                    value={shiftEdit.started_at}
-                    onChange={(ev) => setShiftEdit({ ...shiftEdit, started_at: ev.target.value })}
-                  />
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setNameEdit(null)}>Отмена</Button>
+                <Button onClick={submitNameUpdate} disabled={userBusy}>
+                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Сохранить
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* EDIT CREDS DIALOG */}
+          <Dialog open={!!credsEdit} onOpenChange={(v) => !v && setCredsEdit(null)}>
+            <DialogContent className="sm:max-w-md rounded-2xl">
+              <DialogHeader>
+                <DialogTitle>Логин/Пароль</DialogTitle>
+                <DialogDescription>{credsEdit?.user_name}</DialogDescription>
+              </DialogHeader>
+              {credsEdit && (
+                <div className="flex flex-col gap-4 py-2">
+                  <div className="space-y-1.5">
+                    <Label>Новый Email</Label>
+                    <Input 
+                      placeholder="Оставить пустым чтобы не менять"
+                      value={credsEdit.email} 
+                      onChange={(e) => setCredsEdit({ ...credsEdit, email: e.target.value })} 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Новый пароль</Label>
+                    <Input 
+                      placeholder="Оставить пустым чтобы не менять"
+                      type="text"
+                      value={credsEdit.password} 
+                      onChange={(e) => setCredsEdit({ ...credsEdit, password: e.target.value })} 
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>{t("admin.calendar.end")}</Label>
-                  <Input
-                    type="datetime-local"
-                    value={shiftEdit.ended_at}
-                    onChange={(ev) => setShiftEdit({ ...shiftEdit, ended_at: ev.target.value })}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>{t("admin.calendar.pause")}</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={shiftEdit.lunch_minutes}
-                  onChange={(ev) =>
-                    setShiftEdit({ ...shiftEdit, lunch_minutes: Number(ev.target.value) || 0 })
-                  }
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>{t("admin.calendar.gpsStart")}</Label>
-                  <Input
-                    value={shiftEdit.start_city}
-                    onChange={(ev) => setShiftEdit({ ...shiftEdit, start_city: ev.target.value })}
-                    placeholder="Köln"
-                  />
-                </div>
-                <div>
-                  <Label>{t("admin.calendar.gpsEnd")}</Label>
-                  <Input
-                    value={shiftEdit.end_city}
-                    onChange={(ev) => setShiftEdit({ ...shiftEdit, end_city: ev.target.value })}
-                    placeholder="Köln"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter className="gap-2 sm:gap-2">
-            {shiftEdit?.id && (
-              <Button variant="destructive" onClick={deleteShift} disabled={shiftSaving}>
-                <Trash2 className="h-4 w-4 mr-1" />
-                {t("admin.calendar.delete")}
-              </Button>
-            )}
-            <Button variant="outline" onClick={() => setShiftEdit(null)} disabled={shiftSaving}>
-              {t("admin.calendar.cancel")}
-            </Button>
-            <Button onClick={saveShift} disabled={shiftSaving}>
-              {shiftSaving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              {t("admin.calendar.save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setCredsEdit(null)}>Отмена</Button>
+                <Button onClick={submitCredsUpdate} disabled={userBusy}>
+                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Сохранить
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
-      {/* ===== Create user dialog ===== */}
+        </main>
+      </div>
 
-      <Dialog
-        open={createForm.open}
-        onOpenChange={(o) => setCreateForm((f) => ({ ...f, open: o }))}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("admin.users.createTitle")}</DialogTitle>
-            <DialogDescription>{t("admin.users.createDesc")}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <Label>{t("admin.users.fullName")}</Label>
-              <Input
-                value={createForm.full_name}
-                onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>{t("admin.users.email")}</Label>
-              <Input
-                type="email"
-                value={createForm.email}
-                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>{t("admin.users.password")}</Label>
-              <Input
-                type="password"
-                value={createForm.password}
-                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>{t("admin.users.role")}</Label>
-              <Select
-                value={createForm.role}
-                onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="employee">{t(roleLabel.employee)}</SelectItem>
-                  <SelectItem value="brigadier">{t(roleLabel.brigadier)}</SelectItem>
-                  {superMode && <SelectItem value="admin">{t(roleLabel.admin)}</SelectItem>}
-                  {superMode && (
-                    <SelectItem value="super_admin">{t(roleLabel.super_admin)}</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCreateForm({ ...createForm, open: false })}
-              disabled={userBusy}
-            >
-              {t("admin.users.cancel")}
-            </Button>
-            <Button onClick={submitCreateUser} disabled={userBusy}>
-              {userBusy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              {t("admin.users.submit")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ===== Credentials editor ===== */}
-      <Dialog open={!!credsEdit} onOpenChange={(o) => !o && setCredsEdit(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("admin.users.credsTitle")}</DialogTitle>
-            <DialogDescription>{credsEdit ? tName(credsEdit.user_name) : ""}</DialogDescription>
-          </DialogHeader>
-          {credsEdit && (
-            <div className="space-y-3">
-              <div>
-                <Label>{t("admin.users.newEmail")}</Label>
-                <Input
-                  type="email"
-                  value={credsEdit.email}
-                  onChange={(e) => setCredsEdit({ ...credsEdit, email: e.target.value })}
-                  placeholder={t("admin.users.leaveEmpty")}
-                />
-              </div>
-              <div>
-                <Label>{t("admin.users.newPassword")}</Label>
-                <Input
-                  type="password"
-                  value={credsEdit.password}
-                  onChange={(e) => setCredsEdit({ ...credsEdit, password: e.target.value })}
-                  placeholder={t("admin.users.leaveEmpty")}
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCredsEdit(null)} disabled={userBusy}>
-              {t("admin.users.cancel")}
-            </Button>
-            <Button onClick={submitCredsUpdate} disabled={userBusy}>
-              {userBusy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              {t("admin.users.save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ===== Name editor ===== */}
-      <Dialog open={!!nameEdit} onOpenChange={(o) => !o && setNameEdit(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Редактировать имя</DialogTitle>
-            <DialogDescription>{nameEdit ? tName(nameEdit.user_name) : ""}</DialogDescription>
-          </DialogHeader>
-          {nameEdit && (
-            <div className="space-y-3">
-              <div>
-                <Label>Новое ФИО</Label>
-                <Input
-                  value={nameEdit.current_name}
-                  onChange={(e) => setNameEdit({ ...nameEdit, current_name: e.target.value })}
-                  placeholder="Иван Иванов"
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNameEdit(null)} disabled={userBusy}>
-              {t("admin.users.cancel")}
-            </Button>
-            <Button onClick={submitNameUpdate} disabled={userBusy}>
-              {userBusy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              {t("admin.users.save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <ShiftCalendarDialog
-        open={!!calendarFor}
-        onClose={() => setCalendarFor(null)}
-        employeeName={calendarFor ? tName(calendarFor.name) : ""}
-        shifts={calendarFor ? shiftHistory.filter((s) => s.user_id === calendarFor.id) : []}
-      />
-
-      {/* Edit Report Dialog */}
-      <Dialog open={!!editingReport} onOpenChange={(o) => !o && setEditingReport(null)}>
-        <DialogContent className="max-w-md rounded-2xl w-[calc(100vw-32px)]">
-          <DialogHeader>
-            <DialogTitle>Редактирование отчёта</DialogTitle>
-          </DialogHeader>
-          {editingReport && (
-            <div className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label>Описание</Label>
-                <textarea
-                  className="flex min-h-20 w-full rounded-xl border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                  value={editingReport.description}
-                  onChange={(e) =>
-                    setEditingReport({ ...editingReport, description: e.target.value })
-                  }
-                  autoFocus
-                  onFocus={(e) => {
-                    const len = e.target.value.length;
-                    e.target.setSelectionRange(len, len);
-                  }}
-                />
-              </div>
-            </div>
-          )}
-          <DialogFooter className="mt-2">
-            <Button
-              variant="outline"
-              className="rounded-xl w-full sm:w-auto"
-              onClick={() => setEditingReport(null)}
-            >
-              {t("admin.calendar.cancel")}
-            </Button>
-            <Button className="rounded-xl w-full sm:w-auto" onClick={savePhotoReportEdit}>
-              {t("admin.calendar.save")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -3688,14 +3349,14 @@ function Kpi({
 }: {
   label: string;
   value: string;
-  tone: "primary" | "success" | "warning" | "destructive";
+  tone: 'primary' | 'success' | 'warning' | 'destructive';
   icon: React.ReactNode;
 }) {
   const toneClass = {
-    primary: "bg-primary/10 text-primary",
-    success: "bg-[color:var(--success)]/15 text-[color:var(--success)]",
-    warning: "bg-[color:var(--warning)]/20 text-[color:var(--warning-foreground)]",
-    destructive: "bg-[color:var(--destructive)]/15 text-[color:var(--destructive)]",
+    primary: 'bg-primary/10 text-primary',
+    success: 'bg-[color:var(--success)]/15 text-[color:var(--success)]',
+    warning: 'bg-[color:var(--warning)]/20 text-[color:var(--warning-foreground)]',
+    destructive: 'bg-[color:var(--destructive)]/15 text-[color:var(--destructive)]',
   }[tone];
 
   return (

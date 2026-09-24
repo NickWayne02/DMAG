@@ -322,7 +322,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           try {
             final siteData = await Supabase.instance.client
                 .from('sites')
-                .select('id, name, address')
+                .select('id, name, address, name_translations')
                 .eq('id', data['site_id'])
                 .maybeSingle();
             

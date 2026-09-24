@@ -892,6 +892,72 @@ const DICT: Dict = {
     uz: "Ro'yxatdan o'tish",
     tg: "Бақайдгирӣ",
   },
+  "auth.firstName": {
+    ru: "Имя",
+    en: "First Name",
+    de: "Vorname",
+    ro: "Nume",
+    bg: "Име",
+    pl: "Imię",
+    uk: "Ім'я",
+    uz: "Ism",
+    tg: "Ном",
+  },
+  "auth.lastName": {
+    ru: "Фамилия",
+    en: "Last Name",
+    de: "Nachname",
+    ro: "Prenume",
+    bg: "Фамилия",
+    pl: "Nazwisko",
+    uk: "Прізвище",
+    uz: "Familiya",
+    tg: "Насаб",
+  },
+  "auth.username": {
+    ru: "Имя пользователя",
+    en: "Username",
+    de: "Benutzername",
+    ro: "Nume de utilizator",
+    bg: "Потребителско име",
+    pl: "Nazwa użytkownika",
+    uk: "Ім'я користувача",
+    uz: "Foydalanuvchi nomi",
+    tg: "Номи корбар",
+  },
+  "auth.birthDate": {
+    ru: "Дата рождения",
+    en: "Birth Date",
+    de: "Geburtsdatum",
+    ro: "Data nașterii",
+    bg: "Дата на раждане",
+    pl: "Data urodzenia",
+    uk: "Дата народження",
+    uz: "Tug'ilgan sana",
+    tg: "Рӯзи таваллуд",
+  },
+  "auth.loginOrEmailOrPhone": {
+    ru: "Имя пользователя, Телефон или Email",
+    en: "Username, Phone or Email",
+    de: "Benutzername, Telefon oder E-Mail",
+    ro: "Utilizator, Telefon sau Email",
+    bg: "Потребителско име, Телефон или Имейл",
+    pl: "Nazwa użytkownika, Telefon lub Email",
+    uk: "Ім'я користувача, Телефон або Email",
+    uz: "Foydalanuvchi nomi, Telefon yoki Email",
+    tg: "Номи корбар, Телефон ё Email",
+  },
+  "auth.emailOrPhone": {
+    ru: "Телефон или Email",
+    en: "Phone or Email",
+    de: "Telefon oder E-Mail",
+    ro: "Telefon sau Email",
+    bg: "Телефон или Имейл",
+    pl: "Telefon lub Email",
+    uk: "Телефон або Email",
+    uz: "Telefon yoki Email",
+    tg: "Телефон ё Email",
+  },
   "auth.fullName": {
     ru: "ФИО",
     en: "Full name",
@@ -2237,6 +2303,28 @@ const DICT: Dict = {
     uz: "Tavsifsiz",
     tg: "Бе тавсиф",
   },
+  "admin.reports.edit": {
+    ru: "Редактировать",
+    en: "Edit",
+    de: "Bearbeiten",
+    ro: "Editați",
+    bg: "Редактиране",
+    pl: "Edytuj",
+    uk: "Редагувати",
+    uz: "Tahrirlash",
+    tg: "Таҳрир кардан"
+  },
+  "admin.reports.delete": {
+    ru: "Удалить",
+    en: "Delete",
+    de: "Löschen",
+    ro: "Șterge",
+    bg: "Изтриване",
+    pl: "Usuń",
+    uk: "Видалити",
+    uz: "O'chirish",
+    tg: "Нест кардан"
+  },
 
   "admin.security.title": {
     ru: "Активные сеансы",
@@ -3513,6 +3601,17 @@ const DICT: Dict = {
     uz: "Объекты",
     tg: "Объекты",
     de: "OBJEKTE",
+  },
+  "chat.generalChannel": {
+    ru: "Общий чат",
+    en: "General chat",
+    de: "Allgemeiner Chat",
+    ro: "Chat general",
+    bg: "Общ чат",
+    pl: "Czat ogólny",
+    uk: "Загальний чат",
+    uz: "Umumiy chat",
+    tg: "Чати умумӣ",
   },
   "chat.generalTitle": {
     ru: "Общий чат команды",
@@ -4858,7 +4957,7 @@ type Ctx = {
   lang: LangCode;
   setLang: (l: LangCode) => void;
   t: (key: string, vars?: Record<string, string | number>) => string;
-  tName: (name: string) => string;
+  tName: (name: string, translations?: Record<string, string> | null) => string;
 };
 
 const LangContext = createContext<Ctx>({
@@ -5190,11 +5289,47 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       .join("");
   };
 
+  const SITE_TRANSLATIONS: Record<string, Record<string, string>> = {
+    "Зиген": { ru: "Зиген", uk: "Зіген", default: "Siegen" },
+    "Siegen": { ru: "Зиген", uk: "Зіген", default: "Siegen" },
+    "Giengen": { ru: "Зиген", uk: "Зіген", default: "Siegen" },
+    "Быдгощ": { ru: "Быдгощ", uk: "Бидгощ", default: "Bydgoszcz" },
+    "Bydgoszcz": { ru: "Быдгощ", uk: "Бидгощ", default: "Bydgoszcz" },
+    "Светловодск": { ru: "Светловодск", uk: "Світловодськ", default: "Svitlovodsk" },
+    "Svitlovodsk": { ru: "Светловодск", uk: "Світловодськ", default: "Svitlovodsk" },
+    "Bellershausen": { ru: "Беллерсхаузен", uk: "Беллерсгаузен", default: "Bellershausen" },
+    "Hinhausen": { ru: "Хинхаузен", uk: "Хінхаузен", default: "Hinhausen" },
+    "Харбах": { ru: "Харбах", uk: "Харбах", default: "Harbach" },
+    "Harbach": { ru: "Харбах", uk: "Харбах", default: "Harbach" },
+    "Freudenberg": { ru: "Фройденберг", uk: "Фройденберг", default: "Freudenberg" },
+  };
+
   // tName formats data (TitleCase) and applies transliteration
-  const tName = (name: string) => {
+  const tName = (name: string, translations?: Record<string, string> | null) => {
     if (!name || name.trim() === "") return name;
 
-    let processedName = name;
+    let processedName = name.trim();
+
+    // 1. Use DB translations if provided
+    if (translations) {
+      if (lang === "ru" && translations.ru) return translations.ru;
+      if (lang === "uk" && translations.uk) return translations.uk;
+      if (lang === "en" && translations.en) return translations.en;
+      if (translations.en && !["ru", "uk"].includes(lang)) return translations.en;
+      if (translations.default) return translations.default;
+    }
+
+    // 2. Specific hardcoded site translations match (case-insensitive for key)
+    const exactMatchKey = Object.keys(SITE_TRANSLATIONS).find(
+      (k) => k.toLowerCase() === processedName.toLowerCase()
+    );
+
+    if (exactMatchKey) {
+      const trans = SITE_TRANSLATIONS[exactMatchKey];
+      if (lang === "ru") return trans.ru || trans.default;
+      if (lang === "uk") return trans.uk || trans.default;
+      return trans.default;
+    }
 
     // Auto TitleCase if the name is ALL CAPS
     if (processedName === processedName.toUpperCase() && processedName.match(/[A-ZА-ЯЁІЇЄ]/)) {

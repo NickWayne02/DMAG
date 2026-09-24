@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/users/create")({
           }
 
           const body = await request.json();
-          const { email, password, full_name, role, label } = body;
+          const { email, password, first_name, last_name, username, birth_date, role, label } = body;
 
           if (!email || !password || !role) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -79,11 +79,18 @@ export const Route = createFileRoute("/api/users/create")({
             }
           }
 
+          const full_name = `${first_name} ${last_name}`.trim();
           const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
             email: email,
             password: password,
             email_confirm: true,
-            user_metadata: { full_name: full_name ?? "" },
+            user_metadata: { 
+              full_name,
+              first_name,
+              last_name,
+              username,
+              birth_date
+            },
           });
 
           if (error || !created.user) {
@@ -93,10 +100,16 @@ export const Route = createFileRoute("/api/users/create")({
             });
           }
 
-          // Also update profile label if provided
-          if (label !== undefined && label !== null) {
-            await supabaseAdmin.from("profiles").update({ label: label }).eq("id", created.user.id);
-          }
+          // Update profile
+          const profilePatch: any = {
+            first_name,
+            last_name,
+            username,
+            birth_date,
+          };
+          if (label !== undefined && label !== null) profilePatch.label = label;
+          
+          await supabaseAdmin.from("profiles").update(profilePatch).eq("id", created.user.id);
 
           // Override default role assigned by trigger
           await supabaseAdmin.from("user_roles").delete().eq("user_id", created.user.id);

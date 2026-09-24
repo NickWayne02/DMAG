@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../../theme/app_theme.dart';
 
-
 class CreateUserDialog extends StatefulWidget {
   const CreateUserDialog({super.key});
 
@@ -29,21 +28,30 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
   String _selectedRole = 'employee';
   final List<String> _roles = ['employee', 'brigadier', 'admin', 'super_admin'];
   
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _birthDateController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _birthDateController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _createUser() async {
-    final name = _nameController.text.trim();
+    final fn = _firstNameController.text.trim();
+    final ln = _lastNameController.text.trim();
+    final un = _usernameController.text.trim();
+    final bd = _birthDateController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -68,7 +76,10 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
         body: jsonEncode({
           'email': email,
           'password': password,
-          'full_name': name,
+          'first_name': fn,
+          'last_name': ln,
+          'username': un,
+          'birth_date': bd,
           'role': _selectedRole,
         }),
       );
@@ -123,6 +134,16 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
       ],
     );
   }
+  String _formatForApi(String dateStr) {
+    if (dateStr.length == 10 && dateStr[2] == '.' && dateStr[5] == '.') {
+      final parts = dateStr.split('.');
+      if (parts.length == 3) {
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    }
+    return dateStr;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +192,54 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
               ),
               const SizedBox(height: 24),
               
-              _buildTextField(context.watch<LocaleProvider>().t('create_user.name') ?? 'Полное имя', _nameController),
+              Row(
+                children: [
+                  Expanded(child: _buildTextField(context.watch<LocaleProvider>().t('auth.firstName') ?? 'Имя', _firstNameController)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField(context.watch<LocaleProvider>().t('auth.lastName') ?? 'Фамилия', _lastNameController)),
+                ],
+              ),
+              
+              _buildTextField(context.watch<LocaleProvider>().t('auth.username') ?? 'Имя пользователя', _usernameController),
+              
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.read<LocaleProvider>().t('auth.birthDate') ?? 'Дата рождения', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+                      if (date != null) {
+                        _birthDateController.text = "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}";
+                      }
+                    },
+                    child: AbsorbPointer(
+                      child: TextField(
+                        controller: _birthDateController,
+                        style: TextStyle(color: Theme.of(context).appColors.foreground),
+                        decoration: InputDecoration(
+                          hintText: 'ДД.ММ.ГГГГ',
+                          hintStyle: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.3)),
+                          filled: true,
+                          fillColor: Theme.of(context).cardColor,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).appColors.primary)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
               _buildTextField(context.watch<LocaleProvider>().t('create_user.email') ?? 'Email (логин)', _emailController),
               _buildTextField(context.watch<LocaleProvider>().t('create_user.password') ?? 'Пароль', _passwordController, obscureText: true),
               

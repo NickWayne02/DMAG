@@ -8656,5 +8656,38 @@
     "uk": "Всі фірми",
     "uz": "Barcha firmalar",
     "tg": "Ҳамаи фирмаҳо"
+  },
+  "admin.reports.edit": {
+    "ru": "Редактировать",
+    "en": "Edit",
+    "de": "Bearbeiten",
+    "ro": "Editați",
+    "bg": "Редактиране",
+    "pl": "Edytuj",
+    "uk": "Редагувати",
+    "uz": "Tahrirlash",
+    "tg": "Таҳрир кардан"
+  },
+  "admin.reports.delete": {
+    "ru": "Удалить",
+    "en": "Delete",
+    "de": "Löschen",
+    "ro": "Șterge",
+    "bg": "Изтриване",
+    "pl": "Usuń",
+    "uk": "Видалити",
+    "uz": "O'chirish",
+    "tg": "Нест кардан"
+  },
+  "chat.general_channel": {
+    "ru": "Общий чат",
+    "en": "General chat",
+    "de": "Allgemeiner Chat",
+    "ro": "Chat general",
+    "bg": "Общ чат",
+    "pl": "Czat ogólny",
+    "uk": "Загальний чат",
+    "uz": "Umumiy chat",
+    "tg": "Чати умумӣ"
   }
 }

@@ -838,7 +838,7 @@ export function EmployeeProvider({
 
   async function findNearestSite(coords: any): Promise<{ id: string; name: string } | null> {
     if (!coords?.latitude || !coords?.longitude) return null;
-    const { data: sites } = await supabase.from("sites").select("id, name, address");
+    const { data: sites } = await supabase.from("sites").select("id, name, name_translations, address");
     if (!sites) return null;
 
     let nearestSite = null;

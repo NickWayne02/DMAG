@@ -2,6 +2,7 @@ import '../providers/translation_provider.dart';
 import '../theme/app_theme.dart';
 import '../providers/locale_provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/shift_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../widgets/translated_message.dart';
@@ -63,11 +64,40 @@ class _ChatScreenState extends State<ChatScreen> {
     if (user == null) return;
 
     try {
-      final pRes = await _supabase.from('profiles').select('id, full_name, avatar_url').eq('is_active', true);
-      _profiles = List<Map<String, dynamic>>.from(pRes);
+      final List<dynamic> pRes = await _supabase.from('profiles').select('id, full_name, avatar_url');
+      final List<dynamic> rRes = await _supabase.from('user_roles').select('user_id, role');
+      
+      final Map<String, String> rolesMap = {};
+      for (var r in rRes) {
+        rolesMap[r['user_id'] as String] = r['role'] as String;
+      }
+      
+      _profiles = pRes.map((p) {
+        final profileMap = Map<String, dynamic>.from(p as Map);
+        profileMap['role'] = rolesMap[profileMap['id']] ?? 'employee';
+        return profileMap;
+      }).toList();
 
-      final sRes = await _supabase.from('sites').select('id, name');
-      _sites = List<Map<String, dynamic>>.from(sRes);
+      final p = await AuthService.getProfile(user.id);
+      if (p != null) {
+        _isSuperAdmin = p['role'] == 'super_admin' || p['role'] == 'admin';
+      }
+
+      final sRes = await _supabase.from('sites').select('id, name, name_translations');
+      final allSites = List<Map<String, dynamic>>.from(sRes);
+      
+      if (mounted) {
+        if (_isSuperAdmin) {
+          _sites = allSites;
+        } else {
+          final shift = Provider.of<ShiftProvider>(context, listen: false);
+          if (shift.selectedSite != null) {
+            _sites = allSites.where((s) => s['id'] == shift.selectedSite!['id']).toList();
+          } else {
+            _sites = [];
+          }
+        }
+      }
 
       final dmRes = await _supabase
           .from('chat_messages')
@@ -80,11 +110,6 @@ class _ChatScreenState extends State<ChatScreen> {
         uniqueDms.add(row['channel_id'] as String);
       }
       _dmChannelIds = uniqueDms.toList();
-      
-      final p = await AuthService.getProfile(user.id);
-      if (p != null) {
-        _isSuperAdmin = p['role'] == 'super_admin';
-      }
     } catch (e) {
       debugPrint('Error loading chat data: $e');
     }
@@ -100,7 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         } else if (widget.initialChannelType == 'site') {
           final site = _sites.firstWhere((s) => s['id'] == widget.initialChannelId, orElse: () => {'name': 'Объект'});
-          _activeChannelTitle = site['name'] as String;
+          _activeChannelTitle = context.read<TranslationProvider>().translate(site['name'] as String, context.read<LocaleProvider>().currentLang, site['name_translations'] as Map<String, dynamic>?);
         } else {
           _activeChannelTitle = 'Общий чат команды';
         }
@@ -618,11 +643,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Text(context.watch<LocaleProvider>().t('chat.sites') ?? 'ОБЪЕКТЫ', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
               ),
             ..._sites.map((site) {
+              final tName = context.watch<TranslationProvider>().translate(site['name'] as String, context.read<LocaleProvider>().currentLang, site['name_translations'] as Map<String, dynamic>?);
               return _buildDrawerItem(
                 icon: LucideIcons.building_2,
-                title: site['name'],
+                title: tName,
                 isActive: _activeChannelId == site['id'],
-                onTap: () => _switchChannel('site', site['id'], site['name']),
+                onTap: () => _switchChannel('site', site['id'], tName),
               );
             }),
           ],
@@ -1029,12 +1055,22 @@ class _ChatContentState extends State<ChatContent> {
     if (authorName.isEmpty || authorName.toLowerCase() == 'unknown' || authorName == 'Неизвестный') {
       final profile = widget.profiles.firstWhere((p) => p['id'] == msg['author_id'], orElse: () => {});
       if (profile.isNotEmpty) {
-        String roleStr = 'Сотрудник';
-        if (profile['role'] == 'super-admin') { roleStr = 'Супер-админ'; }
-        else if (profile['role'] == 'admin') { roleStr = 'Админ'; }
-        authorName = '${profile['full_name'] ?? 'Без имени'} ($roleStr)';
+        authorName = profile['full_name'] as String? ?? 'Без имени';
       } else {
         authorName = context.watch<LocaleProvider>().t('chat.anon') ?? 'Аноним';
+      }
+    }
+    
+    final profileForRole = widget.profiles.firstWhere((p) => p['id'] == msg['author_id'], orElse: () => {});
+    if (profileForRole.isNotEmpty && profileForRole['role'] != null && profileForRole['role'] != 'employee') {
+      String roleStr = '';
+      final r = profileForRole['role'];
+      if (r == 'super-admin' || r == 'super_admin') roleStr = 'Супер-админ';
+      else if (r == 'admin') roleStr = 'Админ';
+      else if (r == 'brigadier') roleStr = 'Бригадир';
+      
+      if (roleStr.isNotEmpty) {
+        authorName = '$authorName ($roleStr)';
       }
     }
     final content = msg['content'] as String? ?? '';

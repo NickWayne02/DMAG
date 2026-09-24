@@ -22,7 +22,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoginMode = true;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -31,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty || (!_isLoginMode && (_nameController.text.isEmpty || _confirmPasswordController.text.isEmpty))) {
+    if (email.isEmpty || password.isEmpty || (!_isLoginMode && (_firstNameController.text.isEmpty || _lastNameController.text.isEmpty || _usernameController.text.isEmpty || _birthDateController.text.isEmpty || _confirmPasswordController.text.isEmpty))) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.read<LocaleProvider>().t('auth.errors.fill_fields') ?? 'Пожалуйста, заполните все поля')),
       );
@@ -51,7 +54,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (_isLoginMode) {
         await AuthService.signIn(email: email, password: password);
       } else {
-        await AuthService.signUp(email: email, password: password, fullName: _nameController.text.trim());
+        await AuthService.signUp(
+          email: email, 
+          password: password, 
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          username: _usernameController.text.trim(),
+          birthDate: _formatForApi(_birthDateController.text.trim()),
+        );
       }
       // Navigation is handled automatically by AuthWrapper
     } on AuthException catch (e) {
@@ -75,12 +85,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _birthDateController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
+  String _formatForApi(String dateStr) {
+    if (dateStr.length == 10 && dateStr[2] == '.' && dateStr[5] == '.') {
+      final parts = dateStr.split('.');
+      if (parts.length == 3) {
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    }
+    return dateStr;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -241,35 +264,116 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Fields for Registration only
                     if (!_isLoginMode) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  t('auth.firstName') ?? 'Имя',
+                                  style: GoogleFonts.inter(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: _firstNameController,
+                                  style: TextStyle(color: textColor),
+                                  decoration: InputDecoration(
+                                    hintText: 'Имя',
+                                    hintStyle: TextStyle(color: mutedTextColor),
+                                    filled: true,
+                                    fillColor: inputBg,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.primary)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  t('auth.lastName') ?? 'Фамилия',
+                                  style: GoogleFonts.inter(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: _lastNameController,
+                                  style: TextStyle(color: textColor),
+                                  decoration: InputDecoration(
+                                    hintText: 'Фамилия',
+                                    hintStyle: TextStyle(color: mutedTextColor),
+                                    filled: true,
+                                    fillColor: inputBg,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.primary)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
                       Text(
-                        t('auth.fullName') ?? 'ФИО',
-                        style: GoogleFonts.inter(
-                          color: textColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        t('auth.username') ?? 'Имя пользователя',
+                        style: GoogleFonts.inter(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
                       TextField(
-                        controller: _nameController,
+                        controller: _usernameController,
                         style: TextStyle(color: textColor),
                         decoration: InputDecoration(
-                          hintText: context.watch<LocaleProvider>().t('auth.fullName_hint') ?? 'Иван Иванов',
+                          hintText: 'Имя пользователя',
                           hintStyle: TextStyle(color: mutedTextColor),
                           filled: true,
                           fillColor: inputBg,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: appColors.border),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: appColors.border),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: appColors.primary),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.primary)),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        t('auth.birthDate') ?? 'Дата рождения',
+                        style: GoogleFonts.inter(color: textColor, fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime.now(),
+                          );
+                          if (date != null) {
+                            _birthDateController.text = "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}";
+                          }
+                        },
+                        child: AbsorbPointer(
+                          child: TextField(
+                            controller: _birthDateController,
+                            style: TextStyle(color: textColor),
+                            decoration: InputDecoration(
+                              hintText: 'ДД.ММ.ГГГГ',
+                              hintStyle: TextStyle(color: mutedTextColor),
+                              filled: true,
+                              fillColor: inputBg,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                              suffixIcon: Icon(LucideIcons.calendar, color: mutedTextColor),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.border)),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: appColors.primary)),
+                            ),
                           ),
                         ),
                       ),
@@ -277,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
 
                     Text(
-                      t('auth.login') ?? 'Логин',
+                      _isLoginMode ? (t('auth.loginOrEmailOrPhone') ?? 'Телефон или Email') : (t('auth.emailOrPhone') ?? 'Телефон или Email'),
                       style: GoogleFonts.inter(
                         color: textColor,
                         fontSize: 14,
@@ -290,7 +394,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(color: textColor),
                       decoration: InputDecoration(
-                        hintText: 'ivanov',
+                        hintText: _isLoginMode ? 'Имя пользователя, Email или Телефон' : 'Email или телефон',
                         hintStyle: TextStyle(color: mutedTextColor),
                         filled: true,
                         fillColor: inputBg,

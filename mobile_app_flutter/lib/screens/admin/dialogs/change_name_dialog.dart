@@ -12,22 +12,34 @@ import 'package:flutter/foundation.dart';
 class ChangeNameDialog extends StatefulWidget {
   final String userId;
   final String userName;
+  final String? firstName;
+  final String? lastName;
+  final String? username;
+  final String? birthDate;
   final VoidCallback onSuccess;
 
   const ChangeNameDialog({
     super.key,
     required this.userId,
     required this.userName,
+    this.firstName,
+    this.lastName,
+    this.username,
+    this.birthDate,
     required this.onSuccess,
   });
 
-  static Future<void> show(BuildContext context, {required String userId, required String userName, required VoidCallback onSuccess}) {
+  static Future<void> show(BuildContext context, {required String userId, required String userName, String? firstName, String? lastName, String? username, String? birthDate, required VoidCallback onSuccess}) {
     return showDialog(
       context: context,
       barrierDismissible: true,
       builder: (_) => ChangeNameDialog(
         userId: userId,
         userName: userName,
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        birthDate: birthDate,
         onSuccess: onSuccess,
       ),
     );
@@ -38,24 +50,36 @@ class ChangeNameDialog extends StatefulWidget {
 }
 
 class _ChangeNameDialogState extends State<ChangeNameDialog> {
-  late TextEditingController _nameController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _usernameController;
+  late TextEditingController _birthDateController;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.userName);
+    _firstNameController = TextEditingController(text: widget.firstName ?? '');
+    _lastNameController = TextEditingController(text: widget.lastName ?? '');
+    _usernameController = TextEditingController(text: widget.username ?? '');
+    _birthDateController = TextEditingController(text: _formatForDisplay(widget.birthDate));
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _birthDateController.dispose();
     super.dispose();
   }
 
   Future<void> _updateName() async {
-    final newName = _nameController.text.trim();
-    if (newName.isEmpty) return;
+    final fn = _firstNameController.text.trim();
+    final ln = _lastNameController.text.trim();
+    final un = _usernameController.text.trim();
+    final bd = _birthDateController.text.trim();
+    if (fn.isEmpty || ln.isEmpty || un.isEmpty || bd.isEmpty) return;
 
     setState(() {
       _isLoading = true;
@@ -74,7 +98,10 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
         },
         body: jsonEncode({
           'user_id': widget.userId,
-          'full_name': newName,
+          'first_name': fn,
+          'last_name': ln,
+          'username': un,
+          'birth_date': bd,
         }),
       );
 
@@ -85,7 +112,7 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.read<LocaleProvider>().t('users.name_updated') ?? 'Имя успешно обновлено')),
+          SnackBar(content: Text(context.read<LocaleProvider>().t('users.name_updated') ?? 'Профиль успешно обновлен')),
         );
         widget.onSuccess();
       }
@@ -138,6 +165,27 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
       ],
     );
   }
+  String _formatForApi(String dateStr) {
+    if (dateStr.length == 10 && dateStr[2] == '.' && dateStr[5] == '.') {
+      final parts = dateStr.split('.');
+      if (parts.length == 3) {
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    }
+    return dateStr;
+  }
+
+  String _formatForDisplay(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return '';
+    if (dateStr.length >= 10 && dateStr[4] == '-' && dateStr[7] == '-') {
+      final parts = dateStr.substring(0, 10).split('-');
+      if (parts.length == 3) {
+        return '${parts[2]}.${parts[1]}.${parts[0]}';
+      }
+    }
+    return dateStr;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +211,7 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
                   const SizedBox(width: 24),
                   Expanded(
                     child: Text(
-                      context.watch<LocaleProvider>().t('users.edit_name') ?? 'Редактировать имя',
+                      context.watch<LocaleProvider>().t('users.edit_name') ?? 'Редактировать',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         color: Theme.of(context).appColors.foreground,
@@ -178,20 +226,56 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                widget.userName,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7),
-                  fontSize: 14,
-                ),
-              ),
               const SizedBox(height: 24),
 
-              _buildTextField(context.watch<LocaleProvider>().t('users.new_name') ?? 'Новое ФИО', _nameController),
+              Row(
+                children: [
+                  Expanded(child: _buildTextField(context.watch<LocaleProvider>().t('auth.firstName') ?? 'Имя', _firstNameController)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField(context.watch<LocaleProvider>().t('auth.lastName') ?? 'Фамилия', _lastNameController)),
+                ],
+              ),
+              
+              _buildTextField(context.watch<LocaleProvider>().t('auth.username') ?? 'Имя пользователя', _usernameController),
+              
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.read<LocaleProvider>().t('auth.birthDate') ?? 'Дата рождения', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+                      if (date != null) {
+                        _birthDateController.text = "${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}";
+                      }
+                    },
+                    child: AbsorbPointer(
+                      child: TextField(
+                        controller: _birthDateController,
+                        style: TextStyle(color: Theme.of(context).appColors.foreground),
+                        decoration: InputDecoration(
+                          hintText: 'ДД.ММ.ГГГГ',
+                          hintStyle: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.3)),
+                          filled: true,
+                          fillColor: Theme.of(context).cardColor,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.12))),
+                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).appColors.primary)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               
               SizedBox(
                 width: double.infinity,

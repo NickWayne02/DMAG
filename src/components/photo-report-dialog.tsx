@@ -143,10 +143,6 @@ export function PhotoReportDialog({
   }
 
   async function submit() {
-    if (!site && !skipDbInsert) {
-      toast.error("Сначала выберите объект");
-      return;
-    }
     if (!user) return;
     if (!file && !selectedStoragePath && !description.trim()) {
       toast.error("Добавьте фото или описание");
@@ -168,12 +164,12 @@ export function PhotoReportDialog({
       }
       if (!skipDbInsert) {
         const { error } = await supabase.from("photo_reports").insert({
-          site_id: site?.id as string,
+          site_id: site?.id ?? null,
           author_id: user.id,
           description: description.trim() || null,
           criticality,
           photo_url: photoPath,
-        });
+        } as any);
         if (error) throw error;
       }
 
@@ -201,26 +197,7 @@ export function PhotoReportDialog({
       >
         <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader className={previewUrl ? "border-b pb-3 mb-2" : ""}>
-            <DialogTitle>{previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
-            {!previewUrl && (
-              <DialogDescription>
-                {site ? (
-                  <>
-                    Объект: <span className="font-medium">{tName(site.name)}</span>
-                  </>
-                ) : skipDbInsert ? (
-                  t("chat.photo.willBeSent", {
-                    defaultValue: "Фото будет отправлено в текущий чат",
-                  })
-                ) : (
-                  <span className="text-xs text-amber-500 font-medium">
-                    {t("chat.photo.chooseSiteFirst", {
-                      defaultValue: "Сначала выберите объект на главном экране",
-                    })}
-                  </span>
-                )}
-              </DialogDescription>
-            )}
+            <DialogTitle>{initialData ? "Редактирование" : previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -337,10 +314,10 @@ export function PhotoReportDialog({
               <Button
                 className="h-11 rounded-xl"
                 onClick={submit}
-                disabled={busy || (!site && !skipDbInsert)}
+                disabled={busy}
               >
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                {t("chat.photo.send", { defaultValue: "Отправить" })}
+                {initialData ? "Сохранить" : "Отправить"}
               </Button>
             </DialogFooter>
           ) : (
@@ -357,7 +334,7 @@ export function PhotoReportDialog({
                 variant="ghost"
                 className="h-10 text-primary hover:text-primary/90 font-medium px-2"
                 onClick={submit}
-                disabled={busy || (!site && !skipDbInsert)}
+                disabled={busy}
               >
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {t("chat.photo.send", { defaultValue: "Отправить" })}

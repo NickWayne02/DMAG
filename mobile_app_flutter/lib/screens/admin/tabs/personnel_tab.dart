@@ -544,13 +544,6 @@ class _PersonnelTabState extends State<PersonnelTab> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        AdminCalendarDialog.show(context, emp.id, emp.name);
-                      },
-                      child: Icon(LucideIcons.calendar, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
-                    ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () {
                         _openEditShiftsForMonth(emp);
                       },
                       child: Icon(LucideIcons.pencil, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),

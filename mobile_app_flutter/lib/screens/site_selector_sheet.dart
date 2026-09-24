@@ -52,7 +52,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
     try {
       final data = await _supabase
           .from('sites')
-          .select('id, name, address, customer, comment')
+          .select('id, name, address, customer, comment, name_translations')
           .order('created_at', ascending: false);
       
       if (mounted) {
@@ -173,7 +173,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          context.watch<TranslationProvider>().translate(site['name'] ?? context.read<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия', currentLang),
+                                          context.watch<TranslationProvider>().translate(site['name'] ?? context.read<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия', currentLang, site['name_translations']),
                                           style: GoogleFonts.inter(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -183,7 +183,7 @@ class _SiteSelectorSheetState extends State<SiteSelectorSheet> {
                                         if (site['address'] != null && site['address'].toString().isNotEmpty) ...[
                                           const SizedBox(height: 4),
                                           Text(
-                                            context.watch<TranslationProvider>().translate(site['address'], currentLang),
+                                            context.watch<TranslationProvider>().translate(site['address'], currentLang, site['name_translations']),
                                             style: GoogleFonts.inter(
                                               fontSize: 12,
                                               color: Theme.of(context).appColors.muted,

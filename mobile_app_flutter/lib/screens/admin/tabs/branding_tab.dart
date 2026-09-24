@@ -17,6 +17,7 @@ class BrandingTab extends StatefulWidget {
 }
 
 class _BrandingTabState extends State<BrandingTab> {
+  static const _defaultPresetNames = ['DMAG', 'E&R', 'O&D'];
   final _supabase = Supabase.instance.client;
   final _appNameController = TextEditingController();
   bool _isLoading = false;
@@ -318,27 +319,29 @@ class _BrandingTabState extends State<BrandingTab> {
                   child: Text(t('admin.branding.apply') ?? 'Применить', style: const TextStyle(fontSize: 11)),
                 ),
               ),
-              const SizedBox(width: 4),
-              IconButton(
-                onPressed: () => _pickAndUploadLogo(preset),
-                icon: const Icon(LucideIcons.image_plus, size: 16),
-                color: colors.foreground.withValues(alpha: 0.7),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                tooltip: 'Изменить лого',
-              ),
-              const SizedBox(width: 4),
-              IconButton(
-                onPressed: () => _deletePreset(preset),
-                icon: const Icon(LucideIcons.trash_2, size: 16),
-                color: Colors.red,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.red.withValues(alpha: 0.1),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              if (!_defaultPresetNames.contains(preset['app_name']?.toString().toUpperCase() ?? preset['app_name'])) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  onPressed: () => _pickAndUploadLogo(preset),
+                  icon: const Icon(LucideIcons.image_plus, size: 16),
+                  color: colors.foreground.withValues(alpha: 0.7),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Изменить лого',
                 ),
-              ),
+                const SizedBox(width: 4),
+                IconButton(
+                  onPressed: () => _deletePreset(preset),
+                  icon: const Icon(LucideIcons.trash_2, size: 16),
+                  color: Colors.red,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.red.withValues(alpha: 0.1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ],
             ],
           ),
         ],
@@ -510,10 +513,10 @@ class _BrandingTabState extends State<BrandingTab> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                         ),
-                        icon: const Icon(LucideIcons.save, size: 16),
-                        label: FittedBox(
+                        icon: const Icon(LucideIcons.plus, size: 16),
+                        label: const FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text(t('admin.branding.saveCurrent') ?? 'Как пресет', style: const TextStyle(fontSize: 12)),
+                          child: Text('+ Новый бренд', style: TextStyle(fontSize: 12)),
                         ),
                       ),
                     ),

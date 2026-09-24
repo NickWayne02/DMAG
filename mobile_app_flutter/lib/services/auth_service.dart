@@ -14,11 +14,24 @@ class AuthService {
     );
   }
 
-  static Future<AuthResponse> signUp({required String email, required String password, required String fullName}) async {
+  static Future<AuthResponse> signUp({
+    required String email, 
+    required String password, 
+    required String firstName,
+    required String lastName,
+    required String username,
+    required String birthDate,
+  }) async {
     return await _supabase.auth.signUp(
       email: email,
       password: password,
-      data: {'full_name': fullName},
+      data: {
+        'first_name': firstName,
+        'last_name': lastName,
+        'username': username,
+        'birth_date': birthDate,
+        'full_name': '$firstName $lastName'.trim()
+      },
     );
   }
 

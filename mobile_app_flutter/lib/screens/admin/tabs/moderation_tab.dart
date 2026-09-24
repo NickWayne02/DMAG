@@ -1,4 +1,3 @@
-import '../../../providers/translation_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -8,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import '../../../theme/app_theme.dart';
 
-
 class ModerationTab extends StatefulWidget {
   const ModerationTab({super.key});
 
@@ -16,34 +14,61 @@ class ModerationTab extends StatefulWidget {
   State<ModerationTab> createState() => _ModerationTabState();
 }
 
-class _ModerationTabState extends State<ModerationTab> {
+class _ModerationTabState extends State<ModerationTab> with SingleTickerProviderStateMixin {
   final _supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _messages = [];
   Map<String, String> _profiles = {};
   bool _isLoading = true;
   String? _selectedChatId;
+  
+  // New State variables
+  late TabController _tabController;
+  final Set<String> _selectedIds = {};
+  String _searchQuery = '';
+  int _limit = 100;
 
   String? t(String key) => context.watch<LocaleProvider>().t(key);
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _selectedChatId = null;
+          _selectedIds.clear();
+          _searchQuery = '';
+        });
+      }
+    });
     _loadMessages();
+  }
+  
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadMessages() async {
+    setState(() => _isLoading = true);
     try {
       final res = await _supabase
           .from('chat_messages')
           .select('*')
-          .inFilter('channel_type', ['general', 'direct'])
+          .inFilter('channel_type', ['general', 'direct', 'site'])
           .order('created_at', ascending: false)
-          .limit(100);
+          .limit(_limit);
           
       final profs = await _supabase.from('profiles').select('id, full_name');
       final Map<String, String> pMap = {};
       for (var p in profs) {
         pMap[p['id'].toString()] = p['full_name']?.toString() ?? 'Без имени';
+      }
+      final sitesReq = await _supabase.from('sites').select('id, name');
+      for (var s in sitesReq) {
+        pMap[s['id'].toString()] = s['name']?.toString() ?? 'Объект';
       }
 
       if (mounted) {
@@ -60,7 +85,6 @@ class _ModerationTabState extends State<ModerationTab> {
   }
 
   Future<void> _deleteMessage(String id) async {
-
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -80,12 +104,46 @@ class _ModerationTabState extends State<ModerationTab> {
       await _supabase.from('chat_messages').delete().eq('id', id);
       setState(() {
         _messages.removeWhere((m) => m['id'].toString() == id);
+        _selectedIds.remove(id);
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Сообщение удалено')));
       }
     } catch (e) {
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка удаления: $e')));
+      }
+    }
+  }
+  
+  Future<void> _bulkDelete() async {
+    if (_selectedIds.isEmpty) return;
+    
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: Text('Удалить ${_selectedIds.length} сообщений?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text('Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Удалить', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+    
+    setState(() => _isLoading = true);
+    try {
+      await _supabase.from('chat_messages').delete().inFilter('id', _selectedIds.toList());
+      _selectedIds.clear();
+      await _loadMessages();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Сообщения удалены')));
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка удаления: $e')));
       }
     }
@@ -134,335 +192,509 @@ class _ModerationTabState extends State<ModerationTab> {
     }
   }
 
-    Widget _buildContent(Map<String, dynamic> msg, AppColors colors) {
-      final content = msg['content']?.toString() ?? '';
-      Widget mainWidget;
-      String displayContent = content;
-      bool isPhotoReport = false;
-
-      if (content.contains('[ФОТО_ОТЧЕТ]') || content.contains('[PHOTO_REPORT]')) {
-        isPhotoReport = true;
-        String textToSplit = content;
-        if (content.contains('[ФОТО_ОТЧЕТ]')) {
-          textToSplit = content.substring(content.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
-        } else if (content.contains('[PHOTO_REPORT]')) {
-          textToSplit = content.substring(content.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
-        }
-        final parts = textToSplit.split(' | ');
-        String photoUrl = parts.isNotEmpty ? parts[0] : '';
-        String criticality = parts.length > 1 ? parts[1] : '';
-        String desc = parts.length > 2 ? parts.sublist(2).join(' | ') : '';
-        displayContent = desc;
-
-        if (photoUrl.isNotEmpty && !photoUrl.startsWith('http')) {
-          photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
-        }
-        
-        String critLang = criticality.toUpperCase();
-        if (criticality.toLowerCase() == 'info') critLang = t('crit.info') ?? 'ИНФОРМАЦИЯ';
-        if (criticality.toLowerCase() == 'important') critLang = t('crit.important') ?? 'ВАЖНО';
-        if (criticality.toLowerCase() == 'urgent') critLang = t('crit.urgent') ?? 'СРОЧНО';
-
-        mainWidget = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  void _showImageDialog(String url) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            if (photoUrl.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+            InteractiveViewer(
+              child: Image.network(url, fit: BoxFit.contain),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            )
+          ],
+        ),
+      )
+    );
+  }
+
+  Widget _buildContent(Map<String, dynamic> msg, AppColors colors) {
+    final content = msg['content']?.toString() ?? '';
+    Widget mainWidget;
+    String displayContent = content;
+    bool isPhotoReport = false;
+
+    if (content.contains('[ФОТО_ОТЧЕТ]') || content.contains('[PHOTO_REPORT]')) {
+      isPhotoReport = true;
+      String textToSplit = content;
+      if (content.contains('[ФОТО_ОТЧЕТ]')) {
+        textToSplit = content.substring(content.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
+      } else if (content.contains('[PHOTO_REPORT]')) {
+        textToSplit = content.substring(content.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
+      }
+      final parts = textToSplit.split(' | ');
+      String photoUrl = parts.isNotEmpty ? parts[0] : '';
+      String criticality = parts.length > 1 ? parts[1] : '';
+      String desc = parts.length > 2 ? parts.sublist(2).join(' | ') : '';
+      displayContent = desc;
+
+      if (photoUrl.isNotEmpty && !photoUrl.startsWith('http')) {
+        photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
+      }
+      
+      String critLang = criticality.toUpperCase();
+      if (criticality.toLowerCase() == 'info') critLang = t('crit.info') ?? 'ИНФОРМАЦИЯ';
+      if (criticality.toLowerCase() == 'important') critLang = t('crit.important') ?? 'ВАЖНО';
+      if (criticality.toLowerCase() == 'urgent') critLang = t('crit.urgent') ?? 'СРОЧНО';
+
+      mainWidget = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (photoUrl.isNotEmpty)
+            GestureDetector(
+              onTap: () => _showImageDialog(photoUrl),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    photoUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Image.network(
+                        photoUrl,
+                        height: 80,
+                        width: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 80, width: 80, color: Colors.grey.withValues(alpha: 0.3), child: const Icon(Icons.error)
+                        ),
+                      ),
+                      Container(
+                        height: 80, width: 80,
+                        color: Colors.black26,
+                        child: const Icon(LucideIcons.maximize_2, color: Colors.white, size: 24),
+                      )
+                    ],
+                  )
                 ),
               ),
-            Row(
+            ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (criticality.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
                       color: colors.primary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(critLang, style: GoogleFonts.inter(fontSize: 10, color: colors.primary, fontWeight: FontWeight.bold)),
                   ),
-                if (desc.isNotEmpty) ...[
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(desc, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14))),
-                ]
+                if (desc.isNotEmpty) 
+                  Text(desc, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14)),
               ],
-            )
-          ],
-        );
-      } else {
-        mainWidget = Text(content, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14));
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          mainWidget,
-          TranslatedMessageContent(
-            id: msg['id'].toString(),
-            content: displayContent,
-            sourceLang: msg['source_lang']?.toString(),
-            targetLang: context.watch<LocaleProvider>().currentLang,
-            translatingText: t('translating') ?? 'Перевод...',
-            isMine: false,
-            isPhotoReport: isPhotoReport,
-          ),
+            ),
+          )
         ],
       );
+    } else {
+      mainWidget = Text(content, style: GoogleFonts.inter(color: colors.foreground, fontSize: 14));
     }
 
+    final sourceLang = msg['source_lang']?.toString();
+    final targetLang = Provider.of<LocaleProvider>(context).currentLang;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        mainWidget,
+        if (sourceLang != null && sourceLang != targetLang) ...[
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.only(left: 8),
+            decoration: BoxDecoration(border: Border(left: BorderSide(color: colors.border, width: 2))),
+            child: TranslatedMessageContent(
+              id: msg['id'].toString(),
+              content: displayContent,
+              sourceLang: sourceLang,
+              targetLang: targetLang,
+              isMine: false,
+              isPhotoReport: isPhotoReport,
+              translatingText: t('chat.translating') ?? 'Перевод...',
+            ),
+          )
+        ]
+      ],
+    );
+  }
 
   String _getChatName(String channelId) {
+    if (_profiles.containsKey(channelId)) return _profiles[channelId]!;
     if (!channelId.startsWith('dm_')) return channelId;
-    final parts = channelId.replaceAll('dm_', '').split('_');
+    final parts = channelId.replaceFirst('dm_', '').split('_');
     if (parts.length >= 2) {
-      final name1 = context.watch<TranslationProvider>().translate(_profiles[parts[0]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.watch<LocaleProvider>().currentLang);
-      final name2 = context.watch<TranslationProvider>().translate(_profiles[parts[1]] ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.watch<LocaleProvider>().currentLang);
-      return '$name1 ${t('admin.moderation.and') ?? 'и'} $name2';
+      final name1 = _profiles[parts[0]] ?? 'Неизвестный';
+      final name2 = _profiles[parts[1]] ?? 'Неизвестный';
+      return '$name1 и $name2';
     }
     return channelId;
   }
 
-  Widget _buildList(String channelType, AppColors colors) {
-    final filtered = _messages.where((m) => m['channel_type'] == channelType).toList();
+  Widget _buildMessageList(String filterType) {
+    final colors = Theme.of(context).appColors;
+    List<Map<String, dynamic>> filtered = _messages.where((m) => m['channel_type'] == filterType).toList();
 
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      filtered = filtered.where((m) {
+        final content = (m['content']?.toString() ?? '').toLowerCase();
+        final author = (m['author_name']?.toString() ?? '').toLowerCase();
+        return content.contains(q) || author.contains(q);
+      }).toList();
     }
 
-    if (channelType == 'direct' && _selectedChatId == null) {
+    if (_isLoading && _messages.isEmpty) {
+      return Center(child: CircularProgressIndicator(color: colors.primary));
+    }
+
+    if ((filterType == 'direct' || filterType == 'site') && _selectedChatId == null) {
       final chatIds = filtered.map((m) => m['channel_id'].toString()).toSet().toList();
-      
       if (chatIds.isEmpty) {
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withValues(alpha: 0.2)),
+              Icon(LucideIcons.message_square, size: 48, color: colors.foreground.withValues(alpha: 0.2)),
               const SizedBox(height: 16),
-              Text(t('admin.moderation.no_direct_chats') ?? 'Нет активных личных чатов', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.5))),
+              Text(filterType == 'direct' ? 'Нет личных сообщений' : 'Нет сообщений объектов', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5))),
             ],
           ),
         );
       }
 
-      return ListView.separated(
-        padding: const EdgeInsets.all(24),
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
         itemCount: chatIds.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final chatId = chatIds[index];
-          final lastMsg = filtered.firstWhere((m) => m['channel_id'].toString() == chatId);
+        itemBuilder: (ctx, i) {
+          final chatId = chatIds[i];
+          final chatMessages = filtered.where((m) => m['channel_id'] == chatId).toList();
+          final lastMsg = chatMessages.isNotEmpty ? chatMessages.first : null;
           
-          return InkWell(
-            onTap: () {
-              setState(() {
-                _selectedChatId = chatId;
-              });
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              decoration: BoxDecoration(
-                color: colors.card,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.foreground.withValues(alpha: 0.05)),
+          String preview = lastMsg?['content']?.toString() ?? '';
+          if (preview.contains('[PHOTO_REPORT]') || preview.contains('[ФОТО_ОТЧЕТ]')) {
+             preview = '📷 Фотоотчет';
+          }
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: colors.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colors.border),
+            ),
+            child: ListTile(
+              title: Text(_getChatName(chatId), style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w600, fontSize: 14)),
+              subtitle: Text(
+                '$preview', 
+                maxLines: 1, 
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.6), fontSize: 12)
               ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(_getChatName(chatId), style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: colors.foreground)),
-                        const SizedBox(height: 4),
-                        Text(
-                          lastMsg['content']?.toString() ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.7), fontSize: 12),
-                        ),
-                      ],
-                    ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(color: colors.background, borderRadius: BorderRadius.circular(12)),
+                    child: Text('${chatMessages.length}', style: TextStyle(color: colors.foreground, fontSize: 11)),
                   ),
-                  Icon(LucideIcons.chevron_right, color: colors.foreground.withValues(alpha: 0.3), size: 20),
+                  const SizedBox(width: 8),
+                  Icon(LucideIcons.chevron_right, color: colors.foreground.withValues(alpha: 0.5), size: 16),
                 ],
               ),
+              onTap: () {
+                setState(() {
+                  _selectedChatId = chatId;
+                  _searchQuery = '';
+                });
+              },
             ),
           );
         },
       );
     }
 
-    List<Map<String, dynamic>> messagesToShow = filtered;
-    if (channelType == 'direct' && _selectedChatId != null) {
-      messagesToShow = filtered.where((m) => m['channel_id'].toString() == _selectedChatId).toList();
+    if ((filterType == 'direct' || filterType == 'site') && _selectedChatId != null) {
+      filtered = filtered.where((m) => m['channel_id'] == _selectedChatId).toList();
     }
 
-    if (messagesToShow.isEmpty) {
+    if (filtered.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(LucideIcons.shield_check, size: 48, color: colors.foreground.withValues(alpha: 0.2)),
+            Icon(LucideIcons.message_square, size: 48, color: colors.foreground.withValues(alpha: 0.2)),
             const SizedBox(height: 16),
-            Text(t('admin.moderation.no_messages') ?? 'Нет сообщений в этой категории', style: GoogleFonts.inter(color: Colors.white.withValues(alpha: 0.5))),
-            if (_selectedChatId != null)
-              TextButton(
-                onPressed: () => setState(() => _selectedChatId = null),
-                child: Text(t('admin.moderation.back') ?? 'Назад'),
-              ),
+            Text('Ничего не найдено', style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5))),
           ],
         ),
       );
     }
 
-    Widget listWidget = ListView.separated(
-      padding: const EdgeInsets.all(24),
-      itemCount: messagesToShow.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final msg = messagesToShow[index];
-        final authorName = context.watch<TranslationProvider>().translate(msg['author_name']?.toString() ?? t('admin.moderation.unknown') ?? 'Неизвестный', context.watch<LocaleProvider>().currentLang);
-        
-        return Container(
-          decoration: BoxDecoration(
-            color: colors.card,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colors.foreground.withValues(alpha: 0.05)),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(authorName, style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: colors.foreground)),
-                        if (channelType == 'direct') ...[
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: colors.foreground.withValues(alpha: 0.05),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: colors.foreground.withValues(alpha: 0.1)),
-                              ),
-                              child: Text('${t('admin.moderation.chat') ?? 'Чат'}: ${_getChatName(msg['channel_id'].toString())}', overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withValues(alpha: 0.7))),
-                            ),
-                          ),
-                        ]
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    _buildContent(msg, colors),
-                  ],
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(LucideIcons.pencil, color: Colors.blue, size: 20),
-                    onPressed: () => _editMessage(msg),
-                    tooltip: t('admin.moderation.edit') ?? 'Редактировать',
-                  ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.trash_2, color: Colors.red, size: 20),
-                    onPressed: () => _deleteMessage(msg['id'].toString()),
-                    tooltip: t('admin.moderation.delete') ?? 'Удалить',
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    bool allSelected = filtered.isNotEmpty && filtered.every((m) => _selectedIds.contains(m['id'].toString()));
 
-    if (channelType == 'direct' && _selectedChatId != null) {
-      return Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-            child: Row(
-              children: [
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              if ((filterType == 'direct' || filterType == 'site') && _selectedChatId != null)
                 IconButton(
                   icon: Icon(LucideIcons.arrow_left, color: colors.foreground),
                   onPressed: () => setState(() => _selectedChatId = null),
                 ),
-                Expanded(
-                  child: Text(_getChatName(_selectedChatId!), style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: colors.foreground, fontSize: 16)),
+              Expanded(
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: colors.background,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: colors.border),
+                  ),
+                  child: TextField(
+                    style: TextStyle(color: colors.foreground, fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Поиск...',
+                      hintStyle: TextStyle(color: colors.foreground.withValues(alpha: 0.5)),
+                      prefixIcon: Icon(LucideIcons.search, size: 16, color: colors.foreground.withValues(alpha: 0.5)),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.only(top: 8),
+                    ),
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Expanded(child: listWidget),
-        ],
-      );
-    }
+        ),
+        
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (_selectedIds.isNotEmpty)
+                ElevatedButton.icon(
+                  onPressed: _bulkDelete,
+                  icon: const Icon(LucideIcons.trash_2, size: 16, color: Colors.white),
+                  label: Text('Удалить (${_selectedIds.length})', style: const TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                    minimumSize: const Size(0, 32)
+                  ),
+                )
+              else 
+                const SizedBox(),
+              
+              Row(
+                children: [
+                  Text('Выбрать все', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
+                  Checkbox(
+                    value: allSelected,
+                    activeColor: colors.primary,
+                    onChanged: (val) {
+                      setState(() {
+                        if (val == true) {
+                          _selectedIds.addAll(filtered.map((m) => m['id'].toString()));
+                        } else {
+                          _selectedIds.removeAll(filtered.map((m) => m['id'].toString()));
+                        }
+                      });
+                    },
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+        
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: filtered.length + 1,
+            itemBuilder: (ctx, i) {
+              if (i == filtered.length) {
+                if (filtered.length >= _limit) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: TextButton(
+                        onPressed: () {
+                          setState(() => _limit += 50);
+                          _loadMessages();
+                        },
+                        child: Text('Загрузить еще', style: TextStyle(color: colors.primary)),
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox(height: 32);
+              }
 
-    return listWidget;
+              final msg = filtered[i];
+              final id = msg['id'].toString();
+              final isSelected = _selectedIds.contains(id);
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isSelected ? colors.primary.withValues(alpha: 0.05) : colors.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: isSelected ? colors.primary.withValues(alpha: 0.3) : colors.border),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: isSelected,
+                      activeColor: colors.primary,
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) _selectedIds.add(id);
+                          else _selectedIds.remove(id);
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  msg['author_name']?.toString() ?? 'Без имени',
+                                  style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w600, fontSize: 13),
+                                ),
+                              ),
+                              if (msg['created_at'] != null)
+                                Text(
+                                  msg['created_at'].toString().substring(0, 16).replaceAll('T', ' '),
+                                  style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.5), fontSize: 11),
+                                ),
+                            ],
+                          ),
+                          if ((filterType == 'direct' || filterType == 'site') && _selectedChatId == null) ...[
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: colors.background,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: colors.border)
+                              ),
+                              child: Text("Чат: ${_getChatName(msg['channel_id'].toString())}", style: TextStyle(color: colors.foreground.withValues(alpha: 0.6), fontSize: 10)),
+                            )
+                          ],
+                          const SizedBox(height: 8),
+                          _buildContent(msg, colors),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(LucideIcons.pencil, size: 14, color: Colors.blue),
+                                onPressed: () => _editMessage(msg),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                              const SizedBox(width: 16),
+                              IconButton(
+                                icon: const Icon(LucideIcons.trash_2, size: 14, color: Colors.red),
+                                onPressed: () => _deleteMessage(id),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).appColors;
-    final t = context.watch<LocaleProvider>().t;
-    
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t('admin.moderation.title') ?? 'Модерация', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white, height: 1.1)),
-                const SizedBox(height: 4),
-                Text(t('admin.moderation.desc') ?? 'Управление сообщениями в Общем и Личных чатах', style: GoogleFonts.inter(fontSize: 14, color: Colors.white.withValues(alpha: 0.7))),
-              ],
-            ),
-          ),
-          TabBar(
-            labelColor: colors.primary,
-            unselectedLabelColor: colors.foreground.withValues(alpha: 0.5),
-            indicatorColor: colors.primary,
-            onTap: (index) {
-              if (index == 1) {
-                setState(() => _selectedChatId = null);
-              }
-            },
-            tabs: [
-              Tab(text: t('admin.moderation.general') ?? 'Общий чат'),
-              Tab(text: t('admin.moderation.direct') ?? 'Личные чаты'),
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t('admin.moderation.title') ?? 'Модерация', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: colors.foreground)),
+              const SizedBox(height: 4),
+              Text(t('admin.moderation.desc') ?? 'Управление сообщениями в чатах', style: GoogleFonts.inter(fontSize: 14, color: colors.foreground.withValues(alpha: 0.6))),
             ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildList('general', colors),
-                _buildList('direct', colors),
+        ),
+        
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            height: 44,
+            decoration: BoxDecoration(
+              color: colors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colors.border),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              indicator: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: colors.border),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelColor: colors.foreground,
+              unselectedLabelColor: colors.foreground.withValues(alpha: 0.5),
+              padding: const EdgeInsets.all(4),
+              tabs: const [
+                Tab(text: 'Общий чат'),
+                Tab(text: 'Личные чаты'),
+                Tab(text: 'Объекты'),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 16),
+        
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildMessageList('general'),
+              _buildMessageList('direct'),
+              _buildMessageList('site'),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

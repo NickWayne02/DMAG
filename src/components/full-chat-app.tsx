@@ -231,20 +231,26 @@ export function FullChatApp({
   }
 
   const [profiles, setProfiles] = useState<
-    { id: string; full_name: string | null; avatar_url: string | null }[]
+    { id: string; full_name: string | null; avatar_url: string | null; role: string | null }[]
   >([]);
   const [showNewChat, setShowNewChat] = useState(false);
   const [dmMessages, setDmMessages] = useState<{ channel_id: string }[]>([]);
   const [loadingChannels, setLoadingChannels] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from("profiles")
-      .select("id, full_name, avatar_url")
-      .eq("is_active", true)
-      .then((res) => {
-        if (res.data) setProfiles(res.data);
-      });
+    Promise.all([
+      supabase.from("profiles").select("id, full_name, avatar_url"),
+      supabase.from("user_roles").select("user_id, role")
+    ]).then(([profilesRes, rolesRes]) => {
+      if (profilesRes.data) {
+        const rolesMap = new Map(rolesRes.data?.map(r => [r.user_id, r.role]) || []);
+        const merged = profilesRes.data.map((p: any) => ({
+          ...p,
+          role: rolesMap.get(p.id) || "employee",
+        }));
+        setProfiles(merged);
+      }
+    });
 
     // We only need channel_id to extract unique chats
     if (user) {
@@ -301,7 +307,7 @@ export function FullChatApp({
     }
     if (activeChannelType === "site") {
       const s = sites.find((x) => x.id === activeChannelId);
-      return s ? t("chat.siteTitle", { name: tName(s.name) }) : t("chat.tabSite");
+      return s ? t("chat.siteTitle", { name: tName(s.name, s.name_translations) }) : t("chat.tabSite");
     }
     return "";
   }, [activeChannelType, activeChannelId, sites, t, dmChannels]);
@@ -411,7 +417,18 @@ export function FullChatApp({
                   <ChannelButton
                     key={dm.id}
                     active={activeChannelType === "direct" && activeChannelId === dm.id}
-                    icon={<User className="h-4 w-4" />}
+                    icon={
+                      dm.avatarUrl ? (
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage src={dm.avatarUrl} />
+                          <AvatarFallback className="text-[9px]">
+                            {dm.name.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <User className="h-4 w-4" />
+                      )
+                    }
                     title={tName(dm.name)}
                     onClick={() => handleSelectChannel("direct", dm.id)}
                     onDelete={(e) => {
@@ -435,7 +452,7 @@ export function FullChatApp({
                       key={s.id}
                       active={activeChannelType === "site" && activeChannelId === s.id}
                       icon={<Building2 className="h-4 w-4" />}
-                      title={tName(s.name)}
+                      title={tName(s.name, s.name_translations)}
                       onClick={() => handleSelectChannel("site", s.id)}
                     />
                   ))}
@@ -509,8 +526,8 @@ export function FullChatApp({
       <PhotoReportDialog
         open={reportOpen}
         onOpenChange={setReportOpen}
-        site={sites.find((s) => s.id === activeChannelId) || sites[0] || null}
-        skipDbInsert={activeChannelType !== "site"}
+        site={activeChannelType === "site" ? (sites.find((s) => s.id === activeChannelId) || null) : null}
+        skipDbInsert={false}
         onSuccess={handlePhotoReportSuccess}
       />
 
@@ -674,7 +691,7 @@ function ChannelContent({
 }: {
   channelType: ChannelType;
   channelId: string;
-  profiles: { id: string; avatar_url: string | null }[];
+  profiles: { id: string; avatar_url: string | null; role: string | null }[];
   onOpenReport?: () => void;
   onEditPhotoReport?: (m: DbMessage) => void;
 }) {
@@ -888,6 +905,7 @@ function ChannelContent({
                 }
               }}
               avatarUrl={profiles.find((p) => p.id === m.author_id)?.avatar_url || null}
+              authorRole={profiles.find((p) => p.id === m.author_id)?.role || null}
             />
           ))
         )}
@@ -954,11 +972,13 @@ function MessageBubble({
   onDelete,
   onEdit,
   avatarUrl,
+  authorRole,
 }: {
   m: DbMessage;
   onDelete: (id: string) => void;
   onEdit: (m: DbMessage) => void;
   avatarUrl: string | null;
+  authorRole: string | null;
 }) {
   const { user, roles } = useAuth();
   const { lang, tName } = useLanguage();
@@ -1044,8 +1064,13 @@ function MessageBubble({
           )}
         >
           {!isMine && (
-            <div className="text-[11px] font-semibold opacity-70 mb-0.5">
-              {tName(m.author_name || "")}
+            <div className="text-[11px] font-semibold opacity-70 mb-0.5 flex items-center gap-1.5">
+              <span>{tName(m.author_name || "")}</span>
+              {authorRole && authorRole !== "employee" && (
+                <span className="text-[9px] uppercase tracking-wider bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                  {t(`role.${authorRole}`)}
+                </span>
+              )}
             </div>
           )}
 

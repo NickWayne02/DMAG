@@ -57,7 +57,7 @@ class LanguageSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  localeProvider.t('header.language') ?? localeProvider.t('header.language') ?? 'Язык',
+                  localeProvider.t('header.language') ?? 'Язык интерфейса',
                   style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -78,6 +78,7 @@ class LanguageSheet extends StatelessWidget {
                 final lang = languages[index];
                 final isActive = lang['code'] == localeProvider.currentLang;
                 return InkWell(
+                  borderRadius: BorderRadius.circular(12),
                   onTap: () {
                     final rootNav = Navigator.of(context, rootNavigator: true);
                     final newLang = lang['code']!;
@@ -89,21 +90,15 @@ class LanguageSheet extends StatelessWidget {
                       });
                     }
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     child: Row(
                       children: [
-                        SizedBox(
-                          width: 32,
-                          child: Text(
-                            lang['flag']!,
-                            style: GoogleFonts.inter(
-                              color: colors.foreground,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
+                        Text(
+                          lang['flag']!,
+                          style: GoogleFonts.inter(fontSize: 18),
                         ),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Text(
                             lang['name']!,
@@ -111,10 +106,12 @@ class LanguageSheet extends StatelessWidget {
                               color: colors.foreground,
                               fontSize: 16,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (isActive)
-                          Icon(LucideIcons.check, color: colors.primary, size: 20),
+                          Icon(LucideIcons.check, color: colors.foreground.withValues(alpha: 0.3), size: 20),
                       ],
                     ),
                   ),

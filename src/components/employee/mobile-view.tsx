@@ -36,7 +36,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
-import { AdminEditableCalendarDialog } from "@/components/admin-editable-calendar-dialog";
+import { AdminEditableCalendarDialog } from "@/components/admin-editable-calendar";
 import type { ShiftDetail } from "@/lib/shift-export";
 import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
@@ -246,6 +246,15 @@ export function EmployeeMobileView() {
 
   const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [mapType, setMapType] = useState<"m" | "k">("m");
+
+  const [allSites, setAllSites] = useState<Site[]>([]);
+  useEffect(() => {
+    if (canSwitchToAdmin) {
+      supabase.from("sites").select("id, name, name_translations, address").then(({ data }) => {
+        if (data) setAllSites(data as Site[]);
+      });
+    }
+  }, [canSwitchToAdmin]);
 
   const handleRefreshCoords = () => {
     toast.info("Обновление геопозиции...");
@@ -601,42 +610,6 @@ export function EmployeeMobileView() {
                 </div>
               )}
 
-              {status === "finished" && (
-                <NeonCard glowColor="var(--neon-cyan)">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2
-                      className="h-5 w-5 shrink-0"
-                      style={{
-                        color: "var(--neon-cyan)",
-                        filter: "drop-shadow(var(--neon-glow-cyan))",
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm" style={{ color: "var(--neon-text)" }}>
-                        {tr("finished.title")}
-                      </p>
-                      <p className="text-xs" style={{ color: "var(--neon-text-dim)" }}>
-                        {tr("finished.commercial")}: {formatHM(workMs)}
-                        {travelTime
-                          ? ` · ${tr("finished.travel")} ${travelTime} ${tr("travel.unit")}`
-                          : ""}
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-xl border-0 text-white"
-                      style={{
-                        background: "rgba(34,211,238,0.15)",
-                        boxShadow: "inset 0 0 0 1px var(--neon-cyan)",
-                      }}
-                      onClick={resetShift}
-                    >
-                      {tr("finished.new")}
-                    </Button>
-                  </div>
-                </NeonCard>
-              )}
             </section>
           </div>{" "}
           {/* End Left Column */}
@@ -786,7 +759,7 @@ export function EmployeeMobileView() {
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
           <FullChatApp
             onClose={() => setChatOpen(false)}
-            sites={selectedSite ? [selectedSite] : []}
+            sites={canSwitchToAdmin && allSites.length > 0 ? allSites : selectedSite ? [selectedSite] : []}
             initialChannelType="general"
           />
         </div>

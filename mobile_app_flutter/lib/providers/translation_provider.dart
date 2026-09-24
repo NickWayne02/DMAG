@@ -30,10 +30,45 @@ class TranslationProvider extends ChangeNotifier {
     return text.split('').map((char) => map.containsKey(char) ? map[char]! : char).join('');
   }
 
-  String translate(String text, String targetLang) {
+  static const Map<String, Map<String, String>> _siteTranslations = {
+    'Зиген': {'ru': 'Зиген', 'uk': 'Зіген', 'default': 'Siegen'},
+    'Siegen': {'ru': 'Зиген', 'uk': 'Зіген', 'default': 'Siegen'},
+    'Giengen': {'ru': 'Зиген', 'uk': 'Зіген', 'default': 'Siegen'},
+    'Быдгощ': {'ru': 'Быдгощ', 'uk': 'Бидгощ', 'default': 'Bydgoszcz'},
+    'Bydgoszcz': {'ru': 'Быдгощ', 'uk': 'Бидгощ', 'default': 'Bydgoszcz'},
+    'Светловодск': {'ru': 'Светловодск', 'uk': 'Світловодськ', 'default': 'Svitlovodsk'},
+    'Svitlovodsk': {'ru': 'Светловодск', 'uk': 'Світловодськ', 'default': 'Svitlovodsk'},
+    'Bellershausen': {'ru': 'Беллерсхаузен', 'uk': 'Беллерсгаузен', 'default': 'Bellershausen'},
+    'Hinhausen': {'ru': 'Хинхаузен', 'uk': 'Хінхаузен', 'default': 'Hinhausen'},
+    'Харбах': {'ru': 'Харбах', 'uk': 'Харбах', 'default': 'Harbach'},
+    'Harbach': {'ru': 'Харбах', 'uk': 'Харбах', 'default': 'Harbach'},
+    'Freudenberg': {'ru': 'Фройденберг', 'uk': 'Фройденберг', 'default': 'Freudenberg'},
+  };
+
+  String translate(String text, String targetLang, [Map<String, dynamic>? translations]) {
     if (text.trim().isEmpty) return text;
 
-    String processedName = text;
+    String processedName = text.trim();
+    
+    // 1. Use DB translations if provided
+    if (translations != null) {
+      if (targetLang == 'ru' && translations['ru'] != null && translations['ru'].toString().isNotEmpty) return translations['ru'];
+      if (targetLang == 'uk' && translations['uk'] != null && translations['uk'].toString().isNotEmpty) return translations['uk'];
+      if (targetLang == 'en' && translations['en'] != null && translations['en'].toString().isNotEmpty) return translations['en'];
+      if (translations['en'] != null && translations['en'].toString().isNotEmpty && targetLang != 'ru' && targetLang != 'uk') return translations['en'];
+      if (translations['default'] != null && translations['default'].toString().isNotEmpty) return translations['default'];
+    }
+    
+    // 2. Specific hardcoded site translations match (case-insensitive for key)
+    final lowerName = processedName.toLowerCase();
+    final matchKey = _siteTranslations.keys.where((k) => k.toLowerCase() == lowerName).firstOrNull;
+    
+    if (matchKey != null) {
+      final trans = _siteTranslations[matchKey]!;
+      if (targetLang == 'ru') return trans['ru'] ?? trans['default']!;
+      if (targetLang == 'uk') return trans['uk'] ?? trans['default']!;
+      return trans['default']!;
+    }
     
     // Auto TitleCase if the name is ALL CAPS
     if (processedName == processedName.toUpperCase() && RegExp(r'[A-ZА-ЯЁІЇЄ]').hasMatch(processedName)) {

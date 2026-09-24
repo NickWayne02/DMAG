@@ -39,10 +39,21 @@ class _ChatTabState extends State<ChatTab> {
     if (user == null) return;
 
     try {
-      final pRes = await _supabase.from('profiles').select('id, full_name, avatar_url').eq('is_active', true);
-      _profiles = List<Map<String, dynamic>>.from(pRes);
+      final List<dynamic> pRes = await _supabase.from('profiles').select('id, full_name, avatar_url');
+      final List<dynamic> rRes = await _supabase.from('user_roles').select('user_id, role');
+      
+      final Map<String, String> rolesMap = {};
+      for (var r in rRes) {
+        rolesMap[r['user_id'] as String] = r['role'] as String;
+      }
+      
+      _profiles = pRes.map((p) {
+        final profileMap = Map<String, dynamic>.from(p as Map);
+        profileMap['role'] = rolesMap[profileMap['id']] ?? 'employee';
+        return profileMap;
+      }).toList();
 
-      final sRes = await _supabase.from('sites').select('id, name');
+      final sRes = await _supabase.from('sites').select('id, name, name_translations');
       _sites = List<Map<String, dynamic>>.from(sRes);
 
       final dmRes = await _supabase

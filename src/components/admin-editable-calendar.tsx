@@ -46,14 +46,10 @@ type ShiftRow = {
   end_city: string | null;
 };
 
-export function AdminEditableCalendarDialog({
-  open,
-  onClose,
+export function AdminEditableCalendarView({
   employeeId,
   employeeName,
 }: {
-  open: boolean;
-  onClose: () => void;
   employeeId: string;
   employeeName: string;
 }) {
@@ -77,9 +73,9 @@ export function AdminEditableCalendarDialog({
   const [shiftDeleteConfirm, setShiftDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) return;
+    if (!employeeId || employeeId === "__none__") return;
     loadData();
-  }, [open, employeeId]);
+  }, [employeeId]);
 
   async function loadData() {
     setLoading(true);
@@ -309,18 +305,17 @@ export function AdminEditableCalendarDialog({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-w-3xl h-[85vh] sm:h-auto overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {t("admin.shift.management", { defaultValue: "Управление сменами" })} · {employeeName}
-            </DialogTitle>
-            <DialogDescription>
-              {t("admin.shift.instruction", {
-                defaultValue: "Нажмите на любой день, чтобы добавить или отредактировать смену.",
-              })}
-            </DialogDescription>
-          </DialogHeader>
+      <div className="flex flex-col h-full overflow-y-auto">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold">
+            {t("admin.shift.management", { defaultValue: "Управление сменами" })} · {employeeName}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {t("admin.shift.instruction", {
+              defaultValue: "Нажмите на любой день, чтобы добавить или отредактировать смену.",
+            })}
+          </p>
+        </div>
 
           <div className="flex items-center justify-between mb-3 gap-2">
             <Button
@@ -420,8 +415,7 @@ export function AdminEditableCalendarDialog({
               </div>
             </>
           )}
-        </DialogContent>
-      </Dialog>
+      </div>
 
       <Dialog open={!!shiftEdit} onOpenChange={(o) => !o && setShiftEdit(null)}>
         <DialogContent className="sm:max-w-md z-100">
@@ -563,5 +557,25 @@ export function AdminEditableCalendarDialog({
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+export function AdminEditableCalendarDialog({
+  open,
+  onClose,
+  employeeId,
+  employeeName,
+}: {
+  open: boolean;
+  onClose: () => void;
+  employeeId: string;
+  employeeName: string;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-3xl h-[85vh] sm:h-auto overflow-y-auto p-4 sm:p-6">
+        <AdminEditableCalendarView employeeId={employeeId} employeeName={employeeName} />
+      </DialogContent>
+    </Dialog>
   );
 }

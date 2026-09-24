@@ -36,7 +36,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { ShiftCalendarDialog } from "@/components/shift-calendar-dialog";
-import { AdminEditableCalendarDialog } from "@/components/admin-editable-calendar-dialog";
+import { AdminEditableCalendarDialog } from "@/components/admin-editable-calendar";
 import type { ShiftDetail } from "@/lib/shift-export";
 import { SiteSelectorDialog, type Site } from "@/components/site-selector-dialog";
 import { PhotoReportDialog } from "@/components/photo-report-dialog";
@@ -246,6 +246,15 @@ export function EmployeeDesktopView() {
 
   const [myCoords, setMyCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [mapType, setMapType] = useState<"m" | "k">("m"); // "m" = map, "k" = satellite
+
+  const [allSites, setAllSites] = useState<Site[]>([]);
+  useEffect(() => {
+    if (canSwitchToAdmin) {
+      supabase.from("sites").select("id, name, name_translations, address").then(({ data }) => {
+        if (data) setAllSites(data as Site[]);
+      });
+    }
+  }, [canSwitchToAdmin]);
 
   const handleRefreshCoords = () => {
     toast.info("Обновление геопозиции...");
@@ -780,7 +789,7 @@ export function EmployeeDesktopView() {
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
           <FullChatApp
             onClose={() => setChatOpen(false)}
-            sites={selectedSite ? [selectedSite] : []}
+            sites={canSwitchToAdmin && allSites.length > 0 ? allSites : selectedSite ? [selectedSite] : []}
             initialChannelType="general"
           />
         </div>

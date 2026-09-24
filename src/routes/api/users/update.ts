@@ -64,10 +64,12 @@ export const Route = createFileRoute("/api/users/update")({
           const targetUserId = body.user_id;
           const newFirstName = body.first_name;
           const newLastName = body.last_name;
+          const newUsername = body.username;
+          const newBirthDate = body.birth_date;
 
-          if (!targetUserId || !newFirstName || !newLastName) {
+          if (!targetUserId || !newFirstName || !newLastName || !newUsername || !newBirthDate) {
             return new Response(
-              JSON.stringify({ error: "user_id, first_name, and last_name are required" }),
+              JSON.stringify({ error: "user_id, first_name, last_name, username, and birth_date are required" }),
               { status: 400, headers: corsHeaders },
             );
           }
@@ -92,6 +94,8 @@ export const Route = createFileRoute("/api/users/update")({
               user_metadata: {
                 first_name: newFirstName,
                 last_name: newLastName,
+                username: newUsername,
+                birth_date: newBirthDate,
               },
             },
           );
@@ -102,6 +106,10 @@ export const Route = createFileRoute("/api/users/update")({
             .from("profiles")
             .update({
               full_name: `${newFirstName} ${newLastName}`.trim(),
+              first_name: newFirstName,
+              last_name: newLastName,
+              username: newUsername,
+              birth_date: newBirthDate,
             })
             .eq("id", targetUserId);
 

@@ -29,7 +29,10 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     (data: {
       email: string;
       password: string;
-      full_name?: string;
+      first_name: string;
+      last_name: string;
+      username: string;
+      birth_date: string;
       role: AppRole;
       label?: string | null;
     }) => data,
@@ -41,18 +44,31 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       await assertSuperAdmin(context.supabase, context.userId);
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const full_name = `${data.first_name} ${data.last_name}`.trim();
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { full_name: data.full_name ?? "" },
+      user_metadata: { 
+        full_name,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        username: data.username,
+        birth_date: data.birth_date
+      },
     });
     if (error || !created.user) throw new Error(error?.message ?? "create failed");
 
-    // Also update profile label if provided
-    if (data.label !== undefined) {
-      await supabaseAdmin.from("profiles").update({ label: data.label }).eq("id", created.user.id);
-    }
+    // Update profile
+    const profilePatch: any = {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      username: data.username,
+      birth_date: data.birth_date,
+    };
+    if (data.label !== undefined) profilePatch.label = data.label;
+    
+    await supabaseAdmin.from("profiles").update(profilePatch).eq("id", created.user.id);
     // Override default role assigned by trigger
     await supabaseAdmin.from("user_roles").delete().eq("user_id", created.user.id);
     const { error: rErr } = await supabaseAdmin
@@ -176,7 +192,14 @@ export const adminUpdateAvatar = createServerFn({ method: "POST" })
 /** Update a user's full name. Admin or super_admin only. */
 export const adminUpdateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { user_id: string; full_name: string; label?: string | null }) => data)
+  .inputValidator((data: { 
+    user_id: string; 
+    first_name: string;
+    last_name: string;
+    username: string;
+    birth_date: string;
+    label?: string | null 
+  }) => data)
   .handler(async ({ data, context }) => {
     await assertAdminOrSuper(context.supabase, context.userId);
 
@@ -201,13 +224,26 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Update Auth Metadata
+    const full_name = `${data.first_name} ${data.last_name}`.trim();
     const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
-      user_metadata: { full_name: data.full_name },
+      user_metadata: { 
+        full_name,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        username: data.username,
+        birth_date: data.birth_date
+      },
     });
     if (authError) throw new Error(authError.message);
 
     // Update Profile
-    const patch: any = { full_name: data.full_name };
+    const patch: any = { 
+      full_name,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      username: data.username,
+      birth_date: data.birth_date
+    };
     if (data.label !== undefined) {
       patch.label = data.label;
     }

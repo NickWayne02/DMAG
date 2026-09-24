@@ -352,12 +352,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       Text(t('dashboard.site') ?? 'Объект', style: GoogleFonts.inter(color: colors.foreground, fontSize: 14, fontWeight: FontWeight.bold)),
                                       Text(
                                         (shift.selectedSite != null && shift.selectedSite!['id'] != null && shift.selectedSite!['id'].toString().isNotEmpty)
-                                            ? (shift.selectedSite!['id'] == 'gps' ? (context.watch<LocaleProvider>().t('site_selector.gps_only') ?? 'Не выбран (GPS)') :
+                                            ? (shift.selectedSite!['id'] == 'gps' ? (context.watch<LocaleProvider>().t('site_selector.gps_only') ?? 'Без названия (GPS)') :
                                               context.watch<TranslationProvider>().translate(
                                                 (shift.selectedSite!['name']?.toString().isNotEmpty == true) ? shift.selectedSite!['name'] : 
                                                 (shift.selectedSite!['address']?.toString().isNotEmpty == true) ? shift.selectedSite!['address'] : 
                                                 (context.watch<LocaleProvider>().t('site_selector.no_name') ?? 'Без названия'),
-                                                context.watch<LocaleProvider>().currentLang))
+                                                context.watch<LocaleProvider>().currentLang, shift.selectedSite!['name_translations']))
                                             : context.watch<LocaleProvider>().t('dashboard.site_not_selected') ?? 'Не выбран — нажмите, чтобы выбрать',
                                         style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.54), fontSize: 11),
                                         maxLines: 1,
@@ -731,7 +731,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: GoogleMapEmbed(
                 query: address.startsWith('GPS: ') 
                   ? address.replaceFirst('GPS: ', '').trim() 
-                  : context.watch<TranslationProvider>().translate(address.isNotEmpty ? address : site['name'] as String, currentLang)
+                  : context.watch<TranslationProvider>().translate(address.isNotEmpty ? address : site['name'] as String, currentLang, site['name_translations'])
               ),
             ),
           ),

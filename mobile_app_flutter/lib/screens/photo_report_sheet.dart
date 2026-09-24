@@ -170,15 +170,13 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
              .eq('photo_url', _existingPhotoUrl!);
         }
       } else {
-        if (widget.site != null) {
-          await Supabase.instance.client.from('photo_reports').insert({
-            'site_id': widget.site?['id'],
-            'author_id': user.id,
-            'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
-            'criticality': _criticality,
-            'photo_url': photoUrl,
-          });
-        }
+        await Supabase.instance.client.from('photo_reports').insert({
+          'site_id': widget.site?['id'],
+          'author_id': user.id,
+          'description': _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+          'criticality': _criticality,
+          'photo_url': photoUrl,
+        });
 
         final desc = _descController.text.trim().isEmpty ? '' : _descController.text.trim();
         await Supabase.instance.client.from('chat_messages').insert({
@@ -292,31 +290,13 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.editingMessage != null ? 'Редактировать фотоотчет' : (context.watch<LocaleProvider>().t('photo_report.title_new') ?? 'Новый фотоотчет'),
+                        widget.editingMessage != null ? 'Редактирование' : (context.watch<LocaleProvider>().t('photo_report.title_new') ?? 'Новый фотоотчет'),
                         style: GoogleFonts.inter(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: colors.foreground,
                         ),
                       ),
-                      if (widget.site != null)
-                        Text(
-                          '''${context.watch<LocaleProvider>().t('photo_report.site') ?? 'Объект'}: ${widget.site!['name'] ?? widget.site!['address']}''',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: colors.foreground.withValues(alpha: 0.6),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      else
-                        Text(
-                          context.watch<LocaleProvider>().t('photo_report.no_site') ?? 'Будет отправлено в общий чат команды',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: colors.foreground.withValues(alpha: 0.6),
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -494,7 +474,7 @@ class _PhotoReportSheetState extends State<PhotoReportSheet> {
                           const SizedBox(width: 8),
                           Text(
                             widget.editingMessage != null 
-                              ? (context.watch<LocaleProvider>().t('photo_report.btn_edit') ?? 'Редактировать')
+                              ? 'Сохранить'
                               : (context.watch<LocaleProvider>().t('photo_report.btn_send') ?? 'Отправить отчет'),
                             style: GoogleFonts.inter(
                               color: colors.primaryForeground,

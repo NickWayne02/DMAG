@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Upload, Trash2, RotateCcw } from "lucide-react";
+import { Loader2, Upload, Trash2, RotateCcw, Plus } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+
+const DEFAULT_PRESET_NAMES = ["DMAG", "E&R", "O&D"];
 
 export function BrandingSettingsTab({
   onUpdate,
@@ -305,8 +307,8 @@ export function BrandingSettingsTab({
             }
             disabled={savePresetMutation.isPending}
           >
-            <Upload className="mr-2 h-4 w-4" />
-            {t("admin.branding.saveCurrent")}
+            <Plus className="mr-2 h-4 w-4" />
+            + Новый бренд
           </Button>
         </div>
       </div>
@@ -321,8 +323,10 @@ export function BrandingSettingsTab({
           <p className="text-sm text-muted-foreground">{t("admin.branding.galleryEmpty")}</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {presets?.map((preset: any) => (
-              <Card key={preset.id} className="overflow-hidden bg-card/50">
+            {presets?.map((preset: any) => {
+              const isDefault = DEFAULT_PRESET_NAMES.includes(preset.app_name?.toUpperCase?.() || preset.app_name);
+              return (
+              <Card key={preset.id} className={`overflow-hidden bg-card/50 ${isDefault ? 'ring-1 ring-primary/20' : ''}`}>
                 <CardContent className="p-4 flex flex-col items-center gap-4">
                   <div className="h-16 w-16 rounded-xl border border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
                     {preset.app_logo_url ? (
@@ -365,38 +369,43 @@ export function BrandingSettingsTab({
                     >
                       {t("admin.branding.apply")}
                     </Button>
-                    <Label
-                      htmlFor={`upload-preset-${preset.id}`}
-                      className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                      title="Изменить логотип"
-                    >
-                      <Upload className="h-4 w-4" />
-                    </Label>
-                    <Input
-                      id={`upload-preset-${preset.id}`}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleUploadLogo(e, preset)}
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="shrink-0 h-9 w-9"
-                      onClick={() =>
-                        deletePresetMutation.mutate({
-                          id: preset.id,
-                          app_logo_url: preset.app_logo_url,
-                        })
-                      }
-                      disabled={deletePresetMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {!isDefault && (
+                      <>
+                        <Label
+                          htmlFor={`upload-preset-${preset.id}`}
+                          className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                          title="Изменить логотип"
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Label>
+                        <Input
+                          id={`upload-preset-${preset.id}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleUploadLogo(e, preset)}
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="shrink-0 h-9 w-9"
+                          onClick={() =>
+                            deletePresetMutation.mutate({
+                              id: preset.id,
+                              app_logo_url: preset.app_logo_url,
+                            })
+                          }
+                          disabled={deletePresetMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

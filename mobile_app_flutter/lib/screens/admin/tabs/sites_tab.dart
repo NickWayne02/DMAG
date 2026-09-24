@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../dialogs/add_site_dialog.dart';
+import '../dialogs/merge_site_dialog.dart';
 
 class SitesTab extends StatefulWidget {
   const SitesTab({super.key});
@@ -110,6 +111,13 @@ class _SitesTabState extends State<SitesTab> {
       builder: (ctx) => AddSiteDialog(site: site),
     );
 
+    if (result == true) {
+      _fetchSites();
+    }
+  }
+
+  Future<void> _showMergeDialog(Map<String, dynamic> sourceSite) async {
+    final result = await MergeSiteDialog.show(context, sourceSite, _sites);
     if (result == true) {
       _fetchSites();
     }
@@ -251,9 +259,15 @@ class _SitesTabState extends State<SitesTab> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      context.watch<TranslationProvider>().translate(site['name'] ?? context.watch<LocaleProvider>().t('sites.no_name') ?? 'Без названия', context.read<LocaleProvider>().currentLang),
+                                      context.watch<TranslationProvider>().translate(site['name'] ?? context.watch<LocaleProvider>().t('sites.no_name') ?? 'Без названия', context.read<LocaleProvider>().currentLang, site['name_translations']),
                                       style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(LucideIcons.git_merge, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 16),
+                                    onPressed: () => _showMergeDialog(site),
+                                    constraints: const BoxConstraints(),
+                                    padding: const EdgeInsets.all(8),
                                   ),
                                   IconButton(
                                     icon: Icon(LucideIcons.pencil, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7), size: 16),

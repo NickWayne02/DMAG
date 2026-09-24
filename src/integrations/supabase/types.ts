@@ -132,6 +132,10 @@ export type Database = {
           created_at: string;
           email: string | null;
           full_name: string | null;
+          first_name: string | null;
+          last_name: string | null;
+          username: string | null;
+          birth_date: string | null;
           avatar_url: string | null;
           id: string;
           is_active: boolean;
@@ -144,6 +148,10 @@ export type Database = {
           created_at?: string;
           email?: string | null;
           full_name?: string | null;
+          first_name?: string | null;
+          last_name?: string | null;
+          username?: string | null;
+          birth_date?: string | null;
           avatar_url?: string | null;
           id: string;
           is_active?: boolean;
@@ -156,6 +164,10 @@ export type Database = {
           created_at?: string;
           email?: string | null;
           full_name?: string | null;
+          first_name?: string | null;
+          last_name?: string | null;
+          username?: string | null;
+          birth_date?: string | null;
           avatar_url?: string | null;
           id?: string;
           is_active?: boolean;
@@ -250,6 +262,7 @@ export type Database = {
           id: string;
           label: string | null;
           name: string;
+          name_translations: Json | null;
           updated_at: string;
         };
         Insert: {
@@ -261,6 +274,7 @@ export type Database = {
           id?: string;
           label?: string | null;
           name: string;
+          name_translations?: Json | null;
           updated_at?: string;
         };
         Update: {
@@ -272,6 +286,7 @@ export type Database = {
           id?: string;
           label?: string | null;
           name?: string;
+          name_translations?: Json | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -302,6 +317,12 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      get_email_by_username: {
+        Args: {
+          p_username: string;
+        };
+        Returns: string | null;
+      };
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"];

@@ -215,7 +215,7 @@ export function BrandingSettingsTab({
   }
 
   return (
-    <Card className="p-6 rounded-2xl max-w-2xl">
+    <Card className="p-6 rounded-2xl">
       <h3 className="font-semibold text-lg mb-6">{t("admin.branding.title")}</h3>
 
       <div className="space-y-6">
@@ -226,7 +226,7 @@ export function BrandingSettingsTab({
               id="app-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Введите название..."
+              placeholder={t("admin.branding.nameDesc", { defaultValue: "Enter name..." })}
               className="max-w-md"
             />
             <Button onClick={handleSaveName} disabled={updateSettings.isPending}>
@@ -276,9 +276,7 @@ export function BrandingSettingsTab({
                     onClick={handleRemoveLogo}
                     disabled={updateSettings.isPending}
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Удалить
-                  </Button>
+                    <Trash2 className="mr-2 h-4 w-4" /> {t("admin.reports.delete", { defaultValue: "Delete" })}</Button>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">{t("admin.branding.logoHint")}</p>
@@ -308,7 +306,7 @@ export function BrandingSettingsTab({
             disabled={savePresetMutation.isPending}
           >
             <Plus className="mr-2 h-4 w-4" />
-            + Новый бренд
+            + {t("admin.branding.newBrand")}
           </Button>
         </div>
       </div>
@@ -374,7 +372,7 @@ export function BrandingSettingsTab({
                         <Label
                           htmlFor={`upload-preset-${preset.id}`}
                           className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                          title="Изменить логотип"
+                          title={t("admin.branding.editLogo", { defaultValue: "Edit logo" })}
                         >
                           <Upload className="h-4 w-4" />
                         </Label>

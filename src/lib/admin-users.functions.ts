@@ -30,7 +30,9 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       email: string;
       password: string;
       first_name: string;
+      first_name_translations?: any;
       last_name: string;
+      last_name_translations?: any;
       username: string;
       birth_date: string;
       role: AppRole;
@@ -52,7 +54,9 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       user_metadata: { 
         full_name,
         first_name: data.first_name,
+        first_name_translations: data.first_name_translations,
         last_name: data.last_name,
+        last_name_translations: data.last_name_translations,
         username: data.username,
         birth_date: data.birth_date
       },
@@ -62,7 +66,9 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     // Update profile
     const profilePatch: any = {
       first_name: data.first_name,
+      first_name_translations: data.first_name_translations,
       last_name: data.last_name,
+      last_name_translations: data.last_name_translations,
       username: data.username,
       birth_date: data.birth_date,
     };
@@ -195,7 +201,9 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
   .inputValidator((data: { 
     user_id: string; 
     first_name: string;
+    first_name_translations?: any;
     last_name: string;
+    last_name_translations?: any;
     username: string;
     birth_date: string;
     label?: string | null 
@@ -229,7 +237,9 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
       user_metadata: { 
         full_name,
         first_name: data.first_name,
+        first_name_translations: data.first_name_translations,
         last_name: data.last_name,
+        last_name_translations: data.last_name_translations,
         username: data.username,
         birth_date: data.birth_date
       },
@@ -240,7 +250,9 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
     const patch: any = { 
       full_name,
       first_name: data.first_name,
+      first_name_translations: data.first_name_translations,
       last_name: data.last_name,
+      last_name_translations: data.last_name_translations,
       username: data.username,
       birth_date: data.birth_date
     };

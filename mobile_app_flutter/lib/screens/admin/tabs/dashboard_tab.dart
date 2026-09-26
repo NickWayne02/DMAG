@@ -27,7 +27,7 @@ class _DashboardTabState extends State<DashboardTab> {
   int _employeesOnShift = 0;
   int _employeesOnLunch = 0;
   int _activeSitesCount = 0;
-  final int _urgentReportsCount = 0;
+  int _urgentReportsCount = 0;
 
   @override
   void initState() {
@@ -228,22 +228,7 @@ class _DashboardTabState extends State<DashboardTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Stat Cards Grid
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.1,
-            children: [
-              _buildStatCard(context, _employeesOnShift.toString(), context.watch<LocaleProvider>().t('admin_dashboard.emp_on_shift') ?? 'Сотрудников на\nсмене', LucideIcons.users, const Color(0xFF22c55e)), // Green
-              _buildStatCard(context, _employeesOnLunch.toString(), context.watch<LocaleProvider>().t('admin_dashboard.on_lunch') ?? 'На обеде', LucideIcons.clock, const Color(0xFFf59e0b)), // Amber
-              _buildStatCard(context, _activeSitesCount.toString(), context.watch<LocaleProvider>().t('admin_dashboard.active_sites') ?? 'Активных объектов', LucideIcons.building_2, const Color(0xFF64748b)), // Slate
-              _buildStatCard(context, _urgentReportsCount.toString(), context.watch<LocaleProvider>().t('admin_dashboard.urgent_reports') ?? 'Срочных отчётов', LucideIcons.shield_alert, const Color(0xFFef4444)), // Red
-            ],
-          ),
-          const SizedBox(height: 24),
+
           // Recent Activity Section
           NeonCard(
             padding: const EdgeInsets.all(20),

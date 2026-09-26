@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'dart:typed_data';
+import '../../image_editor_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../widgets/translated_message.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +94,7 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
         title: Text('Удалить?', style: TextStyle(color: Theme.of(context).appColors.foreground)),
         content: Text('Удалить это сообщение навсегда?', style: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.7))),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text('Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgCancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
           TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Удалить', style: TextStyle(color: Colors.red))),
         ],
       ),
@@ -150,29 +152,153 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
   }
 
   Future<void> _editMessage(Map<String, dynamic> msg) async {
-    final textController = TextEditingController(text: msg['content']?.toString() ?? '');
+    final rawContent = msg['content']?.toString() ?? '';
+    final isPhotoReport = rawContent.contains('[PHOTO_REPORT]') || rawContent.contains('[ФОТО_ОТЧЕТ]');
+    
+    if (isPhotoReport) {
+      String textToSplit = rawContent;
+      if (rawContent.contains('[ФОТО_ОТЧЕТ]')) {
+        textToSplit = rawContent.substring(rawContent.indexOf('[ФОТО_ОТЧЕТ]') + '[ФОТО_ОТЧЕТ]'.length).trim();
+      } else if (rawContent.contains('[PHOTO_REPORT]')) {
+        textToSplit = rawContent.substring(rawContent.indexOf('[PHOTO_REPORT]') + '[PHOTO_REPORT]'.length).trim();
+      }
+      final parts = textToSplit.split(' | ');
+      String? photoUrl = parts.isNotEmpty && parts[0].isNotEmpty ? parts[0] : null;
+      if (photoUrl != null && !photoUrl.startsWith('http')) {
+        photoUrl = _supabase.storage.from('photo-reports').getPublicUrl(photoUrl);
+      }
+      
+      String description = parts.length >= 3 ? parts.sublist(2).join(' | ') : '';
+      final textController = TextEditingController(text: description);
+      Uint8List? newImageBytes;
+
+      final result = await showDialog<String>(
+        context: context,
+        builder: (ctx) => StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).cardColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(context.read<LocaleProvider>().t('admin.moderation.edit_message') ?? 'Редактировать сообщение', style: TextStyle(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (newImageBytes != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.memory(newImageBytes!, fit: BoxFit.contain, height: 200, width: double.infinity),
+                    )
+                  else if (photoUrl != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(photoUrl, fit: BoxFit.contain, height: 200, width: double.infinity),
+                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: Icon(LucideIcons.pencil, size: 16, color: Theme.of(context).appColors.foreground),
+                          label: Text(context.read<LocaleProvider>().t('admin.reports.draw') ?? 'Рисовать', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+                          onPressed: () async {
+                            if (photoUrl == null && newImageBytes == null) return;
+                            final bytes = await Navigator.push<Uint8List?>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ImageEditorScreen(
+                                  imageUrl: newImageBytes == null ? photoUrl : null,
+                                  imageBytes: newImageBytes,
+                                ),
+                              ),
+                            );
+                            if (bytes != null) {
+                              setDialogState(() => newImageBytes = bytes);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: textController,
+                    maxLines: 3,
+                    style: TextStyle(color: Theme.of(context).appColors.foreground),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgCancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
+                TextButton(
+                  onPressed: () async {
+                    if (newImageBytes != null) {
+                      try {
+                        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${msg['id']}.png';
+                        await _supabase.storage.from('photo-reports').uploadBinary(fileName, newImageBytes!);
+                        final savedUrl = _supabase.storage.from('photo-reports').getPublicUrl(fileName);
+                        Navigator.pop(context, '[PHOTO_REPORT] $savedUrl | info | ${textController.text}');
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+                      }
+                    } else {
+                      final p = parts.isNotEmpty ? parts[0] : '';
+                      final info = parts.length > 1 ? parts[1] : 'info';
+                      Navigator.pop(context, '[PHOTO_REPORT] $p | $info | ${textController.text}');
+                    }
+                  },
+                  child: Text(context.read<LocaleProvider>().t('admin.sites.dlgSave') ?? 'Сохранить'),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      if (result != null && result != rawContent) {
+        try {
+          await _supabase.from('chat_messages').update({'content': result}).eq('id', msg['id']);
+          setState(() {
+            final idx = _messages.indexWhere((m) => m['id'] == msg['id']);
+            if (idx != -1) {
+              _messages[idx]['content'] = result;
+            }
+          });
+        } catch (e) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
+      }
+      return;
+    }
+
+    final textController = TextEditingController(text: rawContent);
     final newContent = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: Text('Редактировать сообщение', style: TextStyle(color: Theme.of(context).appColors.foreground)),
+        title: Text(context.read<LocaleProvider>().t('admin.moderation.edit_message') ?? 'Редактировать сообщение', style: TextStyle(color: Theme.of(context).appColors.foreground)),
         content: TextField(
           controller: textController,
           maxLines: 5,
           style: TextStyle(color: Theme.of(context).appColors.foreground),
           decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).primaryColor)),
+            filled: true,
+            fillColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(null), child: Text('Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(textController.text), child: const Text('Сохранить', style: TextStyle(color: Colors.blue))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(null), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgCancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(textController.text), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgSave') ?? 'Сохранить', style: TextStyle(color: Colors.blue))),
         ],
       ),
     );
 
-    if (newContent == null || newContent == msg['content']) return;
+    if (newContent == null || newContent == rawContent) return;
 
     try {
       await _supabase.from('chat_messages').update({'content': newContent}).eq('id', msg['id']);
@@ -183,11 +309,11 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
         }
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Сообщение обновлено')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Message updated')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка обновления: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -467,7 +593,7 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
                   child: TextField(
                     style: TextStyle(color: colors.foreground, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Поиск...',
+                      hintText: context.watch<LocaleProvider>().t('reports.search') ?? 'Поиск...',
                       hintStyle: TextStyle(color: colors.foreground.withValues(alpha: 0.5)),
                       prefixIcon: Icon(LucideIcons.search, size: 16, color: colors.foreground.withValues(alpha: 0.5)),
                       border: InputBorder.none,
@@ -502,7 +628,7 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
               
               Row(
                 children: [
-                  Text('Выбрать все', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
+                  Text(context.watch<LocaleProvider>().t('admin.moderation.select_all') ?? 'Выбрать все', style: GoogleFonts.inter(color: colors.foreground, fontSize: 12)),
                   Checkbox(
                     value: allSelected,
                     activeColor: colors.primary,
@@ -674,10 +800,10 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
               labelColor: colors.foreground,
               unselectedLabelColor: colors.foreground.withValues(alpha: 0.5),
               padding: const EdgeInsets.all(4),
-              tabs: const [
-                Tab(text: 'Общий чат'),
-                Tab(text: 'Личные чаты'),
-                Tab(text: 'Объекты'),
+              tabs: [
+                Tab(text: context.watch<LocaleProvider>().t('chat.general_channel') ?? 'Общий чат'),
+                Tab(text: context.watch<LocaleProvider>().t('chat.private_chats') ?? 'Личные чаты'),
+                Tab(text: context.watch<LocaleProvider>().t('chat.objects') ?? 'Объекты'),
               ],
             ),
           ),

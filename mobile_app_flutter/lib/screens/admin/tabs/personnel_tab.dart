@@ -541,14 +541,6 @@ class _PersonnelTabState extends State<PersonnelTab> {
                   ),
                 ),
                 Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _openEditShiftsForMonth(emp);
-                      },
-                      child: Icon(LucideIcons.pencil, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54), size: 20),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -699,13 +691,46 @@ class _PersonnelTabState extends State<PersonnelTab> {
         'pause_mins': context.read<LocaleProvider>().t('export.pause_mins') ?? 'Пауза (мин)',
         'worked': context.read<LocaleProvider>().t('export.worked') ?? 'Отработано',
         'generated': context.read<LocaleProvider>().t('export.generated') ?? 'Сформировано',
+        'page': context.read<LocaleProvider>().t('export.page') ?? 'Страница',
       };
 
 
             if (format == 'Excel') {
-        await ShiftExportService.exportExcel(shifts, empsList, _sites, '$baseName.xlsx', t: tMap);
+        final lang = context.read<LocaleProvider>().currentLang;
+        final translator = context.read<TranslationProvider>();
+        final translatedShifts = shifts.map((s) {
+          final siteName = s['site_name']?.toString() ?? '';
+          final userName = s['user_name']?.toString() ?? '';
+          
+          final siteInfo = _sites.firstWhere((x) => x['name'] == siteName, orElse: () => {});
+          final nameTranslations = siteInfo['name_translations'] as Map<String, dynamic>?;
+          
+          return {
+            ...s,
+            'site_name': translator.translate(siteName, lang, nameTranslations),
+            'user_name': translator.translate(userName, lang, null),
+          };
+        }).toList();
+
+        await ShiftExportService.exportExcel(translatedShifts, empsList, _sites, '$baseName.xlsx', t: tMap, lang: lang);
       } else {
-        await ShiftExportService.exportPdf(shifts, empsList, _sites, '$baseName.pdf', context.read<LocaleProvider>().t('personnel.report_title') ?? 'Отчёт по сменам (30 дней)', t: tMap);
+        final lang = context.read<LocaleProvider>().currentLang;
+        final translator = context.read<TranslationProvider>();
+        final translatedShifts = shifts.map((s) {
+          final siteName = s['site_name']?.toString() ?? '';
+          final userName = s['user_name']?.toString() ?? '';
+          
+          final siteInfo = _sites.firstWhere((x) => x['name'] == siteName, orElse: () => {});
+          final nameTranslations = siteInfo['name_translations'] as Map<String, dynamic>?;
+          
+          return {
+            ...s,
+            'site_name': translator.translate(siteName, lang, nameTranslations),
+            'user_name': translator.translate(userName, lang, null),
+          };
+        }).toList();
+
+        await ShiftExportService.exportPdf(translatedShifts, empsList, _sites, '$baseName.pdf', context.read<LocaleProvider>().t('personnel.report_title') ?? 'Отчёт по сменам (30 дней)', t: tMap, lang: lang);
       }
     } catch (e) {
       if (mounted) {
@@ -716,3 +741,4 @@ class _PersonnelTabState extends State<PersonnelTab> {
     }
   }
 }
+

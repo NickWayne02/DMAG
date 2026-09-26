@@ -7,23 +7,44 @@ class AuthService {
 
   static Stream<AuthState> get authStateChanges => _supabase.auth.onAuthStateChange;
 
-  static Future<AuthResponse> signIn({required String email, required String password}) async {
-    return await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+  static Future<AuthResponse> signIn({required String login, required String password}) async {
+    final String trimmedLogin = login.trim();
+    final bool isEmail = trimmedLogin.contains('@');
+    final bool isPhone = RegExp(r'^\+?[0-9\s-]+$').hasMatch(trimmedLogin) && trimmedLogin.length >= 7;
+
+    if (isEmail) {
+      return await _supabase.auth.signInWithPassword(email: trimmedLogin, password: password);
+    } else if (isPhone) {
+      return await _supabase.auth.signInWithPassword(phone: trimmedLogin, password: password);
+    } else {
+      String? emailToUse;
+      try {
+        final response = await _supabase.rpc('get_email_by_username', params: {'p_username': trimmedLogin});
+        emailToUse = response as String?;
+      } catch (e) {
+        // Fallback below
+      }
+      emailToUse ??= '$trimmedLogin@dmag.de';
+      
+      return await _supabase.auth.signInWithPassword(email: emailToUse, password: password);
+    }
   }
 
   static Future<AuthResponse> signUp({
-    required String email, 
+    required String login, 
     required String password, 
     required String firstName,
     required String lastName,
     required String username,
     required String birthDate,
   }) async {
+    final String trimmedLogin = login.trim();
+    final bool isEmail = trimmedLogin.contains('@');
+    final bool isPhone = RegExp(r'^\+?[0-9\s-]+$').hasMatch(trimmedLogin) && trimmedLogin.length >= 7;
+
     return await _supabase.auth.signUp(
-      email: email,
+      email: isEmail ? trimmedLogin : null,
+      phone: isPhone ? trimmedLogin : null,
       password: password,
       data: {
         'first_name': firstName,

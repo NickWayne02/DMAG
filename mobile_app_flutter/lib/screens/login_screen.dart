@@ -52,10 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
     
     try {
       if (_isLoginMode) {
-        await AuthService.signIn(email: email, password: password);
+        await AuthService.signIn(login: email, password: password);
       } else {
         await AuthService.signUp(
-          email: email, 
+          login: email, 
           password: password, 
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _firstNameController,
                                   style: TextStyle(color: textColor),
                                   decoration: InputDecoration(
-                                    hintText: 'Имя',
+                                    hintText: context.read<LocaleProvider>().t('auth.firstName') ?? 'Имя',
                                     hintStyle: TextStyle(color: mutedTextColor),
                                     filled: true,
                                     fillColor: inputBg,
@@ -306,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _lastNameController,
                                   style: TextStyle(color: textColor),
                                   decoration: InputDecoration(
-                                    hintText: 'Фамилия',
+                                    hintText: context.read<LocaleProvider>().t('auth.lastName') ?? 'Фамилия',
                                     hintStyle: TextStyle(color: mutedTextColor),
                                     filled: true,
                                     fillColor: inputBg,
@@ -331,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _usernameController,
                         style: TextStyle(color: textColor),
                         decoration: InputDecoration(
-                          hintText: 'Имя пользователя',
+                          hintText: context.read<LocaleProvider>().t('auth.username') ?? 'Имя пользователя',
                           hintStyle: TextStyle(color: mutedTextColor),
                           filled: true,
                           fillColor: inputBg,
@@ -364,7 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _birthDateController,
                             style: TextStyle(color: textColor),
                             decoration: InputDecoration(
-                              hintText: 'ДД.ММ.ГГГГ',
+                              hintText: context.read<LocaleProvider>().t('auth.birthDateHint') ?? 'ДД.ММ.ГГГГ',
                               hintStyle: TextStyle(color: mutedTextColor),
                               filled: true,
                               fillColor: inputBg,
@@ -394,7 +394,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(color: textColor),
                       decoration: InputDecoration(
-                        hintText: _isLoginMode ? 'Имя пользователя, Email или Телефон' : 'Email или телефон',
+                        hintText: _isLoginMode ? (context.read<LocaleProvider>().t('auth.loginHint') ?? 'Имя пользователя, Email или Телефон') : (context.read<LocaleProvider>().t('auth.emailOrPhoneHint') ?? 'Email или телефон'),
                         hintStyle: TextStyle(color: mutedTextColor),
                         filled: true,
                         fillColor: inputBg,

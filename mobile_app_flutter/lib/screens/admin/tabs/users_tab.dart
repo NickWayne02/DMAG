@@ -197,6 +197,12 @@ class _UsersTabState extends State<UsersTab> {
     bool isOnline = false,
     bool isSelf = false,
     String? shiftStatus,
+    String? firstName,
+    String? lastName,
+    Map<String, dynamic>? firstNameTranslations,
+    Map<String, dynamic>? lastNameTranslations,
+    String? username,
+    String? birthDate,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -412,6 +418,12 @@ class _UsersTabState extends State<UsersTab> {
                       context,
                       userId: userId,
                       userName: name,
+                      firstName: firstName,
+                      lastName: lastName,
+                      firstNameTranslations: firstNameTranslations,
+                      lastNameTranslations: lastNameTranslations,
+                      username: username,
+                      birthDate: birthDate,
                       onSuccess: _fetchUsers,
                     );
                   },
@@ -551,8 +563,30 @@ class _UsersTabState extends State<UsersTab> {
                         itemCount: filteredUsers.length,
                         itemBuilder: (context, index) {
                           final u = filteredUsers[index];
-                          final rawName = u['full_name'] ?? u['email'] ?? u['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени';
-                          final name = context.watch<TranslationProvider>().translate(rawName, context.read<LocaleProvider>().currentLang);
+                          final currentLang = context.watch<LocaleProvider>().currentLang;
+                          final fTrans = u['first_name_translations'] as Map<String, dynamic>? ?? {};
+                          final lTrans = u['last_name_translations'] as Map<String, dynamic>? ?? {};
+                          
+                          String? localizedFName = fTrans[currentLang];
+                          if (localizedFName == null || localizedFName.toString().trim().isEmpty) {
+                            localizedFName = u['first_name'];
+                          }
+                          
+                          String? localizedLName = lTrans[currentLang];
+                          if (localizedLName == null || localizedLName.toString().trim().isEmpty) {
+                            localizedLName = u['last_name'];
+                          }
+                          
+                          String rawName = '';
+                          if (localizedFName != null || localizedLName != null) {
+                            rawName = '${localizedFName ?? ''} ${localizedLName ?? ''}'.trim();
+                          }
+                          
+                          if (rawName.isEmpty) {
+                            rawName = u['full_name'] ?? u['email'] ?? u['phone'] ?? context.read<LocaleProvider>().t('personnel.no_name') ?? 'Без имени';
+                          }
+                          
+                          final name = context.watch<TranslationProvider>().translate(rawName, currentLang);
                           
                           // Simple initials generator
                           final nameParts = rawName.toString().split(' ').where((e) => e.isNotEmpty).toList();
@@ -587,6 +621,12 @@ class _UsersTabState extends State<UsersTab> {
                             isOnline: isOnline,
                             isSelf: u['id'] == Supabase.instance.client.auth.currentUser?.id,
                             shiftStatus: u['shift_status'],
+                            firstName: u['first_name'],
+                            lastName: u['last_name'],
+                            firstNameTranslations: u['first_name_translations'] != null ? Map<String, dynamic>.from(u['first_name_translations']) : null,
+                            lastNameTranslations: u['last_name_translations'] != null ? Map<String, dynamic>.from(u['last_name_translations']) : null,
+                            username: u['username'],
+                            birthDate: u['birth_date'],
                           );
                         },
                       );

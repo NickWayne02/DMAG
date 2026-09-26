@@ -2217,7 +2217,7 @@
     "ru": "Отмена",
     "en": "Cancel",
     "de": "Abbrechen",
-    "ro": "Anulează",
+    "ro": "Anulare",
     "bg": "Отказ",
     "pl": "Anuluj",
     "uk": "Скасувати",
@@ -3116,13 +3116,13 @@
   "auth.forgot_password": {
     "ru": "Забыли пароль?",
     "en": "Forgot password?",
-    "de": "Forgot password?",
-    "ro": "Forgot password?",
-    "bg": "Забыли пароль?",
-    "pl": "Forgot password?",
+    "de": "Passwort vergessen?",
+    "ro": "Ați uitat parola?",
+    "bg": "Забравена парола?",
+    "pl": "Zapomniałeś hasła?",
     "uk": "Забули пароль?",
-    "uz": "Forgot password?",
-    "tg": "Забыли пароль?"
+    "uz": "Parolni unutdingizmi?",
+    "tg": "Паролро фаромӯш кардед?"
   },
   "dashboard.status": {
     "ru": "ТЕКУЩИЙ СТАТУС",
@@ -5069,15 +5069,15 @@
     "tg": "Закрыть"
   },
   "chat.media_title": {
-    "ru": "Вложенные медиа",
-    "en": "Shared media",
-    "de": "Shared media",
-    "ro": "Shared media",
-    "bg": "Вложенные медиа",
-    "pl": "Shared media",
-    "uk": "Вкладені медіа",
-    "uz": "Shared media",
-    "tg": "Вложенные медиа"
+    "ru": "Фотоотчет",
+    "en": "Photo Report",
+    "de": "Fotobericht",
+    "ro": "Raport foto",
+    "bg": "Снимков доклад",
+    "pl": "Raport ze zdjęciami",
+    "uk": "Фотозвіт",
+    "uz": "Foto hisobot",
+    "tg": "Ҳисоботи аксӣ"
   },
   "chat.media_select": {
     "ru": "Выбрать",
@@ -5522,13 +5522,13 @@
   "auth.confirm_password": {
     "ru": "Подтверждение пароля",
     "en": "Confirm password",
-    "de": "Confirm password",
-    "ro": "Confirm password",
-    "bg": "Подтверждение пароля",
-    "pl": "Confirm password",
+    "de": "Passwort bestätigen",
+    "ro": "Confirmare parolă",
+    "bg": "Потвърди паролата",
+    "pl": "Potwierdź hasło",
     "uk": "Підтвердження пароля",
-    "uz": "Confirm password",
-    "tg": "Подтверждение пароля"
+    "uz": "Parolni tasdiqlash",
+    "tg": "Тасдиқи парол"
   },
   "photo_report.info": {
     "ru": "Информация",
@@ -8689,5 +8689,192 @@
     "uk": "Загальний чат",
     "uz": "Umumiy chat",
     "tg": "Чати умумӣ"
+  },
+  "admin.users.loginPassword": {
+    "ru": "Логин/Пароль",
+    "en": "Login/Password",
+    "de": "Login/Passwort",
+    "ro": "Autentificare/Parolă",
+    "bg": "Вход/Парола",
+    "pl": "Login/Hasło",
+    "uk": "Логін/Пароль",
+    "uz": "Login/Parol",
+    "tg": "Логин/Парол"
+  },
+  "admin.users.leaveEmptyToKeep": {
+    "ru": "Оставить пустым чтобы не менять",
+    "en": "Leave empty to keep current",
+    "de": "Leer lassen, um nicht zu ändern",
+    "ro": "Lăsați gol pentru a nu schimba",
+    "bg": "Оставете празно, за да не променяте",
+    "pl": "Pozostaw puste, aby nie zmieniać",
+    "uk": "Залиште порожнім, щоб не змінювати",
+    "uz": "O'zgartirmaslik uchun bo'sh qoldiring",
+    "tg": "Барои иваз накардан холӣ гузоред"
+  },
+  "admin.moderation.message": {
+    "ru": "сообщение",
+    "en": "message",
+    "de": "Nachricht",
+    "ro": "mesaj",
+    "bg": "съобщение",
+    "pl": "wiadomość",
+    "uk": "повідомлення",
+    "uz": "xabar",
+    "tg": "паём"
+  },
+  "admin.moderation.messages": {
+    "ru": "сообщений",
+    "en": "messages",
+    "de": "Nachrichten",
+    "ro": "mesaje",
+    "bg": "съобщения",
+    "pl": "wiadomości",
+    "uk": "повідомлень",
+    "uz": "xabarlar",
+    "tg": "паёмҳо"
+  },
+  "auth.firstName": {
+    "ru": "Имя",
+    "en": "First Name",
+    "de": "Vorname",
+    "ro": "Prenume",
+    "bg": "Име",
+    "pl": "Imię",
+    "uk": "Ім'я",
+    "uz": "Ism",
+    "tg": "Ном"
+  },
+  "auth.lastName": {
+    "ru": "Фамилия",
+    "en": "Last Name",
+    "de": "Nachname",
+    "ro": "Nume",
+    "bg": "Фамилия",
+    "pl": "Nazwisko",
+    "uk": "Прізвище",
+    "uz": "Familiya",
+    "tg": "Насаб"
+  },
+  "auth.username": {
+    "ru": "Имя пользователя",
+    "en": "Username",
+    "de": "Benutzername",
+    "ro": "Nume de utilizator",
+    "bg": "Потребителско име",
+    "pl": "Nazwa użytkownika",
+    "uk": "Ім'я користувача",
+    "uz": "Foydalanuvchi nomi",
+    "tg": "Номи корбарӣ"
+  },
+  "auth.birthDate": {
+    "ru": "Дата рождения",
+    "en": "Date of Birth",
+    "de": "Geburtsdatum",
+    "ro": "Data nașterii",
+    "bg": "Дата на раждане",
+    "pl": "Data urodzenia",
+    "uk": "Дата народження",
+    "uz": "Tug'ilgan sana",
+    "tg": "Санаи таваллуд"
+  },
+  "auth.birthDateHint": {
+    "ru": "ДД.ММ.ГГГГ",
+    "en": "DD.MM.YYYY",
+    "de": "TT.MM.JJJJ",
+    "ro": "ZZ.LL.AAAA",
+    "bg": "ДД.ММ.ГГГГ",
+    "pl": "DD.MM.RRRR",
+    "uk": "ДД.ММ.РРРР",
+    "uz": "KK.OO.YYYY",
+    "tg": "РР.ММ.СССС"
+  },
+  "auth.loginOrEmailOrPhone": {
+    "ru": "Телефон или Email",
+    "en": "Phone or Email",
+    "de": "Telefon oder E-Mail",
+    "ro": "Telefon sau Email",
+    "bg": "Телефон или Имейл",
+    "pl": "Telefon lub E-mail",
+    "uk": "Телефон або Email",
+    "uz": "Telefon yoki Email",
+    "tg": "Телефон ё Почтаи электронӣ"
+  },
+  "auth.loginHint": {
+    "ru": "Имя пользователя, Email или Телефон",
+    "en": "Username, Email or Phone",
+    "de": "Benutzername, E-Mail oder Telefon",
+    "ro": "Nume de utilizator, Email sau Telefon",
+    "bg": "Потребителско име, Имейл или Телефон",
+    "pl": "Nazwa użytkownika, E-mail lub Telefon",
+    "uk": "Ім'я користувача, Email або Телефон",
+    "uz": "Foydalanuvchi nomi, Email yoki Telefon",
+    "tg": "Номи корбарӣ, Почтаи электронӣ ё Телефон"
+  },
+  "auth.emailOrPhoneHint": {
+    "ru": "Email или телефон",
+    "en": "Email or phone",
+    "de": "E-Mail oder Telefon",
+    "ro": "Email sau telefon",
+    "bg": "Имейл или телефон",
+    "pl": "E-mail lub telefon",
+    "uk": "Email або телефон",
+    "uz": "Email yoki telefon",
+    "tg": "Почтаи электронӣ ё телефон"
+  },
+  "auth.newEmail": {
+    "ru": "Новый Email",
+    "en": "New Email",
+    "de": "Neue E-Mail",
+    "ro": "Email nou",
+    "bg": "Нов Email",
+    "pl": "Nowy Email",
+    "uk": "Новий Email",
+    "uz": "Yangi Email",
+    "tg": "Email нав"
+  },
+  "auth.newPassword": {
+    "ru": "Новый пароль",
+    "en": "New Password",
+    "de": "Neues Passwort",
+    "ro": "Parolă nouă",
+    "bg": "Нова парола",
+    "pl": "Nowe hasło",
+    "uk": "Новий пароль",
+    "uz": "Yangi parol",
+    "tg": "Пароли нав"
+  },
+  "auth.leaveBlank": {
+    "ru": "Оставить пустым чтобы не менять",
+    "en": "Leave blank to not change",
+    "de": "Leer lassen, um nicht zu ändern",
+    "ro": "Lăsați gol pentru a nu schimba",
+    "bg": "Оставете празно, за да не променяте",
+    "pl": "Pozostaw puste, aby nie zmieniać",
+    "uk": "Залишити порожнім щоб не змінювати",
+    "uz": "O'zgartirmaslik uchun bo'sh qoldiring",
+    "tg": "Барои тағир надодан холӣ монед"
+  },
+  "common.save": {
+    "ru": "Сохранить",
+    "en": "Save",
+    "de": "Speichern",
+    "ro": "Salvare",
+    "bg": "Запазване",
+    "pl": "Zapisz",
+    "uk": "Зберегти",
+    "uz": "Saqlash",
+    "tg": "Захира кардан"
+  },
+  "common.edit": {
+    "ru": "Редактирование",
+    "en": "Edit",
+    "de": "Bearbeiten",
+    "ro": "Editare",
+    "bg": "Редактиране",
+    "pl": "Edytuj",
+    "uk": "Редагування",
+    "uz": "Tahrirlash",
+    "tg": "Таҳрир"
   }
 }

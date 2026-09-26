@@ -63,7 +63,9 @@ export const Route = createFileRoute("/api/users/update")({
           const body = await request.json();
           const targetUserId = body.user_id;
           const newFirstName = body.first_name;
+          const newFirstNameTranslations = body.first_name_translations;
           const newLastName = body.last_name;
+          const newLastNameTranslations = body.last_name_translations;
           const newUsername = body.username;
           const newBirthDate = body.birth_date;
 
@@ -93,7 +95,9 @@ export const Route = createFileRoute("/api/users/update")({
             {
               user_metadata: {
                 first_name: newFirstName,
+                first_name_translations: newFirstNameTranslations,
                 last_name: newLastName,
+                last_name_translations: newLastNameTranslations,
                 username: newUsername,
                 birth_date: newBirthDate,
               },
@@ -107,10 +111,12 @@ export const Route = createFileRoute("/api/users/update")({
             .update({
               full_name: `${newFirstName} ${newLastName}`.trim(),
               first_name: newFirstName,
+              first_name_translations: newFirstNameTranslations,
               last_name: newLastName,
+              last_name_translations: newLastNameTranslations,
               username: newUsername,
               birth_date: newBirthDate,
-            })
+            } as any)
             .eq("id", targetUserId);
 
           if (updateProfileError) throw updateProfileError;

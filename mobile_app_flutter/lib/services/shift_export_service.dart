@@ -48,13 +48,44 @@ class ShiftExportService {
     return '${_pad(d.hour)}:${_pad(d.minute)}';
   }
 
-  static String _fmtHM(int ms) {
-    int minutes = (ms / 60000).floor();
-    if (minutes < 0) minutes = 0;
-    return '${(minutes / 60).floor()}ч ${_pad(minutes % 60)}м';
+  static String _translit(String str, String lang) {
+    if (str.isEmpty) return '';
+    final isCyrillic = ['ru', 'bg', 'uk', 'tg'].contains(lang);
+    if (isCyrillic) return str;
+    
+    const map = {
+      'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y',
+      'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f',
+      'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+      'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z', 'И': 'I', 'Й': 'Y',
+      'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F',
+      'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch', 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya'
+    };
+    
+    return str.split('').map((char) => map[char] ?? char).join('');
   }
 
-  static List<ExportRow> _toExportRows(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites) {
+  static String _fmtHM(int ms, String lang) {
+    int minutes = (ms / 60000).floor();
+    if (minutes < 0) minutes = 0;
+    int h = (minutes / 60).floor();
+    String m = _pad(minutes % 60);
+    const map = {
+      'ru': {'h': 'ч', 'm': 'м'},
+      'en': {'h': 'h', 'm': 'm'},
+      'de': {'h': 'Std', 'm': 'Min'},
+      'ro': {'h': 'ore', 'm': 'min'},
+      'bg': {'h': 'ч', 'm': 'м'},
+      'pl': {'h': 'godz', 'm': 'min'},
+      'uk': {'h': 'год', 'm': 'хв'},
+      'uz': {'h': 'soat', 'm': 'daq'},
+      'tg': {'h': 'с', 'm': 'д'}
+    };
+    final tr = map[lang] ?? {'h': 'h', 'm': 'm'};
+    return '${h}${tr['h']} ${m}${tr['m']}';
+  }
+
+  static List<ExportRow> _toExportRows(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String lang) {
     return shifts.map((s) {
       final startedAt = DateTime.tryParse(s['started_at'] ?? '')?.toLocal();
       final endedAt = s['ended_at'] != null ? DateTime.tryParse(s['ended_at'])?.toLocal() : null;
@@ -103,13 +134,13 @@ class ShiftExportService {
         pauseEnd: '', // Not tracked precisely in local shift object yet
         workEnd: endedAt != null ? _fmtTime(endedAt) : '…',
         pauseMin: (lunchMs / 60000).round(),
-        workedHM: _fmtHM(workedMs),
+        workedHM: _fmtHM(workedMs, lang),
       );
     }).toList();
   }
 
-  static Future<void> exportExcel(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, {required Map<String, String> t}) async {
-    final rows = _toExportRows(shifts, employees, sites);
+  static Future<void> exportExcel(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, {required Map<String, String> t, String lang = 'ru'}) async {
+    final rows = _toExportRows(shifts, employees, sites, lang);
     final excel = Excel.createExcel();
     const sheetName = 'Смены';
     final sheet = excel[sheetName];
@@ -151,8 +182,8 @@ class ShiftExportService {
     }
   }
 
-  static Future<void> exportPdf(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, String title, {required Map<String, String> t}) async {
-    final rows = _toExportRows(shifts, employees, sites);
+  static Future<void> exportPdf(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String filename, String title, {required Map<String, String> t, String lang = 'ru'}) async {
+    final rows = _toExportRows(shifts, employees, sites, lang);
     
     final pdf = pw.Document();
     
@@ -176,11 +207,21 @@ class ShiftExportService {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4.landscape,
         margin: const pw.EdgeInsets.all(32),
+        footer: (pw.Context context) {
+          return pw.Container(
+            alignment: pw.Alignment.centerRight,
+            margin: const pw.EdgeInsets.only(top: 10),
+            child: pw.Text(
+              '${t['page'] ?? 'Страница'} ${context.pageNumber}',
+              style: pw.TextStyle(color: const PdfColor.fromInt(0xFF94A3B8), fontSize: 9, font: font),
+            ),
+          );
+        },
         build: (pw.Context context) {
           return [
-            pw.Text(title, style: pw.TextStyle(font: boldFont, fontSize: 18)),
+            pw.Text(title, style: pw.TextStyle(font: boldFont, fontSize: 18, color: const PdfColor.fromInt(0xFF1E293B))),
             pw.SizedBox(height: 8),
-            pw.Text('Сформировано: ${DateTime.now().toString()}', style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey700)),
+            pw.Text('${t['generatedAt'] ?? 'Сформировано'}: ${DateTime.now().toString()}', style: pw.TextStyle(font: font, fontSize: 10, color: const PdfColor.fromInt(0xFF64748B))),
             pw.SizedBox(height: 20),
             pw.TableHelper.fromTextArray(
               headers: headers,
@@ -195,12 +236,13 @@ class ShiftExportService {
                 r.pauseMin.toString(),
                 r.workedHM,
               ]).toList(),
-              headerStyle: pw.TextStyle(font: boldFont, color: PdfColors.white, fontSize: 10),
-              headerDecoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF0D47A1)), // Blue head
-              cellStyle: pw.TextStyle(font: font, fontSize: 9),
+              headerStyle: pw.TextStyle(font: boldFont, color: const PdfColor.fromInt(0xFF0F172A), fontSize: 10),
+              headerDecoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFFF8FAFC)), // slate-50
+              cellStyle: pw.TextStyle(font: font, fontSize: 9, color: const PdfColor.fromInt(0xFF334155)), // slate-700
               cellAlignment: pw.Alignment.center,
-              oddRowDecoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFFF5F7FA)),
-              border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
+              cellPadding: const pw.EdgeInsets.all(8),
+              oddRowDecoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFFF8FAFC)),
+              border: pw.TableBorder.all(color: const PdfColor.fromInt(0xFFE2E8F0), width: 0.5), // slate-200
             ),
           ];
         },
@@ -233,3 +275,4 @@ class ShiftExportService {
     }
   }
 }
+

@@ -14,6 +14,8 @@ class ChangeNameDialog extends StatefulWidget {
   final String userName;
   final String? firstName;
   final String? lastName;
+  final Map<String, dynamic>? firstNameTranslations;
+  final Map<String, dynamic>? lastNameTranslations;
   final String? username;
   final String? birthDate;
   final VoidCallback onSuccess;
@@ -24,12 +26,14 @@ class ChangeNameDialog extends StatefulWidget {
     required this.userName,
     this.firstName,
     this.lastName,
+    this.firstNameTranslations,
+    this.lastNameTranslations,
     this.username,
     this.birthDate,
     required this.onSuccess,
   });
 
-  static Future<void> show(BuildContext context, {required String userId, required String userName, String? firstName, String? lastName, String? username, String? birthDate, required VoidCallback onSuccess}) {
+  static Future<void> show(BuildContext context, {required String userId, required String userName, String? firstName, Map<String, dynamic>? firstNameTranslations, String? lastName, Map<String, dynamic>? lastNameTranslations, String? username, String? birthDate, required VoidCallback onSuccess}) {
     return showDialog(
       context: context,
       barrierDismissible: true,
@@ -38,6 +42,8 @@ class ChangeNameDialog extends StatefulWidget {
         userName: userName,
         firstName: firstName,
         lastName: lastName,
+        firstNameTranslations: firstNameTranslations,
+        lastNameTranslations: lastNameTranslations,
         username: username,
         birthDate: birthDate,
         onSuccess: onSuccess,
@@ -52,15 +58,31 @@ class ChangeNameDialog extends StatefulWidget {
 class _ChangeNameDialogState extends State<ChangeNameDialog> {
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
+  late TextEditingController _firstNameRuController;
+  late TextEditingController _lastNameRuController;
+  late TextEditingController _firstNameUkController;
+  late TextEditingController _lastNameUkController;
   late TextEditingController _usernameController;
   late TextEditingController _birthDateController;
   bool _isLoading = false;
 
+  Map<String, dynamic> _firstNameTranslations = {};
+  Map<String, dynamic> _lastNameTranslations = {};
+
   @override
   void initState() {
     super.initState();
+    final widgetType = widget as dynamic;
+    
+    _firstNameTranslations = widgetType.firstNameTranslations != null ? Map<String, dynamic>.from(widgetType.firstNameTranslations) : {};
+    _lastNameTranslations = widgetType.lastNameTranslations != null ? Map<String, dynamic>.from(widgetType.lastNameTranslations) : {};
+
     _firstNameController = TextEditingController(text: widget.firstName ?? '');
     _lastNameController = TextEditingController(text: widget.lastName ?? '');
+    _firstNameRuController = TextEditingController(text: _firstNameTranslations['ru'] as String? ?? '');
+    _lastNameRuController = TextEditingController(text: _lastNameTranslations['ru'] as String? ?? '');
+    _firstNameUkController = TextEditingController(text: _firstNameTranslations['uk'] as String? ?? '');
+    _lastNameUkController = TextEditingController(text: _lastNameTranslations['uk'] as String? ?? '');
     _usernameController = TextEditingController(text: widget.username ?? '');
     _birthDateController = TextEditingController(text: _formatForDisplay(widget.birthDate));
   }
@@ -69,6 +91,10 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _firstNameRuController.dispose();
+    _lastNameRuController.dispose();
+    _firstNameUkController.dispose();
+    _lastNameUkController.dispose();
     _usernameController.dispose();
     _birthDateController.dispose();
     super.dispose();
@@ -80,6 +106,16 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
     final un = _usernameController.text.trim();
     final bd = _birthDateController.text.trim();
     if (fn.isEmpty || ln.isEmpty || un.isEmpty || bd.isEmpty) return;
+
+    final ruFn = _firstNameRuController.text.trim();
+    final ruLn = _lastNameRuController.text.trim();
+    final ukFn = _firstNameUkController.text.trim();
+    final ukLn = _lastNameUkController.text.trim();
+    
+    if (ruFn.isNotEmpty) _firstNameTranslations['ru'] = ruFn; else _firstNameTranslations.remove('ru');
+    if (ruLn.isNotEmpty) _lastNameTranslations['ru'] = ruLn; else _lastNameTranslations.remove('ru');
+    if (ukFn.isNotEmpty) _firstNameTranslations['uk'] = ukFn; else _firstNameTranslations.remove('uk');
+    if (ukLn.isNotEmpty) _lastNameTranslations['uk'] = ukLn; else _lastNameTranslations.remove('uk');
 
     setState(() {
       _isLoading = true;
@@ -100,6 +136,8 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
           'user_id': widget.userId,
           'first_name': fn,
           'last_name': ln,
+          'first_name_translations': _firstNameTranslations,
+          'last_name_translations': _lastNameTranslations,
           'username': un,
           'birth_date': bd,
         }),
@@ -230,9 +268,23 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
 
               Row(
                 children: [
-                  Expanded(child: _buildTextField(context.watch<LocaleProvider>().t('auth.firstName') ?? 'Имя', _firstNameController)),
+                  Expanded(child: _buildTextField('${context.watch<LocaleProvider>().t('auth.firstName') ?? 'Имя'} (Default/EN)', _firstNameController)),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildTextField(context.watch<LocaleProvider>().t('auth.lastName') ?? 'Фамилия', _lastNameController)),
+                  Expanded(child: _buildTextField('${context.watch<LocaleProvider>().t('auth.lastName') ?? 'Фамилия'} (Default/EN)', _lastNameController)),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: _buildTextField('${context.watch<LocaleProvider>().t('auth.firstName') ?? 'Имя'} (RU)', _firstNameRuController)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField('${context.watch<LocaleProvider>().t('auth.lastName') ?? 'Фамилия'} (RU)', _lastNameRuController)),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: _buildTextField('${context.watch<LocaleProvider>().t('auth.firstName') ?? 'Имя'} (UK)', _firstNameUkController)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField('${context.watch<LocaleProvider>().t('auth.lastName') ?? 'Фамилия'} (UK)', _lastNameUkController)),
                 ],
               ),
               

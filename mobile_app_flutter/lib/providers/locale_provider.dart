@@ -72,7 +72,7 @@ class LocaleProvider extends ChangeNotifier {
     if (_currentLang == 'ru' || entry.containsKey(_currentLang)) {
       if (params != null) {
         params.forEach((k, v) {
-          value = value?.replaceAll('{{$k}}', v);
+          value = value?.replaceAll('{$k}', v);
         });
       }
       return value;

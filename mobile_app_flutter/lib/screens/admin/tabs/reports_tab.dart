@@ -5,6 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/app_theme.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
+import 'package:pro_image_editor/pro_image_editor.dart';
+import '../../image_editor_screen.dart';
 import '../../../utils/transliteration.dart';
 
 class ReportsTab extends StatefulWidget {
@@ -95,70 +99,141 @@ class _ReportsTabState extends State<ReportsTab> {
         ? Supabase.instance.client.storage.from('photo-reports').getPublicUrl(photoUrl)
         : null;
 
+    Uint8List? newImageBytes;
+    String? newImageExt;
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Редактирование', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (imageUrl != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.contain,
-                  height: 200,
-                  width: double.infinity,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 120,
-                    color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
-                    child: Icon(LucideIcons.image, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.2), size: 48),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: Theme.of(context).cardColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Text(context.read<LocaleProvider>().t('common.edit') ?? 'Редактирование', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontWeight: FontWeight.w600)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (newImageBytes != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.memory(
+                      newImageBytes!,
+                      fit: BoxFit.contain,
+                      height: 200,
+                      width: double.infinity,
+                    ),
+                  )
+                else if (imageUrl != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      height: 200,
+                      width: double.infinity,
+                      errorBuilder: (_, __, ___) => Container(
+                        height: 120,
+                        color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
+                        child: Icon(LucideIcons.image, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.2), size: 48),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: Icon(LucideIcons.pencil, size: 16, color: Theme.of(context).appColors.foreground),
+                        label: Text(context.read<LocaleProvider>().t('admin.reports.draw') ?? 'Рисовать', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+                        onPressed: () async {
+                          if (imageUrl == null && newImageBytes == null) return;
+                          final bytes = await Navigator.push<Uint8List?>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ImageEditorScreen(
+                                imageBytes: newImageBytes,
+                                imageUrl: imageUrl,
+                              ),
+                            ),
+                          );
+                          if (bytes != null) {
+                            setDialogState(() {
+                              newImageBytes = bytes;
+                              newImageExt = 'png';
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: Icon(LucideIcons.upload, size: 16, color: Theme.of(context).appColors.foreground),
+                        label: Text(context.read<LocaleProvider>().t('admin.reports.replace') ?? 'Заменить', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+                        onPressed: () async {
+                          final picker = ImagePicker();
+                          final xfile = await picker.pickImage(source: ImageSource.gallery);
+                          if (xfile != null) {
+                            final bytes = await xfile.readAsBytes();
+                            setDialogState(() {
+                              newImageBytes = bytes;
+                              newImageExt = xfile.name.split('.').last;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller,
+                  maxLines: 2,
+                  style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground),
+                  decoration: InputDecoration(
+                    hintText: context.read<LocaleProvider>().t('chat.photo.descPlaceholder') ?? 'Описание...',
+                    hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.3)),
+                    filled: true,
+                    fillColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
-              ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              maxLines: 2,
-              style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground),
-              decoration: InputDecoration(
-                hintText: 'Описание...',
-                hintStyle: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.3)),
-                filled: true,
-                fillColor: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-              ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              try {
-                await Supabase.instance.client.from('photo_reports').update({
-                  'description': controller.text.trim(),
-                }).eq('id', report['id']);
-                _fetchReports();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Сохранено')));
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
-                }
-              }
-            },
-            child: Text('Сохранить', style: GoogleFonts.inter(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600)),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(context.read<LocaleProvider>().t('common.cancel') ?? 'Отмена', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54))),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  try {
+                    String? finalPhotoUrl = report['photo_url'];
+                    if (newImageBytes != null) {
+                      final path = 'edited_${DateTime.now().millisecondsSinceEpoch}.${newImageExt ?? "jpg"}';
+                      await Supabase.instance.client.storage.from('photo-reports').uploadBinary(path, newImageBytes!);
+                      finalPhotoUrl = path;
+                    }
+                    await Supabase.instance.client.from('photo_reports').update({
+                      'description': controller.text.trim(),
+                      if (newImageBytes != null) 'photo_url': finalPhotoUrl,
+                    }).eq('id', report['id']);
+                    _fetchReports();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('common.save') ?? 'Сохранено')));
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+                    }
+                  }
+                },
+                child: Text(context.read<LocaleProvider>().t('common.save') ?? 'Сохранить', style: GoogleFonts.inter(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          );
+        }
       ),
     );
   }
@@ -350,8 +425,14 @@ class _ReportsTabState extends State<ReportsTab> {
                         ],
                       ),
                     )
-                  : ListView.builder(
+                  : GridView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 300,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.75,
+                      ),
                       itemCount: _reports.length,
                       itemBuilder: (context, index) {
                         final r = _reports[index];
@@ -359,7 +440,6 @@ class _ReportsTabState extends State<ReportsTab> {
                         final dateStr = date != null ? '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}' : '';
                         
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 24),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(24),
@@ -427,7 +507,7 @@ class _ReportsTabState extends State<ReportsTab> {
                                             children: [
                                               Icon(LucideIcons.pencil, color: Theme.of(context).appColors.foreground, size: 18),
                                               const SizedBox(width: 12),
-                                              Text('Редактировать', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
+                                              Text(context.read<LocaleProvider>().t('admin.reports.edit') ?? 'Редактировать', style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground)),
                                             ],
                                           ),
                                         ),
@@ -437,7 +517,7 @@ class _ReportsTabState extends State<ReportsTab> {
                                             children: [
                                               Icon(LucideIcons.trash_2, color: Colors.redAccent, size: 18),
                                               const SizedBox(width: 12),
-                                              Text(context.watch<LocaleProvider>().t('admin.reports.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.redAccent)),
+                                              Text(context.read<LocaleProvider>().t('admin.reports.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.redAccent)),
                                             ],
                                           ),
                                         ),
@@ -449,14 +529,16 @@ class _ReportsTabState extends State<ReportsTab> {
                               
                               // Media
                               if (r['photo_url'] != null && r['photo_url'].toString().isNotEmpty)
-                                AspectRatio(
-                                  aspectRatio: 4 / 3,
-                                  child: Image.network(
-                                    Supabase.instance.client.storage.from('photo-reports').getPublicUrl(r['photo_url']),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
-                                      child: Icon(LucideIcons.image, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.2), size: 48),
+                                Expanded(
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Image.network(
+                                      Supabase.instance.client.storage.from('photo-reports').getPublicUrl(r['photo_url']),
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: Theme.of(context).appColors.foreground.withValues(alpha: 0.05),
+                                        child: Icon(LucideIcons.image, color: Theme.of(context).appColors.foreground.withValues(alpha: 0.2), size: 48),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -464,10 +546,12 @@ class _ReportsTabState extends State<ReportsTab> {
                               // Description
                               if (r['description'] != null && r['description'].toString().isNotEmpty)
                                 Padding(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(12),
                                   child: Text(
                                     r['description'],
-                                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 14, height: 1.5),
+                                    style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 12, height: 1.4),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                             ],
@@ -480,3 +564,4 @@ class _ReportsTabState extends State<ReportsTab> {
     );
   }
 }
+

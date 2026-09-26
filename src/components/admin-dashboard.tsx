@@ -134,7 +134,9 @@ type EmployeeRow = {
   id: string;
   name: string;
   first_name: string | null;
+  first_name_translations?: any;
   last_name: string | null;
+  last_name_translations?: any;
   username: string | null;
   birth_date: string | null;
   avatar_url?: string | null;
@@ -290,6 +292,13 @@ export function AdminDashboard({
   const { onlineUsers, presenceMap } = usePresence();
   const navigate = useNavigate();
   const { t, tName, lang } = useLanguage();
+
+  const getEmpName = (e: EmployeeRow): string => {
+    const fName = (e.first_name_translations || {})[lang] || e.first_name || "";
+    const lName = (e.last_name_translations || {})[lang] || e.last_name || "";
+    const constructed = `${fName} ${lName}`.trim();
+    return constructed ? tName(constructed) : tName(e.name);
+  };
 
   const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => setIsHydrated(true), []);
@@ -483,7 +492,7 @@ export function AdminDashboard({
     ] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, full_name, first_name, last_name, username, birth_date, email, phone, is_active, avatar_url, updated_at, label"),
+        .select("*"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")
@@ -597,7 +606,9 @@ export function AdminDashboard({
           id: p.id,
           name: p.full_name || p.email || p.phone || "Без имени",
           first_name: p.first_name,
+          first_name_translations: (p as any).first_name_translations,
           last_name: p.last_name,
+          last_name_translations: (p as any).last_name_translations,
           username: p.username,
           birth_date: p.birth_date,
           avatar_url: p.avatar_url ?? null,
@@ -981,36 +992,7 @@ export function AdminDashboard({
     customer: string;
   };
 const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
-  const [siteMergeSource, setSiteMergeSource] = useState<{ id: string; name: string } | null>(null);
-  const [siteMergeTarget, setSiteMergeTarget] = useState<string>("");
-  const [siteMergeBusy, setSiteMergeBusy] = useState(false);
 
-  async function mergeSites() {
-    if (!siteMergeSource || !siteMergeTarget) return;
-    if (siteMergeSource.id === siteMergeTarget) {
-      toast.error("Нельзя объединить объект с самим собой");
-      return;
-    }
-    const targetSite = sites.find(s => s.id === siteMergeTarget);
-    if (!confirm(`Вы уверены, что хотите объединить "${siteMergeSource.name}" с "${targetSite?.name}"?`)) return;
-    
-    setSiteMergeBusy(true);
-    try {
-      const { error } = await (supabase.rpc as any)('merge_sites', { 
-        source_id: siteMergeSource.id, 
-        target_id: siteMergeTarget 
-      });
-      if (error) throw error;
-      toast.success("Объекты успешно объединены");
-      setSiteMergeSource(null);
-      setSiteMergeTarget("");
-      loadAll();
-    } catch (e: any) {
-      toast.error("Ошибка при объединении: " + e.message);
-    } finally {
-      setSiteMergeBusy(false);
-    }
-  }
   const [siteSaving, setSiteSaving] = useState(false);
   const [siteGpsBusy, setSiteGpsBusy] = useState(false);
 
@@ -1108,18 +1090,22 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
     email: string;
     password: string;
     first_name: string;
+    first_name_translations?: any;
     last_name: string;
+    last_name_translations?: any;
     username: string;
     birth_date: string;
     role: AppRole;
     label: string;
-  }>({ open: false, email: "", password: "", first_name: "", last_name: "", username: "", birth_date: "", role: "employee", label: "" });
+  }>({ open: false, email: "", password: "", first_name: "", first_name_translations: {}, last_name: "", last_name_translations: {}, username: "", birth_date: "", role: "employee", label: "" });
 
   const [nameEdit, setNameEdit] = useState<{
     user_id: string;
     user_name: string;
     first_name: string;
+    first_name_translations?: any;
     last_name: string;
+    last_name_translations?: any;
     username: string;
     birth_date: string;
     current_label: string;
@@ -1146,7 +1132,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
           email: createForm.email.trim(),
           password: createForm.password,
           first_name: createForm.first_name.trim(),
+          first_name_translations: createForm.first_name_translations,
           last_name: createForm.last_name.trim(),
+          last_name_translations: createForm.last_name_translations,
           username: createForm.username.trim(),
           birth_date: createForm.birth_date,
           role: createForm.role,
@@ -1181,7 +1169,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
         data: {
           user_id: nameEdit.user_id,
           first_name: nameEdit.first_name,
+          first_name_translations: nameEdit.first_name_translations,
           last_name: nameEdit.last_name,
+          last_name_translations: nameEdit.last_name_translations,
           username: nameEdit.username,
           birth_date: nameEdit.birth_date,
           label: nameEdit.current_label.trim() || null,
@@ -1379,7 +1369,7 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
 
   const filteredPersonnel = useMemo(() => {
     return employees.filter((e) => {
-      if (personnelSearch && !e.name.toLowerCase().includes(personnelSearch.toLowerCase()))
+      if (personnelSearch && !getEmpName(e).toLowerCase().includes(personnelSearch.toLowerCase()))
         return false;
       if (personnelRole !== "all" && e.role !== personnelRole) return false;
       if (personnelStatus !== "all" && e.status !== personnelStatus) return false;
@@ -1401,7 +1391,7 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
   const filteredAdmins = useMemo(() => {
     return employees.filter((e) => {
       if (!adminSearch) return true;
-      return e.name.toLowerCase().includes(adminSearch.toLowerCase());
+      return getEmpName(e).toLowerCase().includes(adminSearch.toLowerCase());
     });
   }, [employees, adminSearch]);
 
@@ -1729,8 +1719,8 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
 
           {/* PERSONNEL TAB - shows employee monitoring */}
           {activeTab === "personnel" && (
-            <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              <Card className="p-6 rounded-2xl xl:col-span-2">
+            <section className="flex flex-col gap-4">
+              <Card className="p-6 rounded-2xl w-full">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-semibold">{t("admin.personnel.title")}</h3>
@@ -1851,11 +1841,11 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                       <Avatar className="h-8 w-8">
                                         <AvatarImage src={e.avatar_url || ""} />
                                         <AvatarFallback>
-                                          {e.name.substring(0, 2).toUpperCase()}
+                                          {getEmpName(e).substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                       </Avatar>
                                       <div className="flex flex-col">
-                                        <span>{tName(e.name)}</span>
+                                        <span>{getEmpName(e)}</span>
                                         {superMode && e.label && (
                                           <span className="text-xs text-muted-foreground">
                                             {e.label}
@@ -1911,7 +1901,7 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                             >
                               <div className="flex justify-between items-start gap-2">
                                 <div>
-                                  <h4 className="font-semibold">{tName(e.name)}</h4>
+                                  <h4 className="font-semibold">{getEmpName(e)}</h4>
                                   <p className="text-xs text-muted-foreground mt-0.5">
                                     {t(roleLabel[e.role])}
                                     {superMode && e.label && ` · ${e.label}`}
@@ -2079,16 +2069,6 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                       <Button
                                         size="sm"
                                         variant="ghost"
-                                        className="rounded-lg"
-                                        onClick={() => setSiteMergeSource({ id: s.id, name: s.name })}
-                                        title={t("admin.sites.merge") || "Объединить"}
-                                      >
-                                        <Merge className="h-3.5 w-3.5" />
-                                      </Button>
-
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
                                         className="rounded-lg text-destructive hover:text-destructive"
                                         onClick={() => deleteSite(s.id, s.name)}
                                         title={t("admin.sites.delete")}
@@ -2138,16 +2118,6 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                   <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="h-8 w-8 rounded-lg"
-                                    onClick={() => setSiteMergeSource({ id: s.id, name: s.name })}
-                                    title={t("admin.sites.merge") || "Объединить"}
-                                  >
-                                    <Merge className="h-4 w-4" />
-                                  </Button>
-
-                                  <Button
-                                    size="icon"
-                                    variant="ghost"
                                     className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
                                     onClick={() => deleteSite(s.id, s.name)}
                                   >
@@ -2191,45 +2161,6 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                 )}
               </Card>
 
-              {/* Site merge dialog */}
-              <Dialog open={!!siteMergeSource} onOpenChange={(o) => !o && setSiteMergeSource(null)}>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Объединение объектов</DialogTitle>
-                    <DialogDescription>
-                      Перенос всех смен и отчётов из объекта <b>{tName(siteMergeSource?.name || "")}</b> в другой объект. Исходный объект будет удалён.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label>Целевой объект</Label>
-                      <Select value={siteMergeTarget} onValueChange={setSiteMergeTarget}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Выберите объект..." />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {sites
-                            .filter(s => s.id !== siteMergeSource?.id)
-                            .map((s) => (
-                              <SelectItem key={s.id} value={s.id}>
-                                {tName(s.name, s.name_translations)}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setSiteMergeSource(null)}>
-                      Отмена
-                    </Button>
-                    <Button onClick={mergeSites} disabled={!siteMergeTarget || siteMergeBusy}>
-                      {siteMergeBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Merge className="h-4 w-4 mr-2" />}
-                      Объединить
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
 
               {/* Site editor dialog */}
               <Dialog open={!!siteEdit} onOpenChange={(o) => !o && setSiteEdit(null)}>
@@ -2317,8 +2248,8 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
 
           {/* REPORTS TAB */}
           {activeTab === "reports" && (
-            <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              <Card className="p-6 rounded-2xl xl:col-span-2">
+            <section className="flex flex-col gap-4">
+              <Card className="p-6 rounded-2xl w-full">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-semibold">{t("admin.reports.title")}</h3>
@@ -2450,14 +2381,14 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
 
                             {/* Feed Image */}
                             <div 
-                              className="w-full bg-muted aspect-square sm:aspect-4/3 flex items-center justify-center cursor-pointer overflow-hidden relative"
+                              className="w-full bg-muted h-[40vh] sm:h-[60vh] max-h-128 flex items-center justify-center cursor-pointer overflow-hidden relative"
                               onClick={() => r.thumb && window.open(r.thumb, '_blank')}
                             >
                               {r.photo_url ? (
                                 <img 
                                   src={r.thumb || undefined} 
                                   alt="Report" 
-                                  className="w-full h-full object-cover transition-transform hover:scale-105 duration-500" 
+                                  className="w-full h-full object-contain transition-transform hover:scale-105 duration-500" 
                                 />
                               ) : (
                                 <div className="flex flex-col items-center text-muted-foreground opacity-50">
@@ -2528,8 +2459,8 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
 
           {/* SECURITY TAB */}
           {activeTab === "security" && superMode && (
-            <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              <Card className="p-6 rounded-2xl xl:col-span-2">
+            <section className="flex flex-col gap-4">
+              <Card className="p-6 rounded-2xl w-full">
                 <div className="space-y-6 max-h-125 overflow-y-auto pr-2">
                   {/* Current Session */}
                   <div>
@@ -2712,11 +2643,11 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                   <Avatar className="h-8 w-8">
                                     <AvatarImage src={e.avatar_url || ""} />
                                     <AvatarFallback>
-                                      {e.name.substring(0, 2).toUpperCase()}
+                                      {getEmpName(e).substring(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex flex-col">
-                                    <span>{tName(e.name)}</span>
+                                    <span>{getEmpName(e)}</span>
                                     {superMode && e.label && (
                                       <span className="text-xs text-muted-foreground">
                                         {e.label}
@@ -2830,7 +2761,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                       user_id: e.id,
                                       user_name: e.name,
                                       first_name: e.first_name || "",
+                                      first_name_translations: (e as any).first_name_translations || {},
                                       last_name: e.last_name || "",
+                                      last_name_translations: (e as any).last_name_translations || {},
                                       username: e.username || "",
                                       birth_date: e.birth_date || "",
                                       current_label: e.label ?? "",
@@ -2902,12 +2835,12 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                               <Avatar className="h-10 w-10">
                                 <AvatarImage src={e.avatar_url || ""} />
                                 <AvatarFallback>
-                                  {e.name.substring(0, 2).toUpperCase()}
+                                  {getEmpName(e).substring(0, 2).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                               <div>
                                 <h4 className="font-semibold text-base truncate">
-                                  {tName(e.name)}
+                                  {getEmpName(e)}
                                 </h4>
                                 <p className="text-sm text-muted-foreground mt-0.5">
                                   {t(roleLabel[e.role])}
@@ -3010,7 +2943,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                       user_id: e.id,
                                       user_name: e.name,
                                       first_name: e.first_name || "",
+                                      first_name_translations: (e as any).first_name_translations || {},
                                       last_name: e.last_name || "",
+                                      last_name_translations: (e as any).last_name_translations || {},
                                       username: e.username || "",
                                       birth_date: e.birth_date || "",
                                       current_label: e.label ?? "",
@@ -3122,7 +3057,7 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
           <Dialog open={!!editingReport} onOpenChange={(v) => !v && setEditingReport(null)}>
             <DialogContent className="sm:max-w-md rounded-2xl">
               <DialogHeader>
-                <DialogTitle>Редактирование</DialogTitle>
+                <DialogTitle>{t("common.edit") || "Редактирование"}</DialogTitle>
               </DialogHeader>
               {editingReport && (
                 <div className="flex flex-col gap-4 py-2">
@@ -3138,17 +3073,17 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                   <Textarea 
                     value={editingReport.description}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditingReport({ ...editingReport, description: e.target.value })}
-                    placeholder="Описание..."
+                    placeholder={t("chat.photo.descPlaceholder", { defaultValue: "Описание..." })}
                     className="min-h-16 resize-none"
                   />
                 </div>
               )}
               <DialogFooter>
                 <Button variant="outline" onClick={() => setEditingReport(null)}>
-                  Отмена
+                  {t("common.cancel", { defaultValue: "Отмена" })}
                 </Button>
                 <Button onClick={savePhotoReportEdit}>
-                  Сохранить
+                  {t("common.save", { defaultValue: "Сохранить" })}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -3164,20 +3099,54 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                 <DialogDescription>Новый профиль сотрудника</DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-4 py-2">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label>{t("auth.firstName") || "Имя"}</Label>
-                    <Input 
-                      value={createForm.first_name} 
-                      onChange={(e) => setCreateForm({ ...createForm, first_name: e.target.value })} 
-                    />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.firstName") || "Имя"} (Default/EN)</Label>
+                      <Input 
+                        value={createForm.first_name} 
+                        onChange={(e) => setCreateForm({ ...createForm, first_name: e.target.value })} 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.lastName") || "Фамилия"} (Default/EN)</Label>
+                      <Input 
+                        value={createForm.last_name} 
+                        onChange={(e) => setCreateForm({ ...createForm, last_name: e.target.value })} 
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>{t("auth.lastName") || "Фамилия"}</Label>
-                    <Input 
-                      value={createForm.last_name} 
-                      onChange={(e) => setCreateForm({ ...createForm, last_name: e.target.value })} 
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.firstName") || "Имя"} (RU)</Label>
+                      <Input 
+                        value={(createForm as any).first_name_translations?.ru || ""} 
+                        onChange={(e) => setCreateForm({ ...createForm, first_name_translations: { ...(createForm as any).first_name_translations, ru: e.target.value } })} 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.lastName") || "Фамилия"} (RU)</Label>
+                      <Input 
+                        value={(createForm as any).last_name_translations?.ru || ""} 
+                        onChange={(e) => setCreateForm({ ...createForm, last_name_translations: { ...(createForm as any).last_name_translations, ru: e.target.value } })} 
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.firstName") || "Имя"} (UK)</Label>
+                      <Input 
+                        value={(createForm as any).first_name_translations?.uk || ""} 
+                        onChange={(e) => setCreateForm({ ...createForm, first_name_translations: { ...(createForm as any).first_name_translations, uk: e.target.value } })} 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>{t("auth.lastName") || "Фамилия"} (UK)</Label>
+                      <Input 
+                        value={(createForm as any).last_name_translations?.uk || ""} 
+                        onChange={(e) => setCreateForm({ ...createForm, last_name_translations: { ...(createForm as any).last_name_translations, uk: e.target.value } })} 
+                      />
+                    </div>
                   </div>
                 </div>
                 
@@ -3251,20 +3220,54 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
               </DialogHeader>
               {nameEdit && (
                 <div className="flex flex-col gap-4 py-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label>{t("auth.firstName") || "Имя"}</Label>
-                      <Input 
-                        value={nameEdit.first_name} 
-                        onChange={(e) => setNameEdit({ ...nameEdit, first_name: e.target.value })} 
-                      />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label>{t("auth.firstName") || "Имя"} (Default/EN)</Label>
+                        <Input 
+                          value={nameEdit.first_name} 
+                          onChange={(e) => setNameEdit({ ...nameEdit, first_name: e.target.value })} 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>{t("auth.lastName") || "Фамилия"} (Default/EN)</Label>
+                        <Input 
+                          value={nameEdit.last_name} 
+                          onChange={(e) => setNameEdit({ ...nameEdit, last_name: e.target.value })} 
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label>{t("auth.lastName") || "Фамилия"}</Label>
-                      <Input 
-                        value={nameEdit.last_name} 
-                        onChange={(e) => setNameEdit({ ...nameEdit, last_name: e.target.value })} 
-                      />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label>{t("auth.firstName") || "Имя"} (RU)</Label>
+                        <Input 
+                          value={nameEdit.first_name_translations?.ru || ""} 
+                          onChange={(e) => setNameEdit({ ...nameEdit, first_name_translations: { ...nameEdit.first_name_translations, ru: e.target.value } })} 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>{t("auth.lastName") || "Фамилия"} (RU)</Label>
+                        <Input 
+                          value={nameEdit.last_name_translations?.ru || ""} 
+                          onChange={(e) => setNameEdit({ ...nameEdit, last_name_translations: { ...nameEdit.last_name_translations, ru: e.target.value } })} 
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label>{t("auth.firstName") || "Имя"} (UK)</Label>
+                        <Input 
+                          value={nameEdit.first_name_translations?.uk || ""} 
+                          onChange={(e) => setNameEdit({ ...nameEdit, first_name_translations: { ...nameEdit.first_name_translations, uk: e.target.value } })} 
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>{t("auth.lastName") || "Фамилия"} (UK)</Label>
+                        <Input 
+                          value={nameEdit.last_name_translations?.uk || ""} 
+                          onChange={(e) => setNameEdit({ ...nameEdit, last_name_translations: { ...nameEdit.last_name_translations, uk: e.target.value } })} 
+                        />
+                      </div>
                     </div>
                   </div>
                   
@@ -3301,23 +3304,23 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
           <Dialog open={!!credsEdit} onOpenChange={(v) => !v && setCredsEdit(null)}>
             <DialogContent className="sm:max-w-md rounded-2xl">
               <DialogHeader>
-                <DialogTitle>Логин/Пароль</DialogTitle>
+                <DialogTitle>{t("admin.users.credentials") || "Логин/Пароль"}</DialogTitle>
                 <DialogDescription>{credsEdit?.user_name}</DialogDescription>
               </DialogHeader>
               {credsEdit && (
                 <div className="flex flex-col gap-4 py-2">
                   <div className="space-y-1.5">
-                    <Label>Новый Email</Label>
+                    <Label>{t("auth.newEmail") || "Новый Email"}</Label>
                     <Input 
-                      placeholder="Оставить пустым чтобы не менять"
+                      placeholder={t("auth.leaveBlank") || "Оставить пустым чтобы не менять"}
                       value={credsEdit.email} 
                       onChange={(e) => setCredsEdit({ ...credsEdit, email: e.target.value })} 
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Новый пароль</Label>
+                    <Label>{t("auth.newPassword") || "Новый пароль"}</Label>
                     <Input 
-                      placeholder="Оставить пустым чтобы не менять"
+                      placeholder={t("auth.leaveBlank") || "Оставить пустым чтобы не менять"}
                       type="text"
                       value={credsEdit.password} 
                       onChange={(e) => setCredsEdit({ ...credsEdit, password: e.target.value })} 
@@ -3326,9 +3329,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                 </div>
               )}
               <DialogFooter>
-                <Button variant="outline" onClick={() => setCredsEdit(null)}>Отмена</Button>
+                <Button variant="outline" onClick={() => setCredsEdit(null)}>{t("common.cancel") || "Отмена"}</Button>
                 <Button onClick={submitCredsUpdate} disabled={userBusy}>
-                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Сохранить
+                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {t("common.save") || "Сохранить"}
                 </Button>
               </DialogFooter>
             </DialogContent>

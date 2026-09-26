@@ -213,10 +213,10 @@ export function ModerationTab() {
           />
           <div className="flex justify-end gap-2">
             <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>
-              <X className="w-4 h-4 mr-1" /> Отмена
+              <X className="w-4 h-4 mr-1" /> {t("admin.sites.dlgCancel") || "Отмена"}
             </Button>
             <Button size="sm" onClick={() => saveEdit(msg.id)}>
-              <Check className="w-4 h-4 mr-1" /> Сохранить
+              <Check className="w-4 h-4 mr-1" /> {t("admin.sites.dlgSave") || "Сохранить"}
             </Button>
           </div>
         </div>
@@ -368,9 +368,9 @@ export function ModerationTab() {
                 <div className="flex-1 min-w-0 mr-4">
                   <div className="font-semibold text-sm mb-1">{getChatName(chatId)}</div>
                   <div className="text-sm text-muted-foreground truncate opacity-80 flex items-center gap-2">
-                    <span className="truncate">{lastMsg?.content.includes('[PHOTO_REPORT]') ? '📷 Фотоотчет' : lastMsg?.content}</span>
+                    <span className="truncate">{lastMsg?.content.includes('[PHOTO_REPORT]') ? `📷 ${t("chat.media_title") || "Фотоотчет"}` : lastMsg?.content}</span>
                     <span className="text-[10px] bg-muted px-2 py-0.5 rounded-full shrink-0">
-                      {chatMessages.length} {chatMessages.length === 1 ? 'сообщение' : 'сообщений'}
+                      {chatMessages.length} {chatMessages.length === 1 ? (t("admin.moderation.message") || "сообщение") : (t("admin.moderation.messages") || "сообщений")}
                     </span>
                   </div>
                 </div>
@@ -382,9 +382,7 @@ export function ModerationTab() {
                     variant="secondary"
                     size="sm"
                     className="h-8 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    Смотреть
-                  </Button>
+                  >{t("chat.showTranslation", { lang: lang.toUpperCase() }) || "Смотреть"}</Button>
                 </div>
               </div>
             );
@@ -419,13 +417,13 @@ export function ModerationTab() {
           <div className="flex items-center gap-4 w-full sm:w-auto">
             {(filterType === "direct" || filterType === "site") && selectedChatId ? (
               <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => setSelectedChatId(null)}>
-                &larr; Назад
+                &larr; {t("admin.moderation.back") || "Назад"}
               </Button>
             ) : null}
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
-                placeholder="Поиск..." 
+                placeholder={t("reports.search") || "Поиск..."} 
                 className="pl-9 rounded-xl h-9" 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
@@ -446,9 +444,7 @@ export function ModerationTab() {
                 checked={allSelected} 
                 onCheckedChange={() => selectAll(filtered)} 
               />
-              <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
-                Выбрать все
-              </label>
+              <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">{t("admin.moderation.select_all") || "Выбрать все"}</label>
             </div>
           </div>
         </div>
@@ -546,9 +542,9 @@ export function ModerationTab() {
         }} className="flex-1 flex flex-col h-full w-full">
           <div className="px-6 pt-6 border-b bg-card/50">
             <TabsList className="grid w-full max-w-2xl grid-cols-3 h-11 rounded-xl">
-              <TabsTrigger value="general" className="rounded-lg">Общий чат</TabsTrigger>
-              <TabsTrigger value="direct" className="rounded-lg">Личные чаты</TabsTrigger>
-              <TabsTrigger value="site" className="rounded-lg">Чаты объектов</TabsTrigger>
+              <TabsTrigger value="general" className="rounded-lg">{t("chat.general_channel") || "Общий чат"}</TabsTrigger>
+              <TabsTrigger value="direct" className="rounded-lg">{t("chat.private_chats") || "Личные чаты"}</TabsTrigger>
+              <TabsTrigger value="site" className="rounded-lg">{t("chat.objects") || "Чат объектов"}</TabsTrigger>
             </TabsList>
           </div>
           <div className="flex-1 overflow-y-auto p-6 bg-muted/10">

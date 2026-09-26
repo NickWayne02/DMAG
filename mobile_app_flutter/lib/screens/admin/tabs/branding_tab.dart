@@ -327,7 +327,7 @@ class _BrandingTabState extends State<BrandingTab> {
                   color: colors.foreground.withValues(alpha: 0.7),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Изменить лого',
+                  tooltip: t('admin.branding.editLogo') ?? 'Изменить лого',
                 ),
                 const SizedBox(width: 4),
                 IconButton(
@@ -514,9 +514,9 @@ class _BrandingTabState extends State<BrandingTab> {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                         ),
                         icon: const Icon(LucideIcons.plus, size: 16),
-                        label: const FittedBox(
+                        label: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: Text('+ Новый бренд', style: TextStyle(fontSize: 12)),
+                          child: Text('+ ${t('admin.branding.newBrand') ?? 'Новый бренд'}', style: const TextStyle(fontSize: 12)),
                         ),
                       ),
                     ),

@@ -4653,7 +4653,7 @@
   "chat.main": {
     "ru": "ОСНОВНЫЕ",
     "en": "MAIN",
-    "de": "MAIN",
+    "de": "ALLGEMEIN",
     "ro": "MAIN",
     "bg": "ОСНОВНЫЕ",
     "pl": "MAIN",
@@ -4664,7 +4664,7 @@
   "chat.general": {
     "ru": "Общий чат команды",
     "en": "General team chat",
-    "de": "General team chat",
+    "de": "Allgemeiner Team-Chat",
     "ro": "General team chat",
     "bg": "Общий чат команды",
     "pl": "General team chat",
@@ -4675,7 +4675,7 @@
   "chat.dms": {
     "ru": "ЛИЧНЫЕ СООБЩЕНИЯ",
     "en": "DIRECT MESSAGES",
-    "de": "DIRECT MESSAGES",
+    "de": "DIREKTNACHRICHTEN",
     "ro": "DIRECT MESSAGES",
     "bg": "ЛИЧНЫЕ СООБЩЕНИЯ",
     "pl": "DIRECT MESSAGES",
@@ -4697,7 +4697,7 @@
   "chat.sites": {
     "ru": "ОБЪЕКТЫ",
     "en": "SITES",
-    "de": "SITES",
+    "de": "OBJEKTE",
     "ro": "SITES",
     "bg": "ОБЪЕКТЫ",
     "pl": "SITES",
@@ -6947,7 +6947,8 @@
     "bg": "Търсене по описание...",
     "uz": "Tavsif bo'yicha qidirish...",
     "tg": "Ҷустуҷӯ аз рӯи тавсиф...",
-    "de": "Nach Beschreibung suchen..."
+    "de": "Nach Beschreibung suchen...",
+    "uk": "Пошук за описом..."
   },
   "admin.reports.sitePlaceholder": {
     "ru": "Объект",
@@ -6965,7 +6966,8 @@
     "bg": "Всички обекти",
     "uz": "Barcha ob'ektlar",
     "tg": "Ҳама объектҳо",
-    "de": "Alle Objekte"
+    "de": "Alle Objekte",
+    "uk": "Всі об'єкти"
   },
   "admin.reports.periodPlaceholder": {
     "ru": "Период",
@@ -6983,7 +6985,8 @@
     "bg": "За всички времена",
     "uz": "Hamma vaqt uchun",
     "tg": "Барои ҳама вақт",
-    "de": "Gesamte Zeit"
+    "de": "Gesamte Zeit",
+    "uk": "За весь час"
   },
   "admin.reports.today": {
     "ru": "За сегодня",
@@ -7010,7 +7013,8 @@
     "bg": "Търсене на потребител...",
     "uz": "Foydalanuvchini qidirish...",
     "tg": "Ҷустуҷӯи корбар...",
-    "de": "Benutzer suchen..."
+    "de": "Benutzer suchen...",
+    "uk": "Пошук користувача..."
   },
   "admin.users.colStatus": {
     "ru": "Статус",
@@ -7028,7 +7032,8 @@
     "bg": "Последно влизане",
     "uz": "Oxirgi kirish",
     "tg": "Вуруди охирин",
-    "de": "Letzter Login"
+    "de": "Letzter Login",
+    "uk": "Останній вхід"
   },
   "admin.users.online": {
     "ru": "В сети",
@@ -7037,7 +7042,8 @@
     "bg": "Онлайн",
     "uz": "Onlayn",
     "tg": "Онлайн",
-    "de": "Online"
+    "de": "Online",
+    "uk": "В мережі"
   },
   "admin.users.noData": {
     "ru": "Нет данных",
@@ -7907,7 +7913,8 @@
     "ru": "Активности пока нет",
     "en": "No activity yet",
     "uk": "Активностей поки немає",
-    "pl": "Brak aktywności"
+    "pl": "Brak aktywności",
+    "de": "Noch keine Aktivität"
   },
   "admin.tab.branding": {
     "ru": "Брендирование",
@@ -8876,5 +8883,319 @@
     "uk": "Редагування",
     "uz": "Tahrirlash",
     "tg": "Таҳрир"
+  },
+  "admin.moderation.edit_message": {
+    "ru": "Редактировать сообщение",
+    "en": "Edit message",
+    "de": "Nachricht bearbeiten",
+    "ro": "Editează mesajul",
+    "bg": "Редактиране на съобщението",
+    "pl": "Edytuj wiadomość",
+    "uk": "Редагувати повідомлення",
+    "uz": "Xabarni tahrirlash",
+    "tg": "Паёмро таҳрир кунед"
+  },
+  "admin.reports.draw": {
+    "ru": "Рисовать",
+    "en": "Draw",
+    "de": "Zeichnen",
+    "ro": "Desenează",
+    "bg": "Рисувай",
+    "pl": "Rysuj",
+    "uk": "Малювати",
+    "uz": "Chizish",
+    "tg": "Кашидан"
+  },
+  "chat.private_chats": {
+    "ru": "Личные чаты",
+    "en": "Private chats",
+    "de": "Private Chats",
+    "ro": "Chaturi private",
+    "bg": "Лични чатове",
+    "pl": "Czaty prywatne",
+    "uk": "Особисті чати",
+    "uz": "Shaxsiy chatlar",
+    "tg": "Чатҳои хусусӣ"
+  },
+  "chat.objects": {
+    "ru": "Объекты",
+    "en": "Sites",
+    "de": "Objekte",
+    "ro": "Locații",
+    "bg": "Обекти",
+    "pl": "Obiekty",
+    "uk": "Об'єкти",
+    "uz": "Obyektlar",
+    "tg": "Объектҳо"
+  },
+  "admin.branding.newBrand": {
+    "ru": "Новый бренд",
+    "en": "New Brand",
+    "de": "Neue Marke",
+    "ro": "Brand nou",
+    "bg": "Нова марка",
+    "pl": "Nowa marka",
+    "uk": "Новий бренд",
+    "uz": "Yangi brend",
+    "tg": "Бренди нав"
+  },
+  "admin.moderation.select_all": {
+    "ru": "Выбрать все",
+    "en": "Select all",
+    "de": "Alle auswählen",
+    "ro": "Selectați tot",
+    "bg": "Избери всички",
+    "pl": "Zaznacz wszystko",
+    "uk": "Вибрати все",
+    "uz": "Barchasini tanlash",
+    "tg": "Ҳамаро интихоб кунед"
+  },
+  "export.generatedAt": {},
+  "export.page": {},
+  "export.filename_prefix": {},
+  "personnel.no_shifts": {},
+  "admin.dashboard.allFirms": {
+    "ru": "Все фирмы",
+    "en": "All Firms",
+    "de": "Alle Firmen",
+    "ro": "Toate Firmele",
+    "bg": "Всички фирми",
+    "pl": "Wszystkie firmy",
+    "uk": "Всі фірми",
+    "uz": "Barcha firmalar",
+    "tg": "Ҳамаи ширкатҳо"
+  },
+  "admin.firm": {
+    "ru": "Фирма:",
+    "en": "Firm:",
+    "de": "Firma:"
+  },
+  "admin.allFirms": {
+    "ru": "Все фирмы",
+    "en": "All firms",
+    "de": "Alle Firmen"
+  },
+  "admin.activity.emptyDesc": {
+    "ru": "События, новые смены и инциденты будут появляться здесь в реальном времени.",
+    "en": "Events, new shifts and incidents will appear here in real time.",
+    "de": "Ereignisse, neue Schichten und Vorfälle werden hier in Echtzeit angezeigt."
+  },
+  "auth.emailOrPhone": {
+    "ru": "Телефон или Email",
+    "en": "Phone or Email",
+    "de": "Telefon oder E-Mail",
+    "ro": "Telefon sau Email",
+    "bg": "Телефон или Имейл",
+    "pl": "Telefon lub Email",
+    "uk": "Телефон або Email",
+    "uz": "Telefon yoki Email",
+    "tg": "Телефон ё Email"
+  },
+  "admin.activity.newPhotoReport": {
+    "ru": "Новый фотоотчёт",
+    "en": "New photo report",
+    "de": "Neuer Fotobericht",
+    "uz": "Yangi foto hisobot",
+    "tg": "Ҳисоботи аксҳои нав"
+  },
+  "admin.sites.dlgNameRu": {
+    "ru": "Название (RU)",
+    "en": "Name (RU)",
+    "uk": "Назва (RU)",
+    "pl": "Nazwa (RU)",
+    "de": "Name (RU)"
+  },
+  "admin.sites.dlgNameRuPl": {
+    "ru": "На русском",
+    "en": "In Russian",
+    "uk": "Російською",
+    "pl": "Po rosyjsku",
+    "de": "Auf Russisch"
+  },
+  "admin.sites.dlgNameUk": {
+    "ru": "Название (UK)",
+    "en": "Name (UK)",
+    "uk": "Назва (UK)",
+    "pl": "Nazwa (UK)",
+    "de": "Name (UK)"
+  },
+  "admin.sites.dlgNameUkPl": {
+    "ru": "На украинском",
+    "en": "In Ukrainian",
+    "uk": "Українською",
+    "pl": "Po ukraińsku",
+    "de": "Auf Ukrainisch"
+  },
+  "admin.sites.dlgNameDe": {},
+  "admin.sites.dlgNameDePl": {},
+  "admin.sites.dlgNameRo": {},
+  "admin.sites.dlgNameRoPl": {},
+  "admin.sites.dlgNameBg": {},
+  "admin.sites.dlgNameBgPl": {},
+  "admin.sites.dlgNamePl2": {},
+  "admin.sites.dlgNamePl2Pl": {},
+  "admin.sites.dlgNameUz": {},
+  "admin.sites.dlgNameUzPl": {},
+  "admin.sites.dlgNameTg": {},
+  "admin.sites.dlgNameTgPl": {},
+  "admin.reports.noPhoto": {
+    "ru": "Нет фото",
+    "en": "No photo",
+    "de": "Kein Foto",
+    "ro": "Fără fotografie",
+    "bg": "Няма снимка",
+    "pl": "Brak zdjęcia",
+    "uk": "Немає фото",
+    "uz": "Fotosurat yo'q",
+    "tg": "Сурат нест"
+  },
+  "admin.reports.preparing": {
+    "ru": "Подготовка PDF, скачивание оригиналов...",
+    "en": "Preparing PDF, downloading originals...",
+    "de": "PDF wird vorbereitet, Originale werden heruntergeladen...",
+    "ro": "Se pregătește PDF, descărcare originale...",
+    "bg": "Подготовка на PDF, изтегляне на оригинали...",
+    "pl": "Przygotowywanie PDF, pobieranie oryginałów...",
+    "uk": "Підготовка PDF, завантаження оригіналів...",
+    "uz": "PDF tayyorlanmoqda, asllari yuklanmoqda...",
+    "tg": "Омодасозии PDF, боргирии нусхаҳои асл..."
+  },
+  "admin.reports.editTitle": {
+    "ru": "Редактирование",
+    "en": "Editing",
+    "de": "Bearbeiten",
+    "ro": "Editare",
+    "bg": "Редактиране",
+    "pl": "Edycja",
+    "uk": "Редагування",
+    "uz": "Tahrirlash",
+    "tg": "Таҳрир"
+  },
+  "admin.reports.editDescPlaceholder": {
+    "ru": "Описание...",
+    "en": "Description...",
+    "de": "Beschreibung...",
+    "ro": "Descriere...",
+    "bg": "Описание...",
+    "pl": "Opis...",
+    "uk": "Опис...",
+    "uz": "Tavsif...",
+    "tg": "Тавсиф..."
+  },
+  "admin.reports.replace": {
+    "ru": "Заменить",
+    "en": "Replace",
+    "de": "Ersetzen",
+    "ro": "A înlocui",
+    "bg": "Замяна",
+    "pl": "Zastąpić",
+    "uk": "Замінити",
+    "uz": "O'zgartirish",
+    "tg": "Иваз кардан"
+  },
+  "chat.newMessage": {
+    "ru": "Новое сообщение",
+    "en": "New message",
+    "de": "Neue Nachricht",
+    "ro": "Mesaj nou",
+    "bg": "Ново съобщение",
+    "uz": "Yangi xabar",
+    "tg": "Паёми нав"
+  },
+  "chat.generalChannel": {
+    "ru": "Общий чат",
+    "en": "General chat",
+    "de": "Allgemeiner Chat",
+    "ro": "Chat general",
+    "bg": "Общ чат",
+    "pl": "Obiekty",
+    "uk": "Об'єкти",
+    "uz": "Umumiy chat",
+    "tg": "Чати умумӣ"
+  },
+  "settings.nameUpdated": {
+    "ru": "Имя обновлено",
+    "en": "Name updated",
+    "de": "Name aktualisiert",
+    "uz": "Ism yangilandi",
+    "tg": "Ном навсозӣ шуд"
+  },
+  "settings.nameUpdateFailed": {
+    "ru": "Ошибка обновления имени",
+    "en": "Failed to update name",
+    "de": "Fehler beim Aktualisieren des Namens",
+    "uz": "Ismni yangilab bo'lmadi",
+    "tg": "Хатогӣ ҳангоми навсозии ном"
+  },
+  "Зиген": {
+    "ru": "Зиген",
+    "uk": "Зіген",
+    "lt": "Siegen"
+  },
+  "Siegen": {
+    "ru": "Зиген",
+    "uk": "Зіген",
+    "lt": "Siegen"
+  },
+  "Giengen": {
+    "ru": "Зиген",
+    "uk": "Зіген",
+    "lt": "Siegen"
+  },
+  "Быдгощ": {
+    "ru": "Быдгощ",
+    "uk": "Бидгощ",
+    "lt": "Bydgoszcz"
+  },
+  "Bydgoszcz": {
+    "ru": "Быдгощ",
+    "uk": "Бидгощ",
+    "lt": "Bydgoszcz"
+  },
+  "Светловодск": {
+    "ru": "Светловодск",
+    "uk": "Світловодськ",
+    "lt": "Svitlovodsk"
+  },
+  "Svitlovodsk": {
+    "ru": "Светловодск",
+    "uk": "Світловодськ",
+    "lt": "Svitlovodsk"
+  },
+  "Bellershausen": {
+    "ru": "Беллерсхаузен",
+    "uk": "Беллерсгаузен",
+    "lt": "Bellershausen"
+  },
+  "Hinhausen": {
+    "ru": "Хинхаузен",
+    "uk": "Хінхаузен",
+    "lt": "Hinhausen"
+  },
+  "Харбах": {
+    "ru": "Харбах",
+    "uk": "Харбах",
+    "lt": "Harbach"
+  },
+  "Harbach": {
+    "ru": "Харбах",
+    "uk": "Харбах",
+    "lt": "Harbach"
+  },
+  "Freudenberg": {
+    "ru": "Фройденберг",
+    "uk": "Фройденберг",
+    "lt": "Freudenberg"
+  },
+  "users.edit_name": {
+    "ru": "Редактировать",
+    "en": "Edit User",
+    "de": "Bearbeiten",
+    "ro": "Editați",
+    "bg": "Редактиране",
+    "pl": "Edytuj",
+    "uk": "Редагувати",
+    "uz": "Tahrirlash",
+    "tg": "Таҳрир кардан"
   }
 }

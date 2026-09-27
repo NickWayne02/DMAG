@@ -231,17 +231,23 @@ export function EmployeeProvider({
   }, []);
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [fetchedProfile, setFetchedProfile] = useState<any>(null);
   const [avatarBrowserOpen, setAvatarBrowserOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
       supabase
         .from("profiles")
-        .select("avatar_url")
+        .select("avatar_url, first_name, last_name, first_name_translations, last_name_translations, full_name")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
-          if (data) setAvatarUrl(data.avatar_url);
+          if (data) {
+            // @ts-ignore - types are not generated yet
+            setAvatarUrl(data.avatar_url);
+            // @ts-ignore
+            setFetchedProfile(data);
+          }
         });
     } else {
       setAvatarUrl(null);
@@ -1021,7 +1027,25 @@ export function EmployeeProvider({
     setTravelTime("");
   }
 
-  const name = tName(user?.user_metadata?.full_name || user?.email || user?.phone || "Сотрудник");
+  let name = user?.email || user?.phone || "Сотрудник";
+  if (fetchedProfile) {
+    const fName = (fetchedProfile.first_name_translations || {})[lang] || fetchedProfile.first_name || "";
+    const lName = (fetchedProfile.last_name_translations || {})[lang] || fetchedProfile.last_name || "";
+    if (fName || lName) {
+      name = `${fName} ${lName}`.trim();
+    } else if (fetchedProfile.full_name) {
+      name = fetchedProfile.full_name;
+    }
+  } else if (user?.user_metadata) {
+    const um = user.user_metadata;
+    const fName = (um.first_name_translations || {})[lang] || um.first_name || "";
+    const lName = (um.last_name_translations || {})[lang] || um.last_name || "";
+    if (fName || lName) {
+      name = `${fName} ${lName}`.trim();
+    } else if (um.full_name) {
+      name = um.full_name;
+    }
+  }
 
   // === Neon status accent ===
   const statusAccent =

@@ -5,10 +5,42 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
 import '../services/location_service.dart';
+import '../services/notification_service.dart';
+import '../providers/locale_provider.dart';
+import '../main.dart' as import_main;
+import 'package:provider/provider.dart';
 
 enum ShiftStatus { idle, working, lunch, finished }
 
 class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  void _updateWorkNotification() {
+    String statusText = 'Работа идет';
+    final context = import_main.navigatorKey.currentContext;
+    if (context != null) {
+      final loc = Provider.of<LocaleProvider>(context, listen: false);
+      if (_status == ShiftStatus.lunch) statusText = loc.t('employee.dashboard.current_status.pause') ?? 'Пауза';
+      else if (_status == ShiftStatus.idle) statusText = 'Смена не начата';
+      else statusText = loc.t('employee.dashboard.current_status.working') ?? 'Работа идет';
+      
+      NotificationService.showWorkNotification(
+        statusText,
+        '${loc.t('employee.dashboard.current_status.worked') ?? 'Отработано'}: ${_formatDuration(Duration(milliseconds: totalMs))}',
+        _status,
+      );
+    } else {
+      if (_status == ShiftStatus.lunch) statusText = 'Пауза';
+      else if (_status == ShiftStatus.idle) statusText = 'Смена не начата';
+      
+      NotificationService.showWorkNotification(statusText, 'Отработано: ${_formatDuration(Duration(milliseconds: totalMs))}', _status);
+    }
+  }
   ShiftStatus _status = ShiftStatus.idle;
   DateTime? _shiftStart;
   DateTime? _shiftEnd;
@@ -511,6 +543,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> startShift({bool forceExact = false}) async {
+    _updateWorkNotification();
     if (_status != ShiftStatus.idle && _status != ShiftStatus.finished) return;
     
     final pos = await LocationService.getCurrentPosition(forceExact: forceExact);
@@ -584,6 +617,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> startLunch() async {
+    _updateWorkNotification();
     if (_status != ShiftStatus.working) return;
     _status = ShiftStatus.lunch;
     _lunchStart = DateTime.now();
@@ -603,6 +637,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> endLunch() async {
+    _updateWorkNotification();
     if (_status != ShiftStatus.lunch || _lunchStart == null) return;
     _status = ShiftStatus.working;
     final end = DateTime.now();
@@ -641,6 +676,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> endShift() async {
+    NotificationService.cancelWorkNotification();
     if (_status == ShiftStatus.idle) return;
     
     if (_status == ShiftStatus.lunch) {

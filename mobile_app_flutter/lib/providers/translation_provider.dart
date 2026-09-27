@@ -1,6 +1,36 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 class TranslationProvider extends ChangeNotifier {
-  TranslationProvider();
+  
+  static String getLocalizedFullName(Map<String, dynamic>? profile, String lang) {
+    if (profile == null) return '';
+    dynamic fTrans = profile['first_name_translations'];
+    dynamic lTrans = profile['last_name_translations'];
+    
+    if (fTrans is String) {
+      try { fTrans = jsonDecode(fTrans); } catch(_) {}
+    }
+    if (lTrans is String) {
+      try { lTrans = jsonDecode(lTrans); } catch(_) {}
+    }
+    
+    String fName = profile['first_name'] ?? '';
+    if (fTrans != null && fTrans is Map && fTrans[lang] != null && fTrans[lang].toString().isNotEmpty) {
+      fName = fTrans[lang].toString();
+    }
+    
+    String lName = profile['last_name'] ?? '';
+    if (lTrans != null && lTrans is Map && lTrans[lang] != null && lTrans[lang].toString().isNotEmpty) {
+      lName = lTrans[lang].toString();
+    }
+    
+    if (fName.isNotEmpty || lName.isNotEmpty) {
+      return (fName + ' ' + lName).trim();
+    }
+    
+    return profile['full_name'] ?? '';
+  }
+ TranslationProvider();
 
 
   static const Map<String, String> _cyrillicToLatin = {

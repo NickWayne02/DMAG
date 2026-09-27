@@ -94,7 +94,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     final profile = shift.userProfile;
     final email = AuthService.currentUser?.email ?? 'user@dmag.com';
-    final name = profile != null ? (profile['full_name'] ?? email) : email;
+    final lang = context.watch<LocaleProvider>().currentLang;
+    String name = email;
+    if (profile != null) {
+      final locName = TranslationProvider.getLocalizedFullName(profile, lang);
+      name = locName.isNotEmpty ? locName : (profile['full_name'] ?? email);
+    }
     final role = profile != null ? (profile['role'] ?? 'employee') : 'employee';
     
     // Check if user is admin

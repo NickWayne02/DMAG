@@ -450,7 +450,27 @@ export function AdminDashboard({
   const [calEmpId, setCalEmpId] = useState<string>("__none__");
   const [calRefresh, setCalRefresh] = useState(0);
 
-  const name = user?.user_metadata?.full_name || user?.email || "Администратор";
+  const um = user?.user_metadata;
+  let name = user?.email || "Администратор";
+  
+  const currentEmp = employees.find((e) => e.id === user?.id);
+  if (currentEmp) {
+    const fName = (currentEmp.first_name_translations || {})[lang] || currentEmp.first_name || "";
+    const lName = (currentEmp.last_name_translations || {})[lang] || currentEmp.last_name || "";
+    if (fName || lName) {
+      name = `${fName} ${lName}`.trim();
+    } else if (currentEmp.name) {
+      name = currentEmp.name;
+    }
+  } else if (um) {
+    const fName = (um.first_name_translations || {})[lang] || um.first_name || "";
+    const lName = (um.last_name_translations || {})[lang] || um.last_name || "";
+    if (fName || lName) {
+      name = `${fName} ${lName}`.trim();
+    } else if (um.full_name) {
+      name = um.full_name;
+    }
+  }
 
   async function signOut() {
     clearAdminSession();

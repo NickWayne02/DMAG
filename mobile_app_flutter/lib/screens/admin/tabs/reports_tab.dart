@@ -7,7 +7,6 @@ import '../../../theme/app_theme.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
-import 'package:pro_image_editor/pro_image_editor.dart';
 import '../../image_editor_screen.dart';
 import '../../../utils/transliteration.dart';
 

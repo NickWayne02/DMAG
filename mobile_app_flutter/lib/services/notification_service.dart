@@ -5,6 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import '../providers/shift_provider.dart';
 import '../main.dart' as import_main;
 import '../screens/chat_screen.dart' as import_chat;
 
@@ -57,6 +59,50 @@ Future<void> notificationTapBackground(NotificationResponse notificationResponse
 }
 
 class NotificationService {
+  static Future<void> showWorkNotification(String statusText, String elapsedTime, ShiftStatus status) async {
+    // Determine which actions to show based on status to save space
+    List<AndroidNotificationAction> actions = [];
+    
+    if (status == ShiftStatus.idle || status == ShiftStatus.finished) {
+      actions.add(const AndroidNotificationAction('action_start_work', 'НАЧАТЬ РАБОТУ', showsUserInterface: true));
+    } else if (status == ShiftStatus.working) {
+      actions.add(const AndroidNotificationAction('action_start_pause', 'НАЧАТЬ ПАУЗУ', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
+    } else if (status == ShiftStatus.lunch) {
+      actions.add(const AndroidNotificationAction('action_end_pause', 'ЗАКОНЧИТЬ ПАУЗУ', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
+    }
+
+    final AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'work_channel',
+      'Текущая смена',
+      channelDescription: 'Уведомление о текущем статусе смены',
+      importance: Importance.low,
+      priority: Priority.low,
+      ongoing: true,
+      autoCancel: false,
+      showWhen: false,
+      enableVibration: false,
+      playSound: false,
+      onlyAlertOnce: true,
+      actions: actions,
+    );
+    final NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+        
+    await _notificationsPlugin.show(
+      id: 888,
+      title: statusText,
+      body: elapsedTime,
+      notificationDetails: platformChannelSpecifics,
+    );
+  }
+
+  static Future<void> cancelWorkNotification() async {
+    await _notificationsPlugin.cancel(id: 888);
+  }
+
   static String? activeChatChannelId;
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -70,11 +116,32 @@ class NotificationService {
 
     await _notificationsPlugin.initialize(
       settings: initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
+      onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {
         debugPrint('Notification tapped! Action: ${notificationResponse.actionId}');
         
+        final context = import_main.navigatorKey.currentContext;
+        if (context != null) {
+          final shiftProvider = Provider.of<ShiftProvider>(context, listen: false);
+          
+          try {
+            if (notificationResponse.actionId == 'action_start_work') {
+              await shiftProvider.startShift(forceExact: false);
+            } else if (notificationResponse.actionId == 'action_start_pause') {
+              await shiftProvider.startLunch();
+            } else if (notificationResponse.actionId == 'action_end_pause') {
+              await shiftProvider.endLunch();
+            } else if (notificationResponse.actionId == 'action_end_work') {
+              await shiftProvider.endShift();
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+            }
+          }
+        }
+
         final payload = notificationResponse.payload;
-        if (payload != null && notificationResponse.actionId != 'reply' && notificationResponse.actionId != 'mark_read') {
+        if (payload != null && notificationResponse.actionId != 'reply' && notificationResponse.actionId != 'mark_read' && !notificationResponse.actionId!.startsWith('action_')) {
           final parts = payload.split('|');
           if (parts.length >= 2) {
             final channelId = parts[0];

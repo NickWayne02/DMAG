@@ -9,7 +9,6 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/neon_widgets.dart';
 import '../../../services/shift_export_service.dart';
-import '../admin_calendar_dialog.dart';
 import '../admin_shift_edit_sheet.dart';
 import '../dialogs/add_shift_dialog.dart';
 

@@ -312,7 +312,7 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
                         controller: _birthDateController,
                         style: TextStyle(color: Theme.of(context).appColors.foreground),
                         decoration: InputDecoration(
-                          hintText: 'ДД.ММ.ГГГГ',
+                          hintText: context.read<LocaleProvider>().t('auth.birthDateHint') ?? 'ДД.ММ.ГГГГ',
                           hintStyle: TextStyle(color: Theme.of(context).appColors.foreground.withValues(alpha: 0.3)),
                           filled: true,
                           fillColor: Theme.of(context).cardColor,

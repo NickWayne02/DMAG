@@ -23,6 +23,51 @@ const STORAGE_KEY = "dmag.lang";
 type Dict = Record<string, Partial<Record<LangCode, string>>>;
 
 const DICT: Dict = {
+  "admin.moderation.edit_message": {
+    "ru": "Редактировать сообщение",
+    "en": "Edit message",
+    "de": "Nachricht bearbeiten",
+    "ro": "Editează mesajul",
+    "bg": "Редактиране на съобщението",
+    "pl": "Edytuj wiadomość",
+    "uk": "Редагувати повідомлення",
+    "uz": "Xabarni tahrirlash",
+    "tg": "Паёмро таҳрир кунед",
+  },
+  "chat.main": {
+    "ru": "ОСНОВНЫЕ",
+    "en": "MAIN",
+    "de": "ALLGEMEIN",
+    "ro": "MAIN",
+    "bg": "ОСНОВНЫЕ",
+    "pl": "MAIN",
+    "uk": "ОСНОВНІ",
+    "uz": "MAIN",
+    "tg": "ОСНОВНЫЕ",
+  },
+  "chat.dms": {
+    "ru": "ЛИЧНЫЕ СООБЩЕНИЯ",
+    "en": "DIRECT MESSAGES",
+    "de": "DIREKTNACHRICHTEN",
+    "ro": "DIRECT MESSAGES",
+    "bg": "ЛИЧНЫЕ СООБЩЕНИЯ",
+    "pl": "DIRECT MESSAGES",
+    "uk": "ОСОБИСТІ ПОВІДОМЛЕННЯ",
+    "uz": "DIRECT MESSAGES",
+    "tg": "ЛИЧНЫЕ СООБЩЕНИЯ",
+  },
+  "chat.sites": {
+    "ru": "ОБЪЕКТЫ",
+    "en": "SITES",
+    "de": "OBJEKTE",
+    "ro": "SITES",
+    "bg": "ОБЪЕКТЫ",
+    "pl": "SITES",
+    "uk": "ОБ'ЄКТИ",
+    "uz": "SITES",
+    "tg": "ОБЪЕКТЫ",
+  },
+
   "export.generatedAt": {
       "ru": "Сформировано",
       "en": "Generated",
@@ -4243,17 +4288,6 @@ const DICT: Dict = {
     uk: "Усі повідомлення в цьому каналі будуть видалені назавжди.",
     uz: "Ushbu kanaldagi barcha xabarlar butunlay o'chiriladi.",
     tg: "Ҳамаи паёмҳои ин канал тамоман нест карда мешаванд.",
-  },
-  "common.cancel": {
-    ru: "Отмена",
-    en: "Cancel",
-    de: "Abbrechen",
-    ro: "Anulează",
-    bg: "Отказ",
-    pl: "Anuluj",
-    uk: "Скасувати",
-    uz: "Bekor qilish",
-    tg: "Бекор кардан",
   },
 
   // Site selector dialog

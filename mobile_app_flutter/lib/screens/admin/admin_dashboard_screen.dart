@@ -16,7 +16,6 @@ import 'tabs/moderation_tab.dart';
 import '../../services/auth_service.dart';
 
 import '../settings_sheet.dart';
-import '../language_sheet.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app_flutter/providers/locale_provider.dart';

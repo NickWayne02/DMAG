@@ -51,14 +51,14 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       email: data.email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { 
+      user_metadata: {
         full_name,
         first_name: data.first_name,
         first_name_translations: data.first_name_translations,
         last_name: data.last_name,
         last_name_translations: data.last_name_translations,
         username: data.username,
-        birth_date: data.birth_date
+        birth_date: data.birth_date,
       },
     });
     if (error || !created.user) throw new Error(error?.message ?? "create failed");
@@ -73,7 +73,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       birth_date: data.birth_date,
     };
     if (data.label !== undefined) profilePatch.label = data.label;
-    
+
     await supabaseAdmin.from("profiles").update(profilePatch).eq("id", created.user.id);
     // Override default role assigned by trigger
     await supabaseAdmin.from("user_roles").delete().eq("user_id", created.user.id);
@@ -198,16 +198,18 @@ export const adminUpdateAvatar = createServerFn({ method: "POST" })
 /** Update a user's full name. Admin or super_admin only. */
 export const adminUpdateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { 
-    user_id: string; 
-    first_name: string;
-    first_name_translations?: any;
-    last_name: string;
-    last_name_translations?: any;
-    username: string;
-    birth_date: string;
-    label?: string | null 
-  }) => data)
+  .inputValidator(
+    (data: {
+      user_id: string;
+      first_name: string;
+      first_name_translations?: any;
+      last_name: string;
+      last_name_translations?: any;
+      username: string;
+      birth_date: string;
+      label?: string | null;
+    }) => data,
+  )
   .handler(async ({ data, context }) => {
     await assertAdminOrSuper(context.supabase, context.userId);
 
@@ -234,27 +236,27 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
     // Update Auth Metadata
     const full_name = `${data.first_name} ${data.last_name}`.trim();
     const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
-      user_metadata: { 
+      user_metadata: {
         full_name,
         first_name: data.first_name,
         first_name_translations: data.first_name_translations,
         last_name: data.last_name,
         last_name_translations: data.last_name_translations,
         username: data.username,
-        birth_date: data.birth_date
+        birth_date: data.birth_date,
       },
     });
     if (authError) throw new Error(authError.message);
 
     // Update Profile
-    const patch: any = { 
+    const patch: any = {
       full_name,
       first_name: data.first_name,
       first_name_translations: data.first_name_translations,
       last_name: data.last_name,
       last_name_translations: data.last_name_translations,
       username: data.username,
-      birth_date: data.birth_date
+      birth_date: data.birth_date,
     };
     if (data.label !== undefined) {
       patch.label = data.label;

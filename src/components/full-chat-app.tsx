@@ -68,7 +68,7 @@ export function FullChatApp({
 
   const [activeChannelType, setActiveChannelType] = useState<ChannelType>(initialChannelType);
   const [activeChannelId, setActiveChannelId] = useState<string>(initialChannelId);
-  
+
   useEffect(() => {
     window.sessionStorage.setItem("dmag_active_channel_type", activeChannelType);
     window.sessionStorage.setItem("dmag_active_channel_id", activeChannelId);
@@ -107,7 +107,7 @@ export function FullChatApp({
         console.error(e);
       }
     }
-    
+
     // Check jump to chat immediately on mount
     const checkJumpToChat = () => {
       const jump = sessionStorage.getItem("dmag_jump_to_chat");
@@ -121,7 +121,7 @@ export function FullChatApp({
       }
     };
     checkJumpToChat();
-    
+
     // Also listen in case it happens while already mounted
     window.addEventListener("storage", checkJumpToChat);
     return () => window.removeEventListener("storage", checkJumpToChat);
@@ -240,10 +240,10 @@ export function FullChatApp({
   useEffect(() => {
     Promise.all([
       supabase.from("profiles").select("id, full_name, avatar_url"),
-      supabase.from("user_roles").select("user_id, role")
+      supabase.from("user_roles").select("user_id, role"),
     ]).then(([profilesRes, rolesRes]) => {
       if (profilesRes.data) {
-        const rolesMap = new Map(rolesRes.data?.map(r => [r.user_id, r.role]) || []);
+        const rolesMap = new Map(rolesRes.data?.map((r) => [r.user_id, r.role]) || []);
         const merged = profilesRes.data.map((p: any) => ({
           ...p,
           role: rolesMap.get(p.id) || "employee",
@@ -307,7 +307,9 @@ export function FullChatApp({
     }
     if (activeChannelType === "site") {
       const s = sites.find((x) => x.id === activeChannelId);
-      return s ? t("chat.siteTitle", { name: tName(s.name, s.name_translations) }) : t("chat.tabSite");
+      return s
+        ? t("chat.siteTitle", { name: tName(s.name, s.name_translations) })
+        : t("chat.tabSite");
     }
     return "";
   }, [activeChannelType, activeChannelId, sites, t, dmChannels]);
@@ -526,7 +528,9 @@ export function FullChatApp({
       <PhotoReportDialog
         open={reportOpen}
         onOpenChange={setReportOpen}
-        site={activeChannelType === "site" ? (sites.find((s) => s.id === activeChannelId) || null) : null}
+        site={
+          activeChannelType === "site" ? sites.find((s) => s.id === activeChannelId) || null : null
+        }
         skipDbInsert={false}
         onSuccess={handlePhotoReportSuccess}
       />

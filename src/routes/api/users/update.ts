@@ -71,7 +71,9 @@ export const Route = createFileRoute("/api/users/update")({
 
           if (!targetUserId || !newFirstName || !newLastName || !newUsername || !newBirthDate) {
             return new Response(
-              JSON.stringify({ error: "user_id, first_name, last_name, username, and birth_date are required" }),
+              JSON.stringify({
+                error: "user_id, first_name, last_name, username, and birth_date are required",
+              }),
               { status: 400, headers: corsHeaders },
             );
           }

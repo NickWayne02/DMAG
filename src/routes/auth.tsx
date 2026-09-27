@@ -43,12 +43,12 @@ function AuthPage() {
   const { data: appSettings } = useAppSettings();
 
   const [mode, setMode] = useState<"login" | "signup">("login");
-  
+
   // Form fields
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  
+
   // New fields for signup
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -115,44 +115,54 @@ function AuthPage() {
         if (!isEmail && !isPhone) {
           throw new Error("Введите корректный Email или номер телефона");
         }
-        
+
         const signUpOpts: any = {
           password,
-          options: { 
-            data: { 
-              first_name: firstName, 
-              last_name: lastName, 
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
               username: username,
               birth_date: birthDate,
-              full_name: `${firstName} ${lastName}`.trim()
-            } 
+              full_name: `${firstName} ${lastName}`.trim(),
+            },
           },
         };
-        
+
         if (isEmail) signUpOpts.email = trimmedLogin;
         if (isPhone) signUpOpts.phone = trimmedLogin;
 
         const { error } = await supabase.auth.signUp(signUpOpts);
         if (error) throw error;
-        toast.success(t("auth.created") || "Аккаунт создан! Проверьте почту/СМС для подтверждения.");
+        toast.success(
+          t("auth.created") || "Аккаунт создан! Проверьте почту/СМС для подтверждения.",
+        );
       } else {
         // Login mode
         if (isEmail) {
-          const { error } = await supabase.auth.signInWithPassword({ email: trimmedLogin, password });
+          const { error } = await supabase.auth.signInWithPassword({
+            email: trimmedLogin,
+            password,
+          });
           if (error) throw error;
         } else if (isPhone) {
-          const { error } = await supabase.auth.signInWithPassword({ phone: trimmedLogin, password });
+          const { error } = await supabase.auth.signInWithPassword({
+            phone: trimmedLogin,
+            password,
+          });
           if (error) throw error;
         } else {
           // Assume it's a username
-          const { data: userEmail, error: rpcError } = await supabase.rpc("get_email_by_username", { p_username: trimmedLogin });
+          const { data: userEmail, error: rpcError } = await supabase.rpc("get_email_by_username", {
+            p_username: trimmedLogin,
+          });
           let emailToUse = userEmail;
-          
+
           if (!emailToUse) {
             // Legacy fallback
             emailToUse = `${trimmedLogin}@dmag.de`;
           }
-          
+
           const { error } = await supabase.auth.signInWithPassword({ email: emailToUse, password });
           if (error) throw error;
         }
@@ -214,7 +224,7 @@ function AuthPage() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <Label htmlFor="username">{t("auth.username") || "Имя пользователя"}</Label>
                     <Input
@@ -243,9 +253,9 @@ function AuthPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="login">
-                  {mode === "login" 
-                    ? (t("auth.loginOrEmailOrPhone") || "Имя пользователя, Телефон или Email")
-                    : (t("auth.emailOrPhone") || "Телефон или Email")}
+                  {mode === "login"
+                    ? t("auth.loginOrEmailOrPhone") || "Имя пользователя, Телефон или Email"
+                    : t("auth.emailOrPhone") || "Телефон или Email"}
                 </Label>
                 <Input
                   id="login"
@@ -253,7 +263,9 @@ function AuthPage() {
                   autoComplete="username"
                   value={login}
                   onChange={(e) => setLogin(e.target.value)}
-                  placeholder={mode === "login" ? "Имя пользователя, Email или Телефон" : "Email или телефон"}
+                  placeholder={
+                    mode === "login" ? "Имя пользователя, Email или Телефон" : "Email или телефон"
+                  }
                   className="h-12 rounded-xl"
                   required
                 />

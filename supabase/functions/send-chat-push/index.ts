@@ -67,7 +67,7 @@ serve(async (req) => {
       .select("avatar_url")
       .eq("id", authorId)
       .single();
-    
+
     const avatarUrl = authorData?.avatar_url || "";
 
     if (!admin.apps.length) {

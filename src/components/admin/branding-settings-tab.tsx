@@ -276,7 +276,9 @@ export function BrandingSettingsTab({
                     onClick={handleRemoveLogo}
                     disabled={updateSettings.isPending}
                   >
-                    <Trash2 className="mr-2 h-4 w-4" /> {t("admin.reports.delete", { defaultValue: "Delete" })}</Button>
+                    <Trash2 className="mr-2 h-4 w-4" />{" "}
+                    {t("admin.reports.delete", { defaultValue: "Delete" })}
+                  </Button>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">{t("admin.branding.logoHint")}</p>
@@ -305,8 +307,7 @@ export function BrandingSettingsTab({
             }
             disabled={savePresetMutation.isPending}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            + {t("admin.branding.newBrand")}
+            <Plus className="mr-2 h-4 w-4" />+ {t("admin.branding.newBrand")}
           </Button>
         </div>
       </div>
@@ -322,86 +323,91 @@ export function BrandingSettingsTab({
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {presets?.map((preset: any) => {
-              const isDefault = DEFAULT_PRESET_NAMES.includes(preset.app_name?.toUpperCase?.() || preset.app_name);
+              const isDefault = DEFAULT_PRESET_NAMES.includes(
+                preset.app_name?.toUpperCase?.() || preset.app_name,
+              );
               return (
-              <Card key={preset.id} className={`overflow-hidden bg-card/50 ${isDefault ? 'ring-1 ring-primary/20' : ''}`}>
-                <CardContent className="p-4 flex flex-col items-center gap-4">
-                  <div className="h-16 w-16 rounded-xl border border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
-                    {preset.app_logo_url ? (
-                      <img
-                        src={preset.app_logo_url}
-                        alt={preset.app_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-[10px] text-muted-foreground">
-                        {t("admin.branding.noLogo")}
-                      </span>
-                    )}
-                  </div>
-                  <p
-                    className="text-sm font-medium text-center truncate w-full"
-                    title={preset.app_name}
-                  >
-                    {preset.app_name}
-                  </p>
-
-                  <div className="flex w-full gap-2 mt-auto">
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="flex-1"
-                      onClick={async () => {
-                        try {
-                          await updateSettings.mutateAsync({
-                            app_name: preset.app_name,
-                            app_logo_url: preset.app_logo_url,
-                          });
-                          toast.success("Бренд применен");
-                          onApplyPreset?.(preset.id);
-                        } catch (e: any) {
-                          toast.error(e.message || "Ошибка");
-                        }
-                      }}
-                      disabled={updateSettings.isPending}
-                    >
-                      {t("admin.branding.apply")}
-                    </Button>
-                    {!isDefault && (
-                      <>
-                        <Label
-                          htmlFor={`upload-preset-${preset.id}`}
-                          className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                          title={t("admin.branding.editLogo", { defaultValue: "Edit logo" })}
-                        >
-                          <Upload className="h-4 w-4" />
-                        </Label>
-                        <Input
-                          id={`upload-preset-${preset.id}`}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => handleUploadLogo(e, preset)}
+                <Card
+                  key={preset.id}
+                  className={`overflow-hidden bg-card/50 ${isDefault ? "ring-1 ring-primary/20" : ""}`}
+                >
+                  <CardContent className="p-4 flex flex-col items-center gap-4">
+                    <div className="h-16 w-16 rounded-xl border border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                      {preset.app_logo_url ? (
+                        <img
+                          src={preset.app_logo_url}
+                          alt={preset.app_name}
+                          className="w-full h-full object-cover"
                         />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="shrink-0 h-9 w-9"
-                          onClick={() =>
-                            deletePresetMutation.mutate({
-                              id: preset.id,
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">
+                          {t("admin.branding.noLogo")}
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      className="text-sm font-medium text-center truncate w-full"
+                      title={preset.app_name}
+                    >
+                      {preset.app_name}
+                    </p>
+
+                    <div className="flex w-full gap-2 mt-auto">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="flex-1"
+                        onClick={async () => {
+                          try {
+                            await updateSettings.mutateAsync({
+                              app_name: preset.app_name,
                               app_logo_url: preset.app_logo_url,
-                            })
+                            });
+                            toast.success("Бренд применен");
+                            onApplyPreset?.(preset.id);
+                          } catch (e: any) {
+                            toast.error(e.message || "Ошибка");
                           }
-                          disabled={deletePresetMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                        }}
+                        disabled={updateSettings.isPending}
+                      >
+                        {t("admin.branding.apply")}
+                      </Button>
+                      {!isDefault && (
+                        <>
+                          <Label
+                            htmlFor={`upload-preset-${preset.id}`}
+                            className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            title={t("admin.branding.editLogo", { defaultValue: "Edit logo" })}
+                          >
+                            <Upload className="h-4 w-4" />
+                          </Label>
+                          <Input
+                            id={`upload-preset-${preset.id}`}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleUploadLogo(e, preset)}
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="shrink-0 h-9 w-9"
+                            onClick={() =>
+                              deletePresetMutation.mutate({
+                                id: preset.id,
+                                app_logo_url: preset.app_logo_url,
+                              })
+                            }
+                            disabled={deletePresetMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>

@@ -93,6 +93,8 @@ import { SettingsDialog } from "@/components/settings-dialog";
 import { BrandingSettingsTab } from "@/components/admin/branding-settings-tab";
 import { ModerationTab } from "@/components/admin/moderation-tab";
 import { useAppSettings } from "@/hooks/use-app-settings";
+import { ImageEditorDialog } from "@/components/image-editor-dialog";
+import { Pen } from "lucide-react";
 import dmagLogo from "@/assets/dmag-logo.png";
 import { ROBOTO_BASE64 } from "@/lib/roboto-base64";
 import { clearAdminSession } from "@/lib/admin-session";
@@ -323,6 +325,8 @@ export function AdminDashboard({
     criticality: Crit;
     thumb: string | null;
   } | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingReportImageFile, setEditingReportImageFile] = useState<File | null>(null);
 
   // Pagination states
   const [personnelPage, setPersonnelPage] = useState(0);
@@ -446,13 +450,13 @@ export function AdminDashboard({
     "dmag_admin_cached_shiftHist",
     [],
   );
-  
+
   const [calEmpId, setCalEmpId] = useState<string>("__none__");
   const [calRefresh, setCalRefresh] = useState(0);
 
   const um = user?.user_metadata;
   let name = user?.email || "Администратор";
-  
+
   const currentEmp = employees.find((e) => e.id === user?.id);
   if (currentEmp) {
     const fName = (currentEmp.first_name_translations || {})[lang] || currentEmp.first_name || "";
@@ -483,13 +487,18 @@ export function AdminDashboard({
       navigate({ to: "/auth" });
       return;
     }
-    
+
     // Clear FCM token before signing out
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (session?.user?.id) {
-      await supabase.from("profiles").update({ fcm_token: null } as any).eq("id", session.user.id);
+      await supabase
+        .from("profiles")
+        .update({ fcm_token: null } as any)
+        .eq("id", session.user.id);
     }
-    
+
     await supabase.auth.signOut({ scope: "local" });
     navigate({ to: "/auth" });
   }
@@ -510,9 +519,7 @@ export function AdminDashboard({
       { data: shiftData },
       { data: presetsData },
     ] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("*"),
+      supabase.from("profiles").select("*"),
       supabase.from("user_roles").select("user_id, role"),
       supabase
         .from("sites")
@@ -768,7 +775,9 @@ export function AdminDashboard({
         description: r.description,
         criticality: r.criticality as Crit,
         created_at: r.created_at,
-        site_name: r.site_id ? (siteNameMap.get(r.site_id) ?? "—") : t("chat.generalChannel", { defaultValue: "Общий чат" }),
+        site_name: r.site_id
+          ? (siteNameMap.get(r.site_id) ?? "—")
+          : t("chat.generalChannel", { defaultValue: "Общий чат" }),
         thumb: r.photo_url
           ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
           : null,
@@ -866,33 +875,47 @@ export function AdminDashboard({
 
   async function savePhotoReportEdit() {
     if (!editingReport) return;
+    try {
+      let newThumb = editingReport.thumb;
+      if (editingReportImageFile) {
+        const ext = editingReportImageFile.name.split(".").pop() || "jpg";
+        const newPath = `${Date.now()}_edited.${ext}`;
+        const up = await supabase.storage
+          .from("photo-reports")
+          .upload(newPath, editingReportImageFile, { upsert: false });
+        if (up.error) throw up.error;
+        const pb = supabase.storage.from("photo-reports").getPublicUrl(up.data.path);
+        newThumb = pb.data.publicUrl;
+        const { error: photoErr } = await supabase
+          .from("photo_reports")
+          .update({ photo_url: up.data.path })
+          .eq("id", editingReport.id);
+        if (photoErr) throw photoErr;
+      }
 
-    // Optimistic update
-    setReports((prev) =>
-      prev.map((r) =>
-        r.id === editingReport.id
-          ? { ...r, description: editingReport.description, criticality: editingReport.criticality }
-          : r,
-      ),
-    );
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === editingReport.id
+            ? { ...r, description: editingReport.description, criticality: editingReport.criticality, thumb: newThumb }
+            : r,
+        ),
+      );
 
-    const reportId = editingReport.id;
-    const newDesc = editingReport.description;
-    const newCrit = editingReport.criticality;
-    setEditingReport(null);
-    toast.success("Изменения сохранены");
-
-    const { error } = await supabase
-      .from("photo_reports")
-      .update({
-        description: newDesc,
-        criticality: newCrit,
-      })
-      .eq("id", reportId);
-
-    if (error) {
-      toast.error("Ошибка при сохранении");
+      const { error } = await supabase
+        .from("photo_reports")
+        .update({
+          description: editingReport.description,
+          criticality: editingReport.criticality,
+        })
+        .eq("id", editingReport.id);
+      if (error) throw error;
+      toast.success("Изменения сохранены");
+    } catch (e: any) {
+      toast.error(`Ошибка: ${e.message}`);
       loadFilteredReports(true);
+    } finally {
+      setEditingReport(null);
+      setEditingReportImageFile(null);
     }
   }
 
@@ -940,7 +963,9 @@ export function AdminDashboard({
             description: r.description,
             criticality: r.criticality,
             created_at: r.created_at,
-            site_name: r.site_id ? (siteNameMap.get(r.site_id) ?? "—") : t("chat.generalChannel", { defaultValue: "Общий чат" }),
+            site_name: r.site_id
+              ? (siteNameMap.get(r.site_id) ?? "—")
+              : t("chat.generalChannel", { defaultValue: "Общий чат" }),
             thumb: r.photo_url
               ? supabase.storage.from("photo-reports").getPublicUrl(r.photo_url).data.publicUrl
               : null,
@@ -1011,7 +1036,7 @@ export function AdminDashboard({
     address: string;
     customer: string;
   };
-const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
+  const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
 
   const [siteSaving, setSiteSaving] = useState(false);
   const [siteGpsBusy, setSiteGpsBusy] = useState(false);
@@ -1117,7 +1142,19 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
     birth_date: string;
     role: AppRole;
     label: string;
-  }>({ open: false, email: "", password: "", first_name: "", first_name_translations: {}, last_name: "", last_name_translations: {}, username: "", birth_date: "", role: "employee", label: "" });
+  }>({
+    open: false,
+    email: "",
+    password: "",
+    first_name: "",
+    first_name_translations: {},
+    last_name: "",
+    last_name_translations: {},
+    username: "",
+    birth_date: "",
+    role: "employee",
+    label: "",
+  });
 
   const [nameEdit, setNameEdit] = useState<{
     user_id: string;
@@ -1539,26 +1576,34 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
           mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
-          <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
-            <img src={displayLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow shrink-0" />
-            <div className="min-w-0">
-              <Select
-                value={adminSelectedFirmId}
-                onValueChange={(val) => setAdminSelectedFirmId(val)}
-              >
-                <SelectTrigger className="h-7 px-0 py-0 border-none bg-transparent shadow-none w-full justify-start font-bold hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:ring-0 truncate [&>svg]:opacity-50">
-                  <SelectValue placeholder={t("admin.allFirms")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("admin.dashboard.all_firms", { defaultValue: "Все фирмы" })}</SelectItem>
-                  {presets.map((p: any) => (
-                    <SelectItem key={p.id} value={p.id.toString()}>{p.app_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs opacity-75 pl-0">Admin Console</p>
-            </div>
+        <div className="px-6 py-6 flex items-center gap-3 border-b border-sidebar-border">
+          <img
+            src={displayLogo}
+            alt="Logo"
+            className="h-10 w-10 rounded-xl object-cover shadow shrink-0"
+          />
+          <div className="min-w-0">
+            <Select
+              value={adminSelectedFirmId}
+              onValueChange={(val) => setAdminSelectedFirmId(val)}
+            >
+              <SelectTrigger className="h-7 px-0 py-0 border-none bg-transparent shadow-none w-full justify-start font-bold hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:ring-0 truncate [&>svg]:opacity-50">
+                <SelectValue placeholder={t("admin.allFirms")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {t("admin.dashboard.all_firms", { defaultValue: "Все фирмы" })}
+                </SelectItem>
+                {presets.map((p: any) => (
+                  <SelectItem key={p.id} value={p.id.toString()}>
+                    {p.app_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs opacity-75 pl-0">Admin Console</p>
           </div>
+        </div>
         <nav className="px-3 py-4 flex-1 space-y-1">
           {[
             { id: "dashboard", icon: Activity, label: t("admin.tab.dashboard"), super: false },
@@ -1927,7 +1972,6 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                     {superMode && e.label && ` · ${e.label}`}
                                   </p>
                                 </div>
-                                
                               </div>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 <span
@@ -1979,8 +2023,6 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                   </>
                 )}
               </Card>
-
-
             </section>
           )}
 
@@ -2052,7 +2094,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                               ).length;
                               return (
                                 <TableRow key={s.id}>
-                                  <TableCell className="font-medium">{tName(s.name, s.name_translations)}</TableCell>
+                                  <TableCell className="font-medium">
+                                    {tName(s.name, s.name_translations)}
+                                  </TableCell>
                                   <TableCell className="text-sm text-muted-foreground">
                                     {s.address || "—"}
                                   </TableCell>
@@ -2116,7 +2160,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                             >
                               <div className="flex justify-between items-start gap-2">
                                 <div>
-                                  <h4 className="font-semibold text-base">{tName(s.name, s.name_translations)}</h4>
+                                  <h4 className="font-semibold text-base">
+                                    {tName(s.name, s.name_translations)}
+                                  </h4>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <Button
@@ -2181,7 +2227,6 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                 )}
               </Card>
 
-
               {/* Site editor dialog */}
               <Dialog open={!!siteEdit} onOpenChange={(o) => !o && setSiteEdit(null)}>
                 <DialogContent className="sm:max-w-md">
@@ -2218,19 +2263,35 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <Label>Название (RU)</Label>
+                          <Label>{t("admin.sites.dlgNameRu")}</Label>
                           <Input
                             value={siteEdit.name_translations?.ru || ""}
-                            onChange={(e) => setSiteEdit({ ...siteEdit, name_translations: { ...siteEdit.name_translations, ru: e.target.value } })}
-                            placeholder="На русском"
+                            onChange={(e) =>
+                              setSiteEdit({
+                                ...siteEdit,
+                                name_translations: {
+                                  ...siteEdit.name_translations,
+                                  ru: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder={t("admin.sites.dlgNameRuPl")}
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label>Название (UK)</Label>
+                          <Label>{t("admin.sites.dlgNameUk")}</Label>
                           <Input
                             value={siteEdit.name_translations?.uk || ""}
-                            onChange={(e) => setSiteEdit({ ...siteEdit, name_translations: { ...siteEdit.name_translations, uk: e.target.value } })}
-                            placeholder="На украинском"
+                            onChange={(e) =>
+                              setSiteEdit({
+                                ...siteEdit,
+                                name_translations: {
+                                  ...siteEdit.name_translations,
+                                  uk: e.target.value,
+                                },
+                              })
+                            }
+                            placeholder={t("admin.sites.dlgNameUkPl")}
                           />
                         </div>
                       </div>
@@ -2309,11 +2370,13 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                         ))}
                     </SelectContent>
                   </Select>
-                  
+
                   <Button
                     variant={reportsSite === "general_chat" ? "default" : "outline"}
                     className="rounded-xl w-full sm:w-auto shrink-0"
-                    onClick={() => setReportsSite(prev => prev === "general_chat" ? "all" : "general_chat")}
+                    onClick={() =>
+                      setReportsSite((prev) => (prev === "general_chat" ? "all" : "general_chat"))
+                    }
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     {t("chat.generalChannel")}
@@ -2371,24 +2434,30 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                               </div>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full"
+                                  >
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-40 rounded-xl">
-                                  <DropdownMenuItem 
-                                    onClick={() => setEditingReport({
-                                      id: r.id,
-                                      description: r.description || "",
-                                      criticality: r.criticality,
-                                      thumb: r.thumb || null,
-                                    })}
+                                  <DropdownMenuItem
+                                    onClick={() =>
+                                      setEditingReport({
+                                        id: r.id,
+                                        description: r.description || "",
+                                        criticality: r.criticality,
+                                        thumb: r.thumb || null,
+                                      })
+                                    }
                                     className="rounded-lg cursor-pointer"
                                   >
                                     <Pencil className="h-4 w-4 mr-2" />
                                     {t("admin.reports.edit", { defaultValue: "Редактировать" })}
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem 
+                                  <DropdownMenuItem
                                     onClick={() => deletePhotoReport(r.id, r.photo_url)}
                                     className="rounded-lg cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
                                   >
@@ -2400,15 +2469,15 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                             </div>
 
                             {/* Feed Image */}
-                            <div 
+                            <div
                               className="w-full bg-muted h-[40vh] sm:h-[60vh] max-h-128 flex items-center justify-center cursor-pointer overflow-hidden relative"
-                              onClick={() => r.thumb && window.open(r.thumb, '_blank')}
+                              onClick={() => r.thumb && window.open(r.thumb, "_blank")}
                             >
                               {r.photo_url ? (
-                                <img 
-                                  src={r.thumb || undefined} 
-                                  alt="Report" 
-                                  className="w-full h-full object-contain transition-transform hover:scale-105 duration-500" 
+                                <img
+                                  src={r.thumb || undefined}
+                                  alt="Report"
+                                  className="w-full h-full object-contain transition-transform hover:scale-105 duration-500"
                                 />
                               ) : (
                                 <div className="flex flex-col items-center text-muted-foreground opacity-50">
@@ -2416,7 +2485,7 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                   <span className="text-sm">Нет фото</span>
                                 </div>
                               )}
-                              
+
                               {/* Criticality Badge on top of image */}
                               {r.criticality === "important" && (
                                 <div className="absolute top-3 left-3 bg-amber-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-sm">
@@ -2781,9 +2850,11 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                       user_id: e.id,
                                       user_name: e.name,
                                       first_name: e.first_name || "",
-                                      first_name_translations: (e as any).first_name_translations || {},
+                                      first_name_translations:
+                                        (e as any).first_name_translations || {},
                                       last_name: e.last_name || "",
-                                      last_name_translations: (e as any).last_name_translations || {},
+                                      last_name_translations:
+                                        (e as any).last_name_translations || {},
                                       username: e.username || "",
                                       birth_date: e.birth_date || "",
                                       current_label: e.label ?? "",
@@ -2916,10 +2987,18 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="employee">{t("admin.users.employee")}</SelectItem>
-                                <SelectItem value="brigadier">{t("admin.users.brigadier", { defaultValue: "Бригадир" })}</SelectItem>
+                                <SelectItem value="employee">
+                                  {t("admin.users.employee")}
+                                </SelectItem>
+                                <SelectItem value="brigadier">
+                                  {t("admin.users.brigadier", { defaultValue: "Бригадир" })}
+                                </SelectItem>
                                 <SelectItem value="admin">{t("admin.users.admin")}</SelectItem>
-                                {superMode && <SelectItem value="super_admin">{t("admin.users.superAdmin", { defaultValue: "Супер-админ" })}</SelectItem>}
+                                {superMode && (
+                                  <SelectItem value="super_admin">
+                                    {t("admin.users.superAdmin", { defaultValue: "Супер-админ" })}
+                                  </SelectItem>
+                                )}
                               </SelectContent>
                             </Select>
                             {!e.is_active && (
@@ -2960,17 +3039,18 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                                 }
                                 onClick={() =>
                                   setNameEdit({
-                                      user_id: e.id,
-                                      user_name: e.name,
-                                      first_name: e.first_name || "",
-                                      first_name_translations: (e as any).first_name_translations || {},
-                                      last_name: e.last_name || "",
-                                      last_name_translations: (e as any).last_name_translations || {},
-                                      username: e.username || "",
-                                      birth_date: e.birth_date || "",
-                                      current_label: e.label ?? "",
-                                      open: true,
-                                    })
+                                    user_id: e.id,
+                                    user_name: e.name,
+                                    first_name: e.first_name || "",
+                                    first_name_translations:
+                                      (e as any).first_name_translations || {},
+                                    last_name: e.last_name || "",
+                                    last_name_translations: (e as any).last_name_translations || {},
+                                    username: e.username || "",
+                                    birth_date: e.birth_date || "",
+                                    current_label: e.label ?? "",
+                                    open: true,
+                                  })
                                 }
                               >
                                 <Pencil className="h-4 w-4 mr-1.5" />
@@ -3063,9 +3143,9 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
               {calEmpId !== "__none__" && (
                 <Card className="flex-1 overflow-hidden p-0 border shadow-sm flex flex-col min-h-150">
                   <div className="p-4 sm:p-6 h-full flex flex-col">
-                    <AdminEditableCalendarView 
-                      employeeId={calEmpId} 
-                      employeeName={employees.find((e) => e.id === calEmpId)?.name || ""} 
+                    <AdminEditableCalendarView
+                      employeeId={calEmpId}
+                      employeeName={employees.find((e) => e.id === calEmpId)?.name || ""}
                     />
                   </div>
                 </Card>
@@ -3074,25 +3154,45 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
           )}
 
           {/* EDIT PHOTO REPORT DIALOG */}
-          <Dialog open={!!editingReport} onOpenChange={(v) => !v && setEditingReport(null)}>
+          <Dialog open={!!editingReport} onOpenChange={(v) => {
+            if (!v) {
+              setEditingReport(null);
+              setEditingReportImageFile(null);
+            }
+          }}>
             <DialogContent className="sm:max-w-md rounded-2xl">
               <DialogHeader>
                 <DialogTitle>{t("common.edit") || "Редактирование"}</DialogTitle>
               </DialogHeader>
               {editingReport && (
                 <div className="flex flex-col gap-4 py-2">
-                  {editingReport.thumb && (
-                    <div className="rounded-xl overflow-hidden border border-border">
-                      <img 
-                        src={editingReport.thumb} 
-                        alt="Preview" 
+                  {(editingReportImageFile || editingReport.thumb) && (
+                    <div className="relative rounded-xl overflow-hidden border border-border flex justify-center bg-black/10">
+                      <img
+                        src={editingReportImageFile ? URL.createObjectURL(editingReportImageFile) : editingReport.thumb!}
+                        alt="Preview"
                         className="w-full max-h-64 object-contain bg-muted"
                       />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="secondary"
+                        className="absolute top-2 left-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
+                        onPointerDown={(e) => e.preventDefault()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowEditor(true);
+                        }}
+                      >
+                        <Pen className="h-4 w-4" />
+                      </Button>
                     </div>
                   )}
-                  <Textarea 
+                  <Textarea
                     value={editingReport.description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditingReport({ ...editingReport, description: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                      setEditingReport({ ...editingReport, description: e.target.value })
+                    }
                     placeholder={t("chat.photo.descPlaceholder", { defaultValue: "Описание..." })}
                     className="min-h-16 resize-none"
                   />
@@ -3109,10 +3209,21 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
             </DialogContent>
           </Dialog>
 
-
+          {showEditor && editingReport && (
+            <ImageEditorDialog
+              open={showEditor}
+              onOpenChange={setShowEditor}
+              file={editingReportImageFile}
+              imageUrl={editingReportImageFile ? null : editingReport.thumb}
+              onSave={(editedFile) => setEditingReportImageFile(editedFile)}
+            />
+          )}
 
           {/* CREATE USER DIALOG */}
-          <Dialog open={createForm.open} onOpenChange={(v) => !v && setCreateForm((f) => ({ ...f, open: false }))}>
+          <Dialog
+            open={createForm.open}
+            onOpenChange={(v) => !v && setCreateForm((f) => ({ ...f, open: false }))}
+          >
             <DialogContent className="sm:max-w-md rounded-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{t("admin.users.create")}</DialogTitle>
@@ -3123,91 +3234,130 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label>{t("auth.firstName") || "Имя"} (Default/EN)</Label>
-                      <Input 
-                        value={createForm.first_name} 
-                        onChange={(e) => setCreateForm({ ...createForm, first_name: e.target.value })} 
+                      <Input
+                        value={createForm.first_name}
+                        onChange={(e) =>
+                          setCreateForm({ ...createForm, first_name: e.target.value })
+                        }
                       />
                     </div>
                     <div className="space-y-1.5">
                       <Label>{t("auth.lastName") || "Фамилия"} (Default/EN)</Label>
-                      <Input 
-                        value={createForm.last_name} 
-                        onChange={(e) => setCreateForm({ ...createForm, last_name: e.target.value })} 
+                      <Input
+                        value={createForm.last_name}
+                        onChange={(e) =>
+                          setCreateForm({ ...createForm, last_name: e.target.value })
+                        }
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label>{t("auth.firstName") || "Имя"} (RU)</Label>
-                      <Input 
-                        value={(createForm as any).first_name_translations?.ru || ""} 
-                        onChange={(e) => setCreateForm({ ...createForm, first_name_translations: { ...(createForm as any).first_name_translations, ru: e.target.value } })} 
+                      <Input
+                        value={(createForm as any).first_name_translations?.ru || ""}
+                        onChange={(e) =>
+                          setCreateForm({
+                            ...createForm,
+                            first_name_translations: {
+                              ...(createForm as any).first_name_translations,
+                              ru: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="space-y-1.5">
                       <Label>{t("auth.lastName") || "Фамилия"} (RU)</Label>
-                      <Input 
-                        value={(createForm as any).last_name_translations?.ru || ""} 
-                        onChange={(e) => setCreateForm({ ...createForm, last_name_translations: { ...(createForm as any).last_name_translations, ru: e.target.value } })} 
+                      <Input
+                        value={(createForm as any).last_name_translations?.ru || ""}
+                        onChange={(e) =>
+                          setCreateForm({
+                            ...createForm,
+                            last_name_translations: {
+                              ...(createForm as any).last_name_translations,
+                              ru: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label>{t("auth.firstName") || "Имя"} (UK)</Label>
-                      <Input 
-                        value={(createForm as any).first_name_translations?.uk || ""} 
-                        onChange={(e) => setCreateForm({ ...createForm, first_name_translations: { ...(createForm as any).first_name_translations, uk: e.target.value } })} 
+                      <Input
+                        value={(createForm as any).first_name_translations?.uk || ""}
+                        onChange={(e) =>
+                          setCreateForm({
+                            ...createForm,
+                            first_name_translations: {
+                              ...(createForm as any).first_name_translations,
+                              uk: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                     <div className="space-y-1.5">
                       <Label>{t("auth.lastName") || "Фамилия"} (UK)</Label>
-                      <Input 
-                        value={(createForm as any).last_name_translations?.uk || ""} 
-                        onChange={(e) => setCreateForm({ ...createForm, last_name_translations: { ...(createForm as any).last_name_translations, uk: e.target.value } })} 
+                      <Input
+                        value={(createForm as any).last_name_translations?.uk || ""}
+                        onChange={(e) =>
+                          setCreateForm({
+                            ...createForm,
+                            last_name_translations: {
+                              ...(createForm as any).last_name_translations,
+                              uk: e.target.value,
+                            },
+                          })
+                        }
                       />
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1.5">
                   <Label>{t("auth.username") || "Имя пользователя"}</Label>
-                  <Input 
-                    value={createForm.username} 
-                    onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })} 
+                  <Input
+                    value={createForm.username}
+                    onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label>{t("auth.birthDate") || "Дата рождения"}</Label>
-                  <Input 
+                  <Input
                     type="date"
-                    value={createForm.birth_date} 
-                    onChange={(e) => setCreateForm({ ...createForm, birth_date: e.target.value })} 
+                    value={createForm.birth_date}
+                    onChange={(e) => setCreateForm({ ...createForm, birth_date: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label>Email</Label>
-                  <Input 
+                  <Input
                     type="email"
-                    value={createForm.email} 
-                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} 
+                    value={createForm.email}
+                    onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label>Пароль</Label>
-                  <Input 
+                  <Input
                     type="text"
-                    value={createForm.password} 
-                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} 
+                    value={createForm.password}
+                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label>Роль</Label>
-                  <Select value={createForm.role} onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}>
+                  <Select
+                    value={createForm.role}
+                    onValueChange={(v) => setCreateForm({ ...createForm, role: v as AppRole })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -3219,11 +3369,14 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                     </SelectContent>
                   </Select>
                 </div>
-
-                
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setCreateForm((f) => ({ ...f, open: false }))}>Отмена</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setCreateForm((f) => ({ ...f, open: false }))}
+                >
+                  Отмена
+                </Button>
                 <Button onClick={submitCreateUser} disabled={userBusy}>
                   {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Сохранить
                 </Button>
@@ -3244,75 +3397,107 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label>{t("auth.firstName") || "Имя"} (Default/EN)</Label>
-                        <Input 
-                          value={nameEdit.first_name} 
-                          onChange={(e) => setNameEdit({ ...nameEdit, first_name: e.target.value })} 
+                        <Input
+                          value={nameEdit.first_name}
+                          onChange={(e) => setNameEdit({ ...nameEdit, first_name: e.target.value })}
                         />
                       </div>
                       <div className="space-y-1.5">
                         <Label>{t("auth.lastName") || "Фамилия"} (Default/EN)</Label>
-                        <Input 
-                          value={nameEdit.last_name} 
-                          onChange={(e) => setNameEdit({ ...nameEdit, last_name: e.target.value })} 
+                        <Input
+                          value={nameEdit.last_name}
+                          onChange={(e) => setNameEdit({ ...nameEdit, last_name: e.target.value })}
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label>{t("auth.firstName") || "Имя"} (RU)</Label>
-                        <Input 
-                          value={nameEdit.first_name_translations?.ru || ""} 
-                          onChange={(e) => setNameEdit({ ...nameEdit, first_name_translations: { ...nameEdit.first_name_translations, ru: e.target.value } })} 
+                        <Input
+                          value={nameEdit.first_name_translations?.ru || ""}
+                          onChange={(e) =>
+                            setNameEdit({
+                              ...nameEdit,
+                              first_name_translations: {
+                                ...nameEdit.first_name_translations,
+                                ru: e.target.value,
+                              },
+                            })
+                          }
                         />
                       </div>
                       <div className="space-y-1.5">
                         <Label>{t("auth.lastName") || "Фамилия"} (RU)</Label>
-                        <Input 
-                          value={nameEdit.last_name_translations?.ru || ""} 
-                          onChange={(e) => setNameEdit({ ...nameEdit, last_name_translations: { ...nameEdit.last_name_translations, ru: e.target.value } })} 
+                        <Input
+                          value={nameEdit.last_name_translations?.ru || ""}
+                          onChange={(e) =>
+                            setNameEdit({
+                              ...nameEdit,
+                              last_name_translations: {
+                                ...nameEdit.last_name_translations,
+                                ru: e.target.value,
+                              },
+                            })
+                          }
                         />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label>{t("auth.firstName") || "Имя"} (UK)</Label>
-                        <Input 
-                          value={nameEdit.first_name_translations?.uk || ""} 
-                          onChange={(e) => setNameEdit({ ...nameEdit, first_name_translations: { ...nameEdit.first_name_translations, uk: e.target.value } })} 
+                        <Input
+                          value={nameEdit.first_name_translations?.uk || ""}
+                          onChange={(e) =>
+                            setNameEdit({
+                              ...nameEdit,
+                              first_name_translations: {
+                                ...nameEdit.first_name_translations,
+                                uk: e.target.value,
+                              },
+                            })
+                          }
                         />
                       </div>
                       <div className="space-y-1.5">
                         <Label>{t("auth.lastName") || "Фамилия"} (UK)</Label>
-                        <Input 
-                          value={nameEdit.last_name_translations?.uk || ""} 
-                          onChange={(e) => setNameEdit({ ...nameEdit, last_name_translations: { ...nameEdit.last_name_translations, uk: e.target.value } })} 
+                        <Input
+                          value={nameEdit.last_name_translations?.uk || ""}
+                          onChange={(e) =>
+                            setNameEdit({
+                              ...nameEdit,
+                              last_name_translations: {
+                                ...nameEdit.last_name_translations,
+                                uk: e.target.value,
+                              },
+                            })
+                          }
                         />
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1.5">
                     <Label>{t("auth.username") || "Имя пользователя"}</Label>
-                    <Input 
-                      value={nameEdit.username} 
-                      onChange={(e) => setNameEdit({ ...nameEdit, username: e.target.value })} 
+                    <Input
+                      value={nameEdit.username}
+                      onChange={(e) => setNameEdit({ ...nameEdit, username: e.target.value })}
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <Label>{t("auth.birthDate") || "Дата рождения"}</Label>
-                    <Input 
+                    <Input
                       type="date"
-                      value={nameEdit.birth_date} 
-                      onChange={(e) => setNameEdit({ ...nameEdit, birth_date: e.target.value })} 
+                      value={nameEdit.birth_date}
+                      onChange={(e) => setNameEdit({ ...nameEdit, birth_date: e.target.value })}
                     />
                   </div>
-
-                  
                 </div>
               )}
               <DialogFooter>
-                <Button variant="outline" onClick={() => setNameEdit(null)}>Отмена</Button>
+                <Button variant="outline" onClick={() => setNameEdit(null)}>
+                  Отмена
+                </Button>
                 <Button onClick={submitNameUpdate} disabled={userBusy}>
                   {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Сохранить
                 </Button>
@@ -3331,35 +3516,36 @@ const [siteEdit, setSiteEdit] = useState<SiteEdit | null>(null);
                 <div className="flex flex-col gap-4 py-2">
                   <div className="space-y-1.5">
                     <Label>{t("auth.newEmail") || "Новый Email"}</Label>
-                    <Input 
+                    <Input
                       placeholder={t("auth.leaveBlank") || "Оставить пустым чтобы не менять"}
-                      value={credsEdit.email} 
-                      onChange={(e) => setCredsEdit({ ...credsEdit, email: e.target.value })} 
+                      value={credsEdit.email}
+                      onChange={(e) => setCredsEdit({ ...credsEdit, email: e.target.value })}
                     />
                   </div>
                   <div className="space-y-1.5">
                     <Label>{t("auth.newPassword") || "Новый пароль"}</Label>
-                    <Input 
+                    <Input
                       placeholder={t("auth.leaveBlank") || "Оставить пустым чтобы не менять"}
                       type="text"
-                      value={credsEdit.password} 
-                      onChange={(e) => setCredsEdit({ ...credsEdit, password: e.target.value })} 
+                      value={credsEdit.password}
+                      onChange={(e) => setCredsEdit({ ...credsEdit, password: e.target.value })}
                     />
                   </div>
                 </div>
               )}
               <DialogFooter>
-                <Button variant="outline" onClick={() => setCredsEdit(null)}>{t("common.cancel") || "Отмена"}</Button>
+                <Button variant="outline" onClick={() => setCredsEdit(null)}>
+                  {t("common.cancel") || "Отмена"}
+                </Button>
                 <Button onClick={submitCredsUpdate} disabled={userBusy}>
-                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {t("common.save") || "Сохранить"}
+                  {userBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+                  {t("common.save") || "Сохранить"}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
-
         </main>
       </div>
-
     </div>
   );
 }
@@ -3372,14 +3558,14 @@ function Kpi({
 }: {
   label: string;
   value: string;
-  tone: 'primary' | 'success' | 'warning' | 'destructive';
+  tone: "primary" | "success" | "warning" | "destructive";
   icon: React.ReactNode;
 }) {
   const toneClass = {
-    primary: 'bg-primary/10 text-primary',
-    success: 'bg-[color:var(--success)]/15 text-[color:var(--success)]',
-    warning: 'bg-[color:var(--warning)]/20 text-[color:var(--warning-foreground)]',
-    destructive: 'bg-[color:var(--destructive)]/15 text-[color:var(--destructive)]',
+    primary: "bg-primary/10 text-primary",
+    success: "bg-[color:var(--success)]/15 text-[color:var(--success)]",
+    warning: "bg-[color:var(--warning)]/20 text-[color:var(--warning-foreground)]",
+    destructive: "bg-[color:var(--destructive)]/15 text-[color:var(--destructive)]",
   }[tone];
 
   return (

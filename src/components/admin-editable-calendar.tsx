@@ -317,104 +317,104 @@ export function AdminEditableCalendarView({
           </p>
         </div>
 
-          <div className="flex items-center justify-between mb-3 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" /> {t("admin.calendar.prev")}
-            </Button>
-            <div className="font-semibold text-center whitespace-nowrap">
-              {monthName} {cursor.getFullYear()}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-            >
-              {t("admin.calendar.next")} <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" /> {t("admin.calendar.prev")}
+          </Button>
+          <div className="font-semibold text-center whitespace-nowrap">
+            {monthName} {cursor.getFullYear()}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
+          >
+            {t("admin.calendar.next")} <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
 
-          {loading ? (
-            <div className="py-12 flex justify-center">
-              <Loader2 className="h-6 w-6 animate-spin" />
+        {loading ? (
+          <div className="py-12 flex justify-center">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-7 gap-2 text-sm font-semibold text-muted-foreground text-center mb-2">
+              {WEEKDAYS.map((w) => (
+                <div key={w} className="py-1">
+                  {w}
+                </div>
+              ))}
             </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-7 gap-2 text-sm font-semibold text-muted-foreground text-center mb-2">
-                {WEEKDAYS.map((w) => (
-                  <div key={w} className="py-1">
-                    {w}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-2">
-                {grid.map((c) => {
-                  const dateKey = c.day
-                    ? `${String(c.day).padStart(2, "0")}.${String(cursor.getMonth() + 1).padStart(2, "0")}.${cursor.getFullYear()}`
-                    : "";
-                  const entries = c.day ? rowsByDate.get(dateKey) : undefined;
+            <div className="grid grid-cols-7 gap-2">
+              {grid.map((c) => {
+                const dateKey = c.day
+                  ? `${String(c.day).padStart(2, "0")}.${String(cursor.getMonth() + 1).padStart(2, "0")}.${cursor.getFullYear()}`
+                  : "";
+                const entries = c.day ? rowsByDate.get(dateKey) : undefined;
 
-                  return (
-                    <div
-                      key={c.key}
-                      onClick={() => c.day && onDayClick(c.day)}
-                      className={`min-h-20 rounded-xl p-1.5 text-xs border transition-all ${
-                        c.day
-                          ? entries
-                            ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10"
-                            : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50"
-                          : "border-transparent opacity-50"
-                      }`}
-                    >
-                      {c.day && (
-                        <div className="flex flex-col h-full">
-                          <div className="font-semibold text-muted-foreground">{c.day}</div>
-                          {entries && (
-                            <div className="mt-auto space-y-0.5">
-                              {entries.slice(0, 2).map((e, idx) => (
-                                <div
-                                  key={idx}
-                                  className="tabular-nums text-[10px] text-primary truncate"
-                                  title={e.site}
-                                >
-                                  {e.workStart}–{e.workEnd}
-                                </div>
-                              ))}
-                              {entries.length > 2 && (
-                                <div className="text-[10px] text-muted-foreground">
-                                  +{entries.length - 2}
-                                </div>
-                              )}
-                              <div className="text-[10px] font-semibold text-foreground mt-1">
-                                {(() => {
-                                  const totalMin = entries.reduce((acc, e) => {
-                                    const [h, m] = e.workedHM
-                                      .replace("ч", "")
-                                      .replace("м", "")
-                                      .split(" ");
-                                    return acc + (parseInt(h || "0") * 60 + parseInt(m || "0"));
-                                  }, 0);
-                                  return `${Math.floor(totalMin / 60)}${t("time.hoursShort")} ${String(totalMin % 60).padStart(2, "0")}${t("time.minutesShort")}`;
-                                })()}
+                return (
+                  <div
+                    key={c.key}
+                    onClick={() => c.day && onDayClick(c.day)}
+                    className={`min-h-20 rounded-xl p-1.5 text-xs border transition-all ${
+                      c.day
+                        ? entries
+                          ? "bg-primary/5 border-primary/30 cursor-pointer hover:bg-primary/10"
+                          : "bg-muted/30 border-transparent cursor-pointer hover:bg-muted/50"
+                        : "border-transparent opacity-50"
+                    }`}
+                  >
+                    {c.day && (
+                      <div className="flex flex-col h-full">
+                        <div className="font-semibold text-muted-foreground">{c.day}</div>
+                        {entries && (
+                          <div className="mt-auto space-y-0.5">
+                            {entries.slice(0, 2).map((e, idx) => (
+                              <div
+                                key={idx}
+                                className="tabular-nums text-[10px] text-primary truncate"
+                                title={e.site}
+                              >
+                                {e.workStart}–{e.workEnd}
                               </div>
+                            ))}
+                            {entries.length > 2 && (
+                              <div className="text-[10px] text-muted-foreground">
+                                +{entries.length - 2}
+                              </div>
+                            )}
+                            <div className="text-[10px] font-semibold text-foreground mt-1">
+                              {(() => {
+                                const totalMin = entries.reduce((acc, e) => {
+                                  const [h, m] = e.workedHM
+                                    .replace("ч", "")
+                                    .replace("м", "")
+                                    .split(" ");
+                                  return acc + (parseInt(h || "0") * 60 + parseInt(m || "0"));
+                                }, 0);
+                                return `${Math.floor(totalMin / 60)}${t("time.hoursShort")} ${String(totalMin % 60).padStart(2, "0")}${t("time.minutesShort")}`;
+                              })()}
                             </div>
-                          )}
-                          {!entries && (
-                            <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 hover:opacity-100 text-center">
-                              {t("admin.personnel.addShift", { defaultValue: "+ Смена" })}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
+                          </div>
+                        )}
+                        {!entries && (
+                          <div className="mt-auto text-[10px] text-muted-foreground/50 opacity-0 hover:opacity-100 text-center">
+                            {t("admin.personnel.addShift", { defaultValue: "+ Смена" })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       <Dialog open={!!shiftEdit} onOpenChange={(o) => !o && setShiftEdit(null)}>
@@ -491,19 +491,39 @@ export function AdminEditableCalendarView({
                 <div>
                   <Label>{t("admin.calendar.start")}</Label>
                   <Input
-                    type="datetime-local"
+                    type={shiftEdit.started_at ? "datetime-local" : "text"}
+                    placeholder={t("admin.calendar.start")}
                     lang={lang}
                     value={shiftEdit.started_at}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, started_at: ev.target.value })}
+                    onFocus={(e) => {
+                      e.target.type = "datetime-local";
+                      try {
+                        e.target.showPicker();
+                      } catch (e) {}
+                    }}
+                    onBlur={(e) => {
+                      if (!e.target.value) e.target.type = "text";
+                    }}
                   />
                 </div>
                 <div>
                   <Label>{t("admin.calendar.end")}</Label>
                   <Input
-                    type="datetime-local"
+                    type={shiftEdit.ended_at ? "datetime-local" : "text"}
+                    placeholder={t("calendar.active")}
                     lang={lang}
                     value={shiftEdit.ended_at}
                     onChange={(ev) => setShiftEdit({ ...shiftEdit, ended_at: ev.target.value })}
+                    onFocus={(e) => {
+                      e.target.type = "datetime-local";
+                      try {
+                        e.target.showPicker();
+                      } catch (e) {}
+                    }}
+                    onBlur={(e) => {
+                      if (!e.target.value) e.target.type = "text";
+                    }}
                   />
                 </div>
               </div>

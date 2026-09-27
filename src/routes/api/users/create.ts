@@ -46,7 +46,8 @@ export const Route = createFileRoute("/api/users/create")({
           }
 
           const body = await request.json();
-          const { email, password, first_name, last_name, username, birth_date, role, label } = body;
+          const { email, password, first_name, last_name, username, birth_date, role, label } =
+            body;
 
           if (!email || !password || !role) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -84,12 +85,12 @@ export const Route = createFileRoute("/api/users/create")({
             email: email,
             password: password,
             email_confirm: true,
-            user_metadata: { 
+            user_metadata: {
               full_name,
               first_name,
               last_name,
               username,
-              birth_date
+              birth_date,
             },
           });
 
@@ -108,7 +109,7 @@ export const Route = createFileRoute("/api/users/create")({
             birth_date,
           };
           if (label !== undefined && label !== null) profilePatch.label = label;
-          
+
           await supabaseAdmin.from("profiles").update(profilePatch).eq("id", created.user.id);
 
           // Override default role assigned by trigger

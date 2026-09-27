@@ -34,7 +34,7 @@ export function ModerationTab() {
   const [sites, setSites] = useState<Record<string, string>>({});
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [translatedTexts, setTranslatedTexts] = useState<Record<string, string>>({});
-  
+
   // New features state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -53,12 +53,16 @@ export function ModerationTab() {
         (payload) => {
           if (payload.eventType === "INSERT") {
             const newMsg = payload.new as DbMessage;
-            if (newMsg.channel_type === "general" || newMsg.channel_type === "direct" || newMsg.channel_type === "site") {
+            if (
+              newMsg.channel_type === "general" ||
+              newMsg.channel_type === "direct" ||
+              newMsg.channel_type === "site"
+            ) {
               setMessages((prev) => [newMsg, ...prev]);
             }
           } else if (payload.eventType === "DELETE") {
             setMessages((prev) => prev.filter((m) => m.id !== payload.old.id));
-            setSelectedIds(prev => {
+            setSelectedIds((prev) => {
               const newSet = new Set(prev);
               newSet.delete(payload.old.id);
               return newSet;
@@ -114,7 +118,7 @@ export function ModerationTab() {
         profData.forEach((p) => (map[p.id] = p.full_name || t("admin.moderation.unknown")!));
         setProfiles(map);
       }
-      
+
       const { data: sitesData } = await supabase.from("sites").select("id, name");
       if (sitesData) {
         const sMap: Record<string, string> = {};
@@ -142,14 +146,14 @@ export function ModerationTab() {
   async function bulkDelete() {
     if (selectedIds.size === 0) return;
     if (!confirm(`Вы уверены, что хотите удалить ${selectedIds.size} сообщений?`)) return;
-    
+
     try {
       setLoading(true);
       const { error } = await supabase
         .from("chat_messages")
         .delete()
         .in("id", Array.from(selectedIds));
-        
+
       if (error) throw error;
       toast.success(`Удалено ${selectedIds.size} сообщений`);
       setSelectedIds(new Set());
@@ -162,7 +166,7 @@ export function ModerationTab() {
   }
 
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) newSet.delete(id);
       else newSet.add(id);
@@ -171,18 +175,18 @@ export function ModerationTab() {
   };
 
   const selectAll = (messagesToSelect: DbMessage[]) => {
-    if (messagesToSelect.every(m => selectedIds.has(m.id))) {
+    if (messagesToSelect.every((m) => selectedIds.has(m.id))) {
       // Deselect all
-      setSelectedIds(prev => {
+      setSelectedIds((prev) => {
         const newSet = new Set(prev);
-        messagesToSelect.forEach(m => newSet.delete(m.id));
+        messagesToSelect.forEach((m) => newSet.delete(m.id));
         return newSet;
       });
     } else {
       // Select all
-      setSelectedIds(prev => {
+      setSelectedIds((prev) => {
         const newSet = new Set(prev);
-        messagesToSelect.forEach(m => newSet.add(m.id));
+        messagesToSelect.forEach((m) => newSet.add(m.id));
         return newSet;
       });
     }
@@ -225,13 +229,17 @@ export function ModerationTab() {
 
     const content = msg.content;
     const isPhotoReport = content.includes("[PHOTO_REPORT]") || content.includes("[ФОТО_ОТЧЕТ]");
-    
+
     if (isPhotoReport) {
       let textToSplit = content;
       if (content.includes("[ФОТО_ОТЧЕТ]")) {
-        textToSplit = content.substring(content.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length).trim();
+        textToSplit = content
+          .substring(content.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length)
+          .trim();
       } else if (content.includes("[PHOTO_REPORT]")) {
-        textToSplit = content.substring(content.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length).trim();
+        textToSplit = content
+          .substring(content.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length)
+          .trim();
       }
       const parts = textToSplit.split(" | ");
       const photoPath = parts[0] || "";
@@ -248,9 +256,13 @@ export function ModerationTab() {
         const trText = translatedTexts[msg.id];
         let trTextToSplit = trText;
         if (trText.includes("[ФОТО_ОТЧЕТ]"))
-          trTextToSplit = trText.substring(trText.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length).trim();
+          trTextToSplit = trText
+            .substring(trText.indexOf("[ФОТО_ОТЧЕТ]") + "[ФОТО_ОТЧЕТ]".length)
+            .trim();
         else if (trText.includes("[PHOTO_REPORT]"))
-          trTextToSplit = trText.substring(trText.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length).trim();
+          trTextToSplit = trText
+            .substring(trText.indexOf("[PHOTO_REPORT]") + "[PHOTO_REPORT]".length)
+            .trim();
         const trParts = trTextToSplit.split(" | ");
         if (trParts.length >= 3) {
           translatedDesc = trParts.slice(2).join(" | ");
@@ -262,7 +274,7 @@ export function ModerationTab() {
       return (
         <div className="flex items-start gap-4 mt-2">
           {photoUrl && (
-            <div 
+            <div
               className="relative group shrink-0 cursor-pointer overflow-hidden rounded-xl border bg-muted"
               onClick={() => setSelectedPhoto(photoUrl)}
             >
@@ -320,13 +332,14 @@ export function ModerationTab() {
 
   const renderMessageList = (filterType: "general" | "direct" | "site") => {
     let filtered = messages.filter((m) => m.channel_type === filterType);
-    
+
     // Apply search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(m => 
-        (m.content?.toLowerCase() || '').includes(q) || 
-        (m.author_name?.toLowerCase() || '').includes(q)
+      filtered = filtered.filter(
+        (m) =>
+          (m.content?.toLowerCase() || "").includes(q) ||
+          (m.author_name?.toLowerCase() || "").includes(q),
       );
     }
 
@@ -345,7 +358,9 @@ export function ModerationTab() {
         return (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <MessageSquare className="h-10 w-10 mb-2 opacity-20" />
-            <p className="text-sm">{filterType === "direct" ? "Нет личных сообщений" : "Нет сообщений объектов"}</p>
+            <p className="text-sm">
+              {filterType === "direct" ? "Нет личных сообщений" : "Нет сообщений объектов"}
+            </p>
           </div>
         );
       }
@@ -353,9 +368,9 @@ export function ModerationTab() {
       return (
         <div className="space-y-3 p-1">
           {chatIds.map((chatId) => {
-            const chatMessages = filtered.filter(m => m.channel_id === chatId);
+            const chatMessages = filtered.filter((m) => m.channel_id === chatId);
             const lastMsg = chatMessages[0]; // because it's ordered by created_at DESC
-            
+
             return (
               <div
                 key={chatId}
@@ -368,21 +383,37 @@ export function ModerationTab() {
                 <div className="flex-1 min-w-0 mr-4">
                   <div className="font-semibold text-sm mb-1">{getChatName(chatId)}</div>
                   <div className="text-sm text-muted-foreground truncate opacity-80 flex items-center gap-2">
-                    <span className="truncate">{lastMsg?.content.includes('[PHOTO_REPORT]') ? `📷 ${t("chat.media_title") || "Фотоотчет"}` : lastMsg?.content}</span>
+                    <span className="truncate">
+                      {lastMsg?.content.includes("[PHOTO_REPORT]")
+                        ? `📷 ${t("chat.media_title") || "Фотоотчет"}`
+                        : lastMsg?.content}
+                    </span>
                     <span className="text-[10px] bg-muted px-2 py-0.5 rounded-full shrink-0">
-                      {chatMessages.length} {chatMessages.length === 1 ? (t("admin.moderation.message") || "сообщение") : (t("admin.moderation.messages") || "сообщений")}
+                      {chatMessages.length}{" "}
+                      {chatMessages.length === 1
+                        ? t("admin.moderation.message") || "сообщение"
+                        : t("admin.moderation.messages") || "сообщений"}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <span className="text-xs text-muted-foreground font-medium">
-                    {lastMsg ? new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(lastMsg.created_at)) : ''}
+                    {lastMsg
+                      ? new Intl.DateTimeFormat(lang, {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }).format(new Date(lastMsg.created_at))
+                      : ""}
                   </span>
                   <Button
                     variant="secondary"
                     size="sm"
                     className="h-8 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
-                  >{t("chat.showTranslation", { lang: lang.toUpperCase() }) || "Смотреть"}</Button>
+                  >
+                    {t("chat.showTranslation", { lang: lang.toUpperCase() }) || "Смотреть"}
+                  </Button>
                 </div>
               </div>
             );
@@ -401,7 +432,11 @@ export function ModerationTab() {
           <MessageSquare className="h-10 w-10 mb-2 opacity-20" />
           <p className="text-sm">Ничего не найдено</p>
           {selectedChatId && (
-            <Button variant="outline" onClick={() => setSelectedChatId(null)} className="mt-4 rounded-xl">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedChatId(null)}
+              className="mt-4 rounded-xl"
+            >
               Вернуться назад
             </Button>
           )}
@@ -409,28 +444,33 @@ export function ModerationTab() {
       );
     }
 
-    const allSelected = filtered.length > 0 && filtered.every(m => selectedIds.has(m.id));
+    const allSelected = filtered.length > 0 && filtered.every((m) => selectedIds.has(m.id));
 
     return (
       <div className="flex flex-col h-full">
         <div className="mb-4 sticky top-0 bg-background/95 backdrop-blur z-10 pb-4 border-b flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex items-center gap-4 w-full sm:w-auto">
             {(filterType === "direct" || filterType === "site") && selectedChatId ? (
-              <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => setSelectedChatId(null)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl shrink-0"
+                onClick={() => setSelectedChatId(null)}
+              >
                 &larr; {t("admin.moderation.back") || "Назад"}
               </Button>
             ) : null}
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder={t("reports.search") || "Поиск..."} 
-                className="pl-9 rounded-xl h-9" 
+              <Input
+                placeholder={t("reports.search") || "Поиск..."}
+                className="pl-9 rounded-xl h-9"
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3 w-full sm:w-auto">
             {selectedIds.size > 0 && (
               <Button variant="destructive" size="sm" className="rounded-xl" onClick={bulkDelete}>
@@ -439,12 +479,14 @@ export function ModerationTab() {
               </Button>
             )}
             <div className="flex items-center gap-2">
-              <Checkbox 
-                id="select-all" 
-                checked={allSelected} 
-                onCheckedChange={() => selectAll(filtered)} 
+              <Checkbox
+                id="select-all"
+                checked={allSelected}
+                onCheckedChange={() => selectAll(filtered)}
               />
-              <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">{t("admin.moderation.select_all") || "Выбрать все"}</label>
+              <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
+                {t("admin.moderation.select_all") || "Выбрать все"}
+              </label>
             </div>
           </div>
         </div>
@@ -453,16 +495,16 @@ export function ModerationTab() {
           {filtered.map((msg) => (
             <div
               key={msg.id}
-              className={`p-4 rounded-2xl border transition-all group ${selectedIds.has(msg.id) ? 'bg-primary/5 border-primary/30' : 'bg-card hover:border-primary/20'}`}
+              className={`p-4 rounded-2xl border transition-all group ${selectedIds.has(msg.id) ? "bg-primary/5 border-primary/30" : "bg-card hover:border-primary/20"}`}
             >
               <div className="flex justify-between items-start gap-4">
                 <div className="pt-1 shrink-0">
-                  <Checkbox 
-                    checked={selectedIds.has(msg.id)} 
-                    onCheckedChange={() => toggleSelect(msg.id)} 
+                  <Checkbox
+                    checked={selectedIds.has(msg.id)}
+                    onCheckedChange={() => toggleSelect(msg.id)}
                   />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className="font-semibold text-sm">
@@ -484,7 +526,7 @@ export function ModerationTab() {
                   </div>
                   {renderContent(msg)}
                 </div>
-                
+
                 <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                   {editingId !== msg.id && (
                     <Button
@@ -511,10 +553,14 @@ export function ModerationTab() {
               </div>
             </div>
           ))}
-          
+
           {filtered.length >= limit && (
             <div className="flex justify-center mt-6">
-              <Button variant="outline" className="rounded-xl" onClick={() => setLimit(p => p + 50)}>
+              <Button
+                variant="outline"
+                className="rounded-xl"
+                onClick={() => setLimit((p) => p + 50)}
+              >
                 Загрузить еще
               </Button>
             </div>
@@ -534,17 +580,27 @@ export function ModerationTab() {
       </div>
 
       <Card className="rounded-3xl border bg-background/50 backdrop-blur shadow-sm overflow-hidden flex flex-col h-[75vh]">
-        <Tabs value={currentTab} onValueChange={(v: any) => {
-          setCurrentTab(v);
-          setSelectedChatId(null);
-          setSelectedIds(new Set());
-          setSearchQuery("");
-        }} className="flex-1 flex flex-col h-full w-full">
+        <Tabs
+          value={currentTab}
+          onValueChange={(v: any) => {
+            setCurrentTab(v);
+            setSelectedChatId(null);
+            setSelectedIds(new Set());
+            setSearchQuery("");
+          }}
+          className="flex-1 flex flex-col h-full w-full"
+        >
           <div className="px-6 pt-6 border-b bg-card/50">
             <TabsList className="grid w-full max-w-2xl grid-cols-3 h-11 rounded-xl">
-              <TabsTrigger value="general" className="rounded-lg">{t("chat.general_channel") || "Общий чат"}</TabsTrigger>
-              <TabsTrigger value="direct" className="rounded-lg">{t("chat.private_chats") || "Личные чаты"}</TabsTrigger>
-              <TabsTrigger value="site" className="rounded-lg">{t("chat.objects") || "Чат объектов"}</TabsTrigger>
+              <TabsTrigger value="general" className="rounded-lg">
+                {t("chat.general_channel") || "Общий чат"}
+              </TabsTrigger>
+              <TabsTrigger value="direct" className="rounded-lg">
+                {t("chat.private_chats") || "Личные чаты"}
+              </TabsTrigger>
+              <TabsTrigger value="site" className="rounded-lg">
+                {t("chat.objects") || "Чат объектов"}
+              </TabsTrigger>
             </TabsList>
           </div>
           <div className="flex-1 overflow-y-auto p-6 bg-muted/10">
@@ -564,9 +620,9 @@ export function ModerationTab() {
       <Dialog open={!!selectedPhoto} onOpenChange={(o) => !o && setSelectedPhoto(null)}>
         <DialogContent className="max-w-4xl p-1 bg-transparent border-none shadow-none">
           {selectedPhoto && (
-            <img 
-              src={selectedPhoto} 
-              alt="Preview" 
+            <img
+              src={selectedPhoto}
+              alt="Preview"
               className="w-full max-h-[85vh] object-contain rounded-xl"
             />
           )}

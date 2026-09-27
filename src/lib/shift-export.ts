@@ -54,12 +54,72 @@ export function translit(str: string, lang?: LangCode) {
   const isCyrillic = ["ru", "bg", "uk", "tg"].includes(lang || "ru");
   if (isCyrillic) return str;
   const map: Record<string, string> = {
-    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo", "ж": "zh", "з": "z", "и": "i", "й": "y",
-    "к": "k", "л": "l", "м": "m", "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f",
-    "х": "kh", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "shch", "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
-    "А": "A", "Б": "B", "В": "V", "Г": "G", "Д": "D", "Е": "E", "Ё": "Yo", "Ж": "Zh", "З": "Z", "И": "I", "Й": "Y",
-    "К": "K", "Л": "L", "М": "M", "Н": "N", "О": "O", "П": "P", "Р": "R", "С": "S", "Т": "T", "У": "U", "Ф": "F",
-    "Х": "Kh", "Ц": "Ts", "Ч": "Ch", "Ш": "Sh", "Щ": "Shch", "Ъ": "", "Ы": "Y", "Ь": "", "Э": "E", "Ю": "Yu", "Я": "Ya"
+    а: "a",
+    б: "b",
+    в: "v",
+    г: "g",
+    д: "d",
+    е: "e",
+    ё: "yo",
+    ж: "zh",
+    з: "z",
+    и: "i",
+    й: "y",
+    к: "k",
+    л: "l",
+    м: "m",
+    н: "n",
+    о: "o",
+    п: "p",
+    р: "r",
+    с: "s",
+    т: "t",
+    у: "u",
+    ф: "f",
+    х: "kh",
+    ц: "ts",
+    ч: "ch",
+    ш: "sh",
+    щ: "shch",
+    ъ: "",
+    ы: "y",
+    ь: "",
+    э: "e",
+    ю: "yu",
+    я: "ya",
+    А: "A",
+    Б: "B",
+    В: "V",
+    Г: "G",
+    Д: "D",
+    Е: "E",
+    Ё: "Yo",
+    Ж: "Zh",
+    З: "Z",
+    И: "I",
+    Й: "Y",
+    К: "K",
+    Л: "L",
+    М: "M",
+    Н: "N",
+    О: "O",
+    П: "P",
+    Р: "R",
+    С: "S",
+    Т: "T",
+    У: "U",
+    Ф: "F",
+    Х: "Kh",
+    Ц: "Ts",
+    Ч: "Ch",
+    Ш: "Sh",
+    Щ: "Shch",
+    Ъ: "",
+    Ы: "Y",
+    Ь: "",
+    Э: "E",
+    Ю: "Yu",
+    Я: "Ya",
   };
   return str.replace(/[а-яА-ЯёЁ]/g, (match) => map[match] || match);
 }
@@ -68,16 +128,16 @@ function fmtHM(ms: number, lang?: LangCode) {
   const t = Math.max(0, Math.floor(ms / 60000));
   const h = Math.floor(t / 60);
   const m = pad(t % 60);
-  const map: Record<string, {h: string, m: string}> = {
-      ru: { h: "ч", m: "м" },
-      en: { h: "h", m: "m" },
-      de: { h: "Std", m: "Min" },
-      ro: { h: "ore", m: "min" },
-      bg: { h: "ч", m: "м" },
-      pl: { h: "godz", m: "min" },
-      uk: { h: "год", m: "хв" },
-      uz: { h: "soat", m: "daq" },
-      tg: { h: "с", m: "д" }
+  const map: Record<string, { h: string; m: string }> = {
+    ru: { h: "ч", m: "м" },
+    en: { h: "h", m: "m" },
+    de: { h: "Std", m: "Min" },
+    ro: { h: "ore", m: "min" },
+    bg: { h: "ч", m: "м" },
+    pl: { h: "godz", m: "min" },
+    uk: { h: "год", m: "хв" },
+    uz: { h: "soat", m: "daq" },
+    tg: { h: "с", m: "д" },
   };
   const l = lang || "ru";
   const tr = map[l] || { h: "h", m: "m" };
@@ -133,7 +193,11 @@ function rowToArray(r: ExportRow) {
   ];
 }
 
-export async function exportShiftsXlsx(rows: ExportRow[], filename: string, customHeaders?: string[]) {
+export async function exportShiftsXlsx(
+  rows: ExportRow[],
+  filename: string,
+  customHeaders?: string[],
+) {
   const actualHeaders = customHeaders || HEADERS;
   const XLSX = await import("xlsx");
   const ws = XLSX.utils.aoa_to_sheet([actualHeaders, ...rows.map(rowToArray)]);
@@ -188,7 +252,7 @@ export async function exportShiftsPdf(
     head: [actualHeaders],
     body: rows.map(rowToArray),
     startY: 90,
-    theme: 'grid',
+    theme: "grid",
     styles: {
       font: "Roboto",
       fontStyle: "normal",
@@ -223,7 +287,7 @@ export async function exportShiftsPdf(
       let pageSize = doc.internal.pageSize;
       let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
       doc.text(str, data.settings.margin.left, pageHeight - 20);
-    }
+    },
   });
 
   const blob = doc.output("blob");
@@ -296,4 +360,3 @@ function fallbackDownload(blob: Blob, filename: string) {
     }, 1000);
   }
 }
-

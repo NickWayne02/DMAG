@@ -15,9 +15,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Camera as LucideCamera, Loader2, X, ImagePlus, FolderSearch } from "lucide-react";
+import { Camera as LucideCamera, Loader2, X, ImagePlus, FolderSearch, Pen } from "lucide-react";
 import type { Site } from "./site-selector-dialog";
 import { StorageBrowserDialog } from "@/components/storage-browser-dialog";
+import { ImageEditorDialog } from "@/components/image-editor-dialog";
 
 type Criticality = "info" | "important" | "urgent";
 
@@ -66,6 +67,7 @@ export function PhotoReportDialog({
   const [browserOpen, setBrowserOpen] = useState(false);
   const [fullScreenPreview, setFullScreenPreview] = useState(false);
   const [selectedStoragePath, setSelectedStoragePath] = useState<string | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
 
   useEffect(() => {
     if (open && initialData) {
@@ -197,7 +199,13 @@ export function PhotoReportDialog({
       >
         <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader className={previewUrl ? "border-b pb-3 mb-2" : ""}>
-            <DialogTitle>{initialData ? "Редактирование" : previewUrl ? "Отправить изображение" : "Новый фотоотчет"}</DialogTitle>
+            <DialogTitle>
+              {initialData
+                ? "Редактирование"
+                : previewUrl
+                  ? "Отправить изображение"
+                  : "Новый фотоотчет"}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -266,6 +274,19 @@ export function PhotoReportDialog({
                     className="w-full max-h-[60vh] object-contain cursor-pointer"
                     onClick={() => setFullScreenPreview(true)}
                   />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    className="absolute top-2 left-2 h-8 w-8 rounded-full shadow-lg opacity-80 hover:opacity-100"
+                    onPointerDown={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEditor(true);
+                    }}
+                  >
+                    <Pen className="h-4 w-4" />
+                  </Button>
                   {!skipDbInsert && (
                     <Button
                       type="button"
@@ -311,11 +332,7 @@ export function PhotoReportDialog({
               >
                 {t("chat.photo.cancel", { defaultValue: "Отмена" })}
               </Button>
-              <Button
-                className="h-11 rounded-xl"
-                onClick={submit}
-                disabled={busy}
-              >
+              <Button className="h-11 rounded-xl" onClick={submit} disabled={busy}>
                 {busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {initialData ? "Сохранить" : "Отправить"}
               </Button>
@@ -370,6 +387,16 @@ export function PhotoReportDialog({
           )}
         </DialogContent>
       </Dialog>
+
+      {showEditor && (file || previewUrl) && (
+        <ImageEditorDialog
+          open={showEditor}
+          onOpenChange={setShowEditor}
+          file={file}
+          imageUrl={previewUrl}
+          onSave={(editedFile) => handleFile(editedFile)}
+        />
+      )}
     </>
   );
 }

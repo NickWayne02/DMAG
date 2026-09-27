@@ -602,7 +602,7 @@ class _EditShiftDialogState extends State<EditShiftDialog> {
                         _buildInputLabel(context.watch<LocaleProvider>().t('export.work_end') ?? 'Конец'),
                         GestureDetector(
                           onTap: () => _selectDateTime(context, false),
-                          child: _buildTextInput(_endedAt != null ? formatDate(_endedAt!) : 'Активна'),
+                          child: _buildTextInput(_endedAt != null ? formatDate(_endedAt!) : context.read<LocaleProvider>().t('calendar.active') ?? 'Активна'),
                         )
                       ],
                     ),

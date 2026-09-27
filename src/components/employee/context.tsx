@@ -238,7 +238,9 @@ export function EmployeeProvider({
     if (user) {
       supabase
         .from("profiles")
-        .select("avatar_url, first_name, last_name, first_name_translations, last_name_translations, full_name")
+        .select(
+          "avatar_url, first_name, last_name, first_name_translations, last_name_translations, full_name",
+        )
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
@@ -675,13 +677,18 @@ export function EmployeeProvider({
     window.localStorage.removeItem(SHIFT_STORAGE_KEY);
     window.localStorage.removeItem(SITE_STORAGE_KEY);
     window.localStorage.removeItem("dmag_selected_preset");
-    
+
     // Clear FCM token before signing out
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (session?.user?.id) {
-      await supabase.from("profiles").update({ fcm_token: null } as any).eq("id", session.user.id);
+      await supabase
+        .from("profiles")
+        .update({ fcm_token: null } as any)
+        .eq("id", session.user.id);
     }
-    
+
     await supabase.auth.signOut({ scope: "local" });
     navigate({ to: "/auth" });
   }
@@ -844,7 +851,9 @@ export function EmployeeProvider({
 
   async function findNearestSite(coords: any): Promise<{ id: string; name: string } | null> {
     if (!coords?.latitude || !coords?.longitude) return null;
-    const { data: sites } = await supabase.from("sites").select("id, name, name_translations, address");
+    const { data: sites } = await supabase
+      .from("sites")
+      .select("id, name, name_translations, address");
     if (!sites) return null;
 
     let nearestSite = null;
@@ -1029,8 +1038,10 @@ export function EmployeeProvider({
 
   let name = user?.email || user?.phone || "Сотрудник";
   if (fetchedProfile) {
-    const fName = (fetchedProfile.first_name_translations || {})[lang] || fetchedProfile.first_name || "";
-    const lName = (fetchedProfile.last_name_translations || {})[lang] || fetchedProfile.last_name || "";
+    const fName =
+      (fetchedProfile.first_name_translations || {})[lang] || fetchedProfile.first_name || "";
+    const lName =
+      (fetchedProfile.last_name_translations || {})[lang] || fetchedProfile.last_name || "";
     if (fName || lName) {
       name = `${fName} ${lName}`.trim();
     } else if (fetchedProfile.full_name) {

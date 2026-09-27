@@ -41,11 +41,11 @@ export const requestFirebaseToken = async (vapidKey?: string) => {
 };
 
 export const onMessageListener = async () => {
-    const msg = await messaging();
-    if (!msg) return null;
-    return new Promise((resolve) => {
-        onMessage(msg, (payload) => {
-            resolve(payload);
-        });
+  const msg = await messaging();
+  if (!msg) return null;
+  return new Promise((resolve) => {
+    onMessage(msg, (payload) => {
+      resolve(payload);
     });
+  });
 };

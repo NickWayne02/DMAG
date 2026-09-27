@@ -250,9 +250,12 @@ export function EmployeeMobileView() {
   const [allSites, setAllSites] = useState<Site[]>([]);
   useEffect(() => {
     if (canSwitchToAdmin) {
-      supabase.from("sites").select("id, name, name_translations, address").then(({ data }) => {
-        if (data) setAllSites(data as Site[]);
-      });
+      supabase
+        .from("sites")
+        .select("id, name, name_translations, address")
+        .then(({ data }) => {
+          if (data) setAllSites(data as Site[]);
+        });
     }
   }, [canSwitchToAdmin]);
 
@@ -609,7 +612,6 @@ export function EmployeeMobileView() {
                   ></iframe>
                 </div>
               )}
-
             </section>
           </div>{" "}
           {/* End Left Column */}
@@ -759,7 +761,13 @@ export function EmployeeMobileView() {
         <div className="fixed inset-0 z-50 bg-background flex flex-col">
           <FullChatApp
             onClose={() => setChatOpen(false)}
-            sites={canSwitchToAdmin && allSites.length > 0 ? allSites : selectedSite ? [selectedSite] : []}
+            sites={
+              canSwitchToAdmin && allSites.length > 0
+                ? allSites
+                : selectedSite
+                  ? [selectedSite]
+                  : []
+            }
             initialChannelType="general"
           />
         </div>

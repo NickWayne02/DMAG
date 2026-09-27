@@ -254,7 +254,9 @@ export function SiteSelectorDialog({
                         <MapPin className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">{tName(s.name, s.name_translations)}</p>
+                        <p className="font-semibold text-sm truncate">
+                          {tName(s.name, s.name_translations)}
+                        </p>
                         {s.address && (
                           <p className="text-xs text-muted-foreground truncate">
                             {tName(s.address)}

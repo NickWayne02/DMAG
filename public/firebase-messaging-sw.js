@@ -2,11 +2,11 @@
 importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js");
 
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
@@ -17,7 +17,7 @@ const firebaseConfig = {
   projectId: "dmag-cfbd4",
   storageBucket: "dmag-cfbd4.firebasestorage.app",
   messagingSenderId: "48873415968",
-  appId: "1:48873415968:android:9e23a0323d44ed1d962345"
+  appId: "1:48873415968:android:9e23a0323d44ed1d962345",
 };
 
 // Only initialize if config has been set
@@ -51,22 +51,22 @@ if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
     };
 
     // Check if window is visible, if so, send postMessage instead of system notification
-    return clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+    return clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
       let isAnyWindowVisible = false;
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
-        if (client.visibilityState === 'visible') {
+        if (client.visibilityState === "visible") {
           isAnyWindowVisible = true;
           client.postMessage({
-            type: 'foreground_push',
+            type: "foreground_push",
             payload: {
               notification: { title, body },
-              data: data
-            }
+              data: data,
+            },
           });
         }
       }
-      
+
       if (!isAnyWindowVisible) {
         return self.registration.showNotification(title, notificationOptions);
       }

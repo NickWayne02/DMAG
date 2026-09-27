@@ -24,10 +24,6 @@ class _DashboardTabState extends State<DashboardTab> {
   String? _errorMessage;
   RealtimeChannel? _subscription;
   
-  int _employeesOnShift = 0;
-  int _employeesOnLunch = 0;
-  int _activeSitesCount = 0;
-  int _urgentReportsCount = 0;
 
   @override
   void initState() {
@@ -90,8 +86,6 @@ class _DashboardTabState extends State<DashboardTab> {
       final resp = await query.order('started_at', ascending: false).limit(100);
           
       final activeSitesSet = <String>{};
-      int onShift = 0;
-      int onLunch = 0;
       
       var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, label');
       if (firmId != 'all') {
@@ -117,10 +111,8 @@ class _DashboardTabState extends State<DashboardTab> {
         if (!processedUsers.contains(userId)) {
           processedUsers.add(userId);
           if (s['status'] == 'working') {
-            onShift++;
             if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
           } else if (s['status'] == 'lunch') {
-            onLunch++;
             if (s['site_id'] != null) activeSitesSet.add(s['site_id'].toString());
           }
         }
@@ -198,15 +190,11 @@ class _DashboardTabState extends State<DashboardTab> {
       // Sort all synthesized events by timestamp descending
       enriched.sort((a, b) => DateTime.parse(b['ts']).compareTo(DateTime.parse(a['ts'])));
       
-      final sitesResp = await Supabase.instance.client.from('sites').select('id');
-      final int totalSites = (sitesResp as List).length;
+      // Fetch sites
 
       if (mounted) {
         setState(() {
           _activities = enriched.take(50).toList();
-          _employeesOnShift = onShift;
-          _employeesOnLunch = onLunch;
-          _activeSitesCount = totalSites;
           _isLoading = false;
           _errorMessage = null;
         });
@@ -314,51 +302,6 @@ class _DashboardTabState extends State<DashboardTab> {
                   }),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
-  Widget _buildStatCard(BuildContext context, String value, String title, IconData icon, Color color) {
-    return NeonCard(
-      glowColor: color.withValues(alpha: 0.3),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.inter(
-                  color: Theme.of(context).appColors.foreground,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  color: Theme.of(context).appColors.foreground.withValues(alpha: 0.54),
-                  fontSize: 13,
-                  height: 1.2,
-                ),
-              ),
-            ],
           ),
         ],
       ),

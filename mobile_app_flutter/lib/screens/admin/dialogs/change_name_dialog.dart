@@ -112,10 +112,26 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
     final ukFn = _firstNameUkController.text.trim();
     final ukLn = _lastNameUkController.text.trim();
     
-    if (ruFn.isNotEmpty) _firstNameTranslations['ru'] = ruFn; else _firstNameTranslations.remove('ru');
-    if (ruLn.isNotEmpty) _lastNameTranslations['ru'] = ruLn; else _lastNameTranslations.remove('ru');
-    if (ukFn.isNotEmpty) _firstNameTranslations['uk'] = ukFn; else _firstNameTranslations.remove('uk');
-    if (ukLn.isNotEmpty) _lastNameTranslations['uk'] = ukLn; else _lastNameTranslations.remove('uk');
+    if (ruFn.isNotEmpty) {
+      _firstNameTranslations['ru'] = ruFn;
+    } else {
+      _firstNameTranslations.remove('ru');
+    }
+    if (ruLn.isNotEmpty) {
+      _lastNameTranslations['ru'] = ruLn;
+    } else {
+      _lastNameTranslations.remove('ru');
+    }
+    if (ukFn.isNotEmpty) {
+      _firstNameTranslations['uk'] = ukFn;
+    } else {
+      _firstNameTranslations.remove('uk');
+    }
+    if (ukLn.isNotEmpty) {
+      _lastNameTranslations['uk'] = ukLn;
+    } else {
+      _lastNameTranslations.remove('uk');
+    }
 
     setState(() {
       _isLoading = true;
@@ -202,15 +218,6 @@ class _ChangeNameDialogState extends State<ChangeNameDialog> {
         const SizedBox(height: 16),
       ],
     );
-  }
-  String _formatForApi(String dateStr) {
-    if (dateStr.length == 10 && dateStr[2] == '.' && dateStr[5] == '.') {
-      final parts = dateStr.split('.');
-      if (parts.length == 3) {
-        return '${parts[2]}-${parts[1]}-${parts[0]}';
-      }
-    }
-    return dateStr;
   }
 
   String _formatForDisplay(String? dateStr) {

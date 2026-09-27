@@ -293,7 +293,7 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
         ),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(null), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgCancel') ?? 'Отмена', style: TextStyle(color: Theme.of(context).appColors.foreground))),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(textController.text), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgSave') ?? 'Сохранить', style: TextStyle(color: Colors.blue))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(textController.text), child: Text(context.read<LocaleProvider>().t('admin.sites.dlgSave') ?? 'Сохранить', style: const TextStyle(color: Colors.blue))),
         ],
       ),
     );
@@ -523,7 +523,7 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
             child: ListTile(
               title: Text(_getChatName(chatId), style: GoogleFonts.inter(color: colors.foreground, fontWeight: FontWeight.w600, fontSize: 14)),
               subtitle: Text(
-                '$preview', 
+                preview, 
                 maxLines: 1, 
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.inter(color: colors.foreground.withValues(alpha: 0.6), fontSize: 12)
@@ -691,8 +691,11 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
                       activeColor: colors.primary,
                       onChanged: (val) {
                         setState(() {
-                          if (val == true) _selectedIds.add(id);
-                          else _selectedIds.remove(id);
+                          if (val == true) {
+                            _selectedIds.add(id);
+                          } else {
+                            _selectedIds.remove(id);
+                          }
                         });
                       },
                     ),

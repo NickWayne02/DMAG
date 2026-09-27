@@ -1065,8 +1065,9 @@ class _ChatContentState extends State<ChatContent> {
     if (profileForRole.isNotEmpty && profileForRole['role'] != null && profileForRole['role'] != 'employee') {
       String roleStr = '';
       final r = profileForRole['role'];
-      if (r == 'super-admin' || r == 'super_admin') roleStr = 'Супер-админ';
-      else if (r == 'admin') roleStr = 'Админ';
+      if (r == 'super-admin' || r == 'super_admin') {
+        roleStr = 'Супер-админ';
+      } else if (r == 'admin') roleStr = 'Админ';
       else if (r == 'brigadier') roleStr = 'Бригадир';
       
       if (roleStr.isNotEmpty) {

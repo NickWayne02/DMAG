@@ -9,7 +9,6 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../theme/neon_widgets.dart';
 import '../../../services/shift_export_service.dart';
-import '../admin_shift_edit_sheet.dart';
 import '../dialogs/add_shift_dialog.dart';
 
 class EmployeeRow {
@@ -230,7 +229,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
         _applyFilters();
       });
     } catch (e) {
-      print('Error in personnel_tab _fetchData: $e');
+      debugPrint('Error in personnel_tab _fetchData: $e');
       setState(() {
          _isLoading = false;
          _errorMsg = e.toString();
@@ -539,7 +538,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
                     ],
                   ),
                 ),
-                Row(
+                const Row(
                 ),
               ],
             ),
@@ -603,32 +602,7 @@ class _PersonnelTabState extends State<PersonnelTab> {
   }
 
 
-  Future<void> _openEditShiftsForMonth(EmployeeRow emp) async {
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
 
-    final resp = await Supabase.instance.client
-        .from('shifts')
-        .select('id, user_id, site_id, site_name, started_at, ended_at, lunch_total_ms, start_city, end_city')
-        .eq('user_id', emp.id)
-        .gte('started_at', startOfMonth.toUtc().toIso8601String())
-        .lte('started_at', endOfMonth.toUtc().toIso8601String())
-        .order('started_at', ascending: false);
-
-    if (!mounted) return;
-
-    final shifts = List<Map<String, dynamic>>.from(resp);
-
-    AdminShiftEditSheet.show(
-      context: context,
-      employeeId: emp.id,
-      employeeName: emp.name,
-      date: DateTime.now(),
-      existingShifts: shifts,
-      onSaved: _fetchData,
-    );
-  }
 
   void _showAddShiftModal(String? initialEmployeeId) {
     if (_allEmployees.isEmpty) return;

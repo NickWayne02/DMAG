@@ -514,7 +514,7 @@ class _ReportsTabState extends State<ReportsTab> {
                                           value: 'delete',
                                           child: Row(
                                             children: [
-                                              Icon(LucideIcons.trash_2, color: Colors.redAccent, size: 18),
+                                              const Icon(LucideIcons.trash_2, color: Colors.redAccent, size: 18),
                                               const SizedBox(width: 12),
                                               Text(context.read<LocaleProvider>().t('admin.reports.delete') ?? 'Удалить', style: GoogleFonts.inter(color: Colors.redAccent)),
                                             ],

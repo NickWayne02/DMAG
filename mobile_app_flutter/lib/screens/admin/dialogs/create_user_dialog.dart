@@ -134,15 +134,6 @@ class _CreateUserDialogState extends State<CreateUserDialog> {
       ],
     );
   }
-  String _formatForApi(String dateStr) {
-    if (dateStr.length == 10 && dateStr[2] == '.' && dateStr[5] == '.') {
-      final parts = dateStr.split('.');
-      if (parts.length == 3) {
-        return '${parts[2]}-${parts[1]}-${parts[0]}';
-      }
-    }
-    return dateStr;
-  }
 
 
   @override

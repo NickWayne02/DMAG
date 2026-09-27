@@ -38,7 +38,7 @@ export const usePushNotifications = () => {
       let body = msg.notification?.body;
       const data = msg.data;
 
-      let avatarUrl = msg.notification?.image || data?.sender_avatar;
+      const avatarUrl = msg.notification?.image || data?.sender_avatar;
 
       // If data-only message (like our chat push)
       if (!title && data) {

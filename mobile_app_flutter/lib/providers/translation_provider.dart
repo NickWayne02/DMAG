@@ -25,7 +25,7 @@ class TranslationProvider extends ChangeNotifier {
     }
     
     if (fName.isNotEmpty || lName.isNotEmpty) {
-      return (fName + ' ' + lName).trim();
+      return ('$fName $lName').trim();
     }
     
     return profile['full_name'] ?? '';

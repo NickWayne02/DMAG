@@ -896,7 +896,12 @@ export function AdminDashboard({
       setReports((prev) =>
         prev.map((r) =>
           r.id === editingReport.id
-            ? { ...r, description: editingReport.description, criticality: editingReport.criticality, thumb: newThumb }
+            ? {
+                ...r,
+                description: editingReport.description,
+                criticality: editingReport.criticality,
+                thumb: newThumb,
+              }
             : r,
         ),
       );
@@ -3154,12 +3159,15 @@ export function AdminDashboard({
           )}
 
           {/* EDIT PHOTO REPORT DIALOG */}
-          <Dialog open={!!editingReport} onOpenChange={(v) => {
-            if (!v) {
-              setEditingReport(null);
-              setEditingReportImageFile(null);
-            }
-          }}>
+          <Dialog
+            open={!!editingReport}
+            onOpenChange={(v) => {
+              if (!v) {
+                setEditingReport(null);
+                setEditingReportImageFile(null);
+              }
+            }}
+          >
             <DialogContent className="sm:max-w-md rounded-2xl">
               <DialogHeader>
                 <DialogTitle>{t("common.edit") || "Редактирование"}</DialogTitle>
@@ -3169,7 +3177,11 @@ export function AdminDashboard({
                   {(editingReportImageFile || editingReport.thumb) && (
                     <div className="relative rounded-xl overflow-hidden border border-border flex justify-center bg-black/10">
                       <img
-                        src={editingReportImageFile ? URL.createObjectURL(editingReportImageFile) : editingReport.thumb!}
+                        src={
+                          editingReportImageFile
+                            ? URL.createObjectURL(editingReportImageFile)
+                            : editingReport.thumb!
+                        }
                         alt="Preview"
                         className="w-full max-h-64 object-contain bg-muted"
                       />

@@ -48,23 +48,6 @@ class ShiftExportService {
     return '${_pad(d.hour)}:${_pad(d.minute)}';
   }
 
-  static String _translit(String str, String lang) {
-    if (str.isEmpty) return '';
-    final isCyrillic = ['ru', 'bg', 'uk', 'tg'].contains(lang);
-    if (isCyrillic) return str;
-    
-    const map = {
-      'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y',
-      'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f',
-      'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
-      'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z', 'И': 'I', 'Й': 'Y',
-      'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F',
-      'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch', 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya'
-    };
-    
-    return str.split('').map((char) => map[char] ?? char).join('');
-  }
-
   static String _fmtHM(int ms, String lang) {
     int minutes = (ms / 60000).floor();
     if (minutes < 0) minutes = 0;
@@ -82,7 +65,7 @@ class ShiftExportService {
       'tg': {'h': 'с', 'm': 'д'}
     };
     final tr = map[lang] ?? {'h': 'h', 'm': 'm'};
-    return '${h}${tr['h']} ${m}${tr['m']}';
+    return '$h${tr['h']} $m${tr['m']}';
   }
 
   static List<ExportRow> _toExportRows(List<Map<String, dynamic>> shifts, List<Map<String, dynamic>> employees, List<Map<String, dynamic>> sites, String lang) {

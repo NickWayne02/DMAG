@@ -281,11 +281,11 @@ export async function exportShiftsPdf(
     alternateRowStyles: { fillColor: [250, 250, 250] },
     didDrawPage: function (data: any) {
       const pageStr = labels?.page || "Страница";
-      let str = `${pageStr} ` + (doc as any).internal.getNumberOfPages();
+      const str = `${pageStr} ` + (doc as any).internal.getNumberOfPages();
       doc.setFontSize(9);
       doc.setTextColor(148, 163, 184); // slate-400
-      let pageSize = doc.internal.pageSize;
-      let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+      const pageSize = doc.internal.pageSize;
+      const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
       doc.text(str, data.settings.margin.left, pageHeight - 20);
     },
   });

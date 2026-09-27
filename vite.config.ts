@@ -40,4 +40,9 @@ export default defineConfig({
       "react/jsx-dev-runtime",
     ],
   },
+  build: {
+    rollupOptions: {
+      external: ["canvas"],
+    },
+  },
 });

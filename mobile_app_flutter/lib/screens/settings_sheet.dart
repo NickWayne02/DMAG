@@ -7,8 +7,7 @@ import '../providers/locale_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bounce_button.dart';
 import 'language_sheet.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../providers/translation_provider.dart';
+
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class SettingsSheet extends StatefulWidget {

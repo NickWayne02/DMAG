@@ -10,7 +10,6 @@ import {
   Moon,
   Zap,
   SlidersHorizontal,
-  Loader2,
 } from "lucide-react";
 import {
   Dialog,
@@ -25,7 +24,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ColorPicker } from "@/components/ui/color-picker";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import {
   ACCENT_PRESETS,
@@ -36,9 +34,6 @@ import {
   type ThemeMode,
 } from "@/lib/settings";
 import { useT, useLanguage } from "@/lib/i18n";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
-import { toast } from "sonner";
 
 const MODE_ICON: Record<ThemeMode, typeof Sun> = {
   light: Sun,
@@ -55,7 +50,7 @@ type Props = {
 };
 
 export function SettingsDialog({ variant = "icon", className }: Props) {
-  const { t, tName } = useLanguage();
+  const { t } = useLanguage();
   const { settings, setSettings, setPanelColor, reset, activeAccent, resolvedPanels } =
     useSettings();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);

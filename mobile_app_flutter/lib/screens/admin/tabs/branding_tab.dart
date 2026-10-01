@@ -88,10 +88,15 @@ class _BrandingTabState extends State<BrandingTab> {
       final currentLogoUrl = presetToEdit != null ? presetToEdit['app_logo_url'] : (mounted ? context.read<SettingsProvider>().settings.appLogoUrl : null);
       if (currentLogoUrl != null && currentLogoUrl.contains('/assets/')) {
         try {
-          final parts = currentLogoUrl.split('/assets/');
-          if (parts.length > 1) {
-            final oldPath = parts[1];
-            await _supabase.storage.from('assets').remove([oldPath]);
+          final allPresets = await _presetsFuture;
+          final isUsedByPreset = allPresets.any((p) => p['app_logo_url'] == currentLogoUrl && (presetToEdit == null || p['id'] != presetToEdit['id']));
+          
+          if (!isUsedByPreset) {
+            final parts = currentLogoUrl.split('/assets/');
+            if (parts.length > 1) {
+              final oldPath = parts[1];
+              await _supabase.storage.from('assets').remove([oldPath]);
+            }
           }
         } catch (e) {
           debugPrint('Failed to delete old logo: $e');
@@ -201,17 +206,22 @@ class _BrandingTabState extends State<BrandingTab> {
   Future<void> _resetToDefault() async {
     setState(() => _isLoading = true);
     try {
+      final presets = await _presetsFuture;
+      final dmagPreset = presets.where((p) => p['app_name']?.toString().toUpperCase().trim() == 'DMAG').firstOrNull;
+      final logoUrl = dmagPreset?['app_logo_url'];
+      final presetId = dmagPreset?['id']?.toString() ?? 'all';
+      
       await _supabase.from('app_settings').update({
         'app_name': 'DMAG',
-        'app_logo_url': null,
+        'app_logo_url': logoUrl,
       }).eq('id', 1);
       
       if (mounted) {
         context.read<SettingsProvider>().updateSettings(
           appName: 'DMAG', 
-          appLogoUrl: null
+          appLogoUrl: logoUrl
         );
-        context.read<AdminStateProvider>().setSelectedFirmId('all');
+        context.read<AdminStateProvider>().setSelectedFirmId(presetId);
         _appNameController.text = 'DMAG';
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Возвращены настройки по умолчанию (DMAG)!')));
       }
@@ -293,7 +303,13 @@ class _BrandingTabState extends State<BrandingTab> {
               ),
               clipBehavior: Clip.hardEdge,
               child: preset['app_logo_url'] != null
-                  ? Image.network(preset['app_logo_url'], fit: BoxFit.cover)
+                  ? Image.network(
+                      preset['app_logo_url'], 
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Center(
+                        child: Icon(Icons.broken_image_rounded, color: colors.foreground.withValues(alpha: 0.5)),
+                      ),
+                    )
                   : Center(child: Text(t('admin.branding.noLogo') ?? 'Нет лого', style: GoogleFonts.inter(fontSize: 10, color: colors.foreground.withValues(alpha: 0.5)))),
             ),
           ),
@@ -319,7 +335,7 @@ class _BrandingTabState extends State<BrandingTab> {
                   child: Text(t('admin.branding.apply') ?? 'Применить', style: const TextStyle(fontSize: 11)),
                 ),
               ),
-              if (!_defaultPresetNames.contains(preset['app_name']?.toString().toUpperCase() ?? preset['app_name'])) ...[
+              if (!_defaultPresetNames.contains(preset['app_name']?.toString().toUpperCase().trim() ?? preset['app_name'])) ...[
                 const SizedBox(width: 4),
                 IconButton(
                   onPressed: () => _pickAndUploadLogo(preset),
@@ -353,7 +369,9 @@ class _BrandingTabState extends State<BrandingTab> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).appColors;
     final t = context.watch<LocaleProvider>().t;
+    final currentAppName = context.watch<SettingsProvider>().settings.appName;
     final currentLogoUrl = context.watch<SettingsProvider>().settings.appLogoUrl;
+    final isCurrentDefault = _defaultPresetNames.contains(currentAppName.toUpperCase().trim());
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -380,6 +398,7 @@ class _BrandingTabState extends State<BrandingTab> {
                 Expanded(
                   child: TextField(
                     controller: _appNameController,
+                    enabled: !isCurrentDefault,
                     style: GoogleFonts.inter(color: colors.foreground),
                     decoration: InputDecoration(
                       filled: true,
@@ -403,7 +422,7 @@ class _BrandingTabState extends State<BrandingTab> {
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _saveAppName,
+                    onPressed: (_isLoading || isCurrentDefault) ? null : _saveAppName,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colors.primary,
                       foregroundColor: colors.card,
@@ -435,7 +454,13 @@ class _BrandingTabState extends State<BrandingTab> {
                   ),
                   clipBehavior: Clip.hardEdge,
                   child: currentLogoUrl != null
-                      ? Image.network(currentLogoUrl, fit: BoxFit.cover)
+                      ? Image.network(
+                          currentLogoUrl, 
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Center(
+                            child: Icon(Icons.broken_image_rounded, color: colors.foreground.withValues(alpha: 0.5)),
+                          ),
+                        )
                       : Center(
                           child: Text(
                             t('admin.branding.noLogo') ?? 'Нет лого',
@@ -449,7 +474,7 @@ class _BrandingTabState extends State<BrandingTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: _isUploading ? null : _pickAndUploadLogo,
+                        onPressed: (_isUploading || isCurrentDefault) ? null : _pickAndUploadLogo,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.card,
                           foregroundColor: colors.foreground,
@@ -472,89 +497,108 @@ class _BrandingTabState extends State<BrandingTab> {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            const Divider(),
-            const SizedBox(height: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t('admin.branding.gallery') ?? 'Галерея брендов',
-                  style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _isLoading ? null : _resetToDefault,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.card,
-                          foregroundColor: colors.primary,
-                          side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                        ),
-                        icon: const Icon(LucideIcons.rotate_ccw, size: 16),
-                        label: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(t('admin.branding.resetDefault') ?? 'По умолчанию', style: const TextStyle(fontSize: 12)),
-                        ),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _presetsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Ошибка загрузки галереи: ${snapshot.error}', style: const TextStyle(color: Colors.red));
+                  }
+                  
+                  var presets = List<Map<String, dynamic>>.from(snapshot.data ?? []);
+                  final erPreset = presets.where((p) => p['app_name']?.toString().toUpperCase().trim() == 'E&R').firstOrNull;
+                  final odPreset = presets.where((p) => p['app_name']?.toString().toUpperCase().trim() == 'O&D').firstOrNull;
+                  
+                  presets.removeWhere((p) => _defaultPresetNames.contains(p['app_name']?.toString().toUpperCase().trim()));
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _resetToDefault,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: currentAppName.toUpperCase().trim() == 'DMAG' ? colors.primary.withValues(alpha: 0.2) : colors.card,
+                              foregroundColor: currentAppName.toUpperCase().trim() == 'DMAG' ? colors.primary : colors.foreground,
+                              side: BorderSide(color: currentAppName.toUpperCase().trim() == 'DMAG' ? colors.primary.withValues(alpha: 0.5) : colors.border),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            child: const Text('DMAG', style: TextStyle(fontSize: 14)),
+                          ),
+                          if (erPreset != null)
+                            ElevatedButton(
+                              onPressed: _isLoading ? null : () => _applyPreset(erPreset),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: currentAppName.toUpperCase().trim() == 'E&R' ? colors.primary.withValues(alpha: 0.2) : colors.card,
+                                foregroundColor: currentAppName.toUpperCase().trim() == 'E&R' ? colors.primary : colors.foreground,
+                                side: BorderSide(color: currentAppName.toUpperCase().trim() == 'E&R' ? colors.primary.withValues(alpha: 0.5) : colors.border),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                              child: const Text('E&R', style: TextStyle(fontSize: 14)),
+                            ),
+                          if (odPreset != null)
+                            ElevatedButton(
+                              onPressed: _isLoading ? null : () => _applyPreset(odPreset),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: currentAppName.toUpperCase().trim() == 'O&D' ? colors.primary.withValues(alpha: 0.2) : colors.card,
+                                foregroundColor: currentAppName.toUpperCase().trim() == 'O&D' ? colors.primary : colors.foreground,
+                                side: BorderSide(color: currentAppName.toUpperCase().trim() == 'O&D' ? colors.primary.withValues(alpha: 0.5) : colors.border),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                              child: const Text('O&D', style: TextStyle(fontSize: 14)),
+                            ),
+                          ElevatedButton.icon(
+                            onPressed: _isUploading ? null : _saveCurrentAsPreset,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.card,
+                              foregroundColor: colors.foreground,
+                              side: BorderSide(color: colors.border),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            ),
+                            icon: const Icon(LucideIcons.plus, size: 16),
+                            label: Text(t('admin.branding.newBrand') ?? 'Новый бренд', style: const TextStyle(fontSize: 14)),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _isUploading ? null : _saveCurrentAsPreset,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.card,
-                          foregroundColor: colors.foreground,
-                          side: BorderSide(color: colors.border),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                      const SizedBox(height: 16),
+                      if (presets.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        const Divider(),
+                        const SizedBox(height: 16),
+                        Text(
+                          t('admin.branding.gallery') ?? 'Галерея брендов',
+                          style: GoogleFonts.inter(color: colors.foreground, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        icon: const Icon(LucideIcons.plus, size: 16),
-                        label: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text('+ ${t('admin.branding.newBrand') ?? 'Новый бренд'}', style: const TextStyle(fontSize: 12)),
+                        const SizedBox(height: 16),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.85,
+                          ),
+                          itemCount: presets.length,
+                          itemBuilder: (context, index) {
+                            final preset = presets[index];
+                            return _buildPresetCard(preset, colors, t);
+                          },
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _presetsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Text('Ошибка загрузки галереи: ${snapshot.error}', style: const TextStyle(color: Colors.red));
-                }
-                final presets = snapshot.data ?? [];
-                if (presets.isEmpty) {
-                  return Text(t('admin.branding.galleryEmpty') ?? 'Пусто', style: TextStyle(color: colors.foreground.withValues(alpha: 0.5)));
-                }
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.85,
-                  ),
-                  itemCount: presets.length,
-                  itemBuilder: (context, index) {
-                    final preset = presets[index];
-                    return _buildPresetCard(preset, colors, t);
-                  },
-                );
-              },
-            ),
+                      ],
+                    ],
+                  );
+                },
+              ),
           ],
         ),
       ),

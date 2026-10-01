@@ -146,10 +146,15 @@ export function BrandingSettingsTab({
       const oldUrl = presetToEdit ? presetToEdit.app_logo_url : settings?.app_logo_url;
       if (oldUrl) {
         try {
-          const oldUrlParts = oldUrl.split("/assets/");
-          if (oldUrlParts.length > 1) {
-            const oldFilePath = oldUrlParts[1];
-            await supabase.storage.from("assets").remove([oldFilePath]);
+          // Check if this URL is used by any preset (to prevent deleting a preset's logo when removing global logo)
+          const isUsedByPreset = presets?.some((p: any) => p.app_logo_url === oldUrl && (!presetToEdit || p.id !== presetToEdit.id));
+          
+          if (!isUsedByPreset) {
+            const oldUrlParts = oldUrl.split("/assets/");
+            if (oldUrlParts.length > 1) {
+              const oldFilePath = oldUrlParts[1];
+              await supabase.storage.from("assets").remove([oldFilePath]);
+            }
           }
         } catch (err) {
           console.error("Failed to delete old logo", err);
@@ -177,10 +182,14 @@ export function BrandingSettingsTab({
     try {
       if (settings?.app_logo_url) {
         try {
-          const oldUrlParts = settings.app_logo_url.split("/assets/");
-          if (oldUrlParts.length > 1) {
-            const oldFilePath = oldUrlParts[1];
-            await supabase.storage.from("assets").remove([oldFilePath]);
+          const isUsedByPreset = presets?.some((p: any) => p.app_logo_url === settings.app_logo_url);
+          
+          if (!isUsedByPreset) {
+            const oldUrlParts = settings.app_logo_url.split("/assets/");
+            if (oldUrlParts.length > 1) {
+              const oldFilePath = oldUrlParts[1];
+              await supabase.storage.from("assets").remove([oldFilePath]);
+            }
           }
         } catch (err) {
           console.error("Failed to delete logo from storage", err);
@@ -195,8 +204,17 @@ export function BrandingSettingsTab({
 
   const handleResetToDefault = async () => {
     try {
-      await updateSettings.mutateAsync({ app_name: "DMAG", app_logo_url: null });
+      const dmagPreset = presets?.find((p: any) => p.app_name?.toUpperCase()?.trim() === "DMAG");
+      await updateSettings.mutateAsync({ 
+        app_name: "DMAG", 
+        app_logo_url: dmagPreset?.app_logo_url || null 
+      });
       setName("DMAG");
+      
+      if (dmagPreset) {
+        onApplyPreset?.(dmagPreset.id);
+      }
+      
       onUpdate?.();
       toast.success(
         t("admin.branding.resetDefaultSuccess") || "Возвращены настройки по умолчанию (DMAG)",
@@ -214,6 +232,13 @@ export function BrandingSettingsTab({
     );
   }
 
+  const isCurrentDefault = DEFAULT_PRESET_NAMES.includes(
+    settings?.app_name?.toUpperCase()?.trim() || settings?.app_name || ""
+  );
+
+  const erPreset = presets?.find((p: any) => p.app_name?.toUpperCase()?.trim() === "E&R");
+  const odPreset = presets?.find((p: any) => p.app_name?.toUpperCase()?.trim() === "O&D");
+
   return (
     <Card className="p-6 rounded-2xl">
       <h3 className="font-semibold text-lg mb-6">{t("admin.branding.title")}</h3>
@@ -228,8 +253,9 @@ export function BrandingSettingsTab({
               onChange={(e) => setName(e.target.value)}
               placeholder={t("admin.branding.nameDesc", { defaultValue: "Enter name..." })}
               className="max-w-md"
+              disabled={isCurrentDefault}
             />
-            <Button onClick={handleSaveName} disabled={updateSettings.isPending}>
+            <Button onClick={handleSaveName} disabled={updateSettings.isPending || isCurrentDefault}>
               {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t("admin.users.save")}
             </Button>
@@ -254,27 +280,29 @@ export function BrandingSettingsTab({
 
             <div className="space-y-2 flex-1">
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" className="relative overflow-hidden" disabled={uploading}>
+                <Button variant="outline" className="relative overflow-hidden" disabled={uploading || isCurrentDefault}>
                   {uploading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <Upload className="mr-2 h-4 w-4" />
                   )}
                   {uploading ? "..." : t("admin.branding.uploadNew")}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleUploadLogo}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    disabled={uploading}
-                  />
+                  {!isCurrentDefault && (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadLogo}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      disabled={uploading}
+                    />
+                  )}
                 </Button>
 
                 {settings?.app_logo_url && (
                   <Button
                     variant="destructive"
                     onClick={handleRemoveLogo}
-                    disabled={updateSettings.isPending}
+                    disabled={updateSettings.isPending || isCurrentDefault}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />{" "}
                     {t("admin.reports.delete", { defaultValue: "Delete" })}
@@ -286,19 +314,63 @@ export function BrandingSettingsTab({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border">
+        <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border flex-wrap">
           <Button
             variant="outline"
-            className="text-primary border-primary/50 hover:bg-primary/10"
+            className={`border-primary/50 hover:bg-primary/10 ${settings?.app_name?.toUpperCase()?.trim() === "DMAG" ? "bg-primary/20 text-primary" : "text-foreground"}`}
             onClick={handleResetToDefault}
             disabled={updateSettings.isPending}
           >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            {t("admin.branding.resetDefault") || "По умолчанию (DMAG)"}
+            DMAG
           </Button>
+
+          {erPreset && (
+            <Button
+              variant="outline"
+              className={`border-primary/50 hover:bg-primary/10 ${settings?.app_name?.toUpperCase()?.trim() === "E&R" ? "bg-primary/20 text-primary" : "text-foreground"}`}
+              onClick={async () => {
+                try {
+                  await updateSettings.mutateAsync({
+                    app_name: erPreset.app_name,
+                    app_logo_url: erPreset.app_logo_url,
+                  });
+                  toast.success("Бренд E&R применен");
+                  onApplyPreset?.(erPreset.id);
+                } catch (e: any) {
+                  toast.error(e.message || "Ошибка");
+                }
+              }}
+              disabled={updateSettings.isPending}
+            >
+              E&R
+            </Button>
+          )}
+
+          {odPreset && (
+            <Button
+              variant="outline"
+              className={`border-primary/50 hover:bg-primary/10 ${settings?.app_name?.toUpperCase()?.trim() === "O&D" ? "bg-primary/20 text-primary" : "text-foreground"}`}
+              onClick={async () => {
+                try {
+                  await updateSettings.mutateAsync({
+                    app_name: odPreset.app_name,
+                    app_logo_url: odPreset.app_logo_url,
+                  });
+                  toast.success("Бренд O&D применен");
+                  onApplyPreset?.(odPreset.id);
+                } catch (e: any) {
+                  toast.error(e.message || "Ошибка");
+                }
+              }}
+              disabled={updateSettings.isPending}
+            >
+              O&D
+            </Button>
+          )}
 
           <Button
             variant="secondary"
+            className="ml-auto"
             onClick={() =>
               savePresetMutation.mutate({
                 app_name: name,
@@ -312,52 +384,58 @@ export function BrandingSettingsTab({
         </div>
       </div>
 
-      <div className="mt-12 border-t border-border pt-8">
-        <h3 className="font-semibold text-lg mb-6">{t("admin.branding.gallery")}</h3>
+      <div className="mt-12">
         {isLoadingPresets ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="border-t border-border pt-8 flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="animate-spin h-4 w-4" /> ...
           </div>
-        ) : presets?.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("admin.branding.galleryEmpty")}</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {presets?.map((preset: any) => {
-              const isDefault = DEFAULT_PRESET_NAMES.includes(
-                preset.app_name?.toUpperCase?.() || preset.app_name,
-              );
-              return (
-                <Card
-                  key={preset.id}
-                  className={`overflow-hidden bg-card/50 ${isDefault ? "ring-1 ring-primary/20" : ""}`}
-                >
-                  <CardContent className="p-4 flex flex-col items-center gap-4">
-                    <div className="h-16 w-16 rounded-xl border border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
-                      {preset.app_logo_url ? (
-                        <img
-                          src={preset.app_logo_url}
-                          alt={preset.app_name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-[10px] text-muted-foreground">
-                          {t("admin.branding.noLogo")}
-                        </span>
-                      )}
-                    </div>
-                    <p
-                      className="text-sm font-medium text-center truncate w-full"
-                      title={preset.app_name}
-                    >
-                      {preset.app_name}
-                    </p>
+          (() => {
+            const customPresets = [...(presets || [])].filter(
+              (p: any) => !DEFAULT_PRESET_NAMES.includes(p.app_name?.toUpperCase()?.trim() || p.app_name)
+            );
+            
+            if (customPresets.length === 0) return null;
+            
+            return (
+              <div className="border-t border-border pt-8">
+                <h3 className="font-semibold text-lg mb-6">{t("admin.branding.gallery")}</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {customPresets.map((preset: any) => {
+                    const presetName = preset.app_name?.toUpperCase?.()?.trim() || preset.app_name;
+                    const isDefault = DEFAULT_PRESET_NAMES.includes(presetName);
+                    return (
+                      <Card
+                        key={preset.id}
+                        className={`overflow-hidden bg-card/50 ${isDefault ? "ring-1 ring-primary/20" : ""}`}
+                      >
+                        <CardContent className="p-4 flex flex-col items-center gap-4">
+                          <div className="h-16 w-16 rounded-xl border border-border overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                            {preset.app_logo_url ? (
+                              <img
+                                src={preset.app_logo_url}
+                                alt={preset.app_name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">
+                                {t("admin.branding.noLogo")}
+                              </span>
+                            )}
+                          </div>
+                          <p
+                            className="text-sm font-medium text-center truncate w-full"
+                            title={preset.app_name}
+                          >
+                            {preset.app_name}
+                          </p>
 
-                    <div className="flex w-full gap-2 mt-auto">
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="flex-1"
-                        onClick={async () => {
+                          <div className="flex w-full gap-2 mt-auto">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="flex-1"
+                              onClick={async () => {
                           try {
                             await updateSettings.mutateAsync({
                               app_name: preset.app_name,
@@ -411,8 +489,11 @@ export function BrandingSettingsTab({
               );
             })}
           </div>
-        )}
-      </div>
-    </Card>
+        </div>
+      );
+    })()
+  )}
+</div>
+</Card>
   );
 }

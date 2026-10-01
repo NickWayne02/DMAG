@@ -4,6 +4,8 @@ class TranslationProvider extends ChangeNotifier {
   
   static String getLocalizedFullName(Map<String, dynamic>? profile, String lang) {
     if (profile == null) return '';
+    if (lang == 'ua') lang = 'uk';
+    
     dynamic fTrans = profile['first_name_translations'];
     dynamic lTrans = profile['last_name_translations'];
     

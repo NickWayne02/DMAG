@@ -87,7 +87,7 @@ class _DashboardTabState extends State<DashboardTab> {
           
       final activeSitesSet = <String>{};
       
-      var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, label');
+      var profQuery = Supabase.instance.client.from('profiles').select('id, full_name, first_name, last_name, first_name_translations, last_name_translations, label');
       if (firmId != 'all') {
          if (!mounted) return;
          final firstFirmId = context.read<AdminStateProvider>().presets.first['id'].toString();
@@ -98,14 +98,16 @@ class _DashboardTabState extends State<DashboardTab> {
          }
       }
       final profilesResp = await profQuery;
-      final profiles = {for (var p in profilesResp) p['id'] as String: p['full_name'] as String? ?? 'Неизвестный сотрудник'};
+      
+      final profiles = {for (var p in profilesResp) p['id'] as String: p};
       
       final List<Map<String, dynamic>> enriched = [];
       final Set<String> processedUsers = {};
       
       for (var s in resp) {
         final userId = s['user_id'] as String;
-        final userName = profiles[userId] ?? 'Неизвестный сотрудник';
+        final userProfile = profiles[userId];
+        final userName = userProfile != null ? (userProfile['full_name'] as String? ?? 'Неизвестный сотрудник') : 'Неизвестный сотрудник';
         final siteName = s['site_name'] ?? s['start_city'] ?? 'Неизвестный объект';
         
         if (!processedUsers.contains(userId)) {
@@ -123,6 +125,7 @@ class _DashboardTabState extends State<DashboardTab> {
             'ts': s['started_at'],
             'type': 'shift_start',
             'user_name': userName,
+            'user_profile': userProfile,
             'site_name': siteName,
           });
         }
@@ -133,6 +136,7 @@ class _DashboardTabState extends State<DashboardTab> {
             'ts': s['ended_at'],
             'type': 'shift_end',
             'user_name': userName,
+            'user_profile': userProfile,
             'site_name': s['site_name'] ?? s['end_city'] ?? siteName,
           });
         }
@@ -149,6 +153,7 @@ class _DashboardTabState extends State<DashboardTab> {
               'ts': startDate,
               'type': 'lunch_start',
               'user_name': userName,
+              'user_profile': userProfile,
               'site_name': siteName,
             });
           }
@@ -170,6 +175,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 'ts': endDate,
                 'type': 'lunch_end',
                 'user_name': userName,
+                'user_profile': userProfile,
                 'site_name': siteName,
               });
             }
@@ -182,6 +188,7 @@ class _DashboardTabState extends State<DashboardTab> {
             'ts': s['lunch_started_at'],
             'type': 'lunch_start',
             'user_name': userName,
+            'user_profile': userProfile,
             'site_name': siteName,
           });
         }
@@ -263,7 +270,14 @@ class _DashboardTabState extends State<DashboardTab> {
                     Color color = const Color(0xFF3b82f6);
                     
                     final lang = context.watch<LocaleProvider>().currentLang;
-                    final name = context.watch<TranslationProvider>().translate(act['user_name'], lang);
+                    String name = '';
+                    if (act['user_profile'] != null) {
+                      name = TranslationProvider.getLocalizedFullName(act['user_profile'], lang);
+                    }
+                    if (name.isEmpty) {
+                      name = context.watch<TranslationProvider>().translate(act['user_name'], lang);
+                    }
+
                     final site = context.watch<TranslationProvider>().translate(act['site_name'], lang);
                     final dt = DateTime.parse(act['ts']).toLocal();
                     final timeStr = DateFormatHelper.formatShortDate(dt, lang);

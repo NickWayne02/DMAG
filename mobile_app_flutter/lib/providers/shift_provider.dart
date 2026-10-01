@@ -100,6 +100,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.signedIn) {
         reloadProfile();
+        _updateWorkNotification();
         _syncActiveShiftFromServer();
         _setupShiftSubscription();
         _setupPresence();
@@ -264,6 +265,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
         _now = DateTime.now();
         notifyListeners();
         
+        _updateWorkNotification();
         _syncActiveShiftFromServer();
         _setupShiftSubscription();
         return;
@@ -291,7 +293,8 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
     }
 
-    _syncActiveShiftFromServer();
+    _updateWorkNotification();
+        _syncActiveShiftFromServer();
     _setupShiftSubscription();
   }
 
@@ -477,7 +480,8 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           callback: (payload) {
             // Simply trigger a sync on any shift event. 
             // The sync function is now bulletproof and will reset state if the shift was deleted.
-            _syncActiveShiftFromServer();
+            _updateWorkNotification();
+        _syncActiveShiftFromServer();
           },
         )
         .onPostgresChanges(
@@ -736,7 +740,8 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       // Re-sync with server when app comes to foreground, 
       // in case we missed realtime events while suspended.
-      _syncActiveShiftFromServer();
+      _updateWorkNotification();
+        _syncActiveShiftFromServer();
     }
   }
 

@@ -1001,32 +1001,6 @@ function MessageBubble({
   const [translating, setTranslating] = useState(false);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
 
-  useEffect(() => {
-    if (!needsTranslate) {
-      setTranslated(null);
-      return;
-    }
-    let cancelled = false;
-    setTranslating(true);
-    translateMessage({
-      text: m.content,
-      sourceLang: m.source_lang,
-      targetLang: lang,
-    })
-      .then((res) => {
-        if (!cancelled) setTranslated(res.translated);
-      })
-      .catch((e) => {
-        console.error("translate failed", e);
-      })
-      .finally(() => {
-        if (!cancelled) setTranslating(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [m.id, m.content, m.source_lang, lang, needsTranslate]);
-
   const isPhotoReport =
     /^\[PHOTO_REPORT\]\s*/i.test(m.content) || /^\[ФОТО_ОТЧЕТ\]\s*/i.test(m.content);
   let photoPath = "";
@@ -1045,6 +1019,32 @@ function MessageBubble({
       description = "";
     }
   }
+
+  useEffect(() => {
+    if (!needsTranslate || !description.trim()) {
+      setTranslated(null);
+      return;
+    }
+    let cancelled = false;
+    setTranslating(true);
+    translateMessage({
+      text: description,
+      sourceLang: m.source_lang,
+      targetLang: lang,
+    })
+      .then((res) => {
+        if (!cancelled) setTranslated(res.translated);
+      })
+      .catch((e) => {
+        console.error("translate failed", e);
+      })
+      .finally(() => {
+        if (!cancelled) setTranslating(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [m.id, description, m.source_lang, lang, needsTranslate]);
 
   return (
     <div className={cn("flex w-full gap-2", isMine ? "justify-end" : "justify-start")}>

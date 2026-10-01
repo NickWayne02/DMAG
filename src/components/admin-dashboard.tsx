@@ -1469,7 +1469,7 @@ export function AdminDashboard({
         type: "shift_start",
         title: t("admin.activity.shiftStart"),
         desc: t("admin.activity.shiftStarted", {
-          name: tName(emp.name),
+          name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name,
           site: s.site_name
             ? tName(s.site_name)
             : tName(s.start_city || "") ||
@@ -1485,7 +1485,7 @@ export function AdminDashboard({
           type: "shift_end",
           title: t("admin.activity.shiftEnd"),
           desc: t("admin.activity.shiftEnded", {
-            name: tName(emp.name),
+            name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name,
             site: s.site_name
               ? tName(s.site_name)
               : tName(s.end_city || "") ||
@@ -1503,7 +1503,7 @@ export function AdminDashboard({
               ts: interval.start,
               type: "lunch_start",
               title: t("admin.activity.pauseStart"),
-              desc: t("admin.activity.lunchStarted", { name: tName(emp.name) }),
+              desc: t("admin.activity.lunchStarted", { name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name }),
               icon: <Clock className="h-4 w-4" />,
               color: "text-amber-600 bg-amber-500/10",
             });
@@ -1520,7 +1520,7 @@ export function AdminDashboard({
                 ts: interval.end,
                 type: "lunch_end",
                 title: t("admin.activity.pauseEnd"),
-                desc: t("admin.activity.lunchEnded", { name: tName(emp.name) }),
+                desc: t("admin.activity.lunchEnded", { name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name }),
                 icon: <Clock className="h-4 w-4" />,
                 color: "text-amber-600 bg-amber-500/10",
               });
@@ -1536,7 +1536,7 @@ export function AdminDashboard({
           ts: s.lunch_started_at,
           type: "lunch_start",
           title: t("admin.activity.pauseStart"),
-          desc: t("admin.activity.lunchStarted", { name: emp.name }),
+          desc: t("admin.activity.lunchStarted", { name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name }),
           icon: <Clock className="h-4 w-4" />,
           color: "text-amber-600 bg-amber-500/10",
         });
@@ -1710,33 +1710,7 @@ export function AdminDashboard({
           {/* DASHBOARD TAB */}
           {activeTab === "dashboard" && (
             <>
-              {/* KPI tiles */}
-              <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Kpi
-                  label={t("dashboard.kpi.workers")}
-                  value={String(stats.working)}
-                  tone="success"
-                  icon={<Users className="h-5 w-5" />}
-                />
-                <Kpi
-                  label={t("dashboard.kpi.lunch")}
-                  value={String(stats.lunch)}
-                  tone="warning"
-                  icon={<Clock className="h-5 w-5" />}
-                />
-                <Kpi
-                  label={t("dashboard.kpi.sites")}
-                  value={String(stats.sites)}
-                  tone="primary"
-                  icon={<Building2 className="h-5 w-5" />}
-                />
-                <Kpi
-                  label={t("dashboard.kpi.urgent")}
-                  value={String(stats.urgent)}
-                  tone="destructive"
-                  icon={<ShieldCheck className="h-5 w-5" />}
-                />
-              </section>
+
 
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
@@ -1755,7 +1729,7 @@ export function AdminDashboard({
                   </p>
                 </div>
               ) : (
-                <div className="mt-6 bg-card rounded-2xl p-6 border shadow-sm">
+                <div className="bg-card rounded-2xl p-6 border shadow-sm">
                   <h3 className="font-semibold mb-4 text-lg">{t("admin.activity.title")}</h3>
                   <div className="space-y-4">
                     {activities.map((act) => (

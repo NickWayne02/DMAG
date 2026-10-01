@@ -241,8 +241,10 @@ class _ModerationTabState extends State<ModerationTab> with SingleTickerProvider
                         final fileName = '${DateTime.now().millisecondsSinceEpoch}_${msg['id']}.png';
                         await _supabase.storage.from('photo-reports').uploadBinary(fileName, newImageBytes!);
                         final savedUrl = _supabase.storage.from('photo-reports').getPublicUrl(fileName);
+                        if (!context.mounted) return;
                         Navigator.pop(context, '[PHOTO_REPORT] $savedUrl | info | ${textController.text}');
                       } catch (e) {
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
                       }
                     } else {

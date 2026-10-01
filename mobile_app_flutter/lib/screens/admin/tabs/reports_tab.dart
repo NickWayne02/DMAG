@@ -219,11 +219,11 @@ class _ReportsTabState extends State<ReportsTab> {
                       if (newImageBytes != null) 'photo_url': finalPhotoUrl,
                     }).eq('id', report['id']);
                     _fetchReports();
-                    if (mounted) {
+                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read<LocaleProvider>().t('common.save') ?? 'Сохранено')));
                     }
                   } catch (e) {
-                    if (mounted) {
+                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ошибка: $e')));
                     }
                   }

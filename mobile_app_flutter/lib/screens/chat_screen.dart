@@ -1067,8 +1067,11 @@ class _ChatContentState extends State<ChatContent> {
       final r = profileForRole['role'];
       if (r == 'super-admin' || r == 'super_admin') {
         roleStr = 'Супер-админ';
-      } else if (r == 'admin') roleStr = 'Админ';
-      else if (r == 'brigadier') roleStr = 'Бригадир';
+      } else if (r == 'admin') {
+        roleStr = 'Админ';
+      } else if (r == 'brigadier') {
+        roleStr = 'Бригадир';
+      }
       
       if (roleStr.isNotEmpty) {
         authorName = '$authorName ($roleStr)';

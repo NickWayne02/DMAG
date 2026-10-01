@@ -147,8 +147,10 @@ export function BrandingSettingsTab({
       if (oldUrl) {
         try {
           // Check if this URL is used by any preset (to prevent deleting a preset's logo when removing global logo)
-          const isUsedByPreset = presets?.some((p: any) => p.app_logo_url === oldUrl && (!presetToEdit || p.id !== presetToEdit.id));
-          
+          const isUsedByPreset = presets?.some(
+            (p: any) => p.app_logo_url === oldUrl && (!presetToEdit || p.id !== presetToEdit.id),
+          );
+
           if (!isUsedByPreset) {
             const oldUrlParts = oldUrl.split("/assets/");
             if (oldUrlParts.length > 1) {
@@ -182,8 +184,10 @@ export function BrandingSettingsTab({
     try {
       if (settings?.app_logo_url) {
         try {
-          const isUsedByPreset = presets?.some((p: any) => p.app_logo_url === settings.app_logo_url);
-          
+          const isUsedByPreset = presets?.some(
+            (p: any) => p.app_logo_url === settings.app_logo_url,
+          );
+
           if (!isUsedByPreset) {
             const oldUrlParts = settings.app_logo_url.split("/assets/");
             if (oldUrlParts.length > 1) {
@@ -205,16 +209,16 @@ export function BrandingSettingsTab({
   const handleResetToDefault = async () => {
     try {
       const dmagPreset = presets?.find((p: any) => p.app_name?.toUpperCase()?.trim() === "DMAG");
-      await updateSettings.mutateAsync({ 
-        app_name: "DMAG", 
-        app_logo_url: dmagPreset?.app_logo_url || null 
+      await updateSettings.mutateAsync({
+        app_name: "DMAG",
+        app_logo_url: dmagPreset?.app_logo_url || null,
       });
       setName("DMAG");
-      
+
       if (dmagPreset) {
         onApplyPreset?.(dmagPreset.id);
       }
-      
+
       onUpdate?.();
       toast.success(
         t("admin.branding.resetDefaultSuccess") || "Возвращены настройки по умолчанию (DMAG)",
@@ -233,7 +237,7 @@ export function BrandingSettingsTab({
   }
 
   const isCurrentDefault = DEFAULT_PRESET_NAMES.includes(
-    settings?.app_name?.toUpperCase()?.trim() || settings?.app_name || ""
+    settings?.app_name?.toUpperCase()?.trim() || settings?.app_name || "",
   );
 
   const erPreset = presets?.find((p: any) => p.app_name?.toUpperCase()?.trim() === "E&R");
@@ -255,7 +259,10 @@ export function BrandingSettingsTab({
               className="max-w-md"
               disabled={isCurrentDefault}
             />
-            <Button onClick={handleSaveName} disabled={updateSettings.isPending || isCurrentDefault}>
+            <Button
+              onClick={handleSaveName}
+              disabled={updateSettings.isPending || isCurrentDefault}
+            >
               {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {t("admin.users.save")}
             </Button>
@@ -280,7 +287,11 @@ export function BrandingSettingsTab({
 
             <div className="space-y-2 flex-1">
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" className="relative overflow-hidden" disabled={uploading || isCurrentDefault}>
+                <Button
+                  variant="outline"
+                  className="relative overflow-hidden"
+                  disabled={uploading || isCurrentDefault}
+                >
                   {uploading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
@@ -392,11 +403,12 @@ export function BrandingSettingsTab({
         ) : (
           (() => {
             const customPresets = [...(presets || [])].filter(
-              (p: any) => !DEFAULT_PRESET_NAMES.includes(p.app_name?.toUpperCase()?.trim() || p.app_name)
+              (p: any) =>
+                !DEFAULT_PRESET_NAMES.includes(p.app_name?.toUpperCase()?.trim() || p.app_name),
             );
-            
+
             if (customPresets.length === 0) return null;
-            
+
             return (
               <div className="border-t border-border pt-8">
                 <h3 className="font-semibold text-lg mb-6">{t("admin.branding.gallery")}</h3>
@@ -436,64 +448,66 @@ export function BrandingSettingsTab({
                               size="sm"
                               className="flex-1"
                               onClick={async () => {
-                          try {
-                            await updateSettings.mutateAsync({
-                              app_name: preset.app_name,
-                              app_logo_url: preset.app_logo_url,
-                            });
-                            toast.success("Бренд применен");
-                            onApplyPreset?.(preset.id);
-                          } catch (e: any) {
-                            toast.error(e.message || "Ошибка");
-                          }
-                        }}
-                        disabled={updateSettings.isPending}
-                      >
-                        {t("admin.branding.apply")}
-                      </Button>
-                      {!isDefault && (
-                        <>
-                          <Label
-                            htmlFor={`upload-preset-${preset.id}`}
-                            className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                            title={t("admin.branding.editLogo", { defaultValue: "Edit logo" })}
-                          >
-                            <Upload className="h-4 w-4" />
-                          </Label>
-                          <Input
-                            id={`upload-preset-${preset.id}`}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleUploadLogo(e, preset)}
-                          />
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            className="shrink-0 h-9 w-9"
-                            onClick={() =>
-                              deletePresetMutation.mutate({
-                                id: preset.id,
-                                app_logo_url: preset.app_logo_url,
-                              })
-                            }
-                            disabled={deletePresetMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      );
-    })()
-  )}
-</div>
-</Card>
+                                try {
+                                  await updateSettings.mutateAsync({
+                                    app_name: preset.app_name,
+                                    app_logo_url: preset.app_logo_url,
+                                  });
+                                  toast.success("Бренд применен");
+                                  onApplyPreset?.(preset.id);
+                                } catch (e: any) {
+                                  toast.error(e.message || "Ошибка");
+                                }
+                              }}
+                              disabled={updateSettings.isPending}
+                            >
+                              {t("admin.branding.apply")}
+                            </Button>
+                            {!isDefault && (
+                              <>
+                                <Label
+                                  htmlFor={`upload-preset-${preset.id}`}
+                                  className="shrink-0 h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                  title={t("admin.branding.editLogo", {
+                                    defaultValue: "Edit logo",
+                                  })}
+                                >
+                                  <Upload className="h-4 w-4" />
+                                </Label>
+                                <Input
+                                  id={`upload-preset-${preset.id}`}
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => handleUploadLogo(e, preset)}
+                                />
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="shrink-0 h-9 w-9"
+                                  onClick={() =>
+                                    deletePresetMutation.mutate({
+                                      id: preset.id,
+                                      app_logo_url: preset.app_logo_url,
+                                    })
+                                  }
+                                  disabled={deletePresetMutation.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()
+        )}
+      </div>
+    </Card>
   );
 }

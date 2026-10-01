@@ -1469,7 +1469,7 @@ export function AdminDashboard({
         type: "shift_start",
         title: t("admin.activity.shiftStart"),
         desc: t("admin.activity.shiftStarted", {
-          name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name,
+          name: "id" in emp ? getEmpName(emp as EmployeeRow) : emp.name,
           site: s.site_name
             ? tName(s.site_name)
             : tName(s.start_city || "") ||
@@ -1485,7 +1485,7 @@ export function AdminDashboard({
           type: "shift_end",
           title: t("admin.activity.shiftEnd"),
           desc: t("admin.activity.shiftEnded", {
-            name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name,
+            name: "id" in emp ? getEmpName(emp as EmployeeRow) : emp.name,
             site: s.site_name
               ? tName(s.site_name)
               : tName(s.end_city || "") ||
@@ -1503,7 +1503,9 @@ export function AdminDashboard({
               ts: interval.start,
               type: "lunch_start",
               title: t("admin.activity.pauseStart"),
-              desc: t("admin.activity.lunchStarted", { name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name }),
+              desc: t("admin.activity.lunchStarted", {
+                name: "id" in emp ? getEmpName(emp as EmployeeRow) : emp.name,
+              }),
               icon: <Clock className="h-4 w-4" />,
               color: "text-amber-600 bg-amber-500/10",
             });
@@ -1520,7 +1522,9 @@ export function AdminDashboard({
                 ts: interval.end,
                 type: "lunch_end",
                 title: t("admin.activity.pauseEnd"),
-                desc: t("admin.activity.lunchEnded", { name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name }),
+                desc: t("admin.activity.lunchEnded", {
+                  name: "id" in emp ? getEmpName(emp as EmployeeRow) : emp.name,
+                }),
                 icon: <Clock className="h-4 w-4" />,
                 color: "text-amber-600 bg-amber-500/10",
               });
@@ -1536,7 +1540,9 @@ export function AdminDashboard({
           ts: s.lunch_started_at,
           type: "lunch_start",
           title: t("admin.activity.pauseStart"),
-          desc: t("admin.activity.lunchStarted", { name: 'id' in emp ? getEmpName(emp as EmployeeRow) : emp.name }),
+          desc: t("admin.activity.lunchStarted", {
+            name: "id" in emp ? getEmpName(emp as EmployeeRow) : emp.name,
+          }),
           icon: <Clock className="h-4 w-4" />,
           color: "text-amber-600 bg-amber-500/10",
         });
@@ -1710,8 +1716,6 @@ export function AdminDashboard({
           {/* DASHBOARD TAB */}
           {activeTab === "dashboard" && (
             <>
-
-
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-8">
                   <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.loading")}…

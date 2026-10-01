@@ -160,6 +160,7 @@ export const usePushNotifications = () => {
         navigator.serviceWorker.removeEventListener("message", handleSwMessage);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { fcmToken };

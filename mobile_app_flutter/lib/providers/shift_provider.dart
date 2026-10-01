@@ -27,8 +27,11 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
       final loc = Provider.of<LocaleProvider>(context, listen: false);
       if (_status == ShiftStatus.lunch) {
         statusText = loc.t('employee.dashboard.current_status.pause') ?? 'Пауза';
-      } else if (_status == ShiftStatus.idle) statusText = 'Смена не начата';
-      else statusText = loc.t('employee.dashboard.current_status.working') ?? 'Работа идет';
+      } else if (_status == ShiftStatus.idle) {
+        statusText = 'Смена не начата';
+      } else {
+        statusText = loc.t('employee.dashboard.current_status.working') ?? 'Работа идет';
+      }
       
       NotificationService.showWorkNotification(
         statusText,
@@ -38,7 +41,9 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     } else {
       if (_status == ShiftStatus.lunch) {
         statusText = 'Пауза';
-      } else if (_status == ShiftStatus.idle) statusText = 'Смена не начата';
+      } else if (_status == ShiftStatus.idle) {
+        statusText = 'Смена не начата';
+      }
       
       NotificationService.showWorkNotification(statusText, 'Отработано: ${_formatDuration(Duration(milliseconds: totalMs))}', _status);
     }

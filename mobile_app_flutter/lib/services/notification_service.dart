@@ -91,15 +91,40 @@ class NotificationService {
     final NotificationDetails platformChannelSpecifics =
         NotificationDetails(android: androidPlatformChannelSpecifics);
         
-    await _notificationsPlugin.show(
-      id: 888,
-      title: statusText,
-      body: elapsedTime,
-      notificationDetails: platformChannelSpecifics,
-    );
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    
+    if (androidPlugin != null) {
+      if (status == ShiftStatus.idle || status == ShiftStatus.finished) {
+        await androidPlugin.stopForegroundService();
+        await _notificationsPlugin.show(
+          id: 888,
+          title: statusText,
+          body: elapsedTime,
+          notificationDetails: platformChannelSpecifics,
+        );
+      } else {
+        await androidPlugin.startForegroundService(
+          id: 888,
+          title: statusText,
+          body: elapsedTime,
+          notificationDetails: androidPlatformChannelSpecifics,
+        );
+      }
+    } else {
+      await _notificationsPlugin.show(
+        id: 888,
+        title: statusText,
+        body: elapsedTime,
+        notificationDetails: platformChannelSpecifics,
+      );
+    }
   }
 
   static Future<void> cancelWorkNotification() async {
+    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin != null) {
+      await androidPlugin.stopForegroundService();
+    }
     await _notificationsPlugin.cancel(id: 888);
   }
 

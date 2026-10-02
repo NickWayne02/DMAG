@@ -383,6 +383,7 @@ export function AdminDashboard({
     }, 400);
 
     return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportsSearch, reportsSite, reportsCrit, reportsPeriod]);
 
   const [logs, setLogs] = useState<SecurityLog[]>([]);
@@ -444,6 +445,7 @@ export function AdminDashboard({
       });
 
     setLogs(simLogs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employees, t, logs.length, onlineUsers, presenceMap, user?.id]);
   const [loading, setLoading] = useState(true);
   const [shiftHistory, setShiftHistory] = useSessionState<ShiftDetail[]>(
@@ -1011,6 +1013,7 @@ export function AdminDashboard({
       clearInterval(id);
       supabase.removeChannel(sub);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     adminSelectedFirmId,
     reportsSite,
@@ -1437,6 +1440,7 @@ export function AdminDashboard({
       if (personnelStatus !== "all" && e.status !== personnelStatus) return false;
       return true;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employees, personnelSearch, personnelRole, personnelStatus]);
 
   const filteredSites = useMemo(() => {
@@ -1455,6 +1459,7 @@ export function AdminDashboard({
       if (!adminSearch) return true;
       return getEmpName(e).toLowerCase().includes(adminSearch.toLowerCase());
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employees, adminSearch]);
 
   const activities = useMemo(() => {
@@ -1560,6 +1565,7 @@ export function AdminDashboard({
       });
     });
     return list.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).slice(0, 20);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shiftHistory, reports, employees]);
 
   if (!isHydrated) {

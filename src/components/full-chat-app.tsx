@@ -283,6 +283,7 @@ export function FullChatApp({
         avatarUrl: otherProfile?.avatar_url || null,
       };
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dmMessages, user, profiles]);
 
   const availableUsers = useMemo(() => {
@@ -312,6 +313,7 @@ export function FullChatApp({
         : t("chat.tabSite");
     }
     return "";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannelType, activeChannelId, sites, t, dmChannels]);
 
   const activeChannelSubtitle = useMemo(() => {

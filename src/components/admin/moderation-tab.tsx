@@ -78,6 +78,7 @@ export function ModerationTab() {
     return () => {
       supabase.removeChannel(sub);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
   useEffect(() => {

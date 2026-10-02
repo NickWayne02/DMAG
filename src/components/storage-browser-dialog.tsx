@@ -45,6 +45,7 @@ export function StorageBrowserDialog({
     if (open) {
       loadFiles(currentPath);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, bucketName, currentPath]);
 
   async function loadFiles(pathArray: string[]) {

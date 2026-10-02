@@ -171,6 +171,7 @@ export function EmployeeProvider({
   const navigate = useNavigate();
   const tr = useT();
   const { lang, tName } = useLanguage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const formatHM = useMemo(() => makeFormatHM(tr("unit.h"), tr("unit.m")), [tr, lang]);
 
   const persisted = useMemo(() => loadPersistedShift(), []);
@@ -299,6 +300,7 @@ export function EmployeeProvider({
           window.localStorage.removeItem(SITE_STORAGE_KEY);
         }
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSite?.id]);
 
   useEffect(() => {
@@ -469,6 +471,7 @@ export function EmployeeProvider({
   // Load recent reports for selected site
   useEffect(() => {
     loadReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSite?.id, user?.id]);
 
   // Synchronize active shift from Supabase

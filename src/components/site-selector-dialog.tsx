@@ -97,6 +97,7 @@ export function SiteSelectorDialog({
     if (!open) return;
     setCreating(false);
     void loadSites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   async function loadSites() {

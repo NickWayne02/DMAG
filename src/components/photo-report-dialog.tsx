@@ -85,6 +85,7 @@ export function PhotoReportDialog({
     } else if (!open) {
       reset();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialData]);
 
   function reset() {

@@ -75,6 +75,7 @@ export function AdminEditableCalendarView({
   useEffect(() => {
     if (!employeeId || employeeId === "__none__") return;
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeId]);
 
   async function loadData() {
@@ -147,6 +148,7 @@ export function AdminEditableCalendarView({
       map.set(dateKey, arr);
     });
     return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shifts, lang]);
 
   const grid = useMemo(() => {

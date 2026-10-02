@@ -115,7 +115,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
         _setupPresence();
       } else if (data.event == AuthChangeEvent.signedOut) {
         _isAdminView = false;
-        resetShift();
+        resetShift(isLogout: true);
         _userProfile = null;
         clearSelectedSite();
         clearSelectedPreset();
@@ -474,8 +474,16 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           schema: 'public',
           table: 'shifts',
           callback: (payload) {
-            // Simply trigger a sync on any shift event. 
-            // The sync function is now bulletproof and will reset state if the shift was deleted.
+            if (payload.eventType == PostgresChangeEvent.delete) {
+              final oldRecord = payload.oldRecord;
+              if (oldRecord['id'] != null && oldRecord['id'] == _shiftId) {
+                // The current shift was deleted! Clear immediately without network request.
+                resetShift();
+                return;
+              }
+            }
+            
+            // For other events or if the deleted shift wasn't our active one, sync from server
             _syncActiveShiftFromServer();
           },
         )
@@ -720,7 +728,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  Future<void> resetShift() async {
+  Future<void> resetShift({bool isLogout = false}) async {
     _status = ShiftStatus.idle;
     _shiftStart = null;
     _shiftEnd = null;
@@ -732,7 +740,13 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     _timer?.cancel();
     
     _saveState();
-    NotificationService.cancelWorkNotification();
+    
+    if (isLogout) {
+      NotificationService.cancelWorkNotification();
+    } else {
+      _updateWorkNotification();
+    }
+    
     notifyListeners();
   }
 

@@ -14,7 +14,7 @@ if (serviceAccountStr && !admin.apps.length) {
   }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   try {
     const payload = await req.json();
     const { type, record, old_record } = payload;
@@ -61,7 +61,9 @@ serve(async (req) => {
         hour: "2-digit",
         minute: "2-digit",
       });
-    } catch (e) {}
+    } catch (_e) {
+      // Ignore formatting errors
+    }
 
     if (type === "INSERT") {
       title = "Новая смена";
@@ -97,7 +99,8 @@ serve(async (req) => {
       headers: { "Content-Type": "application/json" },
       status: 200,
     });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 });

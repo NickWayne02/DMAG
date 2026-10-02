@@ -71,8 +71,7 @@ serve(async (req) => {
         title = "Смена завершена";
         body = `Ваша смена на объекте ${siteName} была закрыта.`;
       } else {
-        title = "Изменение в смене";
-        body = `Внесены изменения в вашу смену на объекте: ${siteName}`;
+        return new Response(JSON.stringify({ message: "Ignored general update" }), { status: 200 });
       }
     } else {
       return new Response(JSON.stringify({ message: "Ignored event type" }), { status: 200 });

@@ -400,32 +400,6 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
         
         if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
           _startTimer();
-        } else if (_status == ShiftStatus.finished) {
-          _timer?.cancel();
-          if (_shiftId != null) {
-            // Check if it was deleted
-            try {
-              final check = await Supabase.instance.client.from('shifts').select('id').eq('id', _shiftId!).maybeSingle();
-              if (check == null) {
-                _status = ShiftStatus.idle;
-                _shiftStart = null;
-                _shiftEnd = null;
-                _shiftId = null;
-                _lunchAccumMs = 0;
-                _lunchStart = null;
-                _lunchIntervals = [];
-              }
-            } catch (_) {}
-          } else {
-            // Invalid state: finished shift without an ID. This was caused by a previous bug.
-            // Reset to idle.
-            _status = ShiftStatus.idle;
-            _shiftStart = null;
-            _shiftEnd = null;
-            _lunchAccumMs = 0;
-            _lunchStart = null;
-            _lunchIntervals = [];
-          }
         }
       } else {
         _status = ShiftStatus.idle;
@@ -502,8 +476,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           callback: (payload) {
             // Simply trigger a sync on any shift event. 
             // The sync function is now bulletproof and will reset state if the shift was deleted.
-            _updateWorkNotification();
-        _syncActiveShiftFromServer();
+            _syncActiveShiftFromServer();
           },
         )
         .onPostgresChanges(
@@ -571,7 +544,6 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> startShift({bool forceExact = false}) async {
-    _updateWorkNotification();
     if (_status != ShiftStatus.idle && _status != ShiftStatus.finished) return;
     
     final pos = await LocationService.getCurrentPosition(forceExact: forceExact);
@@ -645,7 +617,6 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> startLunch() async {
-    _updateWorkNotification();
     if (_status != ShiftStatus.working) return;
     _status = ShiftStatus.lunch;
     _lunchStart = DateTime.now();
@@ -665,7 +636,6 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> endLunch() async {
-    _updateWorkNotification();
     if (_status != ShiftStatus.lunch || _lunchStart == null) return;
     _status = ShiftStatus.working;
     final end = DateTime.now();
@@ -760,10 +730,14 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      _now = DateTime.now();
+      notifyListeners();
+      
       // Re-sync with server when app comes to foreground, 
       // in case we missed realtime events while suspended.
-      _updateWorkNotification();
+      if (_shiftId != null) {
         _syncActiveShiftFromServer();
+      }
     }
   }
 

@@ -64,15 +64,15 @@ class NotificationService {
     List<AndroidNotificationAction> actions = [];
     
     if (status == ShiftStatus.idle) {
-      actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true, cancelNotification: false));
     } else if (status == ShiftStatus.working) {
-      actions.add(const AndroidNotificationAction('action_start_pause', 'Пауза', showsUserInterface: true));
-      actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_start_pause', 'Пауза', showsUserInterface: true, cancelNotification: false));
+      actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true, cancelNotification: false));
     } else if (status == ShiftStatus.lunch) {
-      actions.add(const AndroidNotificationAction('action_end_pause', 'Продолжить', showsUserInterface: true));
-      actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_end_pause', 'Продолжить', showsUserInterface: true, cancelNotification: false));
+      actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true, cancelNotification: false));
     } else {
-      actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true, cancelNotification: false));
     }
 
     final AndroidNotificationDetails androidPlatformChannelSpecifics =

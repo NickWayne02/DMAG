@@ -63,10 +63,17 @@ class NotificationService {
     // Determine which actions to show based on status to save space
     List<AndroidNotificationAction> actions = [];
     
-    actions.add(const AndroidNotificationAction('action_start_work', 'НАЧАТЬ РАБОТУ', showsUserInterface: true));
-    actions.add(const AndroidNotificationAction('action_start_pause', 'НАЧАТЬ ПАУЗУ', showsUserInterface: true));
-    actions.add(const AndroidNotificationAction('action_end_pause', 'ЗАКОНЧИТЬ ПАУЗУ', showsUserInterface: true));
-    actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
+    if (status == ShiftStatus.idle) {
+      actions.add(const AndroidNotificationAction('action_start_work', 'НАЧАТЬ РАБОТУ', showsUserInterface: true));
+    } else if (status == ShiftStatus.inProgress) {
+      actions.add(const AndroidNotificationAction('action_start_pause', 'НАЧАТЬ ПАУЗУ', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
+    } else if (status == ShiftStatus.onLunch) {
+      actions.add(const AndroidNotificationAction('action_end_pause', 'ЗАКОНЧИТЬ ПАУЗУ', showsUserInterface: true));
+      actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
+    } else {
+      actions.add(const AndroidNotificationAction('action_start_work', 'НАЧАТЬ РАБОТУ', showsUserInterface: true));
+    }
 
     final AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(

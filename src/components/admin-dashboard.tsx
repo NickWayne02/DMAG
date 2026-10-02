@@ -3539,32 +3539,3 @@ export function AdminDashboard({
     </div>
   );
 }
-
-function Kpi({
-  label,
-  value,
-  tone,
-  icon,
-}: {
-  label: string;
-  value: string;
-  tone: "primary" | "success" | "warning" | "destructive";
-  icon: React.ReactNode;
-}) {
-  const toneClass = {
-    primary: "bg-primary/10 text-primary",
-    success: "bg-[color:var(--success)]/15 text-[color:var(--success)]",
-    warning: "bg-[color:var(--warning)]/20 text-[color:var(--warning-foreground)]",
-    destructive: "bg-[color:var(--destructive)]/15 text-[color:var(--destructive)]",
-  }[tone];
-
-  return (
-    <Card className="p-5 rounded-2xl">
-      <div className="flex items-center justify-between mb-3">
-        <span className={`h-10 w-10 rounded-xl grid place-items-center ${toneClass}`}>{icon}</span>
-      </div>
-      <p className="text-3xl font-bold leading-none">{value}</p>
-      <p className="mt-2 text-sm text-muted-foreground">{label}</p>
-    </Card>
-  );
-}

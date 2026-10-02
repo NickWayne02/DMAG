@@ -83,7 +83,7 @@ class AdminStateProvider extends ChangeNotifier {
           } else if (appName.contains('o&d')) {
             await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand2', blacklistBrands: brands);
           } else if (appName.contains('dmag')) {
-            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand3', blacklistBrands: brands);
+            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.DefaultAlias', blacklistBrands: brands);
           } else {
              await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.DefaultAlias', blacklistBrands: brands);
           }

@@ -65,10 +65,10 @@ class NotificationService {
     
     if (status == ShiftStatus.idle) {
       actions.add(const AndroidNotificationAction('action_start_work', 'НАЧАТЬ РАБОТУ', showsUserInterface: true));
-    } else if (status == ShiftStatus.inProgress) {
+    } else if (status == ShiftStatus.working) {
       actions.add(const AndroidNotificationAction('action_start_pause', 'НАЧАТЬ ПАУЗУ', showsUserInterface: true));
       actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
-    } else if (status == ShiftStatus.onLunch) {
+    } else if (status == ShiftStatus.lunch) {
       actions.add(const AndroidNotificationAction('action_end_pause', 'ЗАКОНЧИТЬ ПАУЗУ', showsUserInterface: true));
       actions.add(const AndroidNotificationAction('action_end_work', 'ЗАКОНЧИТЬ СМЕНУ', showsUserInterface: true));
     } else {

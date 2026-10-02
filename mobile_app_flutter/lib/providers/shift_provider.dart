@@ -148,6 +148,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
         _now = DateTime.now();
+        _updateWorkNotification();
         notifyListeners();
       }
     });
@@ -425,8 +426,23 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
             _lunchIntervals = [];
           }
         }
+      } else {
+        _status = ShiftStatus.idle;
+        _shiftStart = null;
+        _shiftEnd = null;
+        _shiftId = null;
+        _lunchAccumMs = 0;
+        _lunchStart = null;
+        _lunchIntervals = [];
+        _autoLunchApplied = false;
+        _timer?.cancel();
       }
       _saveState();
+      if (_status == ShiftStatus.idle || _status == ShiftStatus.finished) {
+        NotificationService.cancelWorkNotification();
+      } else {
+        _updateWorkNotification();
+      }
       notifyListeners();
     } catch (_) {
       // Ignore network errors, fallback to local state

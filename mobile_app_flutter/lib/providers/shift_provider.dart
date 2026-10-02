@@ -21,17 +21,16 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _updateWorkNotification() {
-    if (_status == ShiftStatus.idle || _status == ShiftStatus.finished) {
-      NotificationService.cancelWorkNotification();
-      return;
-    }
-
     String statusText = 'Работа идет';
     final context = import_main.navigatorKey.currentContext;
     if (context != null) {
       final loc = Provider.of<LocaleProvider>(context, listen: false);
       if (_status == ShiftStatus.lunch) {
         statusText = loc.t('employee.dashboard.current_status.pause') ?? 'Пауза';
+      } else if (_status == ShiftStatus.idle) {
+        statusText = 'Смена не начата';
+      } else if (_status == ShiftStatus.finished) {
+        statusText = 'Смена завершена';
       } else {
         statusText = loc.t('employee.dashboard.current_status.working') ?? 'Работа идет';
       }
@@ -44,6 +43,10 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     } else {
       if (_status == ShiftStatus.lunch) {
         statusText = 'Пауза';
+      } else if (_status == ShiftStatus.idle) {
+        statusText = 'Смена не начата';
+      } else if (_status == ShiftStatus.finished) {
+        statusText = 'Смена завершена';
       }
       
       NotificationService.showWorkNotification(statusText, 'Отработано: ${_formatDuration(Duration(milliseconds: workMs))}', _status);
@@ -146,6 +149,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_status == ShiftStatus.working || _status == ShiftStatus.lunch) {
         _now = DateTime.now();
@@ -413,11 +417,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
         _timer?.cancel();
       }
       _saveState();
-      if (_status == ShiftStatus.idle || _status == ShiftStatus.finished) {
-        NotificationService.cancelWorkNotification();
-      } else {
-        _updateWorkNotification();
-      }
+      _updateWorkNotification();
       notifyListeners();
     } catch (_) {
       // Ignore network errors, fallback to local state
@@ -582,6 +582,15 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     
     final user = AuthService.currentUser;
     String? shiftId;
+    _status = ShiftStatus.working;
+    _shiftStart = DateTime.now();
+    _lunchAccumMs = 0;
+    _lunchStart = null;
+    _shiftEnd = null;
+    _lunchIntervals = [];
+    _autoLunchApplied = false;
+    notifyListeners();
+
     if (user != null) {
       try {
         final data = await Supabase.instance.client.from('shifts').insert({
@@ -590,7 +599,7 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           'site_name': siteName,
           'preset_id': _selectedPreset?['id'],
           'status': 'working',
-          'started_at': DateTime.now().toUtc().toIso8601String(),
+          'started_at': _shiftStart!.toUtc().toIso8601String(),
           'lunch_total_ms': 0,
           'lunch_intervals': [],
           'start_lat': pos?.latitude,
@@ -598,21 +607,19 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
           'start_city': city,
         }).select('id').single();
         shiftId = data['id'];
+        _shiftId = shiftId;
       } catch (e) {
+        // Revert on failure
+        _status = ShiftStatus.idle;
+        _shiftStart = null;
+        notifyListeners();
         throw Exception('Ошибка сохранения смены в базу данных: $e');
       }
     }
     
-    _status = ShiftStatus.working;
-    _shiftStart = DateTime.now();
-    _lunchAccumMs = 0;
-    _lunchStart = null;
-    _shiftEnd = null;
-    _lunchIntervals = [];
-    _autoLunchApplied = false;
-    _shiftId = shiftId;
-    
     _saveState();
+    _updateWorkNotification();
+    _startTimer();
     notifyListeners();
   }
 
@@ -674,8 +681,8 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> endShift() async {
-    NotificationService.cancelWorkNotification();
     if (_status == ShiftStatus.idle) return;
+    _timer?.cancel();
     
     if (_status == ShiftStatus.lunch) {
       await endLunch();
@@ -722,8 +729,10 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
     _lunchIntervals = [];
     _shiftId = null;
     _autoLunchApplied = false;
+    _timer?.cancel();
     
     _saveState();
+    NotificationService.cancelWorkNotification();
     notifyListeners();
   }
 

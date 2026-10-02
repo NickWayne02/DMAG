@@ -63,17 +63,10 @@ class NotificationService {
     // Determine which actions to show based on status to save space
     List<AndroidNotificationAction> actions = [];
     
-    if (status == ShiftStatus.idle) {
-      actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true, cancelNotification: false));
-    } else if (status == ShiftStatus.working) {
-      actions.add(const AndroidNotificationAction('action_start_pause', 'Пауза', showsUserInterface: true, cancelNotification: false));
-      actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true, cancelNotification: false));
-    } else if (status == ShiftStatus.lunch) {
-      actions.add(const AndroidNotificationAction('action_end_pause', 'Продолжить', showsUserInterface: true, cancelNotification: false));
-      actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true, cancelNotification: false));
-    } else {
-      actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true, cancelNotification: false));
-    }
+    actions.add(const AndroidNotificationAction('action_start_work', 'Начать', showsUserInterface: true, cancelNotification: false));
+    actions.add(const AndroidNotificationAction('action_start_pause', 'Пауза', showsUserInterface: true, cancelNotification: false));
+    actions.add(const AndroidNotificationAction('action_end_pause', 'Продолжить', showsUserInterface: true, cancelNotification: false));
+    actions.add(const AndroidNotificationAction('action_end_work', 'Завершить', showsUserInterface: true, cancelNotification: false));
 
     final AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
@@ -96,22 +89,12 @@ class NotificationService {
     final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     
     if (androidPlugin != null) {
-      if (status == ShiftStatus.idle || status == ShiftStatus.finished) {
-        await androidPlugin.stopForegroundService();
-        await _notificationsPlugin.show(
-          id: 888,
-          title: statusText,
-          body: elapsedTime,
-          notificationDetails: platformChannelSpecifics,
-        );
-      } else {
-        await androidPlugin.startForegroundService(
-          id: 888,
-          title: statusText,
-          body: elapsedTime,
-          notificationDetails: androidPlatformChannelSpecifics,
-        );
-      }
+      await androidPlugin.startForegroundService(
+        888,
+        title: statusText,
+        body: elapsedTime,
+        notificationDetails: androidPlatformChannelSpecifics,
+      );
     } else {
       await _notificationsPlugin.show(
         id: 888,

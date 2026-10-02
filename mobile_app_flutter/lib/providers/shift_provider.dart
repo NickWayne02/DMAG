@@ -21,31 +21,32 @@ class ShiftProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _updateWorkNotification() {
+    if (_status == ShiftStatus.idle || _status == ShiftStatus.finished) {
+      NotificationService.cancelWorkNotification();
+      return;
+    }
+
     String statusText = 'Работа идет';
     final context = import_main.navigatorKey.currentContext;
     if (context != null) {
       final loc = Provider.of<LocaleProvider>(context, listen: false);
       if (_status == ShiftStatus.lunch) {
         statusText = loc.t('employee.dashboard.current_status.pause') ?? 'Пауза';
-      } else if (_status == ShiftStatus.idle) {
-        statusText = 'Смена не начата';
       } else {
         statusText = loc.t('employee.dashboard.current_status.working') ?? 'Работа идет';
       }
       
       NotificationService.showWorkNotification(
         statusText,
-        '${loc.t('employee.dashboard.current_status.worked') ?? 'Отработано'}: ${_formatDuration(Duration(milliseconds: totalMs))}',
+        '${loc.t('employee.dashboard.current_status.worked') ?? 'Отработано'}: ${_formatDuration(Duration(milliseconds: workMs))}',
         _status,
       );
     } else {
       if (_status == ShiftStatus.lunch) {
         statusText = 'Пауза';
-      } else if (_status == ShiftStatus.idle) {
-        statusText = 'Смена не начата';
       }
       
-      NotificationService.showWorkNotification(statusText, 'Отработано: ${_formatDuration(Duration(milliseconds: totalMs))}', _status);
+      NotificationService.showWorkNotification(statusText, 'Отработано: ${_formatDuration(Duration(milliseconds: workMs))}', _status);
     }
   }
   ShiftStatus _status = ShiftStatus.idle;

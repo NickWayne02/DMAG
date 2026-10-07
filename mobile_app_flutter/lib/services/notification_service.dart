@@ -90,7 +90,7 @@ class NotificationService {
     
     if (androidPlugin != null) {
       await androidPlugin.startForegroundService(
-        888,
+        id: 888,
         title: statusText,
         body: elapsedTime,
         notificationDetails: androidPlatformChannelSpecifics,

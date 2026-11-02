@@ -1,7 +1,6 @@
-// @ts-nocheck
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
-import admin from "npm:firebase-admin@11.11.0";
+import { serve } from "std/http/server.ts";
+import { createClient } from "@supabase/supabase-js";
+import admin from "firebase-admin";
 
 const serviceAccountStr = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 if (serviceAccountStr && !admin.apps.length) {
@@ -15,7 +14,7 @@ if (serviceAccountStr && !admin.apps.length) {
   }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   try {
     const payload = await req.json();
     const record = payload.record;
@@ -53,7 +52,9 @@ serve(async (req) => {
       // general or site
       const { data } = await supabase.from("profiles").select("fcm_token").neq("id", authorId);
       if (data) {
-        targetTokens = data.filter((p: any) => p.fcm_token).map((p: any) => p.fcm_token);
+        targetTokens = data
+          .filter((p: { fcm_token: string | null }) => Boolean(p.fcm_token))
+          .map((p: { fcm_token: string | null }) => p.fcm_token as string);
       }
     }
 
@@ -135,7 +136,8 @@ serve(async (req) => {
       headers: { "Content-Type": "application/json" },
       status: 200,
     });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500 });
   }
 });

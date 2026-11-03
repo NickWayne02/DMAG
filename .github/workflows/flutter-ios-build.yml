@@ -24,19 +24,50 @@ jobs:
         run: flutter pub get
         working-directory: mobile_app_flutter
 
-      - name: Build iOS App
+      - name: Build DMAG iOS App
         run: flutter build ios --release --no-codesign
         working-directory: mobile_app_flutter
 
-      - name: Create IPA
+      - name: Create DMAG IPA
         run: |
           cd mobile_app_flutter/build/ios/iphoneos
+          rm -rf Payload app-release.ipa
           mkdir Payload
           mv Runner.app Payload/
           zip -qq -r app-release.ipa Payload
+          rm -rf Payload
 
-      - name: Upload IPA artifact
+      - name: Upload DMAG IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-ios
           path: mobile_app_flutter/build/ios/iphoneos/app-release.ipa
+
+      - name: Configure E&R Clone iOS Branding
+        run: |
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'E&R'" ios/Runner/Info.plist
+          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = com.factory.app;/PRODUCT_BUNDLE_IDENTIFIER = com.factory.app.er;/g' ios/Runner.xcodeproj/project.pbxproj
+          for icon in ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png; do
+            w=$(sips -g pixelWidth "$icon" | awk '/pixelWidth:/{print $2}')
+            sips -s format png -z "$w" "$w" assets/er_logo.png --out "$icon" >/dev/null
+          done
+        working-directory: mobile_app_flutter
+
+      - name: Build E&R Clone iOS App
+        run: flutter build ios --release --no-codesign --dart-define=APP_BRAND=er
+        working-directory: mobile_app_flutter
+
+      - name: Create E&R Clone IPA
+        run: |
+          cd mobile_app_flutter/build/ios/iphoneos
+          rm -rf Payload er-release.ipa
+          mkdir Payload
+          mv Runner.app Payload/
+          zip -qq -r er-release.ipa Payload
+          rm -rf Payload
+
+      - name: Upload E&R Clone IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: er-app-release-ios
+          path: mobile_app_flutter/build/ios/iphoneos/er-release.ipa

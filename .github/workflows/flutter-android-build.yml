@@ -30,12 +30,24 @@ jobs:
         run: flutter pub get
         working-directory: mobile_app_flutter
 
-      - name: Build APK
+      - name: Build DMAG APK
         run: flutter build apk --release
         working-directory: mobile_app_flutter
 
-      - name: Upload APK artifact
+      - name: Upload DMAG APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: mobile_app_flutter/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Build E&R Clone APK
+        run: |
+          flutter build apk --release --dart-define=APP_BRAND=er
+          cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/er-release.apk
+        working-directory: mobile_app_flutter
+
+      - name: Upload E&R Clone APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: er-app-release
+          path: mobile_app_flutter/build/app/outputs/flutter-apk/er-release.apk

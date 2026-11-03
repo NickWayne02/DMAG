@@ -17,6 +17,7 @@ import 'providers/translation_provider.dart';
 import 'screens/chat_screen.dart';
 import 'utils/fade_page_route.dart';
 import 'services/notification_service.dart';
+import 'config/app_brand_config.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -101,7 +102,7 @@ class DMAGApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'DMAG Mobile',
+      title: '${AppBrandConfig.defaultAppName} Mobile',
       theme: AppTheme.getTheme(themeProvider),
       home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,

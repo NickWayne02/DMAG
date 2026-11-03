@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../providers/shift_provider.dart';
 import '../main.dart' as import_main;
 import '../screens/chat_screen.dart' as import_chat;
+import '../config/app_brand_config.dart';
 
 @pragma('vm:entry-point')
 Future<void> notificationTapBackground(NotificationResponse notificationResponse) async {
@@ -117,10 +118,10 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher'); // Update this to a monochrome icon if you have one
+    final AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings(AppBrandConfig.isER ? '@mipmap/ic_brand1' : '@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
 

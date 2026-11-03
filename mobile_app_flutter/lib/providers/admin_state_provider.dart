@@ -4,6 +4,7 @@ import 'package:flutter_dynamic_icon_plus/flutter_dynamic_icon_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
+import '../config/app_brand_config.dart';
 
 class AdminStateProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
@@ -21,6 +22,7 @@ class AdminStateProvider extends ChangeNotifier {
   }
 
   Future<void> _loadSelectedFirmId() async {
+    if (AppBrandConfig.isER) return;
     final prefs = await SharedPreferences.getInstance();
     final savedId = prefs.getString('admin_selected_firm_id');
     if (savedId != null) {
@@ -30,6 +32,10 @@ class AdminStateProvider extends ChangeNotifier {
   }
 
   Future<void> fetchPresets() async {
+    if (AppBrandConfig.isER) {
+      _selectedFirmId = 'all';
+      return;
+    }
     _isLoading = true;
     notifyListeners();
 
@@ -45,7 +51,6 @@ class AdminStateProvider extends ChangeNotifier {
         return aVal.compareTo(bVal);
       });
       _presets = list;
-      _presets = list;
       // Do not overwrite 'all'. Only default to the first firm if no firm is selected and 'all' is somehow not the default.
       if (_selectedFirmId != 'all' && !_presets.any((p) => p['id'].toString() == _selectedFirmId) && _presets.isNotEmpty) {
         _selectedFirmId = _presets[0]['id'].toString();
@@ -59,6 +64,7 @@ class AdminStateProvider extends ChangeNotifier {
   }
 
   Future<void> setSelectedFirmId(String id) async {
+    if (AppBrandConfig.isER) return;
     if (_selectedFirmId != id) {
       _selectedFirmId = id;
       final prefs = await SharedPreferences.getInstance();
@@ -79,11 +85,13 @@ class AdminStateProvider extends ChangeNotifier {
           final appName = (preset['app_name'] ?? '').toString().toLowerCase();
 
           if (appName.contains('e&r')) {
-            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand1', blacklistBrands: brands);
+            final alias = AppBrandConfig.isER ? 'com.factory.app.DefaultAlias' : 'com.factory.app.Brand1';
+            await FlutterDynamicIconPlus.setAlternateIconName(iconName: alias, blacklistBrands: brands);
           } else if (appName.contains('o&d')) {
             await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.Brand2', blacklistBrands: brands);
           } else if (appName.contains('dmag')) {
-            await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.DefaultAlias', blacklistBrands: brands);
+            final alias = AppBrandConfig.isER ? 'com.factory.app.Brand3' : 'com.factory.app.DefaultAlias';
+            await FlutterDynamicIconPlus.setAlternateIconName(iconName: alias, blacklistBrands: brands);
           } else {
              await FlutterDynamicIconPlus.setAlternateIconName(iconName: 'com.factory.app.DefaultAlias', blacklistBrands: brands);
           }

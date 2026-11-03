@@ -23,6 +23,7 @@ import '../../providers/shift_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/admin_state_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../config/app_brand_config.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -83,8 +84,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Future<void> _loadTab() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
+      var tab = prefs.getInt('admin_dashboard_tab') ?? 0;
+      if (AppBrandConfig.isER && tab == 5) {
+        tab = 0;
+      }
       setState(() {
-        _currentIndex = prefs.getInt('admin_dashboard_tab') ?? 0;
+        _currentIndex = tab;
       });
     }
   }
@@ -129,42 +134,43 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               context.read<ShiftProvider>().setAdminView(false);
             },
           ),
-          Builder(
-            builder: (context) {
-              final adminState = context.watch<AdminStateProvider>();
-              return PopupMenuButton<String>(
-                tooltip: 'Выбор фирмы',
-                icon: Icon(LucideIcons.building_2, color: colors.foreground.withValues(alpha: 0.54), size: 20),
-                color: colors.card,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                onSelected: (val) {
-                  adminState.setSelectedFirmId(val);
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'all',
-                    child: Text(
-                      context.read<LocaleProvider>().t('admin.dashboard.all_firms') ?? 'Все фирмы',
-                      style: GoogleFonts.inter(
-                        color: adminState.selectedFirmId == 'all' ? colors.primary : colors.foreground,
-                        fontWeight: adminState.selectedFirmId == 'all' ? FontWeight.bold : FontWeight.normal,
+          if (!AppBrandConfig.isER)
+            Builder(
+              builder: (context) {
+                final adminState = context.watch<AdminStateProvider>();
+                return PopupMenuButton<String>(
+                  tooltip: 'Выбор фирмы',
+                  icon: Icon(LucideIcons.building_2, color: colors.foreground.withValues(alpha: 0.54), size: 20),
+                  color: colors.card,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onSelected: (val) {
+                    adminState.setSelectedFirmId(val);
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'all',
+                      child: Text(
+                        context.read<LocaleProvider>().t('admin.dashboard.all_firms') ?? 'Все фирмы',
+                        style: GoogleFonts.inter(
+                          color: adminState.selectedFirmId == 'all' ? colors.primary : colors.foreground,
+                          fontWeight: adminState.selectedFirmId == 'all' ? FontWeight.bold : FontWeight.normal,
+                        ),
                       ),
                     ),
-                  ),
-                  ...adminState.presets.map((p) => PopupMenuItem(
-                        value: p['id'].toString(),
-                        child: Text(
-                          p['app_name'] ?? 'DMAG',
-                          style: GoogleFonts.inter(
-                            color: adminState.selectedFirmId == p['id'].toString() ? colors.primary : colors.foreground,
-                            fontWeight: adminState.selectedFirmId == p['id'].toString() ? FontWeight.bold : FontWeight.normal,
+                    ...adminState.presets.map((p) => PopupMenuItem(
+                          value: p['id'].toString(),
+                          child: Text(
+                            p['app_name'] ?? AppBrandConfig.defaultAppName,
+                            style: GoogleFonts.inter(
+                              color: adminState.selectedFirmId == p['id'].toString() ? colors.primary : colors.foreground,
+                              fontWeight: adminState.selectedFirmId == p['id'].toString() ? FontWeight.bold : FontWeight.normal,
+                            ),
                           ),
-                        ),
-                      )),
-                ],
-              );
-            },
-          ),
+                        )),
+                  ],
+                );
+              },
+            ),
           IconButton(
             icon: Icon(LucideIcons.settings, color: colors.foreground.withValues(alpha: 0.54), size: 20),
             onPressed: () {
@@ -210,8 +216,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           (p) => p['id'].toString() == adminState.selectedFirmId, 
                           orElse: () => <String, dynamic>{},
                         );
-                        final appLogoUrl = currentPreset['app_logo_url'] ?? context.watch<SettingsProvider>().settings.appLogoUrl;
-                        final appName = currentPreset['app_name'] ?? context.watch<SettingsProvider>().settings.appName;
+                        final appLogoUrl = AppBrandConfig.isER
+                            ? null
+                            : (currentPreset['app_logo_url'] ?? context.watch<SettingsProvider>().settings.appLogoUrl);
+                        final appName = AppBrandConfig.isER
+                            ? AppBrandConfig.defaultAppName
+                            : (currentPreset['app_name'] ?? context.watch<SettingsProvider>().settings.appName);
 
                         return Row(
                           children: [
@@ -229,7 +239,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       fit: BoxFit.cover,
                                     )
                                   : Image.asset(
-                                      'assets/dmag_logo.png',
+                                      AppBrandConfig.defaultLogoAsset,
                                       fit: BoxFit.cover,
                                     ),
                             ),
@@ -261,7 +271,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   _buildDrawerItem(context, 2, LucideIcons.users, _getTabTitle(context, 2), colors),
                   _buildDrawerItem(context, 3, LucideIcons.building_2, _getTabTitle(context, 3), colors),
                   _buildDrawerItem(context, 4, LucideIcons.camera, _getTabTitle(context, 4), colors),
-                  _buildDrawerItem(context, 5, LucideIcons.palette, _getTabTitle(context, 5), colors),
+                  if (!AppBrandConfig.isER)
+                    _buildDrawerItem(context, 5, LucideIcons.palette, _getTabTitle(context, 5), colors),
                   _buildDrawerItem(context, 6, LucideIcons.shield_check, _getTabTitle(context, 6), colors),
                   _buildDrawerItem(context, 7, LucideIcons.user_cog, _getTabTitle(context, 7), colors),
                   _buildDrawerItem(context, 8, LucideIcons.message_square, _getTabTitle(context, 8), colors),

@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../../../theme/app_theme.dart';
 import '../../../services/location_service.dart';
+import '../../../config/app_brand_config.dart';
 
 class AddSiteDialog extends StatefulWidget {
   final Map<String, dynamic>? site; // if null, creating new
@@ -286,7 +287,7 @@ class _AddSiteDialogState extends State<AddSiteDialog> {
                 TextFormField(
                   controller: _customerCtrl,
                   style: GoogleFonts.inter(color: Theme.of(context).appColors.foreground, fontSize: 16),
-                  decoration: _inputDeco('DMAG'),
+                  decoration: _inputDeco(AppBrandConfig.defaultAppName),
                 ),
                 const SizedBox(height: 32),
                 

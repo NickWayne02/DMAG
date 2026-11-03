@@ -9,6 +9,7 @@ import '../services/auth_service.dart';
 import 'language_sheet.dart';
 import 'settings_sheet.dart';
 import '../providers/settings_provider.dart';
+import '../config/app_brand_config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -188,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             fit: BoxFit.cover,
                           )
                         : Image.asset(
-                            'assets/dmag_logo.png',
+                            AppBrandConfig.defaultLogoAsset,
                             width: 140,
                             height: 140,
                             fit: BoxFit.cover,

@@ -1,9 +1,27 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
 }
+
+val dartEnvironmentVariables = mutableMapOf<String, String>()
+if (project.hasProperty("dart-defines")) {
+    val defines = project.property("dart-defines") as String
+    defines.split(",").forEach { entry ->
+        if (entry.isNotEmpty()) {
+            val decoded = String(Base64.getDecoder().decode(entry), Charsets.UTF_8)
+            val pair = decoded.split("=", limit = 2)
+            if (pair.size == 2) {
+                dartEnvironmentVariables[pair[0]] = pair[1]
+            }
+        }
+    }
+}
+val isErBrand = dartEnvironmentVariables["APP_BRAND"]?.lowercase() == "er" ||
+    (project.findProperty("appBrand") as? String)?.lowercase() == "er"
 
 android {
     namespace = "com.factory.app"
@@ -18,7 +36,9 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.factory.app"
+        applicationId = if (isErBrand) "com.factory.app.er" else "com.factory.app"
+        manifestPlaceholders["appLabel"] = if (isErBrand) "E&R" else "DMAG"
+        manifestPlaceholders["appIcon"] = if (isErBrand) "@mipmap/ic_brand1" else "@mipmap/ic_launcher"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

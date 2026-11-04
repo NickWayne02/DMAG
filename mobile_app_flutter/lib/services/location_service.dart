@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/app_brand_config.dart';
 
 class LocationService {
   static Future<Position?> getCurrentPosition({bool forceExact = false}) async {
@@ -67,7 +68,7 @@ class LocationService {
     
     try {
       final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&accept-language=ru');
-      final response = await http.get(url, headers: {'User-Agent': 'DMAG-App/2.0'});
+      final response = await http.get(url, headers: {'User-Agent': '${AppBrandConfig.defaultAppName}-App/2.0'});
       
       if (response.statusCode == 200) {
         final stringData = utf8.decode(response.bodyBytes);

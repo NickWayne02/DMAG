@@ -7,6 +7,7 @@ import '../providers/theme_provider.dart';
 import '../providers/shift_provider.dart';
 import 'bounce_button.dart';
 import '../theme/app_theme.dart';
+import '../config/app_brand_config.dart';
 
 class PresetSelectorSheet extends StatefulWidget {
   final ShiftProvider shift;
@@ -123,7 +124,7 @@ class _PresetSelectorSheetState extends State<PresetSelectorSheet> {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
-                                  preset['app_name'] ?? 'DMAG',
+                                  preset['app_name'] ?? AppBrandConfig.defaultAppName,
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../config/app_brand_config.dart';
 
 class LocaleProvider extends ChangeNotifier {
   static const String _storageKey = 'dmag.lang';
@@ -60,6 +61,11 @@ class LocaleProvider extends ChangeNotifier {
   final Map<String, Map<String, String>> _dynamicTranslationCache = {};
   final Set<String> _pendingTranslations = {};
 
+  String? _applyBrand(String? text) {
+    if (text == null || !AppBrandConfig.isER) return text;
+    return text.replaceAll('DMAG', AppBrandConfig.defaultAppName);
+  }
+
   String? t(String key, [Map<String, String>? params]) {
     if (!_isLoaded || !_dictionary.containsKey(key)) return null;
 
@@ -75,7 +81,7 @@ class LocaleProvider extends ChangeNotifier {
           value = value?.replaceAll('{$k}', v);
         });
       }
-      return value;
+      return _applyBrand(value);
     }
     
     // Otherwise, we are falling back to Russian. Try to translate dynamically.
@@ -90,7 +96,7 @@ class LocaleProvider extends ChangeNotifier {
           dynValue = dynValue.replaceAll('{{$k}}', v);
         });
       }
-      return dynValue;
+      return _applyBrand(dynValue);
     }
     
     final cacheKey = '${value}_$apiLang';
@@ -105,7 +111,7 @@ class LocaleProvider extends ChangeNotifier {
         value = value?.replaceAll('{{$k}}', v);
       });
     }
-    return value;
+    return _applyBrand(value);
   }
   
   Future<void> _fetchDynamicTranslation(String text, String targetLang, String cacheKey) async {

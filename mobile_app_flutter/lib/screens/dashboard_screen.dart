@@ -24,6 +24,7 @@ import 'shift_history_sheet.dart';
 import 'footer_sheets.dart';
 import '../providers/locale_provider.dart';
 import '../providers/settings_provider.dart';
+import '../config/app_brand_config.dart';
 import 'admin/admin_editable_calendar_dialog.dart';
 import '../main.dart';
 
@@ -93,7 +94,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
     
     final profile = shift.userProfile;
-    final email = AuthService.currentUser?.email ?? 'user@dmag.com';
+    final rawEmail = AuthService.currentUser?.email ?? (AppBrandConfig.isER ? 'user@er.com' : 'user@dmag.com');
+    final email = AppBrandConfig.isER && rawEmail.endsWith('@dmag.de')
+        ? rawEmail.substring(0, rawEmail.length - '@dmag.de'.length)
+        : rawEmail;
     final lang = context.watch<LocaleProvider>().currentLang;
     String name = email;
     if (profile != null) {

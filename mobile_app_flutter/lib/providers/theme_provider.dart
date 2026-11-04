@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_brand_config.dart';
 
 enum ThemeModeType { light, dark, neon, custom }
 enum ButtonStyleType { filled, outlined }
@@ -23,16 +24,16 @@ class AccentPreset {
 }
 
 class ThemeProvider extends ChangeNotifier {
-  static const List<AccentPreset> presets = [
+  static List<AccentPreset> get presets => [
     AccentPreset(
       id: "dmag",
-      label: "DMAG Blue",
-      primary: Color(0xFF0D47A1),
-      cyan: Color(0xFF42A5F5),
-      magenta: Color(0xFF1565C0),
-      violet: Color(0xFF0a2351),
+      label: AppBrandConfig.isER ? "E&R Blue" : "DMAG Blue",
+      primary: const Color(0xFF0D47A1),
+      cyan: const Color(0xFF42A5F5),
+      magenta: const Color(0xFF1565C0),
+      violet: const Color(0xFF0a2351),
     ),
-    AccentPreset(
+    const AccentPreset(
       id: "sunset",
       label: "Sunset",
       primary: Color(0xFFF97316),
@@ -40,7 +41,7 @@ class ThemeProvider extends ChangeNotifier {
       magenta: Color(0xFFef4444),
       violet: Color(0xFF9a3412),
     ),
-    AccentPreset(
+    const AccentPreset(
       id: "emerald",
       label: "Emerald",
       primary: Color(0xFF10B981),
@@ -48,7 +49,7 @@ class ThemeProvider extends ChangeNotifier {
       magenta: Color(0xFF14b8a6),
       violet: Color(0xFF064e3b),
     ),
-    AccentPreset(
+    const AccentPreset(
       id: "royal",
       label: "Royal",
       primary: Color(0xFF7C3AED),
@@ -56,7 +57,7 @@ class ThemeProvider extends ChangeNotifier {
       magenta: Color(0xFFe879f9),
       violet: Color(0xFF4c1d95),
     ),
-    AccentPreset(
+    const AccentPreset(
       id: "ruby",
       label: "Ruby",
       primary: Color(0xFFE11D48),
@@ -64,7 +65,7 @@ class ThemeProvider extends ChangeNotifier {
       magenta: Color(0xFFf43f5e),
       violet: Color(0xFF881337),
     ),
-    AccentPreset(
+    const AccentPreset(
       id: "graphite",
       label: "Graphite",
       primary: Color(0xFF334155),

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import '../theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../config/app_brand_config.dart';
 
 class FooterSheets {
   static Future<void> showPrivacyPolicy(BuildContext context) {
@@ -87,7 +88,7 @@ class FooterSheets {
               const SizedBox(height: 32),
               GestureDetector(
                 onTap: () {
-                  launchUrl(Uri.parse('tel:+4927344346048'));
+                  launchUrl(Uri.parse('tel:${AppBrandConfig.supportPhone.replaceAll(' ', '')}'));
                 },
                 child: Container(
                   width: double.infinity,
@@ -101,7 +102,7 @@ class FooterSheets {
                     children: [
                       Text(context.watch<LocaleProvider>().t('support.hotline') ?? 'Горячая линия (24/7)', style: GoogleFonts.inter(fontSize: 12, color: colors.foreground)),
                       const SizedBox(height: 4),
-                      Text('+49 2734 4346048', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: colors.foreground)),
+                      Text(AppBrandConfig.supportPhone, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: colors.foreground)),
                     ],
                   ),
                 ),

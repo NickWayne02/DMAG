@@ -33,6 +33,9 @@ dist-ssr
 .vercel
 
 # Secrets and Temp
+.env
+.env.*
+!.env.example
 supabase/.env
 supabase/.temp/
 scratch/

@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/app_brand_config.dart';
 
 class AuthService {
   static final SupabaseClient _supabase = Supabase.instance.client;
@@ -24,7 +25,7 @@ class AuthService {
       } catch (e) {
         // Fallback below
       }
-      emailToUse ??= '$trimmedLogin@dmag.de';
+      emailToUse ??= '$trimmedLogin@${AppBrandConfig.authEmailDomain}';
       
       return await _supabase.auth.signInWithPassword(email: emailToUse, password: password);
     }

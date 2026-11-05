@@ -28,8 +28,8 @@ Future<void> notificationTapBackground(NotificationResponse notificationResponse
 
       try {
         await Supabase.initialize(
-          url: 'https://mqhdajaefuyifuqeudyh.supabase.co',
-          publishableKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xaGRhamFlZnV5aWZ1cWV1ZHloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MDIwNjIsImV4cCI6MjEwMDM3ODA2Mn0.-tpkwT18V53IvgqCVa8VghonHjBfTReDsBuPWBnHLEY',
+          url: AppBrandConfig.supabaseUrl,
+          publishableKey: AppBrandConfig.supabaseAnonKey,
         );
       } catch (e) {
         // already initialized
